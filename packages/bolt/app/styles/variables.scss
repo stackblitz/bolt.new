@@ -1,0 +1,21 @@
+:root,
+:root[data-theme='light'] {
+  /* Color Tokens */
+  --bolt-background-primary: theme('colors.gray.50');
+}
+
+:root,
+:root[data-theme='dark'] {
+  /* Color Tokens */
+  --bolt-background-primary: theme('colors.gray.50');
+}
+
+/*
+ * Element Tokens
+ *
+ * Hierarchy: Element Token -> (Element Token | Color Tokens) -> Primitives
+ */
+:root {
+  /* App */
+  --bolt-elements-app-backgroundColor: var(--bolt-background-primary);
+}

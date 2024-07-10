@@ -1,0 +1,40 @@
+{
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@9.4.0",
+  "scripts": {
+    "playground:dev": "pnpm run --filter=playground dev",
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
+    "test": "pnpm run -r test",
+    "typecheck": "pnpm run -r typecheck",
+    "prepare": "husky"
+  },
+  "lint-staged": {},
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint --edit $1"
+    }
+  },
+  "engines": {
+    "node": ">=18.18.0",
+    "pnpm": "9.4.0"
+  },
+  "devDependencies": {
+    "@blitz/eslint-plugin": "0.1.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "commitlint": "^19.3.0",
+    "husky": "^9.0.11",
+    "is-ci": "^3.0.1",
+    "prettier": "^3.3.2",
+    "vitest": "^2.0.1"
+  },
+  "resolutions": {
+    "@typescript-eslint/utils": "^8.0.0-alpha.30"
+  }
+}

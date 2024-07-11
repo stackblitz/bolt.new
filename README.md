@@ -14,7 +14,7 @@ As the project grows, additional packages may be added to this workspace.
 
 ### Prerequisites
 
-- Node.js (v18.20.3)
+- Node.js (v20.15.1)
 - pnpm (v9.4.0)
 
 ### Installation

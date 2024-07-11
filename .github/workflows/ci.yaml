@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.20.3]
+        node-version: [20.15.1]
     steps:
       - name: Setup
         uses: pnpm/action-setup@v4

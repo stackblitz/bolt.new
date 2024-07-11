@@ -6,7 +6,7 @@ Bolt is an AI assistant developed by StackBlitz. This package contains the UI in
 
 Before you begin, ensure you have the following installed:
 
-- Node.js (v18.20.3)
+- Node.js (v20.15.1)
 - pnpm (v9.4.0)
 
 ## Setup

@@ -100,7 +100,7 @@ importers:
         version: 4.0.0
       remix-utils:
         specifier: ^7.6.0
-        version: 7.6.0(@remix-run/cloudflare@2.10.2(@cloudflare/workers-types@4.20240620.0)(typescript@5.5.2))(@remix-run/node@2.10.0(typescript@5.5.2))(@remix-run/react@2.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.2))(@remix-run/router@1.17.1)(react@18.3.1)(zod@3.23.8)
+        version: 7.6.0(@remix-run/cloudflare@2.10.2(@cloudflare/workers-types@4.20240620.0)(typescript@5.5.2))(@remix-run/node@2.10.2(typescript@5.5.2))(@remix-run/react@2.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.2))(@remix-run/router@1.17.1)(react@18.3.1)(zod@3.23.8)
       shiki:
         specifier: ^1.9.1
         version: 1.9.1
@@ -1095,6 +1095,15 @@ packages:
 
   '@remix-run/node@2.10.0':
     resolution: {integrity: sha512-hFBt431leCEoN84kVj6BExv60+3KHFORTU2t24igJNtXPNCHH/pujMMKYaSrS3a5oKDTwwqbCmSztTyyr7uFLA==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      typescript: ^5.1.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  '@remix-run/node@2.10.2':
+    resolution: {integrity: sha512-Ni4yMQCf6avK2fz91/luuS3wnHzqtbxsdc19es1gAWEnUKfeCwqq5v1R0kzNwrXyh5NYCRhxaegzVH3tGsdYFg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       typescript: ^5.1.0
@@ -5558,6 +5567,19 @@ snapshots:
     optionalDependencies:
       typescript: 5.5.2
 
+  '@remix-run/node@2.10.2(typescript@5.5.2)':
+    dependencies:
+      '@remix-run/server-runtime': 2.10.2(typescript@5.5.2)
+      '@remix-run/web-fetch': 4.4.2
+      '@web3-storage/multipart-parser': 1.0.0
+      cookie-signature: 1.2.1
+      source-map-support: 0.5.21
+      stream-slice: 0.1.2
+      undici: 6.19.2
+    optionalDependencies:
+      typescript: 5.5.2
+    optional: true
+
   '@remix-run/react@2.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.2)':
     dependencies:
       '@remix-run/router': 1.17.1
@@ -8911,12 +8933,12 @@ snapshots:
       mdast-util-to-markdown: 2.1.0
       unified: 11.0.5
 
-  remix-utils@7.6.0(@remix-run/cloudflare@2.10.2(@cloudflare/workers-types@4.20240620.0)(typescript@5.5.2))(@remix-run/node@2.10.0(typescript@5.5.2))(@remix-run/react@2.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.2))(@remix-run/router@1.17.1)(react@18.3.1)(zod@3.23.8):
+  remix-utils@7.6.0(@remix-run/cloudflare@2.10.2(@cloudflare/workers-types@4.20240620.0)(typescript@5.5.2))(@remix-run/node@2.10.2(typescript@5.5.2))(@remix-run/react@2.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.2))(@remix-run/router@1.17.1)(react@18.3.1)(zod@3.23.8):
     dependencies:
       type-fest: 4.21.0
     optionalDependencies:
       '@remix-run/cloudflare': 2.10.2(@cloudflare/workers-types@4.20240620.0)(typescript@5.5.2)
-      '@remix-run/node': 2.10.0(typescript@5.5.2)
+      '@remix-run/node': 2.10.2(typescript@5.5.2)
       '@remix-run/react': 2.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.2)
       '@remix-run/router': 1.17.1
       react: 18.3.1

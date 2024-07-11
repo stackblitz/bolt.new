@@ -106,7 +106,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     disabled={input.length === 0 || enhancingPrompt}
                     className={classNames({
                       'opacity-100!': enhancingPrompt,
-                      'text-accent! pr-1.5': promptEnhanced,
+                      'text-accent! pr-1.5 enabled:hover:bg-accent/12!': promptEnhanced,
                     })}
                     onClick={() => enhancePrompt?.()}
                   >

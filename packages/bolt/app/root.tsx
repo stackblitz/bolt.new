@@ -1,6 +1,6 @@
 import type { LinksFunction } from '@remix-run/cloudflare';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
-import reset from '@unocss/reset/tailwind.css?url';
+import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import globalStyles from '~/styles/index.scss?url';
 
 import 'virtual:uno.css';
@@ -11,7 +11,7 @@ export const links: LinksFunction = () => [
     href: '/favicon.svg',
     type: 'image/svg+xml',
   },
-  { rel: 'stylesheet', href: reset },
+  { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
   {
     rel: 'preconnect',

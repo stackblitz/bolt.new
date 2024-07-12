@@ -19,7 +19,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
         {
           role: 'user',
           content: stripIndents`
-            I want you to improve the following prompt.
+            I want you to improve the user prompt that is wrapped in \`<original_prompt>\` tags.
 
             IMPORTANT: Only respond with the improved prompt and nothing else!
 

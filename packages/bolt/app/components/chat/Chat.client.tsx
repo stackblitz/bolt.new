@@ -1,13 +1,12 @@
 import { useChat } from 'ai/react';
-import { cubicBezier, useAnimate } from 'framer-motion';
+import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { useMessageParser, usePromptEnhancer } from '~/lib/hooks';
+import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
-import { Messages } from './Messages';
 
 const logger = createScopedLogger('Chat');
-const customEasingFn = cubicBezier(0.4, 0, 0.2, 1);
 
 export function Chat() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -61,10 +60,7 @@ export function Chat() {
       return;
     }
 
-    await Promise.all([
-      animate('#chat', { height: '100%' }, { duration: 0.3, ease: customEasingFn }),
-      animate('#intro', { opacity: 0, display: 'none' }, { duration: 0.15, ease: customEasingFn }),
-    ]);
+    await animate('#intro', { opacity: 0, flex: 1 }, { duration: 0.2, ease: cubicEasingFn });
 
     setChatStarted(true);
   };
@@ -87,31 +83,21 @@ export function Chat() {
       textareaRef={textareaRef}
       input={input}
       chatStarted={chatStarted}
+      isStreaming={isLoading}
       enhancingPrompt={enhancingPrompt}
       promptEnhanced={promptEnhanced}
       sendMessage={sendMessage}
       handleInputChange={handleInputChange}
-      messagesSlot={
-        chatStarted ? (
-          <Messages
-            classNames={{
-              root: 'h-full pt-10',
-              messagesContainer: 'max-w-2xl mx-auto max-md:pb-[calc(140px+1.5rem)] md:pb-[calc(140px+3rem)]',
-            }}
-            messages={messages.map((message, i) => {
-              if (message.role === 'user') {
-                return message;
-              }
+      messages={messages.map((message, i) => {
+        if (message.role === 'user') {
+          return message;
+        }
 
-              return {
-                ...message,
-                content: parsedMessages[i] || '',
-              };
-            })}
-            isLoading={isLoading}
-          />
-        ) : null
-      }
+        return {
+          ...message,
+          content: parsedMessages[i] || '',
+        };
+      })}
       enhancePrompt={() => {
         enhancePrompt(input, (input) => {
           setInput(input);

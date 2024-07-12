@@ -3,17 +3,22 @@ import { workspaceStore } from '~/lib/stores/workspace';
 
 interface ArtifactProps {
   messageId: string;
-  onClick?: () => void;
 }
 
-export function Artifact({ messageId, onClick }: ArtifactProps) {
+export function Artifact({ messageId }: ArtifactProps) {
   const artifacts = useStore(workspaceStore.artifacts);
 
   const artifact = artifacts[messageId];
 
   return (
-    <button className="flex border rounded-lg overflow-hidden items-stretch bg-gray-50/25 w-full" onClick={onClick}>
-      <div className="border-r flex items-center px-6 bg-gray-50">
+    <button
+      className="flex border rounded-lg overflow-hidden items-stretch bg-gray-50/25 w-full"
+      onClick={() => {
+        const showWorkspace = workspaceStore.showWorkspace.get();
+        workspaceStore.showWorkspace.set(!showWorkspace);
+      }}
+    >
+      <div className="border-r flex items-center px-6 bg-gray-100/50">
         {!artifact?.closed ? (
           <div className="i-svg-spinners:90-ring-with-bg scale-130"></div>
         ) : (

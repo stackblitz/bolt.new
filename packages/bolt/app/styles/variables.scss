@@ -16,6 +16,8 @@
  * Hierarchy: Element Token -> (Element Token | Color Tokens) -> Primitives
  */
 :root {
+  --header-height: 65px;
+
   /* App */
   --bolt-elements-app-backgroundColor: var(--bolt-background-primary);
 }

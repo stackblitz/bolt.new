@@ -95,7 +95,7 @@ $color-blockquote-border: #dfe2e5;
   :is(ul, ol) {
     padding-left: 2em;
     margin-top: 0;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
   }
 
   ul {
@@ -104,6 +104,14 @@ $color-blockquote-border: #dfe2e5;
 
   ol {
     list-style-type: decimal;
+  }
+
+  li + li {
+    margin-top: 8px;
+  }
+
+  li > *:not(:last-child) {
+    margin-bottom: 16px;
   }
 
   img {

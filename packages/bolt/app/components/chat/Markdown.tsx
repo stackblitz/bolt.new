@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { memo, useMemo } from 'react';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import type { BundledLanguage } from 'shiki';
 import { createScopedLogger } from '~/utils/logger';
 import { rehypePlugins, remarkPlugins } from '~/utils/markdown';
@@ -16,47 +16,51 @@ interface MarkdownProps {
 export const Markdown = memo(({ children }: MarkdownProps) => {
   logger.trace('Render');
 
+  const components = useMemo<Components>(() => {
+    return {
+      div: ({ className, children, node, ...props }) => {
+        if (className?.includes('__boltArtifact__')) {
+          const messageId = node?.properties.dataMessageId as string;
+
+          if (!messageId) {
+            logger.warn(`Invalud message id ${messageId}`);
+          }
+
+          return <Artifact messageId={messageId} />;
+        }
+
+        return (
+          <div className={className} {...props}>
+            {children}
+          </div>
+        );
+      },
+      pre: (props) => {
+        const { children, node, ...rest } = props;
+
+        const [firstChild] = node?.children ?? [];
+
+        if (
+          firstChild &&
+          firstChild.type === 'element' &&
+          firstChild.tagName === 'code' &&
+          firstChild.children[0].type === 'text'
+        ) {
+          const { className, ...rest } = firstChild.properties;
+          const [, language = 'plaintext'] = /language-(\w+)/.exec(String(className) || '') ?? [];
+
+          return <CodeBlock code={firstChild.children[0].value} language={language as BundledLanguage} {...rest} />;
+        }
+
+        return <pre {...rest}>{children}</pre>;
+      },
+    };
+  }, []);
+
   return (
     <ReactMarkdown
       className={styles.MarkdownContent}
-      components={{
-        div: ({ className, children, node, ...props }) => {
-          if (className?.includes('__boltArtifact__')) {
-            const messageId = node?.properties.dataMessageId as string;
-
-            if (!messageId) {
-              logger.warn(`Invalud message id ${messageId}`);
-            }
-
-            return <Artifact messageId={messageId} />;
-          }
-
-          return (
-            <div className={className} {...props}>
-              {children}
-            </div>
-          );
-        },
-        pre: (props) => {
-          const { children, node, ...rest } = props;
-
-          const [firstChild] = node?.children ?? [];
-
-          if (
-            firstChild &&
-            firstChild.type === 'element' &&
-            firstChild.tagName === 'code' &&
-            firstChild.children[0].type === 'text'
-          ) {
-            const { className, ...rest } = firstChild.properties;
-            const [, language = 'plaintext'] = /language-(\w+)/.exec(String(className) || '') ?? [];
-
-            return <CodeBlock code={firstChild.children[0].value} language={language as BundledLanguage} {...rest} />;
-          }
-
-          return <pre {...rest}>{children}</pre>;
-        },
-      }}
+      components={components}
       remarkPlugins={remarkPlugins}
       rehypePlugins={rehypePlugins}
     >

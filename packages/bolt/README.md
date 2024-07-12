@@ -36,6 +36,13 @@ Optionally, you an set the debug level:
 VITE_LOG_LEVEL=debug
 ```
 
+If you want to test the login locally you need to add the following variables:
+
+```
+SESSION_SECRET=XXX
+LOGIN_PASSWORD=XXX
+```
+
 **Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 
 ## Available Scripts

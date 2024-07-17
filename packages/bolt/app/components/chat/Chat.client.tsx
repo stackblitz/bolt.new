@@ -1,9 +1,9 @@
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { useMessageParser, usePromptEnhancer } from '~/lib/hooks';
-import { cubicEasingFn } from '~/utils/easings';
-import { createScopedLogger } from '~/utils/logger';
+import { useMessageParser, usePromptEnhancer } from '../../lib/hooks';
+import { cubicEasingFn } from '../../utils/easings';
+import { createScopedLogger } from '../../utils/logger';
 import { BaseChat } from './BaseChat';
 
 const logger = createScopedLogger('Chat');

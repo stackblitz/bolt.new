@@ -1,7 +1,11 @@
+import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/cloudflare';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
-import globalStyles from '~/styles/index.scss?url';
+import { themeStore } from './lib/stores/theme';
+import { stripIndents } from './utils/stripIndent';
+
+import globalStyles from './styles/index.scss?url';
 
 import 'virtual:uno.css';
 
@@ -28,14 +32,31 @@ export const links: LinksFunction = () => [
   },
 ];
 
+const inlineThemeCode = stripIndents`
+  setTutorialKitTheme();
+
+  function setTutorialKitTheme() {
+    let theme = localStorage.getItem('bolt_theme');
+
+    if (!theme) {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    document.querySelector('html')?.setAttribute('data-theme', theme);
+  }
+`;
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const theme = useStore(themeStore);
+
   return (
-    <html lang="en">
+    <html lang="en" data-theme={theme}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
       </head>
       <body>
         {children}

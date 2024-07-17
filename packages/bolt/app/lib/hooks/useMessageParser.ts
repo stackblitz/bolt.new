@@ -1,23 +1,28 @@
 import type { Message } from 'ai';
 import { useCallback, useState } from 'react';
-import { StreamingMessageParser } from '~/lib/runtime/message-parser';
-import { workspaceStore } from '~/lib/stores/workspace';
-import { createScopedLogger } from '~/utils/logger';
+import { createScopedLogger } from '../../utils/logger';
+import { StreamingMessageParser } from '../runtime/message-parser';
+import { workbenchStore } from '../stores/workbench';
 
 const logger = createScopedLogger('useMessageParser');
 
 const messageParser = new StreamingMessageParser({
   callbacks: {
-    onArtifactOpen: (messageId, { title }) => {
-      logger.debug('onArtifactOpen', title);
-      workspaceStore.updateArtifact(messageId, { title, closed: false });
+    onArtifactOpen: (data) => {
+      logger.trace('onArtifactOpen', data);
+
+      workbenchStore.showWorkbench.set(true);
+      workbenchStore.addArtifact(data);
     },
-    onArtifactClose: (messageId) => {
-      logger.debug('onArtifactClose');
-      workspaceStore.updateArtifact(messageId, { closed: true });
+    onArtifactClose: (data) => {
+      logger.trace('onArtifactClose');
+
+      workbenchStore.updateArtifact(data, { closed: true });
     },
-    onAction: (messageId, { type, path, content }) => {
-      console.log('ACTION', messageId, { type, path, content });
+    onAction: (data) => {
+      logger.trace('onAction', data);
+
+      workbenchStore.runAction(data);
     },
   },
 });

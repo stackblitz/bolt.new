@@ -1,5 +1,5 @@
 import type { Message } from 'ai';
-import { classNames } from '~/utils/classNames';
+import { classNames } from '../../utils/classNames';
 import { AssistantMessage } from './AssistantMessage';
 import { UserMessage } from './UserMessage';
 
@@ -50,7 +50,9 @@ export function Messages(props: MessagesProps) {
                   >
                     <div className={isUserMessage ? 'i-ph:user-fill text-xl' : 'i-blitz:logo'}></div>
                   </div>
-                  {isUser ? <UserMessage content={content} /> : <AssistantMessage content={content} />}
+                  <div className="grid grid-col-1 w-full">
+                    {isUser ? <UserMessage content={content} /> : <AssistantMessage content={content} />}
+                  </div>
                 </div>
               </div>
             );

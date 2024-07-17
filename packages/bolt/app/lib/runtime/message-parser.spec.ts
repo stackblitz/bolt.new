@@ -38,28 +38,30 @@ describe('StreamingMessageParser', () => {
     ['Before <boltArtifactt>foo</boltArtifact> After', 'Before <boltArtifactt>foo</boltArtifact> After'],
     ['Before <boltArtifact title="Some title">foo</boltArtifact> After', 'Before  After'],
     [
-      'Before <boltArtifact title="Some title"><boltAction type="shell">npm install</boltAction></boltArtifact> After',
+      'Before <boltArtifact title="Some title" id="artifact_1"><boltAction type="shell">npm install</boltAction></boltArtifact> After',
       'Before  After',
       [{ type: 'shell', content: 'npm install' }],
     ],
     [
-      'Before <boltArtifact title="Some title"><boltAction type="shell">npm install</boltAction><boltAction type="file" path="index.js">some content</boltAction></boltArtifact> After',
+      'Before <boltArtifact title="Some title" id="artifact_1"><boltAction type="shell">npm install</boltAction><boltAction type="file" filePath="index.js">some content</boltAction></boltArtifact> After',
       'Before  After',
       [
         { type: 'shell', content: 'npm install' },
-        { type: 'file', path: 'index.js', content: 'some content\n' },
+        { type: 'file', filePath: 'index.js', content: 'some content\n' },
       ],
     ],
   ])('should correctly parse chunks and strip out bolt artifacts', (input, expected, expectedActions = []) => {
     let actionCounter = 0;
 
-    const testId = 'test_id';
+    const expectedArtifactId = 'artifact_1';
+    const expectedMessageId = 'message_1';
 
     const parser = new StreamingMessageParser({
       artifactElement: '',
       callbacks: {
-        onAction: (id, action) => {
-          expect(testId).toBe(id);
+        onAction: ({ artifactId, messageId, action }) => {
+          expect(artifactId).toBe(expectedArtifactId);
+          expect(messageId).toBe(expectedMessageId);
           expect(action).toEqual(expectedActions[actionCounter]);
           actionCounter++;
         },
@@ -75,7 +77,7 @@ describe('StreamingMessageParser', () => {
     for (const chunk of chunks) {
       message += chunk;
 
-      result += parser.parse(testId, message);
+      result += parser.parse(expectedMessageId, message);
     }
 
     expect(actionCounter).toBe(expectedActions.length);

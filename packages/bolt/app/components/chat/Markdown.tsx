@@ -1,10 +1,11 @@
 import { memo, useMemo } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import type { BundledLanguage } from 'shiki';
-import { createScopedLogger } from '~/utils/logger';
-import { rehypePlugins, remarkPlugins } from '~/utils/markdown';
+import { createScopedLogger } from '../../utils/logger';
+import { rehypePlugins, remarkPlugins } from '../../utils/markdown';
 import { Artifact } from './Artifact';
 import { CodeBlock } from './CodeBlock';
+
 import styles from './Markdown.module.scss';
 
 const logger = createScopedLogger('MarkdownComponent');
@@ -20,13 +21,18 @@ export const Markdown = memo(({ children }: MarkdownProps) => {
     return {
       div: ({ className, children, node, ...props }) => {
         if (className?.includes('__boltArtifact__')) {
+          const artifactId = node?.properties.dataArtifactId as string;
           const messageId = node?.properties.dataMessageId as string;
 
-          if (!messageId) {
-            logger.warn(`Invalud message id ${messageId}`);
+          if (!artifactId) {
+            logger.debug(`Invalid artifact id ${messageId}`);
           }
 
-          return <Artifact messageId={messageId} />;
+          if (!messageId) {
+            logger.debug(`Invalid message id ${messageId}`);
+          }
+
+          return <Artifact artifactId={artifactId} messageId={messageId} />;
         }
 
         return (

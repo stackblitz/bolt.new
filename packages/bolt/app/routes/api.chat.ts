@@ -1,36 +1,11 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
-import { convertToCoreMessages, streamText } from 'ai';
-import { getAPIKey } from '~/lib/.server/llm/api-key';
-import { getAnthropicModel } from '~/lib/.server/llm/model';
-import { systemPrompt } from '~/lib/.server/llm/prompts';
-
-interface ToolResult<Name extends string, Args, Result> {
-  toolCallId: string;
-  toolName: Name;
-  args: Args;
-  result: Result;
-}
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  toolInvocations?: ToolResult<string, unknown, unknown>[];
-}
+import { streamText, type Messages } from '../lib/.server/llm/stream-text';
 
 export async function action({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{ messages: Message[] }>();
+  const { messages } = await request.json<{ messages: Messages }>();
 
   try {
-    const result = await streamText({
-      model: getAnthropicModel(getAPIKey(context.cloudflare.env)),
-      messages: convertToCoreMessages(messages),
-      toolChoice: 'none',
-      onFinish: ({ finishReason, usage, warnings }) => {
-        console.log({ finishReason, usage, warnings });
-      },
-      system: systemPrompt,
-    });
-
+    const result = await streamText(messages, context.cloudflare.env, { toolChoice: 'none' });
     return result.toAIStreamResponse();
   } catch (error) {
     console.log(error);

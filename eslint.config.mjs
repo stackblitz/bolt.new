@@ -9,6 +9,8 @@ export default [
   {
     rules: {
       '@blitz/catch-error-name': 'off',
+      '@typescript-eslint/no-this-alias': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
     },
   },
   {

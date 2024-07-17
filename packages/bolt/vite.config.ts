@@ -1,11 +1,16 @@
 import { cloudflareDevProxyVitePlugin as remixCloudflareDevProxy, vitePlugin as remixVitePlugin } from '@remix-run/dev';
 import UnoCSS from 'unocss/vite';
 import { defineConfig } from 'vite';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig((config) => {
   return {
     plugins: [
+      nodePolyfills({
+        include: ['path'],
+      }),
       config.mode !== 'test' && remixCloudflareDevProxy(),
       remixVitePlugin({
         future: {
@@ -16,6 +21,7 @@ export default defineConfig((config) => {
       }),
       UnoCSS(),
       tsconfigPaths(),
+      config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
     ],
   };
 });

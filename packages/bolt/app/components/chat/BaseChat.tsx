@@ -2,16 +2,14 @@ import type { Message } from 'ai';
 import type { LegacyRef } from 'react';
 import React from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
-import { IconButton } from '~/components/ui/IconButton';
-import { Workspace } from '~/components/workspace/Workspace.client';
-import { classNames } from '~/utils/classNames';
+import { classNames } from '../../utils/classNames';
+import { IconButton } from '../ui/IconButton';
+import { Workbench } from '../workbench/Workbench.client';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 
 interface BaseChatProps {
   textareaRef?: LegacyRef<HTMLTextAreaElement> | undefined;
-  messagesSlot?: React.ReactNode;
-  workspaceSlot?: React.ReactNode;
   chatStarted?: boolean;
   isStreaming?: boolean;
   messages?: Message[];
@@ -80,14 +78,17 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </ClientOnly>
               <div
                 className={classNames('relative w-full max-w-3xl md:mx-auto z-2', {
-                  'sticky bottom-0 bg-bolt-elements-app-backgroundColor': chatStarted,
+                  'sticky bottom-0': chatStarted,
                 })}
               >
                 <div
-                  className={classNames('shadow-sm mb-6 border border-gray-200 bg-white rounded-lg overflow-hidden')}
+                  className={classNames(
+                    'shadow-sm border border-gray-200 bg-white/85 backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden',
+                  )}
                 >
                   <textarea
                     ref={textareaRef}
+                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none bg-transparent`}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {
@@ -103,7 +104,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     onChange={(event) => {
                       handleInputChange?.(event);
                     }}
-                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none`}
                     style={{
                       minHeight: TEXTAREA_MIN_HEIGHT,
                       maxHeight: TEXTAREA_MAX_HEIGHT,
@@ -146,10 +146,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     ) : null}
                   </div>
                 </div>
+                <div className="bg-white pb-6">{/* Ghost Element */}</div>
               </div>
             </div>
           </div>
-          <ClientOnly>{() => <Workspace chatStarted={chatStarted} />}</ClientOnly>
+          <ClientOnly>{() => <Workbench chatStarted={chatStarted} />}</ClientOnly>
         </div>
       </div>
     );

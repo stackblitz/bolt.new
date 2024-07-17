@@ -21,8 +21,9 @@ if (!import.meta.env.SSR) {
     import.meta.hot?.data.webcontainer ??
     Promise.resolve()
       .then(() => WebContainer.boot({ workdirName: 'project' }))
-      .then(() => {
+      .then((webcontainer) => {
         webcontainerContext.loaded = true;
+        return webcontainer;
       });
 
   if (import.meta.hot) {

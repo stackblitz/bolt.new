@@ -1,12 +1,30 @@
+/* Color Tokens Light Theme */
 :root,
 :root[data-theme='light'] {
-  /* Color Tokens */
-  --bolt-background-primary: theme('colors.gray.50');
+  --bolt-background-primary: theme('colors.gray.0');
+  --bolt-background-secondary: theme('colors.gray.50');
+  --bolt-background-active: theme('colors.gray.200');
+  --bolt-background-accent: theme('colors.accent.600');
+  --bolt-background-accent-secondary: theme('colors.accent.600');
+  --bolt-background-accent-active: theme('colors.accent.500');
+
+  --bolt-text-primary: theme('colors.gray.800');
+  --bolt-text-primary-inverted: theme('colors.gray.0');
+  --bolt-text-secondary: theme('colors.gray.600');
+  --bolt-text-secondary-inverted: theme('colors.gray.200');
+  --bolt-text-disabled: theme('colors.gray.400');
+  --bolt-text-accent: theme('colors.accent.600');
+  --bolt-text-positive: theme('colors.positive.700');
+  --bolt-text-warning: theme('colors.warning.600');
+  --bolt-text-negative: theme('colors.negative.600');
+
+  --bolt-border-primary: theme('colors.gray.200');
+  --bolt-border-accent: theme('colors.accent.600');
 }
 
+/* Color Tokens Dark Theme */
 :root,
 :root[data-theme='dark'] {
-  /* Color Tokens */
   --bolt-background-primary: theme('colors.gray.50');
 }
 
@@ -20,4 +38,7 @@
 
   /* App */
   --bolt-elements-app-backgroundColor: var(--bolt-background-primary);
+  --bolt-elements-app-borderColor: var(--bolt-border-primary);
+  --bolt-elements-app-textColor: var(--bolt-text-primary);
+  --bolt-elements-app-linkColor: var(--bolt-text-accent);
 }

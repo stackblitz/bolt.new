@@ -6,6 +6,12 @@ $color-link: #3498db;
 $color-code-bg: #f8f8f8;
 $color-blockquote-border: #dfe2e5;
 
+@mixin not-inside-actions {
+  &:not(:has(:global(.actions)), :global(.actions *)) {
+    @content;
+  }
+}
+
 .MarkdownContent {
   line-height: 1.6;
   color: $color-text;
@@ -15,11 +21,13 @@ $color-blockquote-border: #dfe2e5;
   }
 
   :is(h1, h2, h3, h4, h5, h6) {
-    margin-top: 24px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    line-height: 1.25;
-    color: $color-heading;
+    @include not-inside-actions {
+      margin-top: 24px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: $color-heading;
+    }
   }
 
   h1 {
@@ -68,9 +76,12 @@ $color-blockquote-border: #dfe2e5;
   :not(pre) > code {
     font-family: $font-mono;
     font-size: 14px;
-    background-color: $color-code-bg;
     border-radius: 6px;
     padding: 0.2em 0.4em;
+
+    @include not-inside-actions {
+      background-color: $color-code-bg;
+    }
   }
 
   pre {
@@ -83,6 +94,7 @@ $color-blockquote-border: #dfe2e5;
     font-size: 14px;
     background: transparent;
     overflow-x: auto;
+    min-width: 0;
   }
 
   blockquote {
@@ -93,25 +105,35 @@ $color-blockquote-border: #dfe2e5;
   }
 
   :is(ul, ol) {
-    padding-left: 2em;
-    margin-top: 0;
-    margin-bottom: 24px;
+    @include not-inside-actions {
+      padding-left: 2em;
+      margin-top: 0;
+      margin-bottom: 24px;
+    }
   }
 
   ul {
-    list-style-type: disc;
+    @include not-inside-actions {
+      list-style-type: disc;
+    }
   }
 
   ol {
-    list-style-type: decimal;
+    @include not-inside-actions {
+      list-style-type: decimal;
+    }
   }
 
-  li + li {
-    margin-top: 8px;
-  }
+  li {
+    @include not-inside-actions {
+      & + li {
+        margin-top: 8px;
+      }
 
-  li > *:not(:last-child) {
-    margin-bottom: 16px;
+      > *:not(:last-child) {
+        margin-bottom: 16px;
+      }
+    }
   }
 
   img {

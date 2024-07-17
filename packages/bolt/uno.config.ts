@@ -111,6 +111,9 @@ export default defineConfig({
         elements: {
           app: {
             backgroundColor: 'var(--bolt-elements-app-backgroundColor)',
+            borderColor: 'var(--bolt-elements-app-borderColor)',
+            textColor: 'var(--bolt-elements-app-textColor)',
+            linkColor: 'var(--bolt-elements-app-linkColor)',
           },
         },
       },

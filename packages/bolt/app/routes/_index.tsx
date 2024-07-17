@@ -1,9 +1,9 @@
 import { json, redirect, type LoaderFunctionArgs, type MetaFunction } from '@remix-run/cloudflare';
 import { ClientOnly } from 'remix-utils/client-only';
-import { BaseChat } from '~/components/chat/BaseChat';
-import { Chat } from '~/components/chat/Chat.client';
-import { Header } from '~/components/Header';
-import { isAuthenticated } from '~/lib/.server/sessions';
+import { BaseChat } from '../components/chat/BaseChat';
+import { Chat } from '../components/chat/Chat.client';
+import { Header } from '../components/Header';
+import { isAuthenticated } from '../lib/.server/sessions';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Bolt' }, { name: 'description', content: 'Talk with Bolt, an AI assistant from StackBlitz' }];

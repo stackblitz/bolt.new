@@ -20,7 +20,7 @@ const messageParser = new StreamingMessageParser({
       workbenchStore.updateArtifact(data, { closed: true });
     },
     onAction: (data) => {
-      logger.trace('onAction', data);
+      logger.debug('onAction', data);
 
       workbenchStore.runAction(data);
     },

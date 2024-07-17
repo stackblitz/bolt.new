@@ -7,6 +7,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig((config) => {
   return {
+    build: {
+      target: 'esnext',
+    },
     plugins: [
       nodePolyfills({
         include: ['path'],

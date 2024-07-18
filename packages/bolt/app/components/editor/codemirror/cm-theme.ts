@@ -65,7 +65,7 @@ function getEditorTheme(settings: EditorSettings) {
       '&.cm-lineNumbers': {
         fontFamily: 'Roboto Mono, monospace',
         fontSize: '13px',
-        minWidth: '28px',
+        minWidth: '40px',
       },
       '& .cm-activeLineGutter': {
         background: 'transparent',

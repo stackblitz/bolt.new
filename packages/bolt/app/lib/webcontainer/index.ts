@@ -1,4 +1,5 @@
 import { WebContainer } from '@webcontainer/api';
+import { WORK_DIR_NAME } from '../../utils/constants';
 
 interface WebContainerContext {
   loaded: boolean;
@@ -20,7 +21,7 @@ if (!import.meta.env.SSR) {
   webcontainer =
     import.meta.hot?.data.webcontainer ??
     Promise.resolve()
-      .then(() => WebContainer.boot({ workdirName: 'project' }))
+      .then(() => WebContainer.boot({ workdirName: WORK_DIR_NAME }))
       .then((webcontainer) => {
         webcontainerContext.loaded = true;
         return webcontainer;

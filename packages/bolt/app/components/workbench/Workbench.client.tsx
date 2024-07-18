@@ -1,14 +1,21 @@
 import { useStore } from '@nanostores/react';
 import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import { memo, useCallback, useEffect } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { workbenchStore } from '../../lib/stores/workbench';
 import { cubicEasingFn } from '../../utils/easings';
+import { renderLogger } from '../../utils/logger';
+import type {
+  OnChangeCallback as OnEditorChange,
+  OnScrollCallback as OnEditorScroll,
+} from '../editor/codemirror/CodeMirrorEditor';
 import { IconButton } from '../ui/IconButton';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
 
 interface WorkspaceProps {
   chatStarted?: boolean;
+  isStreaming?: boolean;
 }
 
 const workbenchVariants = {
@@ -28,8 +35,30 @@ const workbenchVariants = {
   },
 } satisfies Variants;
 
-export function Workbench({ chatStarted }: WorkspaceProps) {
+export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => {
+  renderLogger.trace('Workbench');
+
   const showWorkbench = useStore(workbenchStore.showWorkbench);
+  const selectedFile = useStore(workbenchStore.selectedFile);
+  const currentDocument = useStore(workbenchStore.currentDocument);
+
+  const files = useStore(workbenchStore.files);
+
+  useEffect(() => {
+    workbenchStore.setDocuments(files);
+  }, [files]);
+
+  const onEditorChange = useCallback<OnEditorChange>((update) => {
+    workbenchStore.setCurrentDocumentContent(update.content);
+  }, []);
+
+  const onEditorScroll = useCallback<OnEditorScroll>((position) => {
+    workbenchStore.setCurrentDocumentScrollPosition(position);
+  }, []);
+
+  const onFileSelect = useCallback((filePath: string | undefined) => {
+    workbenchStore.setSelectedFile(filePath);
+  }, []);
 
   return (
     chatStarted && (
@@ -51,7 +80,15 @@ export function Workbench({ chatStarted }: WorkspaceProps) {
                 <div className="flex-1 overflow-hidden">
                   <PanelGroup direction="vertical">
                     <Panel defaultSize={50} minSize={20}>
-                      <EditorPanel />
+                      <EditorPanel
+                        editorDocument={currentDocument}
+                        isStreaming={isStreaming}
+                        selectedFile={selectedFile}
+                        files={files}
+                        onFileSelect={onFileSelect}
+                        onEditorScroll={onEditorScroll}
+                        onEditorChange={onEditorChange}
+                      />
                     </Panel>
                     <PanelResizeHandle />
                     <Panel defaultSize={50} minSize={20}>
@@ -66,4 +103,4 @@ export function Workbench({ chatStarted }: WorkspaceProps) {
       </AnimatePresence>
     )
   );
-}
+});

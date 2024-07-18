@@ -13,11 +13,11 @@ import {
   lineNumbers,
   scrollPastEnd,
 } from '@codemirror/view';
-import { useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { memo, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { Theme } from '../../../types/theme';
 import { classNames } from '../../../utils/classNames';
 import { debounce } from '../../../utils/debounce';
-import { createScopedLogger } from '../../../utils/logger';
+import { createScopedLogger, renderLogger } from '../../../utils/logger';
 import { BinaryContent } from './BinaryContent';
 import { getTheme, reconfigureTheme } from './cm-theme';
 import { indentKeyBinding } from './indent';
@@ -27,7 +27,8 @@ const logger = createScopedLogger('CodeMirrorEditor');
 
 export interface EditorDocument {
   value: string | Uint8Array;
-  loading: boolean;
+  previousValue?: string | Uint8Array;
+  commitPending: boolean;
   filePath: string;
   scroll?: ScrollPosition;
 }
@@ -58,6 +59,7 @@ interface Props {
   theme: Theme;
   id?: unknown;
   doc?: EditorDocument;
+  editable?: boolean;
   debounceChange?: number;
   debounceScroll?: number;
   autoFocusOnDocumentChange?: boolean;
@@ -69,138 +71,154 @@ interface Props {
 
 type EditorStates = Map<string, EditorState>;
 
-export function CodeMirrorEditor({
-  id,
-  doc,
-  debounceScroll = 100,
-  debounceChange = 150,
-  autoFocusOnDocumentChange = false,
-  onScroll,
-  onChange,
-  theme,
-  settings,
-  className = '',
-}: Props) {
-  const [language] = useState(new Compartment());
-  const [readOnly] = useState(new Compartment());
+export const CodeMirrorEditor = memo(
+  ({
+    id,
+    doc,
+    debounceScroll = 100,
+    debounceChange = 150,
+    autoFocusOnDocumentChange = false,
+    editable = true,
+    onScroll,
+    onChange,
+    theme,
+    settings,
+    className = '',
+  }: Props) => {
+    renderLogger.debug('CodeMirrorEditor');
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const viewRef = useRef<EditorView>();
-  const themeRef = useRef<Theme>();
-  const docRef = useRef<EditorDocument>();
-  const editorStatesRef = useRef<EditorStates>();
-  const onScrollRef = useRef(onScroll);
-  const onChangeRef = useRef(onChange);
+    const [languageCompartment] = useState(new Compartment());
+    const [readOnlyCompartment] = useState(new Compartment());
+    const [editableCompartment] = useState(new Compartment());
 
-  const isBinaryFile = doc?.value instanceof Uint8Array;
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const viewRef = useRef<EditorView>();
+    const themeRef = useRef<Theme>();
+    const docRef = useRef<EditorDocument>();
+    const editorStatesRef = useRef<EditorStates>();
+    const onScrollRef = useRef(onScroll);
+    const onChangeRef = useRef(onChange);
 
-  onScrollRef.current = onScroll;
-  onChangeRef.current = onChange;
+    const isBinaryFile = doc?.value instanceof Uint8Array;
 
-  docRef.current = doc;
-  themeRef.current = theme;
+    onScrollRef.current = onScroll;
+    onChangeRef.current = onChange;
 
-  useEffect(() => {
-    const onUpdate = debounce((update: EditorUpdate) => {
-      onChangeRef.current?.(update);
-    }, debounceChange);
+    docRef.current = doc;
+    themeRef.current = theme;
 
-    const view = new EditorView({
-      parent: containerRef.current!,
-      dispatchTransactions(transactions) {
-        const previousSelection = view.state.selection;
+    useEffect(() => {
+      const onUpdate = debounce((update: EditorUpdate) => {
+        onChangeRef.current?.(update);
+      }, debounceChange);
 
-        view.update(transactions);
+      const view = new EditorView({
+        parent: containerRef.current!,
+        dispatchTransactions(transactions) {
+          const previousSelection = view.state.selection;
 
-        const newSelection = view.state.selection;
+          view.update(transactions);
 
-        const selectionChanged =
-          newSelection !== previousSelection &&
-          (newSelection === undefined || previousSelection === undefined || !newSelection.eq(previousSelection));
+          const newSelection = view.state.selection;
 
-        if (
-          docRef.current &&
-          !docRef.current.loading &&
-          (transactions.some((transaction) => transaction.docChanged) || selectionChanged)
-        ) {
-          onUpdate({
-            selection: view.state.selection,
-            content: view.state.doc.toString(),
-          });
+          const selectionChanged =
+            newSelection !== previousSelection &&
+            (newSelection === undefined || previousSelection === undefined || !newSelection.eq(previousSelection));
 
-          editorStatesRef.current!.set(docRef.current.filePath, view.state);
-        }
-      },
-    });
+          if (docRef.current && (transactions.some((transaction) => transaction.docChanged) || selectionChanged)) {
+            onUpdate({
+              selection: view.state.selection,
+              content: view.state.doc.toString(),
+            });
 
-    viewRef.current = view;
+            editorStatesRef.current!.set(docRef.current.filePath, view.state);
+          }
+        },
+      });
 
-    return () => {
-      viewRef.current?.destroy();
-      viewRef.current = undefined;
-    };
-  }, []);
+      viewRef.current = view;
 
-  useEffect(() => {
-    if (!viewRef.current) {
-      return;
-    }
+      return () => {
+        viewRef.current?.destroy();
+        viewRef.current = undefined;
+      };
+    }, []);
 
-    viewRef.current.dispatch({
-      effects: [reconfigureTheme(theme)],
-    });
-  }, [theme]);
+    useEffect(() => {
+      if (!viewRef.current) {
+        return;
+      }
 
-  useEffect(() => {
-    editorStatesRef.current = new Map<string, EditorState>();
-  }, [id]);
+      viewRef.current.dispatch({
+        effects: [reconfigureTheme(theme)],
+      });
+    }, [theme]);
 
-  useEffect(() => {
-    const editorStates = editorStatesRef.current!;
-    const view = viewRef.current!;
-    const theme = themeRef.current!;
+    useEffect(() => {
+      editorStatesRef.current = new Map<string, EditorState>();
+    }, [id]);
 
-    if (!doc) {
-      const state = newEditorState('', theme, settings, onScrollRef, debounceScroll, [language.of([])]);
+    useEffect(() => {
+      const editorStates = editorStatesRef.current!;
+      const view = viewRef.current!;
+      const theme = themeRef.current!;
+
+      if (!doc) {
+        const state = newEditorState('', theme, settings, onScrollRef, debounceScroll, [
+          languageCompartment.of([]),
+          readOnlyCompartment.of([]),
+          editableCompartment.of([]),
+        ]);
+
+        view.setState(state);
+
+        setNoDocument(view);
+
+        return;
+      }
+
+      if (doc.value instanceof Uint8Array) {
+        return;
+      }
+
+      if (doc.filePath === '') {
+        logger.warn('File path should not be empty');
+      }
+
+      let state = editorStates.get(doc.filePath);
+
+      if (!state) {
+        state = newEditorState(doc.value, theme, settings, onScrollRef, debounceScroll, [
+          languageCompartment.of([]),
+          readOnlyCompartment.of([EditorState.readOnly.of(!editable)]),
+          editableCompartment.of([EditorView.editable.of(editable)]),
+        ]);
+
+        editorStates.set(doc.filePath, state);
+      }
 
       view.setState(state);
 
-      setNoDocument(view);
+      setEditorDocument(
+        view,
+        theme,
+        editable,
+        languageCompartment,
+        readOnlyCompartment,
+        editableCompartment,
+        autoFocusOnDocumentChange,
+        doc as TextEditorDocument,
+      );
+    }, [doc?.value, editable, doc?.filePath, autoFocusOnDocumentChange]);
 
-      return;
-    }
-
-    if (doc.value instanceof Uint8Array) {
-      return;
-    }
-
-    if (doc.filePath === '') {
-      logger.warn('File path should not be empty');
-    }
-
-    let state = editorStates.get(doc.filePath);
-
-    if (!state) {
-      state = newEditorState(doc.value, theme, settings, onScrollRef, debounceScroll, [
-        language.of([]),
-        readOnly.of([EditorState.readOnly.of(doc.loading)]),
-      ]);
-
-      editorStates.set(doc.filePath, state);
-    }
-
-    view.setState(state);
-
-    setEditorDocument(view, theme, language, readOnly, autoFocusOnDocumentChange, doc as TextEditorDocument);
-  }, [doc?.value, doc?.filePath, doc?.loading, autoFocusOnDocumentChange]);
-
-  return (
-    <div className={classNames('relative h-full', className)}>
-      {isBinaryFile && <BinaryContent />}
-      <div className="h-full overflow-hidden" ref={containerRef} />
-    </div>
-  );
-}
+    return (
+      <div className={classNames('relative h-full', className)}>
+        {isBinaryFile && <BinaryContent />}
+        <div className="h-full overflow-hidden" ref={containerRef} />
+      </div>
+    );
+  },
+);
 
 export default CodeMirrorEditor;
 
@@ -280,8 +298,10 @@ function setNoDocument(view: EditorView) {
 function setEditorDocument(
   view: EditorView,
   theme: Theme,
-  language: Compartment,
-  readOnly: Compartment,
+  editable: boolean,
+  languageCompartment: Compartment,
+  readOnlyCompartment: Compartment,
+  editableCompartment: Compartment,
   autoFocus: boolean,
   doc: TextEditorDocument,
 ) {
@@ -297,7 +317,10 @@ function setEditorDocument(
   }
 
   view.dispatch({
-    effects: [readOnly.reconfigure([EditorState.readOnly.of(doc.loading)])],
+    effects: [
+      readOnlyCompartment.reconfigure([EditorState.readOnly.of(!editable)]),
+      editableCompartment.reconfigure([EditorView.editable.of(editable)]),
+    ],
   });
 
   getLanguage(doc.filePath).then((languageSupport) => {
@@ -306,7 +329,7 @@ function setEditorDocument(
     }
 
     view.dispatch({
-      effects: [language.reconfigure([languageSupport]), reconfigureTheme(theme)],
+      effects: [languageCompartment.reconfigure([languageSupport]), reconfigureTheme(theme)],
     });
 
     requestAnimationFrame(() => {

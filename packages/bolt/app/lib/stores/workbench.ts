@@ -1,10 +1,13 @@
-import { atom, map, type MapStore, type WritableAtom } from 'nanostores';
+import { atom, map, type MapStore, type ReadableAtom, type WritableAtom } from 'nanostores';
+import type { EditorDocument, ScrollPosition } from '../../components/editor/codemirror/CodeMirrorEditor';
 import type { BoltAction } from '../../types/actions';
 import { unreachable } from '../../utils/unreachable';
 import { ActionRunner } from '../runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '../runtime/message-parser';
 import { webcontainer } from '../webcontainer';
 import { chatStore } from './chat';
+import { EditorStore } from './editor';
+import { FilesStore, type FileMap } from './files';
 import { PreviewsStore } from './previews';
 
 const MIN_SPINNER_TIME = 200;
@@ -41,6 +44,8 @@ type Artifacts = MapStore<Record<string, ArtifactState>>;
 export class WorkbenchStore {
   #actionRunner = new ActionRunner(webcontainer);
   #previewsStore = new PreviewsStore(webcontainer);
+  #filesStore = new FilesStore(webcontainer);
+  #editorStore = new EditorStore(webcontainer);
 
   artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
 
@@ -50,8 +55,50 @@ export class WorkbenchStore {
     return this.#previewsStore.previews;
   }
 
+  get files() {
+    return this.#filesStore.files;
+  }
+
+  get currentDocument(): ReadableAtom<EditorDocument | undefined> {
+    return this.#editorStore.currentDocument;
+  }
+
+  get selectedFile(): ReadableAtom<string | undefined> {
+    return this.#editorStore.selectedFile;
+  }
+
+  setDocuments(files: FileMap) {
+    this.#editorStore.setDocuments(files);
+  }
+
   setShowWorkbench(show: boolean) {
     this.showWorkbench.set(show);
+  }
+
+  setCurrentDocumentContent(newContent: string) {
+    const filePath = this.currentDocument.get()?.filePath;
+
+    if (!filePath) {
+      return;
+    }
+
+    this.#editorStore.updateFile(filePath, newContent);
+  }
+
+  setCurrentDocumentScrollPosition(position: ScrollPosition) {
+    const editorDocument = this.currentDocument.get();
+
+    if (!editorDocument) {
+      return;
+    }
+
+    const { filePath } = editorDocument;
+
+    this.#editorStore.updateScrollPosition(filePath, position);
+  }
+
+  setSelectedFile(filePath: string | undefined) {
+    this.#editorStore.setSelectedFile(filePath);
   }
 
   abortAllActions() {

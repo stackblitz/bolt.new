@@ -16,6 +16,7 @@ interface BaseChatProps {
   enhancingPrompt?: boolean;
   promptEnhanced?: boolean;
   input?: string;
+  handleStop?: () => void;
   sendMessage?: () => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
@@ -38,6 +39,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       sendMessage,
       handleInputChange,
       enhancePrompt,
+      handleStop,
     },
     ref,
   ) => {
@@ -111,7 +113,22 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     placeholder="How can Bolt help you today?"
                     translate="no"
                   />
-                  <ClientOnly>{() => <SendButton show={input.length > 0} onClick={sendMessage} />}</ClientOnly>
+                  <ClientOnly>
+                    {() => (
+                      <SendButton
+                        show={input.length > 0 || isStreaming}
+                        isStreaming={isStreaming}
+                        onClick={() => {
+                          if (isStreaming) {
+                            handleStop?.();
+                            return;
+                          }
+
+                          sendMessage?.();
+                        }}
+                      />
+                    )}
+                  </ClientOnly>
                   <div className="flex justify-between text-sm p-4 pt-2">
                     <div className="flex gap-1 items-center">
                       <IconButton icon="i-ph:microphone-duotone" className="-ml-1" />

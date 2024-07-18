@@ -30,12 +30,13 @@ export const Preview = memo(() => {
   return (
     <div className="w-full h-full flex flex-col">
       <div className="bg-gray-100 rounded-t-lg p-2 flex items-center space-x-1.5">
-        <div className="i-ph:circle-fill text-[#FF5F57]"></div>
-        <div className="i-ph:circle-fill text-[#FEBC2E]"></div>
-        <div className="i-ph:circle-fill text-[#29CC41]"></div>
+        <div className="flex items-center gap-2 text-gray-800">
+          <div className="i-ph:app-window-duotone scale-130 ml-1.5"></div>
+          <span className="text-sm">Preview</span>
+        </div>
         <div className="flex-grow"></div>
       </div>
-      <div className="bg-white p-2 flex items-center gap-1">
+      <div className="bg-white p-2 flex items-center gap-1.5">
         <IconButton icon="i-ph:arrow-clockwise" onClick={reloadPreview} />
         <div className="flex items-center gap-1 flex-grow bg-gray-100 rounded-full px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 hover:focus-within:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-accent">
           <div className="bg-white rounded-full p-[2px] -ml-1">

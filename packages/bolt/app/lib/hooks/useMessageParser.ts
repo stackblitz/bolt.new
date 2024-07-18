@@ -19,8 +19,20 @@ const messageParser = new StreamingMessageParser({
 
       workbenchStore.updateArtifact(data, { closed: true });
     },
-    onAction: (data) => {
-      logger.debug('onAction', data);
+    onActionOpen: (data) => {
+      logger.debug('onActionOpen', data.action);
+
+      // we only add shell actions when when the close tag got parsed because only then we have the content
+      if (data.action.type !== 'shell') {
+        workbenchStore.addAction(data);
+      }
+    },
+    onActionClose: (data) => {
+      logger.debug('onActionClose', data.action);
+
+      if (data.action.type === 'shell') {
+        workbenchStore.addAction(data);
+      }
 
       workbenchStore.runAction(data);
     },

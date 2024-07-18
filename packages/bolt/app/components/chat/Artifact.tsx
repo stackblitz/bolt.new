@@ -1,8 +1,9 @@
 import { useStore } from '@nanostores/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { computed } from 'nanostores';
-import { useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
+import { chatStore } from '../../lib/stores/chat';
 import { getArtifactKey, workbenchStore, type ActionState } from '../../lib/stores/workbench';
 import { classNames } from '../../utils/classNames';
 import { cubicEasingFn } from '../../utils/easings';
@@ -25,9 +26,11 @@ interface ArtifactProps {
   messageId: string;
 }
 
-export function Artifact({ artifactId, messageId }: ArtifactProps) {
+export const Artifact = memo(({ artifactId, messageId }: ArtifactProps) => {
+  const userToggledActions = useRef(false);
   const [showActions, setShowActions] = useState(false);
 
+  const chat = useStore(chatStore);
   const artifacts = useStore(workbenchStore.artifacts);
   const artifact = artifacts[getArtifactKey(artifactId, messageId)];
 
@@ -36,6 +39,17 @@ export function Artifact({ artifactId, messageId }: ArtifactProps) {
       return Object.values(actions);
     }),
   );
+
+  const toggleActions = () => {
+    userToggledActions.current = true;
+    setShowActions(!showActions);
+  };
+
+  useEffect(() => {
+    if (actions.length && !showActions && !userToggledActions.current) {
+      setShowActions(true);
+    }
+  }, [actions]);
 
   return (
     <div className="flex flex-col overflow-hidden border rounded-lg w-full">
@@ -48,7 +62,7 @@ export function Artifact({ artifactId, messageId }: ArtifactProps) {
           }}
         >
           <div className="flex items-center px-6 bg-gray-100/50">
-            {!artifact?.closed ? (
+            {!artifact?.closed && !chat.aborted ? (
               <div className="i-svg-spinners:90-ring-with-bg scale-130"></div>
             ) : (
               <div className="i-ph:code-bold scale-130 text-gray-600"></div>
@@ -67,7 +81,7 @@ export function Artifact({ artifactId, messageId }: ArtifactProps) {
               exit={{ width: 0 }}
               transition={{ duration: 0.15, ease: cubicEasingFn }}
               className="hover:bg-gray-200"
-              onClick={() => setShowActions(!showActions)}
+              onClick={toggleActions}
             >
               <div className="p-4">
                 <div className={showActions ? 'i-ph:caret-up-bold' : 'i-ph:caret-down-bold'}></div>
@@ -98,9 +112,9 @@ export function Artifact({ artifactId, messageId }: ArtifactProps) {
                     const { status, type, content, abort } = action;
 
                     return (
-                      <li key={index} className={classNames(getTextColor(action.status))}>
+                      <li key={index}>
                         <div className="flex items-center gap-1.5">
-                          <div className="text-lg">
+                          <div className={classNames('text-lg', getTextColor(action.status))}>
                             {status === 'running' ? (
                               <div className="i-svg-spinners:90-ring-with-bg"></div>
                             ) : status === 'pending' ? (
@@ -136,7 +150,7 @@ export function Artifact({ artifactId, messageId }: ArtifactProps) {
       </AnimatePresence>
     </div>
   );
-}
+});
 
 function getTextColor(status: ActionState['status']) {
   switch (status) {

@@ -21,20 +21,20 @@ export interface ActionCallbackData {
   action: BoltAction;
 }
 
-type ArtifactOpenCallback = (data: ArtifactCallbackData) => void;
-type ArtifactCloseCallback = (data: ArtifactCallbackData) => void;
-type ActionCallback = (data: ActionCallbackData) => void;
+export type ArtifactCallback = (data: ArtifactCallbackData) => void;
+export type ActionCallback = (data: ActionCallbackData) => void;
 
-interface Callbacks {
-  onArtifactOpen?: ArtifactOpenCallback;
-  onArtifactClose?: ArtifactCloseCallback;
-  onAction?: ActionCallback;
+export interface ParserCallbacks {
+  onArtifactOpen?: ArtifactCallback;
+  onArtifactClose?: ArtifactCallback;
+  onActionOpen?: ActionCallback;
+  onActionClose?: ActionCallback;
 }
 
 type ElementFactory = () => string;
 
-interface StreamingMessageParserOptions {
-  callbacks?: Callbacks;
+export interface StreamingMessageParserOptions {
+  callbacks?: ParserCallbacks;
   artifactElement?: string | ElementFactory;
 }
 
@@ -95,10 +95,17 @@ export class StreamingMessageParser {
 
             currentAction.content = content;
 
-            this._options.callbacks?.onAction?.({
+            this._options.callbacks?.onActionClose?.({
               artifactId: currentArtifact.id,
               messageId,
-              actionId: String(state.actionId++),
+
+              /**
+               * We decrement the id because it's been incremented already
+               * when `onActionOpen` was emitted to make sure the ids are
+               * the same.
+               */
+              actionId: String(state.actionId - 1),
+
               action: currentAction as BoltAction,
             });
 
@@ -117,30 +124,16 @@ export class StreamingMessageParser {
             const actionEndIndex = input.indexOf('>', actionOpenIndex);
 
             if (actionEndIndex !== -1) {
-              const actionTag = input.slice(actionOpenIndex, actionEndIndex + 1);
-
-              const actionType = this.#extractAttribute(actionTag, 'type') as ActionType;
-
-              const actionAttributes = {
-                type: actionType,
-                content: '',
-              };
-
-              if (actionType === 'file') {
-                const filePath = this.#extractAttribute(actionTag, 'filePath') as string;
-
-                if (!filePath) {
-                  logger.debug('File path not specified');
-                }
-
-                (actionAttributes as FileAction).filePath = filePath;
-              } else if (actionType !== 'shell') {
-                logger.warn(`Unknown action type '${actionType}'`);
-              }
-
-              state.currentAction = actionAttributes as FileAction | ShellAction;
-
               state.insideAction = true;
+
+              state.currentAction = this.#parseActionTag(input, actionOpenIndex, actionEndIndex);
+
+              this._options.callbacks?.onActionOpen?.({
+                artifactId: currentArtifact.id,
+                messageId,
+                actionId: String(state.actionId++),
+                action: state.currentAction as BoltAction,
+              });
 
               i = actionEndIndex + 1;
             } else {
@@ -239,6 +232,31 @@ export class StreamingMessageParser {
 
   reset() {
     this.#messages.clear();
+  }
+
+  #parseActionTag(input: string, actionOpenIndex: number, actionEndIndex: number) {
+    const actionTag = input.slice(actionOpenIndex, actionEndIndex + 1);
+
+    const actionType = this.#extractAttribute(actionTag, 'type') as ActionType;
+
+    const actionAttributes = {
+      type: actionType,
+      content: '',
+    };
+
+    if (actionType === 'file') {
+      const filePath = this.#extractAttribute(actionTag, 'filePath') as string;
+
+      if (!filePath) {
+        logger.debug('File path not specified');
+      }
+
+      (actionAttributes as FileAction).filePath = filePath;
+    } else if (actionType !== 'shell') {
+      logger.warn(`Unknown action type '${actionType}'`);
+    }
+
+    return actionAttributes as FileAction | ShellAction;
   }
 
   #extractAttribute(tag: string, attributeName: string): string | undefined {

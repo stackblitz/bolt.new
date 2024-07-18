@@ -2,12 +2,13 @@ import { AnimatePresence, cubicBezier, motion } from 'framer-motion';
 
 interface SendButtonProps {
   show: boolean;
+  isStreaming?: boolean;
   onClick?: VoidFunction;
 }
 
 const customEasingFn = cubicBezier(0.4, 0, 0.2, 1);
 
-export function SendButton({ show, onClick }: SendButtonProps) {
+export function SendButton({ show, isStreaming, onClick }: SendButtonProps) {
   return (
     <AnimatePresence>
       {show ? (
@@ -22,7 +23,9 @@ export function SendButton({ show, onClick }: SendButtonProps) {
             onClick?.();
           }}
         >
-          <div className="i-ph:arrow-right text-xl"></div>
+          <div className="text-lg">
+            {!isStreaming ? <div className="i-ph:arrow-right"></div> : <div className="i-ph:stop-circle-bold"></div>}
+          </div>
         </motion.button>
       ) : null}
     </AnimatePresence>

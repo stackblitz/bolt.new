@@ -2,6 +2,8 @@ import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { useMessageParser, usePromptEnhancer } from '../../lib/hooks';
+import { chatStore } from '../../lib/stores/chat';
+import { workbenchStore } from '../../lib/stores/workbench';
 import { cubicEasingFn } from '../../utils/easings';
 import { createScopedLogger } from '../../utils/logger';
 import { BaseChat } from './BaseChat';
@@ -15,7 +17,7 @@ export function Chat() {
 
   const [animationScope, animate] = useAnimate();
 
-  const { messages, isLoading, input, handleInputChange, setInput, handleSubmit } = useChat({
+  const { messages, isLoading, input, handleInputChange, setInput, handleSubmit, stop } = useChat({
     api: '/api/chat',
     onError: (error) => {
       logger.error(error);
@@ -40,6 +42,12 @@ export function Chat() {
     if (textarea) {
       textarea.scrollTop = textarea.scrollHeight;
     }
+  };
+
+  const abort = () => {
+    stop();
+    chatStore.setKey('aborted', true);
+    workbenchStore.abortAllActions();
   };
 
   useEffect(() => {
@@ -70,6 +78,8 @@ export function Chat() {
       return;
     }
 
+    chatStore.setKey('aborted', false);
+
     runAnimation();
     handleSubmit();
     resetEnhancer();
@@ -88,6 +98,7 @@ export function Chat() {
       promptEnhanced={promptEnhanced}
       sendMessage={sendMessage}
       handleInputChange={handleInputChange}
+      handleStop={abort}
       messages={messages.map((message, i) => {
         if (message.role === 'user') {
           return message;

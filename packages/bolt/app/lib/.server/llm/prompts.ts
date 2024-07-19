@@ -1,4 +1,5 @@
 import { WORK_DIR } from '../../../utils/constants';
+import { stripIndents } from '../../../utils/stripIndent';
 
 export const getSystemPrompt = (cwd: string = WORK_DIR) => `
 You are Bolt, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.
@@ -197,4 +198,9 @@ Here are some examples of correct usage of artifacts:
     </assistant_response>
   </example>
 </examples>
+`;
+
+export const CONTINUE_PROMPT = stripIndents`
+  Continue your prior response. IMPORTANT: Immediately begin from where you left off without any interruptions.
+  Do not repeat any content, including artifact and action tags.
 `;

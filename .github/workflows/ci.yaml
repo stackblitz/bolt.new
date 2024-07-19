@@ -10,17 +10,18 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.15.1]
     steps:
-      - name: Setup
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.4.0
-
       - name: Checkout
         uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.15.1'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.4.0
+          run_install: false
 
       - name: Install dependencies
         run: pnpm install

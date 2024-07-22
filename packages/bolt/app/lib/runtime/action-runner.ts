@@ -1,68 +1,187 @@
 import { WebContainer } from '@webcontainer/api';
+import { map, type MapStore } from 'nanostores';
 import * as nodePath from 'node:path';
+import type { BoltAction } from '../../types/actions';
 import { createScopedLogger } from '../../utils/logger';
+import { unreachable } from '../../utils/unreachable';
 import type { ActionCallbackData } from './message-parser';
 
 const logger = createScopedLogger('ActionRunner');
 
+export type ActionStatus = 'pending' | 'running' | 'complete' | 'aborted' | 'failed';
+
+export type BaseActionState = BoltAction & {
+  status: Exclude<ActionStatus, 'failed'>;
+  abort: () => void;
+  executed: boolean;
+  abortSignal: AbortSignal;
+};
+
+export type FailedActionState = BoltAction &
+  Omit<BaseActionState, 'status'> & {
+    status: Extract<ActionStatus, 'failed'>;
+    error: string;
+  };
+
+export type ActionState = BaseActionState | FailedActionState;
+
+type BaseActionUpdate = Partial<Pick<BaseActionState, 'status' | 'abort' | 'executed'>>;
+
+export type ActionStateUpdate =
+  | BaseActionUpdate
+  | (Omit<BaseActionUpdate, 'status'> & { status: 'failed'; error: string });
+
+type ActionsMap = MapStore<Record<string, ActionState>>;
+
 export class ActionRunner {
   #webcontainer: Promise<WebContainer>;
+  #currentExecutionPromise: Promise<void> = Promise.resolve();
+
+  actions: ActionsMap = import.meta.hot?.data.actions ?? map({});
 
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
+
+    if (import.meta.hot) {
+      import.meta.hot.data.actions = this.actions;
+    }
   }
 
-  async runAction({ action }: ActionCallbackData, abortSignal?: AbortSignal) {
-    logger.trace('Running action', action);
+  addAction(data: ActionCallbackData) {
+    const { actionId } = data;
 
-    const { content } = action;
+    const action = this.actions.get()[actionId];
+
+    if (action) {
+      // action already added
+      return;
+    }
+
+    const abortController = new AbortController();
+
+    this.actions.setKey(actionId, {
+      ...data.action,
+      status: 'pending',
+      executed: false,
+      abort: () => {
+        abortController.abort();
+        this.#updateAction(actionId, { status: 'aborted' });
+      },
+      abortSignal: abortController.signal,
+    });
+
+    this.#currentExecutionPromise.then(() => {
+      this.#updateAction(actionId, { status: 'running' });
+    });
+  }
+
+  async runAction(data: ActionCallbackData) {
+    const { actionId } = data;
+    const action = this.actions.get()[actionId];
+
+    if (!action) {
+      unreachable(`Action ${actionId} not found`);
+    }
+
+    if (action.executed) {
+      return;
+    }
+
+    this.#updateAction(actionId, { ...action, ...data.action, executed: true });
+
+    this.#currentExecutionPromise = this.#currentExecutionPromise
+      .then(() => {
+        return this.#executeAction(actionId);
+      })
+      .catch((error) => {
+        console.error('Action execution failed:', error);
+      });
+  }
+
+  async #executeAction(actionId: string) {
+    const action = this.actions.get()[actionId];
+
+    this.#updateAction(actionId, { status: 'running' });
+
+    try {
+      switch (action.type) {
+        case 'shell': {
+          await this.#runShellAction(action);
+          break;
+        }
+        case 'file': {
+          await this.#runFileAction(action);
+          break;
+        }
+      }
+
+      this.#updateAction(actionId, { status: action.abortSignal.aborted ? 'aborted' : 'complete' });
+    } catch (error) {
+      this.#updateAction(actionId, { status: 'failed', error: 'Action failed' });
+
+      // re-throw the error to be caught in the promise chain
+      throw error;
+    }
+  }
+
+  async #runShellAction(action: ActionState) {
+    if (action.type !== 'shell') {
+      unreachable('Expected shell action');
+    }
 
     const webcontainer = await this.#webcontainer;
 
-    switch (action.type) {
-      case 'file': {
-        let folder = nodePath.dirname(action.filePath);
+    const process = await webcontainer.spawn('jsh', ['-c', action.content]);
 
-        // remove trailing slashes
-        folder = folder.replace(/\/$/g, '');
+    action.abortSignal.addEventListener('abort', () => {
+      process.kill();
+    });
 
-        if (folder !== '.') {
-          try {
-            await webcontainer.fs.mkdir(folder, { recursive: true });
-            logger.debug('Created folder', folder);
-          } catch (error) {
-            logger.error('Failed to create folder\n', error);
-          }
-        }
+    process.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log(data);
+        },
+      }),
+    );
 
-        try {
-          await webcontainer.fs.writeFile(action.filePath, content);
-          logger.debug(`File written ${action.filePath}`);
-        } catch (error) {
-          logger.error('Failed to write file\n', error);
-        }
+    const exitCode = await process.exit;
 
-        break;
-      }
-      case 'shell': {
-        const process = await webcontainer.spawn('jsh', ['-c', content]);
+    logger.debug(`Process terminated with code ${exitCode}`);
+  }
 
-        abortSignal?.addEventListener('abort', () => {
-          process.kill();
-        });
+  async #runFileAction(action: ActionState) {
+    if (action.type !== 'file') {
+      unreachable('Expected file action');
+    }
 
-        process.output.pipeTo(
-          new WritableStream({
-            write(data) {
-              console.log(data);
-            },
-          }),
-        );
+    const webcontainer = await this.#webcontainer;
 
-        const exitCode = await process.exit;
+    let folder = nodePath.dirname(action.filePath);
 
-        logger.debug(`Process terminated with code ${exitCode}`);
+    // remove trailing slashes
+    folder = folder.replace(/\/+$/g, '');
+
+    if (folder !== '.') {
+      try {
+        await webcontainer.fs.mkdir(folder, { recursive: true });
+        logger.debug('Created folder', folder);
+      } catch (error) {
+        logger.error('Failed to create folder\n', error);
       }
     }
+
+    try {
+      await webcontainer.fs.writeFile(action.filePath, action.content);
+      logger.debug(`File written ${action.filePath}`);
+    } catch (error) {
+      logger.error('Failed to write file\n', error);
+    }
+  }
+
+  #updateAction(id: string, newState: ActionStateUpdate) {
+    const actions = this.actions.get();
+
+    this.actions.setKey(id, { ...actions[id], ...newState });
   }
 }

@@ -25,6 +25,13 @@ export class PreviewsStore {
     webcontainer.on('port', (port, type, url) => {
       let previewInfo = this.#availablePreviews.get(port);
 
+      if (type === 'close' && previewInfo) {
+        this.#availablePreviews.delete(port);
+        this.previews.set(this.previews.get().filter((preview) => preview.port !== port));
+
+        return;
+      }
+
       const previews = this.previews.get();
 
       if (!previewInfo) {

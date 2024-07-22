@@ -179,7 +179,7 @@ function runTest(input: string | string[], outputOrExpectedResult: string | Expe
   };
 
   const parser = new StreamingMessageParser({
-    artifactElement: '',
+    artifactElement: () => '',
     callbacks,
   });
 

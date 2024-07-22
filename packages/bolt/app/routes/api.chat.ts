@@ -1,9 +1,9 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
-import { MAX_RESPONSE_SEGMENTS } from '../lib/.server/llm/constants';
+import { StreamingTextResponse } from 'ai';
+import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '../lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '../lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '../lib/.server/llm/stream-text';
 import SwitchableStream from '../lib/.server/llm/switchable-stream';
-import { StreamingTextResponse } from 'ai';
 
 export async function action({ context, request }: ActionFunctionArgs) {
   const { messages } = await request.json<{ messages: Messages }>();
@@ -18,8 +18,12 @@ export async function action({ context, request }: ActionFunctionArgs) {
         }
 
         if (stream.switches >= MAX_RESPONSE_SEGMENTS) {
-          throw Error('Cannot continue message: maximum segments reached');
+          throw Error('Cannot continue message: Maximum segments reached');
         }
+
+        const switchesLeft = MAX_RESPONSE_SEGMENTS - stream.switches;
+
+        console.log(`Reached max token limit (${MAX_TOKENS}): Continuing message (${switchesLeft} switches left)`);
 
         messages.push({ role: 'assistant', content });
         messages.push({ role: 'user', content: CONTINUE_PROMPT });

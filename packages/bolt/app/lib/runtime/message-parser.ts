@@ -31,11 +31,15 @@ export interface ParserCallbacks {
   onActionClose?: ActionCallback;
 }
 
-type ElementFactory = () => string;
+interface ElementFactoryProps {
+  messageId: string;
+}
+
+type ElementFactory = (props: ElementFactoryProps) => string;
 
 export interface StreamingMessageParserOptions {
   callbacks?: ParserCallbacks;
-  artifactElement?: string | ElementFactory;
+  artifactElement?: ElementFactory;
 }
 
 interface MessageState {
@@ -193,9 +197,9 @@ export class StreamingMessageParser {
 
               this._options.callbacks?.onArtifactOpen?.({ messageId, ...currentArtifact });
 
-              output +=
-                this._options.artifactElement ??
-                `<div class="__boltArtifact__" data-artifact-id="${artifactId}" data-message-id="${messageId}"></div>`;
+              const artifactFactory = this._options.artifactElement ?? createArtifactElement;
+
+              output += artifactFactory({ messageId });
 
               i = openTagEnd + 1;
             } else {
@@ -263,4 +267,19 @@ export class StreamingMessageParser {
     const match = tag.match(new RegExp(`${attributeName}="([^"]*)"`, 'i'));
     return match ? match[1] : undefined;
   }
+}
+
+const createArtifactElement: ElementFactory = (props) => {
+  const elementProps = [
+    'class="__boltArtifact__"',
+    Object.entries(props).map(([key, value]) => {
+      return `data-${camelToDashCase(key)}=${JSON.stringify(value)}`;
+    }),
+  ];
+
+  return `<div ${elementProps.join(' ')}></div>`;
+};
+
+function camelToDashCase(input: string) {
+  return input.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }

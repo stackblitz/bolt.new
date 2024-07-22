@@ -21,18 +21,13 @@ export const Markdown = memo(({ children }: MarkdownProps) => {
     return {
       div: ({ className, children, node, ...props }) => {
         if (className?.includes('__boltArtifact__')) {
-          const artifactId = node?.properties.dataArtifactId as string;
           const messageId = node?.properties.dataMessageId as string;
 
-          if (!artifactId) {
-            logger.debug(`Invalid artifact id ${messageId}`);
-          }
-
           if (!messageId) {
-            logger.debug(`Invalid message id ${messageId}`);
+            logger.error(`Invalid message id ${messageId}`);
           }
 
-          return <Artifact artifactId={artifactId} messageId={messageId} />;
+          return <Artifact messageId={messageId} />;
         }
 
         return (

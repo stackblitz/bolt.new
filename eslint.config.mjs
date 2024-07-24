@@ -1,9 +1,10 @@
 import blitzPlugin from '@blitz/eslint-plugin';
-import { getNamingConventionRule } from '@blitz/eslint-plugin/dist/configs/typescript.js';
+import { jsFileExtensions } from '@blitz/eslint-plugin/dist/configs/javascript.js';
+import { getNamingConventionRule, tsFileExtensions } from '@blitz/eslint-plugin/dist/configs/typescript.js';
 
 export default [
   {
-    ignores: ['**/dist', '**/node_modules'],
+    ignores: ['**/dist', '**/node_modules', '**/.wrangler', '**/bolt/build'],
   },
   ...blitzPlugin.configs.recommended(),
   {
@@ -23,6 +24,22 @@ export default [
     files: ['**/*.d.ts'],
     rules: {
       '@typescript-eslint/no-empty-object-type': 'off',
+    },
+  },
+  {
+    files: [...tsFileExtensions, ...jsFileExtensions, '**/*.tsx'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../'],
+              message: `Relative imports are not allowed. Please use '~/' instead.`,
+            },
+          ],
+        },
+      ],
     },
   },
 ];

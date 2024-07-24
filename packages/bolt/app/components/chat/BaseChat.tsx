@@ -1,9 +1,9 @@
 import type { Message } from 'ai';
 import React, { type LegacyRef, type RefCallback } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
-import { classNames } from '../../utils/classNames';
-import { IconButton } from '../ui/IconButton';
-import { Workbench } from '../workbench/Workbench.client';
+import { IconButton } from '~/components/ui/IconButton';
+import { Workbench } from '~/components/workbench/Workbench.client';
+import { classNames } from '~/utils/classNames';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 

@@ -1,7 +1,7 @@
 import { useStore } from '@nanostores/react';
 import { memo, useEffect, useRef, useState } from 'react';
-import { workbenchStore } from '../../lib/stores/workbench';
-import { IconButton } from '../ui/IconButton';
+import { IconButton } from '~/components/ui/IconButton';
+import { workbenchStore } from '~/lib/stores/workbench';
 
 export const Preview = memo(() => {
   const iframeRef = useRef<HTMLIFrameElement>(null);

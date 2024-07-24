@@ -6,8 +6,8 @@ import {
   type TypedResponse,
 } from '@remix-run/cloudflare';
 import { Form, useActionData } from '@remix-run/react';
-import { verifyPassword } from '../lib/.server/login';
-import { createUserSession, isAuthenticated } from '../lib/.server/sessions';
+import { verifyPassword } from '~/lib/.server/login';
+import { createUserSession, isAuthenticated } from '~/lib/.server/sessions';
 
 interface Errors {
   password?: string;

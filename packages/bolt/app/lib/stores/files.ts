@@ -1,9 +1,9 @@
 import type { PathWatcherEvent, WebContainer } from '@webcontainer/api';
 import { map, type MapStore } from 'nanostores';
 import * as nodePath from 'node:path';
-import { bufferWatchEvents } from '../../utils/buffer';
-import { WORK_DIR } from '../../utils/constants';
-import { createScopedLogger } from '../../utils/logger';
+import { bufferWatchEvents } from '~/utils/buffer';
+import { WORK_DIR } from '~/utils/constants';
+import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('FilesStore');
 

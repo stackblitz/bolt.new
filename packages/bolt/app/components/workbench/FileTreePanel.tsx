@@ -1,7 +1,7 @@
 import { memo } from 'react';
-import type { FileMap } from '../../lib/stores/files';
-import { WORK_DIR } from '../../utils/constants';
-import { renderLogger } from '../../utils/logger';
+import type { FileMap } from '~/lib/stores/files';
+import { WORK_DIR } from '~/utils/constants';
+import { renderLogger } from '~/utils/logger';
 import { FileTree } from './FileTree';
 
 interface FileTreePanelProps {

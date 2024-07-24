@@ -3,14 +3,14 @@ import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { memo, useCallback, useEffect } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { toast } from 'react-toastify';
-import { workbenchStore } from '../../lib/stores/workbench';
-import { cubicEasingFn } from '../../utils/easings';
-import { renderLogger } from '../../utils/logger';
 import {
   type OnChangeCallback as OnEditorChange,
   type OnScrollCallback as OnEditorScroll,
-} from '../editor/codemirror/CodeMirrorEditor';
-import { IconButton } from '../ui/IconButton';
+} from '~/components/editor/codemirror/CodeMirrorEditor';
+import { IconButton } from '~/components/ui/IconButton';
+import { workbenchStore } from '~/lib/stores/workbench';
+import { cubicEasingFn } from '~/utils/easings';
+import { renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
 

@@ -2,11 +2,11 @@ import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { ToastContainer, cssTransition } from 'react-toastify';
-import { useMessageParser, usePromptEnhancer, useSnapScroll } from '../../lib/hooks';
-import { chatStore } from '../../lib/stores/chat';
-import { workbenchStore } from '../../lib/stores/workbench';
-import { cubicEasingFn } from '../../utils/easings';
-import { createScopedLogger } from '../../utils/logger';
+import { useMessageParser, usePromptEnhancer, useSnapScroll } from '~/lib/hooks';
+import { chatStore } from '~/lib/stores/chat';
+import { workbenchStore } from '~/lib/stores/workbench';
+import { cubicEasingFn } from '~/utils/easings';
+import { createScopedLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
 
 const toastAnimation = cssTransition({

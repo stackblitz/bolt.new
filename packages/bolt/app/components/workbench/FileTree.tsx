@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { FileMap } from '../../lib/stores/files';
-import { classNames } from '../../utils/classNames';
-import { renderLogger } from '../../utils/logger';
+import type { FileMap } from '~/lib/stores/files';
+import { classNames } from '~/utils/classNames';
+import { renderLogger } from '~/utils/logger';
 
 const NODE_PADDING_LEFT = 12;
 const DEFAULT_HIDDEN_FILES = [/\/node_modules\//];

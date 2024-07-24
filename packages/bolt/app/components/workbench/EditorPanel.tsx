@@ -1,10 +1,6 @@
 import { useStore } from '@nanostores/react';
 import { memo, useMemo } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import type { FileMap } from '../../lib/stores/files';
-import { themeStore } from '../../lib/stores/theme';
-import { renderLogger } from '../../utils/logger';
-import { isMobile } from '../../utils/mobile';
 import {
   CodeMirrorEditor,
   type EditorDocument,
@@ -12,8 +8,12 @@ import {
   type OnChangeCallback as OnEditorChange,
   type OnSaveCallback as OnEditorSave,
   type OnScrollCallback as OnEditorScroll,
-} from '../editor/codemirror/CodeMirrorEditor';
-import { PanelHeaderButton } from '../ui/PanelHeaderButton';
+} from '~/components/editor/codemirror/CodeMirrorEditor';
+import { PanelHeaderButton } from '~/components/ui/PanelHeaderButton';
+import type { FileMap } from '~/lib/stores/files';
+import { themeStore } from '~/lib/stores/theme';
+import { renderLogger } from '~/utils/logger';
+import { isMobile } from '~/utils/mobile';
 import { FileTreePanel } from './FileTreePanel';
 
 interface EditorPanelProps {

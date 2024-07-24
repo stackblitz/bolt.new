@@ -167,7 +167,7 @@ export class ActionRunner {
         await webcontainer.fs.mkdir(folder, { recursive: true });
         logger.debug('Created folder', folder);
       } catch (error) {
-        logger.error('Failed to create folder\n', error);
+        logger.error('Failed to create folder\n\n', error);
       }
     }
 
@@ -175,7 +175,7 @@ export class ActionRunner {
       await webcontainer.fs.writeFile(action.filePath, action.content);
       logger.debug(`File written ${action.filePath}`);
     } catch (error) {
-      logger.error('Failed to write file\n', error);
+      logger.error('Failed to write file\n\n', error);
     }
   }
 

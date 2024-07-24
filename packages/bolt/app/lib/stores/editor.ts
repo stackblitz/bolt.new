@@ -1,15 +1,16 @@
-import type { WebContainer } from '@webcontainer/api';
-import { atom, computed, map } from 'nanostores';
+import { atom, computed, map, type MapStore, type WritableAtom } from 'nanostores';
 import type { EditorDocument, ScrollPosition } from '../../components/editor/codemirror/CodeMirrorEditor';
-import type { FileMap } from './files';
+import type { FileMap, FilesStore } from './files';
 
 export type EditorDocuments = Record<string, EditorDocument>;
 
-export class EditorStore {
-  #webcontainer: Promise<WebContainer>;
+type SelectedFile = WritableAtom<string | undefined>;
 
-  selectedFile = atom<string | undefined>();
-  documents = map<EditorDocuments>({});
+export class EditorStore {
+  #filesStore: FilesStore;
+
+  selectedFile: SelectedFile = import.meta.hot?.data.selectedFile ?? atom<string | undefined>();
+  documents: MapStore<EditorDocuments> = import.meta.hot?.data.documents ?? map<EditorDocuments>({});
 
   currentDocument = computed([this.documents, this.selectedFile], (documents, selectedFile) => {
     if (!selectedFile) {
@@ -19,12 +20,13 @@ export class EditorStore {
     return documents[selectedFile];
   });
 
-  constructor(webcontainerPromise: Promise<WebContainer>) {
-    this.#webcontainer = webcontainerPromise;
-  }
+  constructor(filesStore: FilesStore) {
+    this.#filesStore = filesStore;
 
-  commitFileContent(_filePath: string) {
-    // TODO
+    if (import.meta.hot) {
+      import.meta.hot.data.documents = this.documents;
+      import.meta.hot.data.selectedFile = this.selectedFile;
+    }
   }
 
   setDocuments(files: FileMap) {
@@ -38,13 +40,14 @@ export class EditorStore {
               return undefined;
             }
 
+            const previousDocument = previousDocuments?.[filePath];
+
             return [
               filePath,
               {
                 value: dirent.content,
-                commitPending: false,
                 filePath,
-                scroll: previousDocuments?.[filePath]?.scroll,
+                scroll: previousDocument?.scroll,
               },
             ] as [string, EditorDocument];
           })
@@ -71,26 +74,22 @@ export class EditorStore {
     });
   }
 
-  updateFile(filePath: string, content: string): boolean {
+  updateFile(filePath: string, newContent: string | Uint8Array) {
     const documents = this.documents.get();
     const documentState = documents[filePath];
 
     if (!documentState) {
-      return false;
+      return;
     }
 
     const currentContent = documentState.value;
-    const contentChanged = currentContent !== content;
+    const contentChanged = currentContent !== newContent;
 
     if (contentChanged) {
       this.documents.setKey(filePath, {
         ...documentState,
-        previousValue: !documentState.commitPending ? currentContent : documentState.previousValue,
-        commitPending: documentState.previousValue ? documentState.previousValue !== content : true,
-        value: content,
+        value: newContent,
       });
     }
-
-    return contentChanged;
   }
 }

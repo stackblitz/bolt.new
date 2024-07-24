@@ -1,16 +1,20 @@
 import type { PathWatcherEvent, WebContainer } from '@webcontainer/api';
-import { map } from 'nanostores';
+import { map, type MapStore } from 'nanostores';
+import * as nodePath from 'node:path';
 import { bufferWatchEvents } from '../../utils/buffer';
 import { WORK_DIR } from '../../utils/constants';
+import { createScopedLogger } from '../../utils/logger';
+
+const logger = createScopedLogger('FilesStore');
 
 const textDecoder = new TextDecoder('utf8', { fatal: true });
 
-interface File {
+export interface File {
   type: 'file';
-  content: string;
+  content: string | Uint8Array;
 }
 
-interface Folder {
+export interface Folder {
   type: 'folder';
 }
 
@@ -21,12 +25,57 @@ export type FileMap = Record<string, Dirent | undefined>;
 export class FilesStore {
   #webcontainer: Promise<WebContainer>;
 
-  files = map<FileMap>({});
+  /**
+   * Tracks the number of files without folders.
+   */
+  #size = 0;
+
+  files: MapStore<FileMap> = import.meta.hot?.data.files ?? map({});
+
+  get filesCount() {
+    return this.#size;
+  }
 
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
 
+    if (import.meta.hot) {
+      import.meta.hot.data.files = this.files;
+    }
+
     this.#init();
+  }
+
+  getFile(filePath: string) {
+    const dirent = this.files.get()[filePath];
+
+    if (dirent?.type !== 'file') {
+      return undefined;
+    }
+
+    return dirent;
+  }
+
+  async saveFile(filePath: string, content: string | Uint8Array) {
+    const webcontainer = await this.#webcontainer;
+
+    try {
+      const relativePath = nodePath.relative(webcontainer.workdir, filePath);
+
+      if (!relativePath) {
+        throw new Error(`EINVAL: invalid file path, write '${relativePath}'`);
+      }
+
+      await webcontainer.fs.writeFile(relativePath, content);
+
+      this.files.setKey(filePath, { type: 'file', content });
+
+      logger.info('File updated');
+    } catch (error) {
+      logger.error('Failed to update file content\n\n', error);
+
+      throw error;
+    }
   }
 
   async #init() {
@@ -64,10 +113,16 @@ export class FilesStore {
         }
         case 'add_file':
         case 'change': {
+          if (type === 'add_file') {
+            this.#size++;
+          }
+
           this.files.setKey(sanitizedPath, { type: 'file', content: this.#decodeFileContent(buffer) });
+
           break;
         }
         case 'remove_file': {
+          this.#size--;
           this.files.setKey(sanitizedPath, undefined);
           break;
         }

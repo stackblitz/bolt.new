@@ -2,12 +2,13 @@ import { useStore } from '@nanostores/react';
 import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { memo, useCallback, useEffect } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { toast } from 'react-toastify';
 import { workbenchStore } from '../../lib/stores/workbench';
 import { cubicEasingFn } from '../../utils/easings';
 import { renderLogger } from '../../utils/logger';
-import type {
-  OnChangeCallback as OnEditorChange,
-  OnScrollCallback as OnEditorScroll,
+import {
+  type OnChangeCallback as OnEditorChange,
+  type OnScrollCallback as OnEditorScroll,
 } from '../editor/codemirror/CodeMirrorEditor';
 import { IconButton } from '../ui/IconButton';
 import { EditorPanel } from './EditorPanel';
@@ -41,6 +42,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
   const showWorkbench = useStore(workbenchStore.showWorkbench);
   const selectedFile = useStore(workbenchStore.selectedFile);
   const currentDocument = useStore(workbenchStore.currentDocument);
+  const unsavedFiles = useStore(workbenchStore.unsavedFiles);
 
   const files = useStore(workbenchStore.files);
 
@@ -60,6 +62,16 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     workbenchStore.setSelectedFile(filePath);
   }, []);
 
+  const onFileSave = useCallback(() => {
+    workbenchStore.saveCurrentDocument().catch(() => {
+      toast.error('Failed to update file content');
+    });
+  }, []);
+
+  const onFileReset = useCallback(() => {
+    workbenchStore.resetCurrentDocument();
+  }, []);
+
   return (
     chatStarted && (
       <AnimatePresence>
@@ -70,7 +82,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                 <div className="px-3 py-2 border-b border-gray-200">
                   <IconButton
                     icon="i-ph:x-circle"
-                    className="ml-auto"
+                    className="ml-auto -mr-1"
                     size="xxl"
                     onClick={() => {
                       workbenchStore.showWorkbench.set(false);
@@ -85,9 +97,12 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                         isStreaming={isStreaming}
                         selectedFile={selectedFile}
                         files={files}
+                        unsavedFiles={unsavedFiles}
                         onFileSelect={onFileSelect}
                         onEditorScroll={onEditorScroll}
                         onEditorChange={onEditorChange}
+                        onFileSave={onFileSave}
+                        onFileReset={onFileReset}
                       />
                     </Panel>
                     <PanelResizeHandle />

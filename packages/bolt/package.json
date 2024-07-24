@@ -50,6 +50,7 @@
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
     "react-resizable-panels": "^2.0.20",
+    "react-toastify": "^10.0.5",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "remix-utils": "^7.6.0",

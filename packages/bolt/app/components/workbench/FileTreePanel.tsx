@@ -7,15 +7,22 @@ import { FileTree } from './FileTree';
 interface FileTreePanelProps {
   files?: FileMap;
   selectedFile?: string;
+  unsavedFiles?: Set<string>;
   onFileSelect?: (value?: string) => void;
 }
 
-export const FileTreePanel = memo(({ files, selectedFile, onFileSelect }: FileTreePanelProps) => {
+export const FileTreePanel = memo(({ files, unsavedFiles, selectedFile, onFileSelect }: FileTreePanelProps) => {
   renderLogger.trace('FileTreePanel');
 
   return (
-    <div className="border-r h-full">
-      <FileTree files={files} rootFolder={WORK_DIR} selectedFile={selectedFile} onFileSelect={onFileSelect} />
+    <div className="h-full">
+      <FileTree
+        files={files}
+        unsavedFiles={unsavedFiles}
+        rootFolder={WORK_DIR}
+        selectedFile={selectedFile}
+        onFileSelect={onFileSelect}
+      />
     </div>
   );
 });

@@ -2,7 +2,7 @@ import { acceptCompletion, autocompletion, closeBrackets } from '@codemirror/aut
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { bracketMatching, foldGutter, indentOnInput, indentUnit } from '@codemirror/language';
 import { searchKeymap } from '@codemirror/search';
-import { Compartment, EditorSelection, EditorState, type Extension } from '@codemirror/state';
+import { Compartment, EditorSelection, EditorState, StateEffect, StateField, type Extension } from '@codemirror/state';
 import {
   EditorView,
   drawSelection,
@@ -27,8 +27,6 @@ const logger = createScopedLogger('CodeMirrorEditor');
 
 export interface EditorDocument {
   value: string | Uint8Array;
-  previousValue?: string | Uint8Array;
-  commitPending: boolean;
   filePath: string;
   scroll?: ScrollPosition;
 }
@@ -54,6 +52,7 @@ export interface EditorUpdate {
 
 export type OnChangeCallback = (update: EditorUpdate) => void;
 export type OnScrollCallback = (position: ScrollPosition) => void;
+export type OnSaveCallback = () => void;
 
 interface Props {
   theme: Theme;
@@ -65,11 +64,29 @@ interface Props {
   autoFocusOnDocumentChange?: boolean;
   onChange?: OnChangeCallback;
   onScroll?: OnScrollCallback;
+  onSave?: OnSaveCallback;
   className?: string;
   settings?: EditorSettings;
 }
 
 type EditorStates = Map<string, EditorState>;
+
+const editableStateEffect = StateEffect.define<boolean>();
+
+const editableStateField = StateField.define<boolean>({
+  create() {
+    return true;
+  },
+  update(value, transaction) {
+    for (const effect of transaction.effects) {
+      if (effect.is(editableStateEffect)) {
+        return effect.value;
+      }
+    }
+
+    return value;
+  },
+});
 
 export const CodeMirrorEditor = memo(
   ({
@@ -81,15 +98,14 @@ export const CodeMirrorEditor = memo(
     editable = true,
     onScroll,
     onChange,
+    onSave,
     theme,
     settings,
     className = '',
   }: Props) => {
-    renderLogger.debug('CodeMirrorEditor');
+    renderLogger.trace('CodeMirrorEditor');
 
     const [languageCompartment] = useState(new Compartment());
-    const [readOnlyCompartment] = useState(new Compartment());
-    const [editableCompartment] = useState(new Compartment());
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const viewRef = useRef<EditorView>();
@@ -98,14 +114,21 @@ export const CodeMirrorEditor = memo(
     const editorStatesRef = useRef<EditorStates>();
     const onScrollRef = useRef(onScroll);
     const onChangeRef = useRef(onChange);
+    const onSaveRef = useRef(onSave);
 
     const isBinaryFile = doc?.value instanceof Uint8Array;
 
-    onScrollRef.current = onScroll;
-    onChangeRef.current = onChange;
-
-    docRef.current = doc;
-    themeRef.current = theme;
+    /**
+     * This effect is used to avoid side effects directly in the render function
+     * and instead the refs are updated after each render.
+     */
+    useEffect(() => {
+      onScrollRef.current = onScroll;
+      onChangeRef.current = onChange;
+      onSaveRef.current = onSave;
+      docRef.current = doc;
+      themeRef.current = theme;
+    });
 
     useEffect(() => {
       const onUpdate = debounce((update: EditorUpdate) => {
@@ -164,10 +187,8 @@ export const CodeMirrorEditor = memo(
       const theme = themeRef.current!;
 
       if (!doc) {
-        const state = newEditorState('', theme, settings, onScrollRef, debounceScroll, [
+        const state = newEditorState('', theme, settings, onScrollRef, debounceScroll, onSaveRef, [
           languageCompartment.of([]),
-          readOnlyCompartment.of([]),
-          editableCompartment.of([]),
         ]);
 
         view.setState(state);
@@ -188,10 +209,8 @@ export const CodeMirrorEditor = memo(
       let state = editorStates.get(doc.filePath);
 
       if (!state) {
-        state = newEditorState(doc.value, theme, settings, onScrollRef, debounceScroll, [
+        state = newEditorState(doc.value, theme, settings, onScrollRef, debounceScroll, onSaveRef, [
           languageCompartment.of([]),
-          readOnlyCompartment.of([EditorState.readOnly.of(!editable)]),
-          editableCompartment.of([EditorView.editable.of(editable)]),
         ]);
 
         editorStates.set(doc.filePath, state);
@@ -204,8 +223,6 @@ export const CodeMirrorEditor = memo(
         theme,
         editable,
         languageCompartment,
-        readOnlyCompartment,
-        editableCompartment,
         autoFocusOnDocumentChange,
         doc as TextEditorDocument,
       );
@@ -230,20 +247,20 @@ function newEditorState(
   settings: EditorSettings | undefined,
   onScrollRef: MutableRefObject<OnScrollCallback | undefined>,
   debounceScroll: number,
+  onFileSaveRef: MutableRefObject<OnSaveCallback | undefined>,
   extensions: Extension[],
 ) {
   return EditorState.create({
     doc: content,
     extensions: [
       EditorView.domEventHandlers({
-        scroll: debounce((_event, view) => {
+        scroll: debounce((event, view) => {
+          if (event.target !== view.scrollDOM) {
+            return;
+          }
+
           onScrollRef.current?.({ left: view.scrollDOM.scrollLeft, top: view.scrollDOM.scrollTop });
         }, debounceScroll),
-        keydown: (event) => {
-          if (event.code === 'KeyS' && (event.ctrlKey || event.metaKey)) {
-            event.preventDefault();
-          }
-        },
       }),
       getTheme(theme, settings),
       history(),
@@ -252,6 +269,14 @@ function newEditorState(
         ...historyKeymap,
         ...searchKeymap,
         { key: 'Tab', run: acceptCompletion },
+        {
+          key: 'Mod-s',
+          preventDefault: true,
+          run: () => {
+            onFileSaveRef.current?.();
+            return true;
+          },
+        },
         indentKeyBinding,
       ]),
       indentUnit.of('\t'),
@@ -266,6 +291,9 @@ function newEditorState(
       bracketMatching(),
       EditorState.tabSize.of(settings?.tabSize ?? 2),
       indentOnInput(),
+      editableStateField,
+      EditorState.readOnly.from(editableStateField, (editable) => !editable),
+      EditorView.editable.from(editableStateField, (editable) => editable),
       highlightActiveLineGutter(),
       highlightActiveLine(),
       foldGutter({
@@ -300,8 +328,6 @@ function setEditorDocument(
   theme: Theme,
   editable: boolean,
   languageCompartment: Compartment,
-  readOnlyCompartment: Compartment,
-  editableCompartment: Compartment,
   autoFocus: boolean,
   doc: TextEditorDocument,
 ) {
@@ -317,10 +343,7 @@ function setEditorDocument(
   }
 
   view.dispatch({
-    effects: [
-      readOnlyCompartment.reconfigure([EditorState.readOnly.of(!editable)]),
-      editableCompartment.reconfigure([EditorView.editable.of(editable)]),
-    ],
+    effects: [editableStateEffect.of(editable)],
   });
 
   getLanguage(doc.filePath).then((languageSupport) => {
@@ -340,7 +363,7 @@ function setEditorDocument(
 
       const needsScrolling = currentLeft !== newLeft || currentTop !== newTop;
 
-      if (autoFocus) {
+      if (autoFocus && editable) {
         if (needsScrolling) {
           // we have to wait until the scroll position was changed before we can set the focus
           view.scrollDOM.addEventListener(

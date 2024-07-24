@@ -57,7 +57,21 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
       styles.push('', scopeStyles);
     }
 
-    console.log(`%c${level.toUpperCase()}${scope ? `%c %c${scope}` : ''}`, ...styles, ...messages);
+    console.log(
+      `%c${level.toUpperCase()}${scope ? `%c %c${scope}` : ''}`,
+      ...styles,
+      messages.reduce((acc, current) => {
+        if (acc.endsWith('\n')) {
+          return acc + current;
+        }
+
+        if (!acc) {
+          return current;
+        }
+
+        return `${acc} ${current}`;
+      }, ''),
+    );
   }
 }
 

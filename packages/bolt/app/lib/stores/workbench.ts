@@ -21,11 +21,20 @@ type Artifacts = MapStore<Record<string, ArtifactState>>;
 export class WorkbenchStore {
   #previewsStore = new PreviewsStore(webcontainer);
   #filesStore = new FilesStore(webcontainer);
-  #editorStore = new EditorStore(webcontainer);
+  #editorStore = new EditorStore(this.#filesStore);
 
   artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
-
   showWorkbench: WritableAtom<boolean> = import.meta.hot?.data.showWorkbench ?? atom(false);
+  unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
+  modifiedFiles = new Set<string>();
+
+  constructor() {
+    if (import.meta.hot) {
+      import.meta.hot.data.artifacts = this.artifacts;
+      import.meta.hot.data.unsavedFiles = this.unsavedFiles;
+      import.meta.hot.data.showWorkbench = this.showWorkbench;
+    }
+  }
 
   get previews() {
     return this.#previewsStore.previews;
@@ -45,20 +54,53 @@ export class WorkbenchStore {
 
   setDocuments(files: FileMap) {
     this.#editorStore.setDocuments(files);
+
+    if (this.#filesStore.filesCount > 0 && this.currentDocument.get() === undefined) {
+      // we find the first file and select it
+      for (const [filePath, dirent] of Object.entries(files)) {
+        if (dirent?.type === 'file') {
+          this.setSelectedFile(filePath);
+          break;
+        }
+      }
+    }
   }
 
   setShowWorkbench(show: boolean) {
     this.showWorkbench.set(show);
   }
 
-  setCurrentDocumentContent(newContent: string) {
+  setCurrentDocumentContent(newContent: string | Uint8Array) {
     const filePath = this.currentDocument.get()?.filePath;
 
     if (!filePath) {
       return;
     }
 
+    const originalContent = this.#filesStore.getFile(filePath)?.content;
+    const unsavedChanges = originalContent !== undefined && originalContent !== newContent;
+
     this.#editorStore.updateFile(filePath, newContent);
+
+    const currentDocument = this.currentDocument.get();
+
+    if (currentDocument) {
+      const previousUnsavedFiles = this.unsavedFiles.get();
+
+      if (unsavedChanges && previousUnsavedFiles.has(currentDocument.filePath)) {
+        return;
+      }
+
+      const newUnsavedFiles = new Set(previousUnsavedFiles);
+
+      if (unsavedChanges) {
+        newUnsavedFiles.add(currentDocument.filePath);
+      } else {
+        newUnsavedFiles.delete(currentDocument.filePath);
+      }
+
+      this.unsavedFiles.set(newUnsavedFiles);
+    }
   }
 
   setCurrentDocumentScrollPosition(position: ScrollPosition) {
@@ -75,6 +117,40 @@ export class WorkbenchStore {
 
   setSelectedFile(filePath: string | undefined) {
     this.#editorStore.setSelectedFile(filePath);
+  }
+
+  async saveCurrentDocument() {
+    const currentDocument = this.currentDocument.get();
+
+    if (currentDocument === undefined) {
+      return;
+    }
+
+    const { filePath } = currentDocument;
+
+    await this.#filesStore.saveFile(filePath, currentDocument.value);
+
+    const newUnsavedFiles = new Set(this.unsavedFiles.get());
+    newUnsavedFiles.delete(filePath);
+
+    this.unsavedFiles.set(newUnsavedFiles);
+  }
+
+  resetCurrentDocument() {
+    const currentDocument = this.currentDocument.get();
+
+    if (currentDocument === undefined) {
+      return;
+    }
+
+    const { filePath } = currentDocument;
+    const file = this.#filesStore.getFile(filePath);
+
+    if (!file) {
+      return;
+    }
+
+    this.setCurrentDocumentContent(file.content);
   }
 
   abortAllActions() {
@@ -136,8 +212,3 @@ export class WorkbenchStore {
 }
 
 export const workbenchStore = new WorkbenchStore();
-
-if (import.meta.hot) {
-  import.meta.hot.data.artifacts = workbenchStore.artifacts;
-  import.meta.hot.data.showWorkbench = workbenchStore.showWorkbench;
-}

@@ -38,6 +38,9 @@ function getEditorTheme(settings: EditorSettings) {
     },
     '.cm-scroller': {
       lineHeight: '1.5',
+      '&:focus-visible': {
+        outline: 'none',
+      },
     },
     '.cm-line': {
       padding: '0 0 0 4px',

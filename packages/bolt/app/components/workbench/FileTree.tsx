@@ -12,19 +12,19 @@ interface Props {
   onFileSelect?: (filePath: string) => void;
   rootFolder?: string;
   hiddenFiles?: Array<string | RegExp>;
+  unsavedFiles?: Set<string>;
   className?: string;
 }
 
 export const FileTree = memo(
-  ({ files = {}, onFileSelect, selectedFile, rootFolder, hiddenFiles, className }: Props) => {
+  ({ files = {}, onFileSelect, selectedFile, rootFolder, hiddenFiles, className, unsavedFiles }: Props) => {
     renderLogger.trace('FileTree');
 
     const computedHiddenFiles = useMemo(() => [...DEFAULT_HIDDEN_FILES, ...(hiddenFiles ?? [])], [hiddenFiles]);
 
-    const fileList = useMemo(
-      () => buildFileList(files, rootFolder, computedHiddenFiles),
-      [files, rootFolder, computedHiddenFiles],
-    );
+    const fileList = useMemo(() => {
+      return buildFileList(files, rootFolder, computedHiddenFiles);
+    }, [files, rootFolder, computedHiddenFiles]);
 
     const [collapsedFolders, setCollapsedFolders] = useState(() => new Set<string>());
 
@@ -95,6 +95,7 @@ export const FileTree = memo(
                   key={fileOrFolder.id}
                   selected={selectedFile === fileOrFolder.fullPath}
                   file={fileOrFolder}
+                  unsavedChanges={unsavedFiles?.has(fileOrFolder.fullPath)}
                   onClick={() => {
                     onFileSelect?.(fileOrFolder.fullPath);
                   }}
@@ -134,7 +135,7 @@ interface FolderProps {
 function Folder({ folder: { depth, name }, collapsed, onClick }: FolderProps) {
   return (
     <NodeButton
-      className="group bg-white hover:bg-gray-100 text-md"
+      className="group bg-white hover:bg-gray-50 text-md"
       depth={depth}
       iconClasses={classNames({
         'i-ph:caret-right scale-98': collapsed,
@@ -150,10 +151,11 @@ function Folder({ folder: { depth, name }, collapsed, onClick }: FolderProps) {
 interface FileProps {
   file: FileNode;
   selected: boolean;
+  unsavedChanges?: boolean;
   onClick: () => void;
 }
 
-function File({ file: { depth, name }, onClick, selected }: FileProps) {
+function File({ file: { depth, name }, onClick, selected, unsavedChanges = false }: FileProps) {
   return (
     <NodeButton
       className={classNames('group', {
@@ -166,7 +168,10 @@ function File({ file: { depth, name }, onClick, selected }: FileProps) {
       })}
       onClick={onClick}
     >
-      {name}
+      <div className="flex items-center">
+        <div className="flex-1 truncate pr-2">{name}</div>
+        {unsavedChanges && <span className="i-ph:circle-fill scale-68 shrink-0 text-warning-400" />}
+      </div>
     </NodeButton>
   );
 }
@@ -187,7 +192,7 @@ function NodeButton({ depth, iconClasses, onClick, className, children }: Button
       onClick={() => onClick?.()}
     >
       <div className={classNames('scale-120 shrink-0', iconClasses)}></div>
-      <span className="whitespace-nowrap">{children}</span>
+      <div className="truncate w-full text-left">{children}</div>
     </button>
   );
 }

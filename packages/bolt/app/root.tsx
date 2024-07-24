@@ -5,6 +5,7 @@ import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
 
+import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
 
 import 'virtual:uno.css';
@@ -17,6 +18,7 @@ export const links: LinksFunction = () => [
   },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
+  { rel: 'stylesheet', href: reactToastifyStyles },
   {
     rel: 'preconnect',
     href: 'https://fonts.googleapis.com',

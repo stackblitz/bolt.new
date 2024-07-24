@@ -1,12 +1,18 @@
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { ToastContainer, cssTransition } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useSnapScroll } from '../../lib/hooks';
 import { chatStore } from '../../lib/stores/chat';
 import { workbenchStore } from '../../lib/stores/workbench';
 import { cubicEasingFn } from '../../utils/easings';
 import { createScopedLogger } from '../../utils/logger';
 import { BaseChat } from './BaseChat';
+
+const toastAnimation = cssTransition({
+  enter: 'animated fadeInRight',
+  exit: 'animated fadeOutRight',
+});
 
 const logger = createScopedLogger('Chat');
 
@@ -90,35 +96,38 @@ export function Chat() {
   const [messageRef, scrollRef] = useSnapScroll();
 
   return (
-    <BaseChat
-      ref={animationScope}
-      textareaRef={textareaRef}
-      input={input}
-      chatStarted={chatStarted}
-      isStreaming={isLoading}
-      enhancingPrompt={enhancingPrompt}
-      promptEnhanced={promptEnhanced}
-      sendMessage={sendMessage}
-      messageRef={messageRef}
-      scrollRef={scrollRef}
-      handleInputChange={handleInputChange}
-      handleStop={abort}
-      messages={messages.map((message, i) => {
-        if (message.role === 'user') {
-          return message;
-        }
+    <>
+      <BaseChat
+        ref={animationScope}
+        textareaRef={textareaRef}
+        input={input}
+        chatStarted={chatStarted}
+        isStreaming={isLoading}
+        enhancingPrompt={enhancingPrompt}
+        promptEnhanced={promptEnhanced}
+        sendMessage={sendMessage}
+        messageRef={messageRef}
+        scrollRef={scrollRef}
+        handleInputChange={handleInputChange}
+        handleStop={abort}
+        messages={messages.map((message, i) => {
+          if (message.role === 'user') {
+            return message;
+          }
 
-        return {
-          ...message,
-          content: parsedMessages[i] || '',
-        };
-      })}
-      enhancePrompt={() => {
-        enhancePrompt(input, (input) => {
-          setInput(input);
-          scrollTextArea();
-        });
-      }}
-    ></BaseChat>
+          return {
+            ...message,
+            content: parsedMessages[i] || '',
+          };
+        })}
+        enhancePrompt={() => {
+          enhancePrompt(input, (input) => {
+            setInput(input);
+            scrollTextArea();
+          });
+        }}
+      />
+      <ToastContainer position="bottom-right" stacked={true} pauseOnFocusLoss={true} transition={toastAnimation} />
+    </>
   );
 }

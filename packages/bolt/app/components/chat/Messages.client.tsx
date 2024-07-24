@@ -2,6 +2,7 @@ import type { Message } from 'ai';
 import { classNames } from '../../utils/classNames';
 import { AssistantMessage } from './AssistantMessage';
 import { UserMessage } from './UserMessage';
+import React from 'react';
 
 interface MessagesProps {
   id?: string;
@@ -10,11 +11,11 @@ interface MessagesProps {
   messages?: Message[];
 }
 
-export function Messages(props: MessagesProps) {
+export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: MessagesProps, ref) => {
   const { id, isStreaming = false, messages = [] } = props;
 
   return (
-    <div id={id} className={props.className}>
+    <div id={id} ref={ref} className={props.className}>
       {messages.length > 0
         ? messages.map((message, i) => {
             const { role, content } = message;
@@ -61,4 +62,4 @@ export function Messages(props: MessagesProps) {
       {isStreaming && <div className="text-center w-full i-svg-spinners:3-dots-fade text-4xl mt-4"></div>}
     </div>
   );
-}
+});

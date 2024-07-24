@@ -1,7 +1,7 @@
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { useMessageParser, usePromptEnhancer } from '../../lib/hooks';
+import { useMessageParser, usePromptEnhancer, useSnapScroll } from '../../lib/hooks';
 import { chatStore } from '../../lib/stores/chat';
 import { workbenchStore } from '../../lib/stores/workbench';
 import { cubicEasingFn } from '../../utils/easings';
@@ -87,6 +87,8 @@ export function Chat() {
     textareaRef.current?.blur();
   };
 
+  const [messageRef, scrollRef] = useSnapScroll();
+
   return (
     <BaseChat
       ref={animationScope}
@@ -97,6 +99,8 @@ export function Chat() {
       enhancingPrompt={enhancingPrompt}
       promptEnhanced={promptEnhanced}
       sendMessage={sendMessage}
+      messageRef={messageRef}
+      scrollRef={scrollRef}
       handleInputChange={handleInputChange}
       handleStop={abort}
       messages={messages.map((message, i) => {

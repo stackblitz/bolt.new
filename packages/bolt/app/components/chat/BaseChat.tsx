@@ -1,6 +1,5 @@
 import type { Message } from 'ai';
-import type { LegacyRef } from 'react';
-import React from 'react';
+import React, { type LegacyRef, type RefCallback } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '../../utils/classNames';
 import { IconButton } from '../ui/IconButton';
@@ -10,6 +9,8 @@ import { SendButton } from './SendButton.client';
 
 interface BaseChatProps {
   textareaRef?: LegacyRef<HTMLTextAreaElement> | undefined;
+  messageRef?: RefCallback<HTMLDivElement> | undefined;
+  scrollRef?: RefCallback<HTMLDivElement> | undefined;
   chatStarted?: boolean;
   isStreaming?: boolean;
   messages?: Message[];
@@ -30,6 +31,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
   (
     {
       textareaRef,
+      messageRef,
+      scrollRef,
       chatStarted = false,
       isStreaming = false,
       enhancingPrompt = false,
@@ -47,7 +50,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
     return (
       <div ref={ref} className="relative flex h-full w-full overflow-hidden ">
-        <div className="flex overflow-scroll w-full h-full">
+        <div ref={scrollRef} className="flex overflow-scroll w-full h-full">
           <div id="chat" className="flex flex-col w-full h-full px-6">
             {!chatStarted && (
               <div id="intro" className="mt-[20vh] mb-14 max-w-3xl mx-auto">
@@ -71,6 +74,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 {() => {
                   return chatStarted ? (
                     <Messages
+                      ref={messageRef}
                       className="flex flex-col w-full flex-1 max-w-3xl px-4 pb-10 mx-auto z-1"
                       messages={messages}
                       isStreaming={isStreaming}

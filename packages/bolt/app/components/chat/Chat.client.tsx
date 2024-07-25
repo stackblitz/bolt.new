@@ -1,7 +1,7 @@
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { ToastContainer, cssTransition } from 'react-toastify';
+import { toast, ToastContainer, cssTransition } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useSnapScroll } from '~/lib/hooks';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -27,6 +27,7 @@ export function Chat() {
     api: '/api/chat',
     onError: (error) => {
       logger.error(error);
+      toast.error('There was an error processing your request');
     },
     onFinish: () => {
       logger.debug('Finished streaming');

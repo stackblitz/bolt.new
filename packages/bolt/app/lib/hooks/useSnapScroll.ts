@@ -9,15 +9,13 @@ export function useSnapScroll() {
   const messageRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
       const observer = new ResizeObserver(() => {
-        if (autoScrollRef.current) {
-          if (scrollNodeRef.current) {
-            const { scrollHeight, clientHeight } = scrollNodeRef.current;
-            const scrollTarget = scrollHeight - clientHeight;
+        if (autoScrollRef.current && scrollNodeRef.current) {
+          const { scrollHeight, clientHeight } = scrollNodeRef.current;
+          const scrollTarget = scrollHeight - clientHeight;
 
-            scrollNodeRef.current.scrollTo({
-              top: scrollTarget,
-            });
-          }
+          scrollNodeRef.current.scrollTo({
+            top: scrollTarget,
+          });
         }
       });
 

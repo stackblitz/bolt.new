@@ -1,3 +1,4 @@
+import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
@@ -8,6 +9,7 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
+import { useChatHistory } from '~/lib/persistence';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -17,9 +19,25 @@ const toastAnimation = cssTransition({
 const logger = createScopedLogger('Chat');
 
 export function Chat() {
+  const { ready, initialMessages, storeMessageHistory } = useChatHistory();
+
+  return (
+    <>
+      {ready && <ChatImpl initialMessages={initialMessages} storeMessageHistory={storeMessageHistory} />}
+      <ToastContainer position="bottom-right" stacked pauseOnFocusLoss transition={toastAnimation} />;
+    </>
+  );
+}
+
+interface ChatProps {
+  initialMessages: Message[];
+  storeMessageHistory: (messages: Message[]) => Promise<void>;
+}
+
+export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const [chatStarted, setChatStarted] = useState(false);
+  const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
 
   const [animationScope, animate] = useAnimate();
 
@@ -32,6 +50,7 @@ export function Chat() {
     onFinish: () => {
       logger.debug('Finished streaming');
     },
+    initialMessages,
   });
 
   const { enhancingPrompt, promptEnhanced, enhancePrompt, resetEnhancer } = usePromptEnhancer();
@@ -41,6 +60,7 @@ export function Chat() {
 
   useEffect(() => {
     parseMessages(messages, isLoading);
+    storeMessageHistory(messages).catch((error) => toast.error(error.message));
   }, [messages, isLoading, parseMessages]);
 
   const scrollTextArea = () => {
@@ -97,38 +117,35 @@ export function Chat() {
   const [messageRef, scrollRef] = useSnapScroll();
 
   return (
-    <>
-      <BaseChat
-        ref={animationScope}
-        textareaRef={textareaRef}
-        input={input}
-        chatStarted={chatStarted}
-        isStreaming={isLoading}
-        enhancingPrompt={enhancingPrompt}
-        promptEnhanced={promptEnhanced}
-        sendMessage={sendMessage}
-        messageRef={messageRef}
-        scrollRef={scrollRef}
-        handleInputChange={handleInputChange}
-        handleStop={abort}
-        messages={messages.map((message, i) => {
-          if (message.role === 'user') {
-            return message;
-          }
+    <BaseChat
+      ref={animationScope}
+      textareaRef={textareaRef}
+      input={input}
+      chatStarted={chatStarted}
+      isStreaming={isLoading}
+      enhancingPrompt={enhancingPrompt}
+      promptEnhanced={promptEnhanced}
+      sendMessage={sendMessage}
+      messageRef={messageRef}
+      scrollRef={scrollRef}
+      handleInputChange={handleInputChange}
+      handleStop={abort}
+      messages={messages.map((message, i) => {
+        if (message.role === 'user') {
+          return message;
+        }
 
-          return {
-            ...message,
-            content: parsedMessages[i] || '',
-          };
-        })}
-        enhancePrompt={() => {
-          enhancePrompt(input, (input) => {
-            setInput(input);
-            scrollTextArea();
-          });
-        }}
-      />
-      <ToastContainer position="bottom-right" stacked={true} pauseOnFocusLoss={true} transition={toastAnimation} />
-    </>
+        return {
+          ...message,
+          content: parsedMessages[i] || '',
+        };
+      })}
+      enhancePrompt={() => {
+        enhancePrompt(input, (input) => {
+          setInput(input);
+          scrollTextArea();
+        });
+      }}
+    />
   );
 }

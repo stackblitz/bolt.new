@@ -1,3 +1,4 @@
+import { modificationsRegex } from '~/utils/diff';
 import { Markdown } from './Markdown';
 
 interface UserMessageProps {
@@ -7,7 +8,11 @@ interface UserMessageProps {
 export function UserMessage({ content }: UserMessageProps) {
   return (
     <div className="overflow-hidden">
-      <Markdown>{content}</Markdown>
+      <Markdown>{sanitizeUserMessage(content)}</Markdown>
     </div>
   );
+}
+
+function sanitizeUserMessage(content: string) {
+  return content.replace(modificationsRegex, '').trim();
 }

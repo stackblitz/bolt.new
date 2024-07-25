@@ -18,7 +18,7 @@ interface BaseChatProps {
   promptEnhanced?: boolean;
   input?: string;
   handleStop?: () => void;
-  sendMessage?: () => void;
+  sendMessage?: (event: React.UIEvent) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
 }
@@ -103,7 +103,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                         event.preventDefault();
 
-                        sendMessage?.();
+                        sendMessage?.(event);
                       }
                     }}
                     value={input}
@@ -122,13 +122,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       <SendButton
                         show={input.length > 0 || isStreaming}
                         isStreaming={isStreaming}
-                        onClick={() => {
+                        onClick={(event) => {
                           if (isStreaming) {
                             handleStop?.();
                             return;
                           }
 
-                          sendMessage?.();
+                          sendMessage?.(event);
                         }}
                       />
                     )}

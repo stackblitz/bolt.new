@@ -70,7 +70,7 @@ export class WorkbenchStore {
     this.showWorkbench.set(show);
   }
 
-  setCurrentDocumentContent(newContent: string | Uint8Array) {
+  setCurrentDocumentContent(newContent: string) {
     const filePath = this.currentDocument.get()?.filePath;
 
     if (!filePath) {
@@ -119,6 +119,22 @@ export class WorkbenchStore {
     this.#editorStore.setSelectedFile(filePath);
   }
 
+  async saveFile(filePath: string) {
+    const documents = this.#editorStore.documents.get();
+    const document = documents[filePath];
+
+    if (document === undefined) {
+      return;
+    }
+
+    await this.#filesStore.saveFile(filePath, document.value);
+
+    const newUnsavedFiles = new Set(this.unsavedFiles.get());
+    newUnsavedFiles.delete(filePath);
+
+    this.unsavedFiles.set(newUnsavedFiles);
+  }
+
   async saveCurrentDocument() {
     const currentDocument = this.currentDocument.get();
 
@@ -126,14 +142,7 @@ export class WorkbenchStore {
       return;
     }
 
-    const { filePath } = currentDocument;
-
-    await this.#filesStore.saveFile(filePath, currentDocument.value);
-
-    const newUnsavedFiles = new Set(this.unsavedFiles.get());
-    newUnsavedFiles.delete(filePath);
-
-    this.unsavedFiles.set(newUnsavedFiles);
+    await this.saveFile(currentDocument.filePath);
   }
 
   resetCurrentDocument() {
@@ -151,6 +160,20 @@ export class WorkbenchStore {
     }
 
     this.setCurrentDocumentContent(file.content);
+  }
+
+  async saveAllFiles() {
+    for (const filePath of this.unsavedFiles.get()) {
+      await this.saveFile(filePath);
+    }
+  }
+
+  getFileModifcations() {
+    return this.#filesStore.getFileModifications();
+  }
+
+  resetAllFileModifications() {
+    this.#filesStore.resetFileModifications();
   }
 
   abortAllActions() {

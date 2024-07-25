@@ -7,6 +7,7 @@ import SwitchableStream from '~/lib/.server/llm/switchable-stream';
 
 export async function action({ context, request }: ActionFunctionArgs) {
   const { messages } = await request.json<{ messages: Messages }>();
+
   const stream = new SwitchableStream();
 
   try {

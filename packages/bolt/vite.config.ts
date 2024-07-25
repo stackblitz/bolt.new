@@ -12,7 +12,7 @@ export default defineConfig((config) => {
     },
     plugins: [
       nodePolyfills({
-        include: ['path'],
+        include: ['path', 'buffer'],
       }),
       config.mode !== 'test' && remixCloudflareDevProxy(),
       remixVitePlugin({

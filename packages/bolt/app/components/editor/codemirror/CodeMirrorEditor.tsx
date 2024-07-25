@@ -26,7 +26,8 @@ import { getLanguage } from './languages';
 const logger = createScopedLogger('CodeMirrorEditor');
 
 export interface EditorDocument {
-  value: string | Uint8Array;
+  value: string;
+  isBinary: boolean;
   filePath: string;
   scroll?: ScrollPosition;
 }
@@ -116,8 +117,6 @@ export const CodeMirrorEditor = memo(
     const onChangeRef = useRef(onChange);
     const onSaveRef = useRef(onSave);
 
-    const isBinaryFile = doc?.value instanceof Uint8Array;
-
     /**
      * This effect is used to avoid side effects directly in the render function
      * and instead the refs are updated after each render.
@@ -198,7 +197,7 @@ export const CodeMirrorEditor = memo(
         return;
       }
 
-      if (doc.value instanceof Uint8Array) {
+      if (doc.isBinary) {
         return;
       }
 
@@ -230,7 +229,7 @@ export const CodeMirrorEditor = memo(
 
     return (
       <div className={classNames('relative h-full', className)}>
-        {isBinaryFile && <BinaryContent />}
+        {doc?.isBinary && <BinaryContent />}
         <div className="h-full overflow-hidden" ref={containerRef} />
       </div>
     );
@@ -343,7 +342,7 @@ function setEditorDocument(
   }
 
   view.dispatch({
-    effects: [editableStateEffect.of(editable)],
+    effects: [editableStateEffect.of(editable && !doc.isBinary)],
   });
 
   getLanguage(doc.filePath).then((languageSupport) => {

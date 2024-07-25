@@ -14,7 +14,7 @@ export const PanelHeaderButton = memo(
     return (
       <button
         className={classNames(
-          'flex items-center gap-1.5 px-1.5 rounded-lg py-0.5 bg-transparent hover:bg-white disabled:cursor-not-allowed',
+          'flex items-center gap-1.5 px-1.5 rounded-md py-0.5 bg-transparent hover:bg-white disabled:cursor-not-allowed',
           {
             [classNames('opacity-30', disabledClassName)]: disabled,
           },

@@ -2,10 +2,11 @@ import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { toast, ToastContainer, cssTransition } from 'react-toastify';
+import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useSnapScroll } from '~/lib/hooks';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
@@ -41,7 +42,7 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
 
   const [animationScope, animate] = useAnimate();
 
-  const { messages, isLoading, input, handleInputChange, setInput, handleSubmit, stop } = useChat({
+  const { messages, isLoading, input, handleInputChange, setInput, handleSubmit, stop, append } = useChat({
     api: '/api/chat',
     onError: (error) => {
       logger.error(error);
@@ -100,15 +101,49 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
     setChatStarted(true);
   };
 
-  const sendMessage = () => {
-    if (input.length === 0) {
+  const sendMessage = async (event: React.UIEvent) => {
+    if (input.length === 0 || isLoading) {
       return;
     }
+
+    /**
+     * @note (delm) Usually saving files shouldn't take long but it may take longer if there
+     * many unsaved files. In that case we need to block user input and show an indicator
+     * of some kind so the user is aware that something is happening. But I consider the
+     * happy case to be no unsaved files and I would expect users to save their changes
+     * before they send another message.
+     */
+    await workbenchStore.saveAllFiles();
+
+    const fileModifications = workbenchStore.getFileModifcations();
 
     chatStore.setKey('aborted', false);
 
     runAnimation();
-    handleSubmit();
+
+    if (fileModifications !== undefined) {
+      const diff = fileModificationsToHTML(fileModifications);
+
+      /**
+       * If we have file modifications we append a new user message manually since we have to prefix
+       * the user input with the file modifications and we don't want the new user input to appear
+       * in the prompt. Using `append` is almost the same as `handleSubmit` except that we have to
+       * manually reset the input and we'd have to manually pass in file attachments. However, those
+       * aren't relevant here.
+       */
+      append({ role: 'user', content: `${diff}\n\n${input}` });
+
+      setInput('');
+
+      /**
+       * After sending a new message we reset all modifications since the model
+       * should now be aware of all the changes.
+       */
+      workbenchStore.resetAllFileModifications();
+    } else {
+      handleSubmit(event);
+    }
+
     resetEnhancer();
 
     textareaRef.current?.blur();

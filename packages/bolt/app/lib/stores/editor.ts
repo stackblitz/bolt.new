@@ -10,7 +10,7 @@ export class EditorStore {
   #filesStore: FilesStore;
 
   selectedFile: SelectedFile = import.meta.hot?.data.selectedFile ?? atom<string | undefined>();
-  documents: MapStore<EditorDocuments> = import.meta.hot?.data.documents ?? map<EditorDocuments>({});
+  documents: MapStore<EditorDocuments> = import.meta.hot?.data.documents ?? map({});
 
   currentDocument = computed([this.documents, this.selectedFile], (documents, selectedFile) => {
     if (!selectedFile) {
@@ -74,7 +74,7 @@ export class EditorStore {
     });
   }
 
-  updateFile(filePath: string, newContent: string | Uint8Array) {
+  updateFile(filePath: string, newContent: string) {
     const documents = this.documents.get();
     const documentState = documents[filePath];
 

@@ -3,7 +3,7 @@ import { AnimatePresence, cubicBezier, motion } from 'framer-motion';
 interface SendButtonProps {
   show: boolean;
   isStreaming?: boolean;
-  onClick?: VoidFunction;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
 const customEasingFn = cubicBezier(0.4, 0, 0.2, 1);
@@ -20,7 +20,7 @@ export function SendButton({ show, isStreaming, onClick }: SendButtonProps) {
           exit={{ opacity: 0, y: 10 }}
           onClick={(event) => {
             event.preventDefault();
-            onClick?.();
+            onClick?.(event);
           }}
         >
           <div className="text-lg">

@@ -37,20 +37,17 @@ export class ActionRunner {
   #webcontainer: Promise<WebContainer>;
   #currentExecutionPromise: Promise<void> = Promise.resolve();
 
-  actions: ActionsMap = import.meta.hot?.data.actions ?? map({});
+  actions: ActionsMap = map({});
 
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
-
-    if (import.meta.hot) {
-      import.meta.hot.data.actions = this.actions;
-    }
   }
 
   addAction(data: ActionCallbackData) {
     const { actionId } = data;
 
-    const action = this.actions.get()[actionId];
+    const actions = this.actions.get();
+    const action = actions[actionId];
 
     if (action) {
       // action already added

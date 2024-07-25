@@ -43,8 +43,10 @@
     "@xterm/addon-web-links": "^0.11.0",
     "@xterm/xterm": "^5.5.0",
     "ai": "^3.2.27",
+    "diff": "^5.2.0",
     "framer-motion": "^11.2.12",
     "isbot": "^4.1.0",
+    "istextorbinary": "^9.5.0",
     "nanostores": "^0.10.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -59,6 +61,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240620.0",
     "@remix-run/dev": "^2.10.0",
+    "@types/diff": "^5.2.1",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "fast-glob": "^3.3.2",

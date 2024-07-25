@@ -28,6 +28,7 @@ export default [
   },
   {
     files: [...tsFileExtensions, ...jsFileExtensions, '**/*.tsx'],
+    ignores: ['packages/bolt/functions/*'],
     rules: {
       'no-restricted-imports': [
         'error',

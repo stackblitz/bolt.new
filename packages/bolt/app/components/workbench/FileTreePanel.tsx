@@ -15,8 +15,9 @@ export const FileTreePanel = memo(({ files, unsavedFiles, selectedFile, onFileSe
   renderLogger.trace('FileTreePanel');
 
   return (
-    <div className="h-full">
+    <div className="flex-1 overflow-y-scroll">
       <FileTree
+        className="h-full"
         files={files}
         unsavedFiles={unsavedFiles}
         rootFolder={WORK_DIR}

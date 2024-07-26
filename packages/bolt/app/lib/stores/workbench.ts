@@ -27,6 +27,7 @@ export class WorkbenchStore {
   showWorkbench: WritableAtom<boolean> = import.meta.hot?.data.showWorkbench ?? atom(false);
   unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
   modifiedFiles = new Set<string>();
+  artifactList: string[] = [];
 
   constructor() {
     if (import.meta.hot) {
@@ -184,6 +185,7 @@ export class WorkbenchStore {
     const artifact = this.#getArtifact(messageId);
 
     if (artifact) {
+      this.artifactList.push(messageId);
       return;
     }
 

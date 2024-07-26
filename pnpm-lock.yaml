@@ -98,6 +98,9 @@ importers:
       '@remix-run/react':
         specifier: ^2.10.2
         version: 2.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.2)
+      '@stackblitz/sdk':
+        specifier: ^1.11.0
+        version: 1.11.0
       '@unocss/reset':
         specifier: ^0.61.0
         version: 0.61.0
@@ -1426,6 +1429,9 @@ packages:
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
+
+  '@stackblitz/sdk@1.11.0':
+    resolution: {integrity: sha512-DFQGANNkEZRzFk1/rDP6TcFdM82ycHE+zfl9C/M/jXlH68jiqHWHFMQURLELoD8koxvu/eW5uhg94NSAZlYrUQ==}
 
   '@stylistic/eslint-plugin-js@2.3.0':
     resolution: {integrity: sha512-lQwoiYb0Fs6Yc5QS3uT8+T9CPKK2Eoxc3H8EnYJgM26v/DgtW+1lvy2WNgyBflU+ThShZaHm3a6CdD9QeKx23w==}
@@ -6341,6 +6347,8 @@ snapshots:
   '@shikijs/core@1.9.1': {}
 
   '@sinclair/typebox@0.27.8': {}
+
+  '@stackblitz/sdk@1.11.0': {}
 
   '@stylistic/eslint-plugin-js@2.3.0(eslint@9.5.0)':
     dependencies:

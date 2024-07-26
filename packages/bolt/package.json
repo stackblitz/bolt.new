@@ -37,6 +37,7 @@
     "@remix-run/cloudflare": "^2.10.2",
     "@remix-run/cloudflare-pages": "^2.10.2",
     "@remix-run/react": "^2.10.2",
+    "@stackblitz/sdk": "^1.11.0",
     "@unocss/reset": "^0.61.0",
     "@webcontainer/api": "^1.3.0-internal.1",
     "@xterm/addon-fit": "^0.10.0",

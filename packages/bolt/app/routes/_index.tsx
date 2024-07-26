@@ -2,7 +2,7 @@ import { type LoaderFunctionArgs, type MetaFunction } from '@remix-run/cloudflar
 import { ClientOnly } from 'remix-utils/client-only';
 import { BaseChat } from '~/components/chat/BaseChat';
 import { Chat } from '~/components/chat/Chat.client';
-import { Header } from '~/components/Header';
+import { Header } from '~/components/header/Header';
 import { handleAuthRequest } from '~/lib/.server/login';
 
 export const meta: MetaFunction = () => {

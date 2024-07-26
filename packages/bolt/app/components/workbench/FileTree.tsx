@@ -4,7 +4,7 @@ import { classNames } from '~/utils/classNames';
 import { renderLogger } from '~/utils/logger';
 
 const NODE_PADDING_LEFT = 12;
-const DEFAULT_HIDDEN_FILES = [/\/node_modules\//];
+const DEFAULT_HIDDEN_FILES = [/\/node_modules\//, /\.next/, /\.astro/];
 
 interface Props {
   files?: FileMap;

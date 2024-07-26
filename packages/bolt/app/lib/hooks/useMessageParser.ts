@@ -52,14 +52,6 @@ export function useMessageParser() {
 
     for (const [index, message] of messages.entries()) {
       if (message.role === 'assistant') {
-        /**
-         * In production, we only parse the last assistant message since previous messages can't change.
-         * During development they can change, e.g., if the parser gets modified.
-         */
-        if (import.meta.env.PROD && index < messages.length - 1) {
-          continue;
-        }
-
         const newParsedContent = messageParser.parse(message.id, message.content);
 
         setParsedMessages((prevParsed) => ({

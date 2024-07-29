@@ -36,12 +36,11 @@ Optionally, you an set the debug level:
 VITE_LOG_LEVEL=debug
 ```
 
-If you want to test the login locally you need to add the following variables:
-
+If you want to run authentication against a local StackBlitz instance, add:
 ```
-SESSION_SECRET=XXX
-LOGIN_PASSWORD=XXX
+VITE_CLIENT_ORIGIN=https://local.stackblitz.com:3000
 ```
+`
 
 **Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 

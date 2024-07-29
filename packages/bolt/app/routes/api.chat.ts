@@ -4,8 +4,13 @@ import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
+import { handleWithAuth } from '~/lib/.server/login';
 
-export async function action({ context, request }: ActionFunctionArgs) {
+export async function action(args: ActionFunctionArgs) {
+  return handleWithAuth(args, chatAction);
+}
+
+async function chatAction({ context, request }: ActionFunctionArgs) {
   const { messages } = await request.json<{ messages: Messages }>();
 
   const stream = new SwitchableStream();

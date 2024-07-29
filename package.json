@@ -6,8 +6,7 @@
     "playground:dev": "pnpm run --filter=playground dev",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "test": "pnpm run -r test",
-    "typecheck": "pnpm run -r typecheck",
-    "prepare": "husky"
+    "typecheck": "pnpm run -r typecheck"
   },
   "commitlint": {
     "extends": [

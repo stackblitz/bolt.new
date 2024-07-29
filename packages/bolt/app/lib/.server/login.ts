@@ -8,12 +8,34 @@ export function verifyPassword(password: string, cloudflareEnv: Env) {
   return password === loginPassword;
 }
 
-export async function handleAuthRequest({ request, context }: LoaderFunctionArgs, body: object = {}) {
-  const authenticated = await isAuthenticated(request, context.cloudflare.env);
+type RequestArgs = Pick<LoaderFunctionArgs, 'request' | 'context'>;
 
-  if (import.meta.env.DEV || authenticated) {
-    return json(body);
+export async function handleAuthRequest<T extends RequestArgs>(args: T, body: object = {}) {
+  const { request, context } = args;
+  const { authenticated, response } = await isAuthenticated(request, context.cloudflare.env);
+
+  if (authenticated) {
+    return json(body, response);
   }
 
-  return redirect('/login');
+  return redirect('/login', response);
+}
+
+export async function handleWithAuth<T extends RequestArgs>(args: T, handler: (args: T) => Promise<Response>) {
+  const { request, context } = args;
+  const { authenticated, response } = await isAuthenticated(request, context.cloudflare.env);
+
+  if (authenticated) {
+    const handlerResponse = await handler(args);
+
+    if (response) {
+      for (const [key, value] of Object.entries(response.headers)) {
+        handlerResponse.headers.append(key, value);
+      }
+    }
+
+    return handlerResponse;
+  }
+
+  return json({}, { status: 401 });
 }

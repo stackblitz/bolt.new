@@ -1,12 +1,17 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { StreamingTextResponse, parseStreamPart } from 'ai';
 import { streamText } from '~/lib/.server/llm/stream-text';
+import { handleWithAuth } from '~/lib/.server/login';
 import { stripIndents } from '~/utils/stripIndent';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-export async function action({ context, request }: ActionFunctionArgs) {
+export async function action(args: ActionFunctionArgs) {
+  return handleWithAuth(args, enhancerAction);
+}
+
+async function enhancerAction({ context, request }: ActionFunctionArgs) {
   const { message } = await request.json<{ message: string }>();
 
   try {

@@ -1,5 +1,6 @@
 import { ClientOnly } from 'remix-utils/client-only';
 import { OpenStackBlitz } from './OpenStackBlitz.client';
+import { IconButton } from '~/components/ui/IconButton';
 
 export function Header() {
   return (
@@ -7,8 +8,11 @@ export function Header() {
       <div className="flex items-center gap-2">
         <div className="text-2xl font-semibold text-accent">Bolt</div>
       </div>
-      <div className="ml-auto">
+      <div className="ml-auto flex gap-2">
         <ClientOnly>{() => <OpenStackBlitz />}</ClientOnly>
+        <a href="/logout">
+          <IconButton icon="i-ph:sign-out" />
+        </a>
       </div>
     </header>
   );

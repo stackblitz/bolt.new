@@ -32,6 +32,12 @@ cd bolt
 pnpm i
 ```
 
+3. Optionally, init git hooks:
+
+```bash
+pnpmx husky
+```
+
 ### Development
 
 To start developing the Bolt UI:

@@ -11,6 +11,7 @@ import { PreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
 
 export interface ArtifactState {
+  id: string;
   title: string;
   closed: boolean;
   runner: ActionRunner;
@@ -27,10 +28,11 @@ export class WorkbenchStore {
   #terminalStore = new TerminalStore(webcontainer);
 
   artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
+
   showWorkbench: WritableAtom<boolean> = import.meta.hot?.data.showWorkbench ?? atom(false);
   unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
   modifiedFiles = new Set<string>();
-  artifactList: string[] = [];
+  artifactIdList: string[] = [];
 
   constructor() {
     if (import.meta.hot) {
@@ -54,6 +56,14 @@ export class WorkbenchStore {
 
   get selectedFile(): ReadableAtom<string | undefined> {
     return this.#editorStore.selectedFile;
+  }
+
+  get firstArtifact(): ArtifactState | undefined {
+    return this.#getArtifact(this.artifactIdList[0]);
+  }
+
+  get filesCount(): number {
+    return this.#filesStore.filesCount;
   }
 
   get showTerminal() {
@@ -200,15 +210,19 @@ export class WorkbenchStore {
     // TODO: what do we wanna do and how do we wanna recover from this?
   }
 
-  addArtifact({ messageId, title }: ArtifactCallbackData) {
+  addArtifact({ messageId, title, id }: ArtifactCallbackData) {
     const artifact = this.#getArtifact(messageId);
 
     if (artifact) {
-      this.artifactList.push(messageId);
       return;
     }
 
+    if (!this.artifactIdList.includes(messageId)) {
+      this.artifactIdList.push(messageId);
+    }
+
     this.artifacts.setKey(messageId, {
+      id,
       title,
       closed: false,
       runner: new ActionRunner(webcontainer),

@@ -1,12 +1,14 @@
 import { useNavigate, useLoaderData } from '@remix-run/react';
 import { useState, useEffect } from 'react';
 import type { Message } from 'ai';
-import { openDatabase, setMessages, getMessages, getNextID } from './db';
+import { openDatabase, setMessages, getMessages, getNextId, getUrlId } from './db';
 import { toast } from 'react-toastify';
+import { workbenchStore } from '~/lib/stores/workbench';
 
 export interface ChatHistory {
   id: string;
-  displayName?: string;
+  urlId?: string;
+  description?: string;
   messages: Message[];
 }
 
@@ -21,6 +23,8 @@ export function useChatHistory() {
   const [initialMessages, setInitialMessages] = useState<Message[]>([]);
   const [ready, setReady] = useState<boolean>(false);
   const [entryId, setEntryId] = useState<string | undefined>();
+  const [urlId, setUrlId] = useState<string | undefined>();
+  const [description, setDescription] = useState<string | undefined>();
 
   useEffect(() => {
     if (!db) {
@@ -58,29 +62,48 @@ export function useChatHistory() {
         return;
       }
 
+      const { firstArtifact } = workbenchStore;
+
+      if (!urlId && firstArtifact?.id) {
+        const urlId = await getUrlId(db, firstArtifact.id);
+
+        navigateChat(urlId);
+        setUrlId(urlId);
+      }
+
+      if (!description && firstArtifact?.title) {
+        setDescription(firstArtifact?.title);
+      }
+
       if (initialMessages.length === 0) {
         if (!entryId) {
-          const nextId = await getNextID(db);
+          const nextId = await getNextId(db);
 
-          await setMessages(db, nextId, messages);
+          await setMessages(db, nextId, messages, urlId, description);
 
           setEntryId(nextId);
 
-          /**
-           * FIXME: Using the intended navigate function causes a rerender for <Chat /> that breaks the app.
-           *
-           * `navigate(`/chat/${nextId}`, { replace: true });`
-           */
-          const url = new URL(window.location.href);
-          url.pathname = `/chat/${nextId}`;
-
-          window.history.replaceState({}, '', url);
+          if (!urlId) {
+            navigateChat(nextId);
+          }
         } else {
-          await setMessages(db, entryId, messages);
+          await setMessages(db, entryId, messages, urlId, description);
         }
       } else {
-        await setMessages(db, chatId as string, messages);
+        await setMessages(db, chatId as string, messages, urlId, description);
       }
     },
   };
+}
+
+function navigateChat(nextId: string) {
+  /**
+   * FIXME: Using the intended navigate function causes a rerender for <Chat /> that breaks the app.
+   *
+   * `navigate(`/chat/${nextId}`, { replace: true });`
+   */
+  const url = new URL(window.location.href);
+  url.pathname = `/chat/${nextId}`;
+
+  window.history.replaceState({}, '', url);
 }

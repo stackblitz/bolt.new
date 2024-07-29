@@ -5,12 +5,6 @@ import type { FileMap } from '~/lib/stores/files';
 import { workbenchStore, type ArtifactState } from '~/lib/stores/workbench';
 import { WORK_DIR } from '~/utils/constants';
 import { memo, useCallback, useEffect, useState } from 'react';
-import type { ActionState } from '~/lib/runtime/action-runner';
-
-// return false if some file-writing actions haven't completed
-const fileActionsComplete = (actions: Record<string, ActionState>) => {
-  return !Object.values(actions).some((action) => action.type === 'file' && action.status !== 'complete');
-};
 
 // extract relative path and content from file, wrapped in array for flatMap use
 const extractContent = ([file, value]: [string, FileMap[string]]) => {
@@ -31,19 +25,17 @@ const extractContent = ([file, value]: [string, FileMap[string]]) => {
 };
 
 // subscribe to changes in first artifact's runner actions
-const useFirstArtifact = (): [boolean, ArtifactState] => {
+const useFirstArtifact = (): [boolean, ArtifactState | undefined] => {
   const [hasLoaded, setHasLoaded] = useState(false);
-  const artifacts = useStore(workbenchStore.artifacts);
-  const firstArtifact = artifacts[workbenchStore.artifactList[0]];
 
-  const handleActionChange = useCallback(
-    (actions: Record<string, ActionState>) => setHasLoaded(fileActionsComplete(actions)),
-    [firstArtifact],
-  );
+  // react to artifact changes
+  useStore(workbenchStore.artifacts);
+
+  const { firstArtifact } = workbenchStore;
 
   useEffect(() => {
     if (firstArtifact) {
-      return firstArtifact.runner.actions.subscribe(handleActionChange);
+      return firstArtifact.runner.actions.subscribe((_) => setHasLoaded(workbenchStore.filesCount > 0));
     }
 
     return undefined;
@@ -56,6 +48,10 @@ export const OpenStackBlitz = memo(() => {
   const [artifactLoaded, artifact] = useFirstArtifact();
 
   const handleClick = useCallback(() => {
+    if (!artifact) {
+      return;
+    }
+
     // extract relative path and content from files map
     const workbenchFiles = workbenchStore.files.get();
     const files = Object.fromEntries(Object.entries(workbenchFiles).flatMap(extractContent));

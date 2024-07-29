@@ -1,8 +1,8 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/cloudflare';
+import { decodeJwt } from 'jose';
 import { request as doRequest } from '~/lib/fetch';
 import { CLIENT_ID, CLIENT_ORIGIN } from '~/lib/constants';
 import { logger } from '~/utils/logger';
-import { decode } from 'jsonwebtoken';
 
 const DEV_SESSION_SECRET = import.meta.env.DEV ? 'LZQMrERo3Ewn/AbpSYJ9aw==' : undefined;
 
@@ -92,11 +92,9 @@ export async function logout(request: Request, env: Env) {
 }
 
 export function validateAccessToken(access: string) {
-  const jwtPayload = decode(access);
+  const jwtPayload = decodeJwt(access);
 
-  const boltEnabled = typeof jwtPayload === 'object' && jwtPayload != null && jwtPayload.bolt === true;
-
-  return boltEnabled;
+  return jwtPayload.bolt === true;
 }
 
 async function getSession(request: Request, env: Env) {

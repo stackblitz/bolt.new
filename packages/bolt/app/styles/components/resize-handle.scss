@@ -1,0 +1,28 @@
+[data-resize-handle] {
+  position: relative;
+
+  &[data-panel-group-direction='horizontal']:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -6px;
+    right: -5px;
+    z-index: $zIndexMax;
+  }
+
+  &[data-panel-group-direction='vertical']:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -5px;
+    bottom: -6px;
+    z-index: $zIndexMax;
+  }
+
+  &[data-resize-handle-state='hover']:after,
+  &[data-resize-handle-state='drag']:after {
+    background-color: #8882;
+  }
+}

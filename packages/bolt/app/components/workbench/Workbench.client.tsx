@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/react';
-import { AnimatePresence, motion, type HTMLMotionProps, type Variants } from 'framer-motion';
+import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -98,52 +98,48 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
 
   return (
     chatStarted && (
-      <AnimatePresence>
-        {showWorkbench && (
-          <motion.div initial="closed" animate="open" exit="closed" variants={workbenchVariants}>
-            <div className="fixed top-[calc(var(--header-height)+1.5rem)] bottom-[calc(1.5rem-1px)] w-[50vw] mr-4 z-0">
-              <div className="flex flex-col bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden absolute inset-0 right-8">
-                <div className="flex items-center px-3 py-2 border-b border-gray-200">
-                  <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
-                  <IconButton
-                    icon="i-ph:x-circle"
-                    className="ml-auto -mr-1"
-                    size="xxl"
-                    onClick={() => {
-                      workbenchStore.showWorkbench.set(false);
-                    }}
-                  />
-                </div>
-                <div className="relative flex-1 overflow-hidden">
-                  <View
-                    initial={{ x: selectedView === 'code' ? 0 : '-100%' }}
-                    animate={{ x: selectedView === 'code' ? 0 : '-100%' }}
-                  >
-                    <EditorPanel
-                      editorDocument={currentDocument}
-                      isStreaming={isStreaming}
-                      selectedFile={selectedFile}
-                      files={files}
-                      unsavedFiles={unsavedFiles}
-                      onFileSelect={onFileSelect}
-                      onEditorScroll={onEditorScroll}
-                      onEditorChange={onEditorChange}
-                      onFileSave={onFileSave}
-                      onFileReset={onFileReset}
-                    />
-                  </View>
-                  <View
-                    initial={{ x: selectedView === 'preview' ? 0 : '100%' }}
-                    animate={{ x: selectedView === 'preview' ? 0 : '100%' }}
-                  >
-                    <Preview />
-                  </View>
-                </div>
-              </div>
+      <motion.div initial="closed" animate={showWorkbench ? 'open' : 'closed'} variants={workbenchVariants}>
+        <div className="fixed top-[calc(var(--header-height)+1.5rem)] bottom-[calc(1.5rem-1px)] w-[50vw] mr-4 z-0">
+          <div className="flex flex-col bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden absolute inset-0 right-8">
+            <div className="flex items-center px-3 py-2 border-b border-gray-200">
+              <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
+              <IconButton
+                icon="i-ph:x-circle"
+                className="ml-auto -mr-1"
+                size="xxl"
+                onClick={() => {
+                  workbenchStore.showWorkbench.set(false);
+                }}
+              />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="relative flex-1 overflow-hidden">
+              <View
+                initial={{ x: selectedView === 'code' ? 0 : '-100%' }}
+                animate={{ x: selectedView === 'code' ? 0 : '-100%' }}
+              >
+                <EditorPanel
+                  editorDocument={currentDocument}
+                  isStreaming={isStreaming}
+                  selectedFile={selectedFile}
+                  files={files}
+                  unsavedFiles={unsavedFiles}
+                  onFileSelect={onFileSelect}
+                  onEditorScroll={onEditorScroll}
+                  onEditorChange={onEditorChange}
+                  onFileSave={onFileSave}
+                  onFileReset={onFileReset}
+                />
+              </View>
+              <View
+                initial={{ x: selectedView === 'preview' ? 0 : '100%' }}
+                animate={{ x: selectedView === 'preview' ? 0 : '100%' }}
+              >
+                <Preview />
+              </View>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     )
   );
 });

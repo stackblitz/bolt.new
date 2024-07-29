@@ -1,5 +1,8 @@
 @import './variables.scss';
+@import './z-index.scss';
 @import './animations.scss';
+@import './components/terminal.scss';
+@import './components/resize-handle.scss';
 
 body {
   --at-apply: bg-bolt-elements-app-backgroundColor;

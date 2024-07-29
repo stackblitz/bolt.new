@@ -3,7 +3,7 @@ import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
-import { useMessageParser, usePromptEnhancer, useSnapScroll } from '~/lib/hooks';
+import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -25,7 +25,7 @@ export function Chat() {
   return (
     <>
       {ready && <ChatImpl initialMessages={initialMessages} storeMessageHistory={storeMessageHistory} />}
-      <ToastContainer position="bottom-right" stacked pauseOnFocusLoss transition={toastAnimation} />;
+      <ToastContainer position="bottom-right" stacked pauseOnFocusLoss transition={toastAnimation} />
     </>
   );
 }
@@ -36,6 +36,8 @@ interface ChatProps {
 }
 
 export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
+  useShortcuts();
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);

@@ -3,10 +3,12 @@ import type { EditorDocument, ScrollPosition } from '~/components/editor/codemir
 import { ActionRunner } from '~/lib/runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '~/lib/runtime/message-parser';
 import { webcontainer } from '~/lib/webcontainer';
+import type { ITerminal } from '~/types/terminal';
 import { unreachable } from '~/utils/unreachable';
 import { EditorStore } from './editor';
 import { FilesStore, type FileMap } from './files';
 import { PreviewsStore } from './previews';
+import { TerminalStore } from './terminal';
 
 export interface ArtifactState {
   title: string;
@@ -22,6 +24,7 @@ export class WorkbenchStore {
   #previewsStore = new PreviewsStore(webcontainer);
   #filesStore = new FilesStore(webcontainer);
   #editorStore = new EditorStore(this.#filesStore);
+  #terminalStore = new TerminalStore(webcontainer);
 
   artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
   showWorkbench: WritableAtom<boolean> = import.meta.hot?.data.showWorkbench ?? atom(false);
@@ -51,6 +54,22 @@ export class WorkbenchStore {
 
   get selectedFile(): ReadableAtom<string | undefined> {
     return this.#editorStore.selectedFile;
+  }
+
+  get showTerminal() {
+    return this.#terminalStore.showTerminal;
+  }
+
+  toggleTerminal(value?: boolean) {
+    this.#terminalStore.toggleTerminal(value);
+  }
+
+  attachTerminal(terminal: ITerminal) {
+    this.#terminalStore.attachTerminal(terminal);
+  }
+
+  onTerminalResize(cols: number, rows: number) {
+    this.#terminalStore.onTerminalResize(cols, rows);
   }
 
   setDocuments(files: FileMap) {

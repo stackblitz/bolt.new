@@ -63,7 +63,10 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
 
   useEffect(() => {
     parseMessages(messages, isLoading);
-    storeMessageHistory(messages).catch((error) => toast.error(error.message));
+
+    if (messages.length > initialMessages.length) {
+      storeMessageHistory(messages).catch((error) => toast.error(error.message));
+    }
   }, [messages, isLoading, parseMessages]);
 
   const scrollTextArea = () => {

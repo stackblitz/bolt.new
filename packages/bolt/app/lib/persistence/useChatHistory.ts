@@ -14,12 +14,13 @@ export interface ChatHistory {
 
 const persistenceEnabled = !import.meta.env.VITE_DISABLE_PERSISTENCE;
 
-const db = persistenceEnabled ? await openDatabase() : undefined;
+export const db = persistenceEnabled ? await openDatabase() : undefined;
 
 export function useChatHistory() {
   const navigate = useNavigate();
-  const { id: chatId } = useLoaderData<{ id?: string }>();
+  const { id: mixedId } = useLoaderData<{ id?: string }>();
 
+  const [chatId, setChatId] = useState(mixedId);
   const [initialMessages, setInitialMessages] = useState<Message[]>([]);
   const [ready, setReady] = useState<boolean>(false);
   const [entryId, setEntryId] = useState<string | undefined>();
@@ -42,6 +43,9 @@ export function useChatHistory() {
         .then((storedMessages) => {
           if (storedMessages && storedMessages.messages.length > 0) {
             setInitialMessages(storedMessages.messages);
+            setUrlId(storedMessages.urlId);
+            setDescription(storedMessages.description);
+            setChatId(storedMessages.id);
           } else {
             navigate(`/`, { replace: true });
           }

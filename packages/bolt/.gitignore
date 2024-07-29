@@ -2,7 +2,7 @@ node_modules
 
 /.cache
 /build
-.env
+.env*
 *.vars
 .wrangler
 _worker.bundle

@@ -5,6 +5,7 @@
   "scripts": {
     "playground:dev": "pnpm run --filter=playground dev",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
+    "build": "pnpm run -r build",
     "test": "pnpm run -r test",
     "typecheck": "pnpm run -r typecheck"
   },

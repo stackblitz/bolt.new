@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -14,17 +14,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.15.1'
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.4.0
-          run_install: false
-
-      - name: Install dependencies
-        run: pnpm install
+      - name: Setup and Build
+        uses: ./.github/actions/setup-and-build
 
       - name: Run type check
         run: pnpm run typecheck
@@ -34,3 +25,54 @@ jobs:
 
       - name: Run tests
         run: pnpm run test
+
+  build-and-deploy:
+    name: Build and Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'master' && 'production' || 'staging' }}
+    if: ${{ github.ref != 'refs/heads/master' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup and Build
+        uses: ./.github/actions/setup-and-build
+
+      - name: Deploy to Cloudflare
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: '* -w'
+          packageManager: pnpm
+          workingDirectory: 'packages/bolt'
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy
+
+      - name: Deployment URL
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: echo $DEPLOYMENT_URL
+
+      - name: Comment on Commit
+        if: github.event_name == 'push'
+        uses: hasura/comment-progress@v2.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          id: deploy-preview-commit
+          commit-sha: ${{ github.sha }}
+          message: '${{ github.sha }} has been deployed to ${{ steps.deploy.outputs.deployment-url }} :rocket:'
+          recreate: true
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: hasura/comment-progress@v2.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          id: deploy-preview-pr
+          number: ${{ github.event.number }}
+          message: '#${{ github.event.number }} has been deployed to ${{ steps.deploy.outputs.deployment-url }} :rocket:'
+          recreate: true

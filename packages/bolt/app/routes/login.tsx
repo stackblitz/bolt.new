@@ -1,16 +1,16 @@
 import {
   json,
   redirect,
+  redirectDocument,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-  redirectDocument,
 } from '@remix-run/cloudflare';
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import { auth, type AuthAPI } from '@webcontainer/api';
 import { useEffect, useState } from 'react';
 import { createUserSession, isAuthenticated, validateAccessToken } from '~/lib/.server/sessions';
-import { request as doRequest } from '~/lib/fetch';
 import { CLIENT_ID, CLIENT_ORIGIN } from '~/lib/constants';
+import { request as doRequest } from '~/lib/fetch';
 import { logger } from '~/utils/logger';
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
@@ -49,7 +49,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
       throw await response.json();
     }
   } catch (error) {
-    logger.warn('Authentication failure');
+    logger.warn('Authentication failed');
     logger.warn(error);
 
     return json({ error: 'invalid-token' as const }, { status: 401 });
@@ -100,7 +100,6 @@ export default function Login() {
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Login</h2>
         </div>
-
         {redirected ? 'Processing auth...' : <LoginForm />}
       </div>
     </div>
@@ -162,7 +161,6 @@ function LoginForm() {
       >
         {login?.kind === 'pending' ? 'Authenticating...' : 'Continue with StackBlitz'}
       </button>
-
       {login?.kind === 'error' && (
         <div>
           <h2>

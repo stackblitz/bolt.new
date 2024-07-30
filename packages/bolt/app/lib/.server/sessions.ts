@@ -1,7 +1,7 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/cloudflare';
 import { decodeJwt } from 'jose';
-import { request as doRequest } from '~/lib/fetch';
 import { CLIENT_ID, CLIENT_ORIGIN } from '~/lib/constants';
+import { request as doRequest } from '~/lib/fetch';
 import { logger } from '~/utils/logger';
 
 const DEV_SESSION_SECRET = import.meta.env.DEV ? 'LZQMrERo3Ewn/AbpSYJ9aw==' : undefined;
@@ -33,7 +33,7 @@ export async function isAuthenticated(request: Request, env: Env) {
   try {
     data = await refreshToken(token);
   } catch {
-    // ignore
+    // we can ignore the error here because it's handled below
   }
 
   if (data != null) {

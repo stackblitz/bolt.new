@@ -47,7 +47,7 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
   const { messages, isLoading, input, handleInputChange, setInput, handleSubmit, stop, append } = useChat({
     api: '/api/chat',
     onError: (error) => {
-      logger.error(error);
+      logger.error('Request failed\n\n', error);
       toast.error('There was an error processing your request');
     },
     onFinish: () => {

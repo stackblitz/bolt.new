@@ -1,12 +1,5 @@
-import { env } from 'node:process';
-import { isAuthenticated } from './sessions';
 import { json, redirect, type LoaderFunctionArgs } from '@remix-run/cloudflare';
-
-export function verifyPassword(password: string, cloudflareEnv: Env) {
-  const loginPassword = env.LOGIN_PASSWORD || cloudflareEnv.LOGIN_PASSWORD;
-
-  return password === loginPassword;
-}
+import { isAuthenticated } from './sessions';
 
 type RequestArgs = Pick<LoaderFunctionArgs, 'request' | 'context'>;
 
@@ -14,7 +7,7 @@ export async function handleAuthRequest<T extends RequestArgs>(args: T, body: ob
   const { request, context } = args;
   const { authenticated, response } = await isAuthenticated(request, context.cloudflare.env);
 
-  if (authenticated) {
+  if (authenticated || import.meta.env.VITE_DISABLE_AUTH) {
     return json(body, response);
   }
 
@@ -25,7 +18,7 @@ export async function handleWithAuth<T extends RequestArgs>(args: T, handler: (a
   const { request, context } = args;
   const { authenticated, response } = await isAuthenticated(request, context.cloudflare.env);
 
-  if (authenticated) {
+  if (authenticated || import.meta.env.VITE_DISABLE_AUTH) {
     const handlerResponse = await handler(args);
 
     if (response) {

@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { classNames } from '~/utils/classNames';
 
-type IconSize = 'sm' | 'md' | 'xl' | 'xxl';
+type IconSize = 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 
 interface BaseIconButtonProps {
   size?: IconSize;
@@ -64,6 +64,8 @@ function getIconSize(size: IconSize) {
     return 'text-sm';
   } else if (size === 'md') {
     return 'text-md';
+  } else if (size === 'lg') {
+    return 'text-lg';
   } else if (size === 'xl') {
     return 'text-xl';
   } else {

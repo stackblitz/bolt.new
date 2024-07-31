@@ -41,7 +41,10 @@ export function useShortcuts(): void {
         ) {
           shortcutEventEmitter.dispatch(name as keyof Shortcuts);
           event.preventDefault();
+          event.stopPropagation();
+
           shortcut.action();
+
           break;
         }
       }

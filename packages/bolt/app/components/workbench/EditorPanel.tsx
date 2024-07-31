@@ -9,12 +9,14 @@ import {
   type OnSaveCallback as OnEditorSave,
   type OnScrollCallback as OnEditorScroll,
 } from '~/components/editor/codemirror/CodeMirrorEditor';
+import { IconButton } from '~/components/ui/IconButton';
 import { PanelHeader } from '~/components/ui/PanelHeader';
 import { PanelHeaderButton } from '~/components/ui/PanelHeaderButton';
 import { shortcutEventEmitter } from '~/lib/hooks';
 import type { FileMap } from '~/lib/stores/files';
 import { themeStore } from '~/lib/stores/theme';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { classNames } from '~/utils/classNames';
 import { renderLogger } from '~/utils/logger';
 import { isMobile } from '~/utils/mobile';
 import { FileTreePanel } from './FileTreePanel';
@@ -33,6 +35,7 @@ interface EditorPanelProps {
   onFileReset?: () => void;
 }
 
+const MAX_TERMINALS = 3;
 const DEFAULT_TERMINAL_SIZE = 25;
 const DEFAULT_EDITOR_SIZE = 100 - DEFAULT_TERMINAL_SIZE;
 
@@ -60,7 +63,8 @@ export const EditorPanel = memo(
     const terminalPanelRef = useRef<ImperativePanelHandle>(null);
     const terminalToggledByShortcut = useRef(false);
 
-    const [terminalCount] = useState(1);
+    const [activeTerminal, setActiveTerminal] = useState(0);
+    const [terminalCount, setTerminalCount] = useState(1);
 
     const activeFile = useMemo(() => {
       if (!editorDocument) {
@@ -108,6 +112,13 @@ export const EditorPanel = memo(
 
       terminalToggledByShortcut.current = false;
     }, [showTerminal]);
+
+    const addTerminal = () => {
+      if (terminalCount < MAX_TERMINALS) {
+        setTerminalCount(terminalCount + 1);
+        setActiveTerminal(terminalCount);
+      }
+    };
 
     return (
       <PanelGroup direction="vertical">
@@ -180,27 +191,50 @@ export const EditorPanel = memo(
             }
           }}
         >
-          <div className="border-t h-full">
-            <PanelHeader>
-              <span className="i-ph:terminal-window-duotone shrink-0" /> Terminal
-            </PanelHeader>
-            <div className="p-3.5">
+          <div className="border-t h-full flex flex-col">
+            <div className="flex items-center bg-gray-50 min-h-[34px]">
               {Array.from({ length: terminalCount }, (_, index) => {
+                const isActive = activeTerminal === index;
+
                 return (
-                  <div key={index} className="h-full">
-                    <Terminal
-                      ref={(ref) => {
-                        terminalRefs.current.push(ref);
-                      }}
-                      onTerminalReady={(terminal) => workbenchStore.attachTerminal(terminal)}
-                      onTerminalResize={(cols, rows) => workbenchStore.onTerminalResize(cols, rows)}
-                      className="h-full"
-                      theme={theme}
-                    />
-                  </div>
+                  <button
+                    key={index}
+                    className={classNames(
+                      'flex items-center text-sm bg-transparent cursor-pointer gap-1.5 px-3.5 h-full whitespace-nowrap',
+                      {
+                        'bg-white': isActive,
+                        'hover:bg-gray-100': !isActive,
+                      },
+                    )}
+                    onClick={() => setActiveTerminal(index)}
+                  >
+                    <div className="i-ph:terminal-window-duotone text-md" />
+                    Terminal {terminalCount > 1 && index + 1}
+                  </button>
                 );
               })}
+              {terminalCount < MAX_TERMINALS && (
+                <IconButton className="ml-2" icon="i-ph:plus" size="md" onClick={addTerminal} />
+              )}
             </div>
+            {Array.from({ length: terminalCount }, (_, index) => {
+              const isActive = activeTerminal === index;
+
+              return (
+                <Terminal
+                  key={index}
+                  className={classNames('h-full overflow-hidden', {
+                    hidden: !isActive,
+                  })}
+                  ref={(ref) => {
+                    terminalRefs.current.push(ref);
+                  }}
+                  onTerminalReady={(terminal) => workbenchStore.attachTerminal(terminal)}
+                  onTerminalResize={(cols, rows) => workbenchStore.onTerminalResize(cols, rows)}
+                  theme={theme}
+                />
+              );
+            })}
           </div>
         </Panel>
       </PanelGroup>

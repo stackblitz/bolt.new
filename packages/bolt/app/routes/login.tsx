@@ -8,6 +8,7 @@ import {
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import { auth, type AuthAPI } from '@webcontainer/api';
 import { useEffect, useState } from 'react';
+import { LoadingDots } from '~/components/ui/LoadingDots';
 import { createUserSession, isAuthenticated, validateAccessToken } from '~/lib/.server/sessions';
 import { CLIENT_ID, CLIENT_ORIGIN } from '~/lib/constants';
 import { request as doRequest } from '~/lib/fetch';
@@ -96,12 +97,16 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-lg shadow">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Login</h2>
+      {redirected ? (
+        <LoadingDots text="Authenticating" />
+      ) : (
+        <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-lg shadow">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Login</h2>
+          </div>
+          <LoginForm />
         </div>
-        {redirected ? 'Processing auth...' : <LoginForm />}
-      </div>
+      )}
     </div>
   );
 }

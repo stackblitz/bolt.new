@@ -30,6 +30,17 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
   });
 }
 
+export async function getAll(db: IDBDatabase): Promise<ChatHistory[]> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('chats', 'readonly');
+    const store = transaction.objectStore('chats');
+    const request = store.getAll();
+
+    request.onsuccess = () => resolve(request.result as ChatHistory[]);
+    request.onerror = () => reject(request.error);
+  });
+}
+
 export async function setMessages(
   db: IDBDatabase,
   id: string,
@@ -46,6 +57,7 @@ export async function setMessages(
       messages,
       urlId,
       description,
+      timestamp: new Date().toISOString(),
     });
 
     request.onsuccess = () => resolve();
@@ -80,13 +92,28 @@ export async function getMessagesById(db: IDBDatabase, id: string): Promise<Chat
   });
 }
 
+export async function deleteId(db: IDBDatabase, id: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('chats', 'readwrite');
+    const store = transaction.objectStore('chats');
+    const request = store.delete(id);
+
+    request.onsuccess = () => resolve(undefined);
+    request.onerror = () => reject(request.error);
+  });
+}
+
 export async function getNextId(db: IDBDatabase): Promise<string> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readonly');
     const store = transaction.objectStore('chats');
-    const request = store.count();
+    const request = store.getAllKeys();
 
-    request.onsuccess = () => resolve(String(request.result));
+    request.onsuccess = () => {
+      const highestId = request.result.reduce((cur, acc) => Math.max(+cur, +acc), 0);
+      resolve(String(+highestId + 1));
+    };
+
     request.onerror = () => reject(request.error);
   });
 }

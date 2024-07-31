@@ -5,6 +5,7 @@ import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
 import { Messages } from './Messages.client';
+import { Menu } from '~/components/sidemenu/Menu.client';
 import { SendButton } from './SendButton.client';
 
 interface BaseChatProps {
@@ -50,6 +51,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
     return (
       <div ref={ref} className="relative flex h-full w-full overflow-hidden ">
+        <ClientOnly>{() => <Menu />}</ClientOnly>
         <div ref={scrollRef} className="flex overflow-scroll w-full h-full">
           <div id="chat" className="flex flex-col w-full h-full px-6">
             {!chatStarted && (

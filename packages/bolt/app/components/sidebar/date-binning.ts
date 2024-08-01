@@ -1,5 +1,5 @@
+import { format, isAfter, isThisWeek, isThisYear, isToday, isYesterday, subDays } from 'date-fns';
 import type { ChatHistory } from '~/lib/persistence';
-import { format, isToday, isYesterday, isThisWeek, isThisYear, subDays, isAfter } from 'date-fns';
 
 type Bin = { category: string; items: ChatHistory[] };
 
@@ -19,6 +19,7 @@ export function binDates(_list: ChatHistory[]) {
       };
 
       binLookup[category] = bin;
+
       bins.push(bin);
     } else {
       binLookup[category].items.push(item);
@@ -38,7 +39,8 @@ function dateCategory(date: Date) {
   }
 
   if (isThisWeek(date)) {
-    return format(date, 'eeee'); // e.g. "Monday"
+    // e.g., "Monday"
+    return format(date, 'eeee');
   }
 
   const thirtyDaysAgo = subDays(new Date(), 30);
@@ -48,8 +50,10 @@ function dateCategory(date: Date) {
   }
 
   if (isThisYear(date)) {
-    return format(date, 'MMMM'); // e.g., "July"
+    // e.g., "July"
+    return format(date, 'MMMM');
   }
 
-  return format(date, 'MMMM yyyy'); // e.g. "July 2023"
+  // e.g., "July 2023"
+  return format(date, 'MMMM yyyy');
 }

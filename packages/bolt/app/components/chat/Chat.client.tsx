@@ -44,7 +44,7 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
 
   const [animationScope, animate] = useAnimate();
 
-  const { messages, isLoading, input, handleInputChange, setInput, handleSubmit, stop, append } = useChat({
+  const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
     onError: (error) => {
       logger.error('Request failed\n\n', error);
@@ -60,6 +60,10 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
   const { parsedMessages, parseMessages } = useMessageParser();
 
   const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
+
+  useEffect(() => {
+    chatStore.setKey('started', initialMessages.length > 0);
+  }, []);
 
   useEffect(() => {
     parseMessages(messages, isLoading);
@@ -101,13 +105,20 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
       return;
     }
 
-    await animate('#intro', { opacity: 0, flex: 1 }, { duration: 0.2, ease: cubicEasingFn });
+    await Promise.all([
+      animate('#examples', { opacity: 0, display: 'none' }, { duration: 0.1 }),
+      animate('#intro', { opacity: 0, flex: 1 }, { duration: 0.2, ease: cubicEasingFn }),
+    ]);
+
+    chatStore.setKey('started', true);
 
     setChatStarted(true);
   };
 
-  const sendMessage = async (event: React.UIEvent) => {
-    if (input.length === 0 || isLoading) {
+  const sendMessage = async (_event: React.UIEvent, messageInput?: string) => {
+    const _input = messageInput || input;
+
+    if (_input.length === 0 || isLoading) {
       return;
     }
 
@@ -136,9 +147,7 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
        * manually reset the input and we'd have to manually pass in file attachments. However, those
        * aren't relevant here.
        */
-      append({ role: 'user', content: `${diff}\n\n${input}` });
-
-      setInput('');
+      append({ role: 'user', content: `${diff}\n\n${_input}` });
 
       /**
        * After sending a new message we reset all modifications since the model
@@ -146,8 +155,10 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
        */
       workbenchStore.resetAllFileModifications();
     } else {
-      handleSubmit(event);
+      append({ role: 'user', content: _input });
     }
+
+    setInput('');
 
     resetEnhancer();
 

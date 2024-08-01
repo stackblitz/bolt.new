@@ -1,15 +1,15 @@
 import type { Message } from 'ai';
-import React, { type LegacyRef, type RefCallback } from 'react';
+import React, { type RefCallback } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
+import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
 import { Messages } from './Messages.client';
-import { Menu } from '~/components/sidemenu/Menu.client';
 import { SendButton } from './SendButton.client';
 
 interface BaseChatProps {
-  textareaRef?: LegacyRef<HTMLTextAreaElement> | undefined;
+  textareaRef?: React.RefObject<HTMLTextAreaElement> | undefined;
   messageRef?: RefCallback<HTMLDivElement> | undefined;
   scrollRef?: RefCallback<HTMLDivElement> | undefined;
   chatStarted?: boolean;
@@ -19,12 +19,18 @@ interface BaseChatProps {
   promptEnhanced?: boolean;
   input?: string;
   handleStop?: () => void;
-  sendMessage?: (event: React.UIEvent) => void;
+  sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
 }
 
-const EXAMPLES = [{ text: 'Example' }, { text: 'Example' }, { text: 'Example' }, { text: 'Example' }];
+const EXAMPLE_PROMPTS = [
+  { text: 'Build a todo app in React using Tailwind' },
+  { text: 'Build a simple blog using Astro' },
+  { text: 'Create a cookie consent form using Material UI' },
+  { text: 'Make a space invaders game' },
+  { text: 'How do I can center a div?' },
+];
 
 const TEXTAREA_MIN_HEIGHT = 72;
 
@@ -53,22 +59,15 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       <div ref={ref} className="relative flex h-full w-full overflow-hidden ">
         <ClientOnly>{() => <Menu />}</ClientOnly>
         <div ref={scrollRef} className="flex overflow-scroll w-full h-full">
-          <div id="chat" className="flex flex-col w-full h-full px-6">
+          <div className="flex flex-col w-full h-full px-6">
             {!chatStarted && (
-              <div id="intro" className="mt-[20vh] mb-14 max-w-3xl mx-auto">
-                <h2 className="text-4xl text-center font-bold text-slate-800 mb-2">Where ideas begin.</h2>
-                <p className="mb-14 text-center">Bring ideas to life in seconds or get help on existing projects.</p>
-                <div className="grid max-md:grid-cols-[repeat(1,1fr)] md:grid-cols-[repeat(2,minmax(300px,1fr))] gap-4">
-                  {EXAMPLES.map((suggestion, index) => (
-                    <button key={index} className="p-4 rounded-lg shadow-xs bg-white border border-gray-200 text-left">
-                      {suggestion.text}
-                    </button>
-                  ))}
-                </div>
+              <div id="intro" className="mt-[26vh] max-w-2xl mx-auto">
+                <h1 className="text-5xl text-center font-bold text-slate-800 mb-2">Where ideas begin</h1>
+                <p className="mb-4 text-center">Bring ideas to life in seconds or get help on existing projects.</p>
               </div>
             )}
             <div
-              className={classNames('pt-10', {
+              className={classNames('pt-6', {
                 'h-full flex flex-col': chatStarted,
               })}
             >
@@ -77,7 +76,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   return chatStarted ? (
                     <Messages
                       ref={messageRef}
-                      className="flex flex-col w-full flex-1 max-w-3xl px-4 pb-10 mx-auto z-1"
+                      className="flex flex-col w-full flex-1 max-w-2xl px-4 pb-10 mx-auto z-1"
                       messages={messages}
                       isStreaming={isStreaming}
                     />
@@ -85,7 +84,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 }}
               </ClientOnly>
               <div
-                className={classNames('relative w-full max-w-3xl md:mx-auto z-2', {
+                className={classNames('relative w-full max-w-2xl md:mx-auto z-2', {
                   'sticky bottom-0': chatStarted,
                 })}
               >
@@ -172,6 +171,26 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <div className="bg-white pb-6">{/* Ghost Element */}</div>
               </div>
             </div>
+            {!chatStarted && (
+              <div id="examples" className="relative w-full max-w-2xl mx-auto text-center mt-8 flex justify-center">
+                <div className="flex flex-col items-center space-y-2 [mask-image:linear-gradient(to_bottom,black_0%,transparent_180%)] hover:[mask-image:none]">
+                  {EXAMPLE_PROMPTS.map((examplePrompt, index) => {
+                    return (
+                      <button
+                        key={index}
+                        onClick={(event) => {
+                          sendMessage?.(event, examplePrompt.text);
+                        }}
+                        className="group flex items-center gap-2 bg-transparent text-gray-500 hover:text-gray-1000"
+                      >
+                        {examplePrompt.text}
+                        <div className="i-ph:arrow-bend-down-left" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
           <ClientOnly>{() => <Workbench chatStarted={chatStarted} isStreaming={isStreaming} />}</ClientOnly>
         </div>

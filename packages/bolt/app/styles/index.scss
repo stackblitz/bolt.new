@@ -4,30 +4,6 @@
 @import './components/terminal.scss';
 @import './components/resize-handle.scss';
 
-body {
-  --at-apply: bg-bolt-elements-app-backgroundColor;
-
-  font-family: 'Inter', sans-serif;
-
-  &:before {
-    --line: color-mix(in lch, canvasText, transparent 93%);
-    --size: 50px;
-
-    content: '';
-    height: 100vh;
-    mask: linear-gradient(-25deg, transparent 60%, white);
-    pointer-events: none;
-    position: fixed;
-    top: -8px;
-    transform-style: flat;
-    width: 100vw;
-    z-index: -1;
-    background:
-      linear-gradient(90deg, var(--line) 1px, transparent 1px var(--size)) 50% 50% / var(--size) var(--size),
-      linear-gradient(var(--line) 1px, transparent 1px var(--size)) 50% 50% / var(--size) var(--size);
-  }
-}
-
 html,
 body {
   height: 100%;

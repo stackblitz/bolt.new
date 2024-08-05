@@ -1,10 +1,11 @@
 import { useStore } from '@nanostores/react';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
 
 export const Preview = memo(() => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [activePreviewIndex] = useState(0);
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
@@ -28,6 +29,25 @@ export const Preview = memo(() => {
     }
   }, [activePreview, iframeUrl]);
 
+  const validateUrl = useCallback(
+    (value: string) => {
+      if (!activePreview) {
+        return false;
+      }
+
+      const { baseUrl } = activePreview;
+
+      if (value === baseUrl) {
+        return true;
+      } else if (value.startsWith(baseUrl)) {
+        return ['/', '?', '#'].includes(value.charAt(baseUrl.length));
+      }
+
+      return false;
+    },
+    [activePreview],
+  );
+
   const reloadPreview = () => {
     if (iframeRef.current) {
       iframeRef.current.src = iframeRef.current.src;
@@ -43,11 +63,21 @@ export const Preview = memo(() => {
             <div className="i-ph:info-bold text-lg" />
           </div>
           <input
+            ref={inputRef}
             className="w-full bg-transparent outline-none"
             type="text"
             value={url}
             onChange={(event) => {
               setUrl(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && validateUrl(url)) {
+                setIframeUrl(url);
+
+                if (inputRef.current) {
+                  inputRef.current.blur();
+                }
+              }
             }}
           />
         </div>

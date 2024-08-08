@@ -1,5 +1,4 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
-import { StreamingTextResponse } from 'ai';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
@@ -44,7 +43,12 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
     stream.switchSource(result.toAIStream());
 
-    return new StreamingTextResponse(stream.readable);
+    return new Response(stream.readable, {
+      status: 200,
+      headers: {
+        contentType: 'text/plain; charset=utf-8',
+      },
+    });
   } catch (error) {
     console.log(error);
 

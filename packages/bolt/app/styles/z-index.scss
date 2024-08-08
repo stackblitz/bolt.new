@@ -1,5 +1,13 @@
 $zIndexMax: 999;
 
+.z-logo {
+  z-index: $zIndexMax - 1;
+}
+
+.z-sidebar {
+  z-index: $zIndexMax - 2;
+}
+
 .z-max {
   z-index: $zIndexMax;
 }

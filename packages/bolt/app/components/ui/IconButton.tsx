@@ -8,6 +8,7 @@ interface BaseIconButtonProps {
   className?: string;
   iconClassName?: string;
   disabledClassName?: string;
+  title?: string;
   disabled?: boolean;
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
@@ -32,18 +33,20 @@ export const IconButton = memo(
     iconClassName,
     disabledClassName,
     disabled = false,
+    title,
     onClick,
     children,
   }: IconButtonProps) => {
     return (
       <button
         className={classNames(
-          'flex items-center text-gray-600 bg-transparent enabled:hover:text-gray-900 rounded-md p-1 enabled:hover:bg-gray-200/80 disabled:cursor-not-allowed',
+          'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed',
           {
             [classNames('opacity-30', disabledClassName)]: disabled,
           },
           className,
         )}
+        title={title}
         disabled={disabled}
         onClick={(event) => {
           if (disabled) {

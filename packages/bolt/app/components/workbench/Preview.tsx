@@ -56,12 +56,12 @@ export const Preview = memo(() => {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="bg-white p-2 flex items-center gap-1.5">
+      <div className="bg-bolt-elements-background-depth-2 p-2 flex items-center gap-1.5">
         <IconButton icon="i-ph:arrow-clockwise" onClick={reloadPreview} />
-        <div className="flex items-center gap-1 flex-grow bg-gray-100 rounded-full px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 hover:focus-within:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-accent">
-          <div className="bg-white rounded-full p-[2px] -ml-1">
-            <div className="i-ph:info-bold text-lg" />
-          </div>
+        <div
+          className="flex items-center gap-1 flex-grow bg-bolt-elements-preview-addressBar-background border border-bolt-elements-borderColor text-bolt-elements-preview-addressBar-text rounded-full px-3 py-1 text-sm hover:bg-bolt-elements-preview-addressBar-backgroundHover hover:focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within:bg-bolt-elements-preview-addressBar-backgroundActive
+        focus-within-border-bolt-elements-borderColorActive focus-within:text-bolt-elements-preview-addressBar-textActive"
+        >
           <input
             ref={inputRef}
             className="w-full bg-transparent outline-none"

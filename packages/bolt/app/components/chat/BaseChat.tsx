@@ -32,7 +32,7 @@ const EXAMPLE_PROMPTS = [
   { text: 'How do I center a div?' },
 ];
 
-const TEXTAREA_MIN_HEIGHT = 72;
+const TEXTAREA_MIN_HEIGHT = 76;
 
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
   (
@@ -56,14 +56,18 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
 
     return (
-      <div ref={ref} className="relative flex h-full w-full overflow-hidden ">
+      <div ref={ref} className="relative flex h-full w-full overflow-hidden bg-bolt-elements-background-depth-1">
         <ClientOnly>{() => <Menu />}</ClientOnly>
         <div ref={scrollRef} className="flex overflow-scroll w-full h-full">
           <div className="flex flex-col w-full h-full px-6">
             {!chatStarted && (
               <div id="intro" className="mt-[26vh] max-w-2xl mx-auto">
-                <h1 className="text-5xl text-center font-bold text-slate-800 mb-2">Where ideas begin</h1>
-                <p className="mb-4 text-center">Bring ideas to life in seconds or get help on existing projects.</p>
+                <h1 className="text-5xl text-center font-bold text-bolt-elements-textPrimary mb-2">
+                  Where ideas begin
+                </h1>
+                <p className="mb-4 text-center text-bolt-elements-textSecondary">
+                  Bring ideas to life in seconds or get help on existing projects.
+                </p>
               </div>
             )}
             <div
@@ -76,7 +80,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   return chatStarted ? (
                     <Messages
                       ref={messageRef}
-                      className="flex flex-col w-full flex-1 max-w-2xl px-4 pb-10 mx-auto z-1"
+                      className="flex flex-col w-full flex-1 max-w-2xl px-4 pb-6 mx-auto z-1"
                       messages={messages}
                       isStreaming={isStreaming}
                     />
@@ -90,12 +94,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               >
                 <div
                   className={classNames(
-                    'shadow-sm border border-gray-200 bg-white/85 backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden',
+                    'shadow-sm border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden',
                   )}
                 >
                   <textarea
                     ref={textareaRef}
-                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none bg-transparent`}
+                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-md text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent`}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {
@@ -136,44 +140,42 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   </ClientOnly>
                   <div className="flex justify-between text-sm p-4 pt-2">
                     <div className="flex gap-1 items-center">
-                      <IconButton icon="i-ph:microphone-duotone" className="-ml-1" />
-                      <IconButton icon="i-ph:plus-circle-duotone" />
-                      <IconButton icon="i-ph:pencil-simple-duotone" />
                       <IconButton
+                        title="Enhance prompt"
                         disabled={input.length === 0 || enhancingPrompt}
                         className={classNames({
                           'opacity-100!': enhancingPrompt,
-                          'text-accent! pr-1.5 enabled:hover:bg-accent/12!': promptEnhanced,
+                          'text-bolt-elements-item-contentAccent! pr-1.5 enabled:hover:bg-bolt-elements-item-backgroundAccent!':
+                            promptEnhanced,
                         })}
                         onClick={() => enhancePrompt?.()}
                       >
                         {enhancingPrompt ? (
                           <>
-                            <div className="i-svg-spinners:90-ring-with-bg text-black text-xl"></div>
+                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl"></div>
                             <div className="ml-1.5">Enhancing prompt...</div>
                           </>
                         ) : (
                           <>
-                            <div className="i-blitz:stars text-xl"></div>
+                            <div className="i-bolt:stars text-xl"></div>
                             {promptEnhanced && <div className="ml-1.5">Prompt enhanced</div>}
                           </>
                         )}
                       </IconButton>
                     </div>
                     {input.length > 3 ? (
-                      <div className="text-xs">
-                        Use <kbd className="bg-gray-100 p-1 rounded-md">Shift</kbd> +{' '}
-                        <kbd className="bg-gray-100 p-1 rounded-md">Return</kbd> for a new line
+                      <div className="text-xs text-bolt-elements-textTertiary">
+                        Use <kbd className="kdb">Shift</kbd> + <kbd className="kdb">Return</kbd> for a new line
                       </div>
                     ) : null}
                   </div>
                 </div>
-                <div className="bg-white pb-6">{/* Ghost Element */}</div>
+                <div className="bg-bolt-elements-background-depth-1 pb-6">{/* Ghost Element */}</div>
               </div>
             </div>
             {!chatStarted && (
-              <div id="examples" className="relative w-full max-w-2xl mx-auto text-center mt-8 flex justify-center">
-                <div className="flex flex-col items-center space-y-2 [mask-image:linear-gradient(to_bottom,black_0%,transparent_180%)] hover:[mask-image:none]">
+              <div id="examples" className="relative w-full max-w-2xl mx-auto mt-8 flex justify-center">
+                <div className="flex flex-col space-y-2 [mask-image:linear-gradient(to_bottom,black_0%,transparent_180%)] hover:[mask-image:none]">
                   {EXAMPLE_PROMPTS.map((examplePrompt, index) => {
                     return (
                       <button
@@ -181,7 +183,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         onClick={(event) => {
                           sendMessage?.(event, examplePrompt.text);
                         }}
-                        className="group flex items-center gap-2 bg-transparent text-gray-500 hover:text-gray-1000"
+                        className="group flex items-center w-full gap-2 justify-center bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary transition-theme"
                       >
                         {examplePrompt.text}
                         <div className="i-ph:arrow-bend-down-left" />

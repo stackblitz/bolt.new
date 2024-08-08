@@ -8,6 +8,7 @@ import {
   type OnScrollCallback as OnEditorScroll,
 } from '~/components/editor/codemirror/CodeMirrorEditor';
 import { IconButton } from '~/components/ui/IconButton';
+import { PanelHeaderButton } from '~/components/ui/PanelHeaderButton';
 import { Slider, type SliderOptions } from '~/components/ui/Slider';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { cubicEasingFn } from '~/utils/easings';
@@ -100,13 +101,22 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     chatStarted && (
       <motion.div initial="closed" animate={showWorkbench ? 'open' : 'closed'} variants={workbenchVariants}>
         <div className="fixed top-[calc(var(--header-height)+1.5rem)] bottom-[calc(1.5rem-1px)] w-[50vw] mr-4 z-0">
-          <div className="flex flex-col bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden absolute inset-0 right-8">
-            <div className="flex items-center px-3 py-2 border-b border-gray-200">
+          <div className="flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden absolute inset-0 right-8">
+            <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor">
               <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
+              <PanelHeaderButton
+                className="ml-auto mr-1 text-sm"
+                onClick={() => {
+                  workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
+                }}
+              >
+                <div className="i-ph:terminal" />
+                Toggle Terminal
+              </PanelHeaderButton>
               <IconButton
                 icon="i-ph:x-circle"
-                className="ml-auto -mr-1"
-                size="xxl"
+                className="-mr-1"
+                size="xl"
                 onClick={() => {
                   workbenchStore.showWorkbench.set(false);
                 }}

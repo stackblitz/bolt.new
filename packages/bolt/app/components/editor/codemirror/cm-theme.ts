@@ -1,11 +1,8 @@
-import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { Compartment, type Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
+import { vscodeDark, vscodeLight } from '@uiw/codemirror-theme-vscode';
 import type { Theme } from '~/types/theme.js';
 import type { EditorSettings } from './CodeMirrorEditor.js';
-import { vscodeDarkTheme } from './themes/vscode-dark.js';
-
-import './styles.css';
 
 export const darkTheme = EditorView.theme({}, { dark: true });
 export const themeSelection = new Compartment();
@@ -23,11 +20,9 @@ export function reconfigureTheme(theme: Theme) {
 
 function getEditorTheme(settings: EditorSettings) {
   return EditorView.theme({
-    ...(settings.fontSize && {
-      '&': {
-        fontSize: settings.fontSize,
-      },
-    }),
+    '&': {
+      fontSize: settings.fontSize ?? '12px',
+    },
     '&.cm-editor': {
       height: '100%',
       background: 'var(--cm-backgroundColor)',
@@ -46,7 +41,7 @@ function getEditorTheme(settings: EditorSettings) {
       padding: '0 0 0 4px',
     },
     '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
-      backgroundColor: 'var(--cm-selection-backgroundColorFocused)',
+      backgroundColor: 'var(--cm-selection-backgroundColorFocused) !important',
       opacity: 'var(--cm-selection-backgroundOpacityFocused, 0.3)',
     },
     '&:not(.cm-focused) > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
@@ -67,7 +62,7 @@ function getEditorTheme(settings: EditorSettings) {
     '.cm-gutter': {
       '&.cm-lineNumbers': {
         fontFamily: 'Roboto Mono, monospace',
-        fontSize: '13px',
+        fontSize: settings.gutterFontSize ?? settings.fontSize ?? '12px',
         minWidth: '40px',
       },
       '& .cm-activeLineGutter': {
@@ -91,6 +86,13 @@ function getEditorTheme(settings: EditorSettings) {
     },
     '.cm-panel.cm-search label': {
       marginLeft: '2px',
+      fontSize: '12px',
+    },
+    '.cm-panel.cm-search .cm-button': {
+      fontSize: '12px',
+    },
+    '.cm-panel.cm-search .cm-textfield': {
+      fontSize: '12px',
     },
     '.cm-panel.cm-search input[type=checkbox]': {
       position: 'relative',
@@ -100,10 +102,14 @@ function getEditorTheme(settings: EditorSettings) {
     '.cm-panels': {
       borderColor: 'var(--cm-panels-borderColor)',
     },
+    '.cm-panels-bottom': {
+      borderTop: '1px solid var(--cm-panels-borderColor)',
+      backgroundColor: 'transparent',
+    },
     '.cm-panel.cm-search': {
       background: 'var(--cm-search-backgroundColor)',
       color: 'var(--cm-search-textColor)',
-      padding: '6px 8px',
+      padding: '8px',
     },
     '.cm-search .cm-button': {
       background: 'var(--cm-search-button-backgroundColor)',
@@ -130,6 +136,7 @@ function getEditorTheme(settings: EditorSettings) {
       top: '6px',
       right: '6px',
       padding: '0 6px',
+      fontSize: '1rem',
       backgroundColor: 'var(--cm-search-closeButton-backgroundColor)',
       color: 'var(--cm-search-closeButton-textColor)',
       '&:hover': {
@@ -141,6 +148,7 @@ function getEditorTheme(settings: EditorSettings) {
     '.cm-search input': {
       background: 'var(--cm-search-input-backgroundColor)',
       borderColor: 'var(--cm-search-input-borderColor)',
+      color: 'var(--cm-search-input-textColor)',
       outline: 'none',
       borderRadius: '4px',
       '&:focus-visible': {
@@ -149,6 +157,7 @@ function getEditorTheme(settings: EditorSettings) {
     },
     '.cm-tooltip': {
       background: 'var(--cm-tooltip-backgroundColor)',
+      border: '1px solid transparent',
       borderColor: 'var(--cm-tooltip-borderColor)',
       color: 'var(--cm-tooltip-textColor)',
     },
@@ -156,13 +165,16 @@ function getEditorTheme(settings: EditorSettings) {
       background: 'var(--cm-tooltip-backgroundColorSelected)',
       color: 'var(--cm-tooltip-textColorSelected)',
     },
+    '.cm-searchMatch': {
+      backgroundColor: 'var(--cm-searchMatch-backgroundColor)',
+    },
   });
 }
 
 function getLightTheme() {
-  return syntaxHighlighting(defaultHighlightStyle);
+  return vscodeLight;
 }
 
 function getDarkTheme() {
-  return syntaxHighlighting(vscodeDarkTheme);
+  return vscodeDark;
 }

@@ -1,7 +1,7 @@
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { useChatHistory } from '~/lib/persistence';
@@ -9,7 +9,7 @@ import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
-import { createScopedLogger } from '~/utils/logger';
+import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
 
 const toastAnimation = cssTransition({
@@ -20,12 +20,40 @@ const toastAnimation = cssTransition({
 const logger = createScopedLogger('Chat');
 
 export function Chat() {
+  renderLogger.trace('Chat');
+
   const { ready, initialMessages, storeMessageHistory } = useChatHistory();
 
   return (
     <>
       {ready && <ChatImpl initialMessages={initialMessages} storeMessageHistory={storeMessageHistory} />}
-      <ToastContainer position="bottom-right" stacked pauseOnFocusLoss transition={toastAnimation} />
+      <ToastContainer
+        closeButton={({ closeToast }) => {
+          return (
+            <button className="Toastify__close-button" onClick={closeToast}>
+              <div className="i-ph:x text-lg" />
+            </button>
+          );
+        }}
+        icon={({ type }) => {
+          /**
+           * @todo Handle more types if we need them. This may require extra color palettes.
+           */
+          switch (type) {
+            case 'success': {
+              return <div className="i-ph:check-bold text-bolt-elements-icon-success text-2xl" />;
+            }
+            case 'error': {
+              return <div className="i-ph:warning-circle-bold text-bolt-elements-icon-error text-2xl" />;
+            }
+          }
+
+          return undefined;
+        }}
+        position="bottom-right"
+        pauseOnFocusLoss
+        transition={toastAnimation}
+      />
     </>
   );
 }
@@ -35,7 +63,7 @@ interface ChatProps {
   storeMessageHistory: (messages: Message[]) => Promise<void>;
 }
 
-export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
+export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProps) => {
   useShortcuts();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -199,4 +227,4 @@ export function ChatImpl({ initialMessages, storeMessageHistory }: ChatProps) {
       }}
     />
   );
-}
+});

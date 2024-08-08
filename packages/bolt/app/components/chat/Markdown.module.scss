@@ -1,10 +1,5 @@
-$font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace,
-  ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-$color-text: #333;
-$color-heading: #2c3e50;
-$color-link: #3498db;
-$color-code-bg: #f8f8f8;
-$color-blockquote-border: #dfe2e5;
+$font-mono: ui-monospace, 'Fira Code', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+$code-font-size: 13px;
 
 @mixin not-inside-actions {
   &:not(:has(:global(.actions)), :global(.actions *)) {
@@ -14,31 +9,35 @@ $color-blockquote-border: #dfe2e5;
 
 .MarkdownContent {
   line-height: 1.6;
-  color: $color-text;
+  color: var(--bolt-elements-textPrimary);
 
   > *:not(:last-child) {
-    margin-bottom: 16px;
+    margin-block-end: 16px;
+  }
+
+  :global(.artifact) {
+    margin: 1.5em 0;
   }
 
   :is(h1, h2, h3, h4, h5, h6) {
     @include not-inside-actions {
-      margin-top: 24px;
-      margin-bottom: 16px;
+      margin-block-start: 24px;
+      margin-block-end: 16px;
       font-weight: 600;
       line-height: 1.25;
-      color: $color-heading;
+      color: var(--bolt-elements-textPrimary);
     }
   }
 
   h1 {
     font-size: 2em;
-    border-bottom: 1px solid #eaecef;
+    border-bottom: 1px solid var(--bolt-elements-borderColor);
     padding-bottom: 0.3em;
   }
 
   h2 {
     font-size: 1.5em;
-    border-bottom: 1px solid #eaecef;
+    border-bottom: 1px solid var(--bolt-elements-borderColor);
     padding-bottom: 0.3em;
   }
 
@@ -60,13 +59,14 @@ $color-blockquote-border: #dfe2e5;
   }
 
   p:not(:last-of-type) {
-    margin-top: 0;
-    margin-bottom: 16px;
+    margin-block-start: 0;
+    margin-block-end: 16px;
   }
 
   a {
-    color: $color-link;
+    color: var(--bolt-elements-messages-linkColor);
     text-decoration: none;
+    cursor: pointer;
 
     &:hover {
       text-decoration: underline;
@@ -75,12 +75,13 @@ $color-blockquote-border: #dfe2e5;
 
   :not(pre) > code {
     font-family: $font-mono;
-    font-size: 14px;
-    border-radius: 6px;
-    padding: 0.2em 0.4em;
+    font-size: $code-font-size;
 
     @include not-inside-actions {
-      background-color: $color-code-bg;
+      border-radius: 6px;
+      padding: 0.2em 0.4em;
+      background-color: var(--bolt-elements-messages-inlineCode-background);
+      color: var(--bolt-elements-messages-inlineCode-text);
     }
   }
 
@@ -91,7 +92,7 @@ $color-blockquote-border: #dfe2e5;
 
   pre:has(> code) {
     font-family: $font-mono;
-    font-size: 14px;
+    font-size: $code-font-size;
     background: transparent;
     overflow-x: auto;
     min-width: 0;
@@ -100,15 +101,15 @@ $color-blockquote-border: #dfe2e5;
   blockquote {
     margin: 0;
     padding: 0 1em;
-    color: #6a737d;
-    border-left: 0.25em solid $color-blockquote-border;
+    color: var(--bolt-elements-textTertiary);
+    border-left: 0.25em solid var(--bolt-elements-borderColor);
   }
 
   :is(ul, ol) {
     @include not-inside-actions {
       padding-left: 2em;
-      margin-top: 0;
-      margin-bottom: 24px;
+      margin-block-start: 0;
+      margin-block-end: 16px;
     }
   }
 
@@ -127,11 +128,11 @@ $color-blockquote-border: #dfe2e5;
   li {
     @include not-inside-actions {
       & + li {
-        margin-top: 8px;
+        margin-block-start: 8px;
       }
 
       > *:not(:last-child) {
-        margin-bottom: 16px;
+        margin-block-end: 16px;
       }
     }
   }
@@ -145,14 +146,14 @@ $color-blockquote-border: #dfe2e5;
     height: 0.25em;
     padding: 0;
     margin: 24px 0;
-    background-color: #e1e4e8;
+    background-color: var(--bolt-elements-borderColor);
     border: 0;
   }
 
   table {
     border-collapse: collapse;
     width: 100%;
-    margin-bottom: 16px;
+    margin-block-end: 16px;
 
     :is(th, td) {
       padding: 6px 13px;

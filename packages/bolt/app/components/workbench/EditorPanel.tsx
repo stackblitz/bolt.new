@@ -125,7 +125,7 @@ export const EditorPanel = memo(
         <Panel defaultSize={showTerminal ? DEFAULT_EDITOR_SIZE : 100} minSize={20}>
           <PanelGroup direction="horizontal">
             <Panel defaultSize={25} minSize={10} collapsible>
-              <div className="flex flex-col border-r h-full">
+              <div className="flex flex-col border-r border-bolt-elements-borderColor h-full">
                 <PanelHeader>
                   <div className="i-ph:tree-structure-duotone shrink-0" />
                   Files
@@ -143,6 +143,7 @@ export const EditorPanel = memo(
               <PanelHeader>
                 {activeFile && (
                   <div className="flex items-center flex-1 text-sm">
+                    <div className="i-ph:file-duotone mr-2" />
                     {activeFile} {isStreaming && <span className="text-xs ml-1 font-semibold">(read-only)</span>}
                     {activeFileUnsaved && (
                       <div className="flex gap-1 ml-auto -mr-1.5">
@@ -191,50 +192,58 @@ export const EditorPanel = memo(
             }
           }}
         >
-          <div className="border-t h-full flex flex-col">
-            <div className="flex items-center bg-gray-50 min-h-[34px]">
+          <div className="h-full">
+            <div className="bg-bolt-elements-terminals-background h-full flex flex-col">
+              <div className="flex items-center bg-bolt-elements-background-depth-2 border-y border-bolt-elements-borderColor gap-1.5 min-h-[34px] p-2">
+                {Array.from({ length: terminalCount }, (_, index) => {
+                  const isActive = activeTerminal === index;
+
+                  return (
+                    <button
+                      key={index}
+                      className={classNames(
+                        'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
+                        {
+                          'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
+                          'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
+                            !isActive,
+                        },
+                      )}
+                      onClick={() => setActiveTerminal(index)}
+                    >
+                      <div className="i-ph:terminal-window-duotone text-lg" />
+                      Terminal {terminalCount > 1 && index + 1}
+                    </button>
+                  );
+                })}
+                {terminalCount < MAX_TERMINALS && <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} />}
+                <IconButton
+                  className="ml-auto"
+                  icon="i-ph:caret-down"
+                  title="Close"
+                  size="md"
+                  onClick={() => workbenchStore.toggleTerminal(false)}
+                />
+              </div>
               {Array.from({ length: terminalCount }, (_, index) => {
                 const isActive = activeTerminal === index;
 
                 return (
-                  <button
+                  <Terminal
                     key={index}
-                    className={classNames(
-                      'flex items-center text-sm bg-transparent cursor-pointer gap-1.5 px-3.5 h-full whitespace-nowrap',
-                      {
-                        'bg-white': isActive,
-                        'hover:bg-gray-100': !isActive,
-                      },
-                    )}
-                    onClick={() => setActiveTerminal(index)}
-                  >
-                    <div className="i-ph:terminal-window-duotone text-md" />
-                    Terminal {terminalCount > 1 && index + 1}
-                  </button>
+                    className={classNames('h-full overflow-hidden', {
+                      hidden: !isActive,
+                    })}
+                    ref={(ref) => {
+                      terminalRefs.current.push(ref);
+                    }}
+                    onTerminalReady={(terminal) => workbenchStore.attachTerminal(terminal)}
+                    onTerminalResize={(cols, rows) => workbenchStore.onTerminalResize(cols, rows)}
+                    theme={theme}
+                  />
                 );
               })}
-              {terminalCount < MAX_TERMINALS && (
-                <IconButton className="ml-2" icon="i-ph:plus" size="md" onClick={addTerminal} />
-              )}
             </div>
-            {Array.from({ length: terminalCount }, (_, index) => {
-              const isActive = activeTerminal === index;
-
-              return (
-                <Terminal
-                  key={index}
-                  className={classNames('h-full overflow-hidden', {
-                    hidden: !isActive,
-                  })}
-                  ref={(ref) => {
-                    terminalRefs.current.push(ref);
-                  }}
-                  onTerminalReady={(terminal) => workbenchStore.attachTerminal(terminal)}
-                  onTerminalResize={(cols, rows) => workbenchStore.onTerminalResize(cols, rows)}
-                  theme={theme}
-                />
-              );
-            })}
           </div>
         </Panel>
       </PanelGroup>

@@ -5,7 +5,7 @@ import { defineConfig, presetIcons, presetUno, transformerDirectives } from 'uno
 
 const iconPaths = globSync('./icons/*.svg');
 
-const collectionName = 'blitz';
+const collectionName = 'bolt';
 
 const customIconCollection = iconPaths.reduce(
   (acc, iconPath) => {
@@ -19,101 +19,185 @@ const customIconCollection = iconPaths.reduce(
   {} as Record<string, Record<string, () => Promise<string>>>,
 );
 
-const COLOR_PRIMITIVES = {
+const BASE_COLORS = {
+  white: '#FFFFFF',
+  gray: {
+    50: '#FAFAFA',
+    100: '#F5F5F5',
+    200: '#E5E5E5',
+    300: '#D4D4D4',
+    400: '#A3A3A3',
+    500: '#737373',
+    600: '#525252',
+    700: '#404040',
+    800: '#262626',
+    900: '#171717',
+    950: '#0A0A0A',
+  },
   accent: {
-    DEFAULT: '#1389FD',
     50: '#EEF9FF',
     100: '#D8F1FF',
-    200: '#B9E7FF',
-    300: '#89DBFF',
-    400: '#52C5FF',
-    500: '#2AA7FF',
-    600: '#1389FD',
-    700: '#0C70E9',
-    800: '#115ABC',
-    900: '#144D94',
-    950: '#11305A',
+    200: '#BAE7FF',
+    300: '#8ADAFF',
+    400: '#53C4FF',
+    500: '#2BA6FF',
+    600: '#1488FC',
+    700: '#0D6FE8',
+    800: '#1259BB',
+    900: '#154E93',
+    950: '#122F59',
   },
-  gray: {
-    0: '#FFFFFF',
-    50: '#F6F8F9',
-    100: '#EEF0F1',
-    200: '#E4E6E9',
-    300: '#D2D5D9',
-    400: '#AAAFB6',
-    500: '#7C8085',
-    600: '#565A64',
-    700: '#414349',
-    800: '#31343B',
-    900: '#2B2D35',
-    950: '#232429',
-    1000: '#000000',
+  green: {
+    50: '#F0FDF4',
+    100: '#DCFCE7',
+    200: '#BBF7D0',
+    300: '#86EFAC',
+    400: '#4ADE80',
+    500: '#22C55E',
+    600: '#16A34A',
+    700: '#15803D',
+    800: '#166534',
+    900: '#14532D',
+    950: '#052E16',
   },
-  positive: {
-    50: '#EDFCF6',
-    100: '#CEFDEB',
-    200: '#A1F9DC',
-    300: '#64F1CB',
-    400: '#24E0B3',
-    500: '#02C79F',
-    600: '#00A282',
-    700: '#00826B',
-    800: '#006656',
-    900: '#005449',
-    950: '#223533',
+  orange: {
+    50: '#FFFAEB',
+    100: '#FEEFC7',
+    200: '#FEDF89',
+    300: '#FEC84B',
+    400: '#FDB022',
+    500: '#F79009',
+    600: '#DC6803',
+    700: '#B54708',
+    800: '#93370D',
+    900: '#792E0D',
   },
-  negative: {
-    50: '#FEF2F3',
-    100: '#FDE6E7',
-    200: '#FBD0D4',
-    300: '#F7AAB1',
-    400: '#F06A78',
-    500: '#E84B60',
-    600: '#D42A48',
-    700: '#B21E3C',
-    800: '#951C38',
-    900: '#801B36',
-    950: '#45212A',
+  red: {
+    50: '#FEF2F2',
+    100: '#FEE2E2',
+    200: '#FECACA',
+    300: '#FCA5A5',
+    400: '#F87171',
+    500: '#EF4444',
+    600: '#DC2626',
+    700: '#B91C1C',
+    800: '#991B1B',
+    900: '#7F1D1D',
+    950: '#450A0A',
   },
-  info: {
-    50: '#EFF9FF',
-    100: '#E5F6FF',
-    200: '#B6E9FF',
-    300: '#75DAFF',
-    400: '#2CC8FF',
-    500: '#00AEF2',
-    600: '#008ED4',
-    700: '#0071AB',
-    800: '#005F8D',
-    900: '#064F74',
-    950: '#17374A',
-  },
-  warning: {
-    50: '#FEFAEC',
-    100: '#FCF4D9',
-    200: '#F9E08E',
-    300: '#F6CA53',
-    400: '#ED9413',
-    500: '#D2700D',
-    600: '#AE4E0F',
-    700: '#AE4E0F',
-    800: '#8E3D12',
-    900: '#753212',
-    950: '#402C22',
+};
+
+const COLOR_PRIMITIVES = {
+  ...BASE_COLORS,
+  alpha: {
+    white: generateAlphaPalette(BASE_COLORS.white),
+    gray: generateAlphaPalette(BASE_COLORS.gray[900]),
+    red: generateAlphaPalette(BASE_COLORS.red[500]),
+    accent: generateAlphaPalette(BASE_COLORS.accent[500]),
   },
 };
 
 export default defineConfig({
+  shortcuts: {
+    'transition-theme':
+      'transition-[background-color,border-color,color] duration-150 ease-[cubic-bezier(0.4,0,0.2,1)]',
+    kdb: 'bg-bolt-elements-code-background text-bolt-elements-code-text py-1 px-1.5 rounded-md',
+  },
   theme: {
     colors: {
       ...COLOR_PRIMITIVES,
       bolt: {
         elements: {
-          app: {
-            backgroundColor: 'var(--bolt-elements-app-backgroundColor)',
-            borderColor: 'var(--bolt-elements-app-borderColor)',
-            textColor: 'var(--bolt-elements-app-textColor)',
-            linkColor: 'var(--bolt-elements-app-linkColor)',
+          borderColor: 'var(--bolt-elements-borderColor)',
+          borderColorActive: 'var(--bolt-elements-borderColorActive)',
+          background: {
+            depth: {
+              1: 'var(--bolt-elements-bg-depth-1)',
+              2: 'var(--bolt-elements-bg-depth-2)',
+              3: 'var(--bolt-elements-bg-depth-3)',
+              4: 'var(--bolt-elements-bg-depth-4)',
+            },
+          },
+          textPrimary: 'var(--bolt-elements-textPrimary)',
+          textSecondary: 'var(--bolt-elements-textSecondary)',
+          textTertiary: 'var(--bolt-elements-textTertiary)',
+          code: {
+            background: 'var(--bolt-elements-code-background)',
+            text: 'var(--bolt-elements-code-text)',
+          },
+          item: {
+            contentDefault: 'var(--bolt-elements-item-contentDefault)',
+            contentActive: 'var(--bolt-elements-item-contentActive)',
+            contentAccent: 'var(--bolt-elements-item-contentAccent)',
+            contentDanger: 'var(--bolt-elements-item-contentDanger)',
+            backgroundDefault: 'var(--bolt-elements-item-backgroundDefault)',
+            backgroundActive: 'var(--bolt-elements-item-backgroundActive)',
+            backgroundAccent: 'var(--bolt-elements-item-backgroundAccent)',
+            backgroundDanger: 'var(--bolt-elements-item-backgroundDanger)',
+          },
+          actions: {
+            background: 'var(--bolt-elements-actions-background)',
+            code: {
+              background: 'var(--bolt-elements-actions-code-background)',
+            },
+          },
+          artifacts: {
+            background: 'var(--bolt-elements-artifacts-background)',
+            backgroundHover: 'var(--bolt-elements-artifacts-backgroundHover)',
+            borderColor: 'var(--bolt-elements-artifacts-borderColor)',
+            inlineCode: {
+              background: 'var(--bolt-elements-artifacts-inlineCode-background)',
+              text: 'var(--bolt-elements-artifacts-inlineCode-text)',
+            },
+          },
+          messages: {
+            background: 'var(--bolt-elements-messages-background)',
+            linkColor: 'var(--bolt-elements-messages-linkColor)',
+            code: {
+              background: 'var(--bolt-elements-messages-code-background)',
+            },
+            inlineCode: {
+              background: 'var(--bolt-elements-messages-inlineCode-background)',
+              text: 'var(--bolt-elements-messages-inlineCode-text)',
+            },
+          },
+          icon: {
+            success: 'var(--bolt-elements-icon-success)',
+            error: 'var(--bolt-elements-icon-error)',
+            primary: 'var(--bolt-elements-icon-primary)',
+            secondary: 'var(--bolt-elements-icon-secondary)',
+            tertiary: 'var(--bolt-elements-icon-tertiary)',
+          },
+          preview: {
+            addressBar: {
+              background: 'var(--bolt-elements-preview-addressBar-background)',
+              backgroundHover: 'var(--bolt-elements-preview-addressBar-backgroundHover)',
+              backgroundActive: 'var(--bolt-elements-preview-addressBar-backgroundActive)',
+              text: 'var(--bolt-elements-preview-addressBar-text)',
+              textActive: 'var(--bolt-elements-preview-addressBar-textActive)',
+            },
+          },
+          terminals: {
+            background: 'var(--bolt-elements-terminals-background)',
+            buttonBackground: 'var(--bolt-elements-terminals-buttonBackground)',
+          },
+          dividerColor: 'var(--bolt-elements-dividerColor)',
+          loader: {
+            background: 'var(--bolt-elements-loader-background)',
+            progress: 'var(--bolt-elements-loader-progress)',
+          },
+          prompt: {
+            background: 'var(--bolt-elements-prompt-background)',
+          },
+          sidebar: {
+            dropdownShadow: 'var(--bolt-elements-sidebar-dropdownShadow)',
+            buttonBackgroundDefault: 'var(--bolt-elements-sidebar-buttonBackgroundDefault)',
+            buttonBackgroundHover: 'var(--bolt-elements-sidebar-buttonBackgroundHover)',
+            buttonText: 'var(--bolt-elements-sidebar-buttonText)',
+          },
+          cta: {
+            background: 'var(--bolt-elements-cta-background)',
+            text: 'var(--bolt-elements-cta-text)',
           },
         },
       },
@@ -135,3 +219,34 @@ export default defineConfig({
     }),
   ],
 });
+
+/**
+ * Generates an alpha palette for a given hex color.
+ *
+ * @param hex - The hex color code (without alpha) to generate the palette from.
+ * @returns An object where keys are opacity percentages and values are hex colors with alpha.
+ *
+ * Example:
+ *
+ * ```
+ * {
+ *   '1': '#FFFFFF03',
+ *   '2': '#FFFFFF05',
+ *   '3': '#FFFFFF08',
+ * }
+ * ```
+ */
+function generateAlphaPalette(hex: string) {
+  return [1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].reduce(
+    (acc, opacity) => {
+      const alpha = Math.round((opacity / 100) * 255)
+        .toString(16)
+        .padStart(2, '0');
+
+      acc[opacity] = `${hex}${alpha}`;
+
+      return acc;
+    },
+    {} as Record<number, string>,
+  );
+}

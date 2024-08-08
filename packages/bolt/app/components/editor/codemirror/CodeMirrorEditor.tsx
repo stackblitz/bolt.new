@@ -34,6 +34,7 @@ export interface EditorDocument {
 
 export interface EditorSettings {
   fontSize?: string;
+  gutterFontSize?: string;
   tabSize?: number;
 }
 

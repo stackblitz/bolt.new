@@ -4,7 +4,6 @@ import { computed } from 'nanostores';
 import { memo, useEffect, useRef, useState } from 'react';
 import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
 import type { ActionState } from '~/lib/runtime/action-runner';
-import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
@@ -29,7 +28,6 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
   const userToggledActions = useRef(false);
   const [showActions, setShowActions] = useState(false);
 
-  const chat = useStore(chatStore);
   const artifacts = useStore(workbenchStore.artifacts);
   const artifact = artifacts[messageId];
 
@@ -51,27 +49,21 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
   }, [actions]);
 
   return (
-    <div className="flex flex-col overflow-hidden border rounded-lg w-full">
+    <div className="artifact border border-bolt-elements-borderColor flex flex-col overflow-hidden rounded-lg w-full transition-border duration-150">
       <div className="flex">
         <button
-          className="flex items-stretch bg-gray-50/25 w-full overflow-hidden"
+          className="flex items-stretch bg-bolt-elements-artifacts-background hover:bg-bolt-elements-artifacts-backgroundHover w-full overflow-hidden"
           onClick={() => {
             const showWorkbench = workbenchStore.showWorkbench.get();
             workbenchStore.showWorkbench.set(!showWorkbench);
           }}
         >
-          <div className="flex items-center px-6 bg-gray-100/50">
-            {!artifact?.closed && !chat.aborted ? (
-              <div className="i-svg-spinners:90-ring-with-bg scale-130"></div>
-            ) : (
-              <div className="i-ph:code-bold scale-130 text-gray-600"></div>
-            )}
-          </div>
-          <div className="px-4 p-3 w-full text-left">
-            <div className="w-full">{artifact?.title}</div>
-            <small className="inline-block w-full w-full">Click to open Workbench</small>
+          <div className="px-5 p-3.5 w-full text-left">
+            <div className="w-full text-bolt-elements-textPrimary font-medium leading-5 text-sm">{artifact?.title}</div>
+            <div className="w-full w-full text-bolt-elements-textSecondary text-xs mt-0.5">Click to open Workbench</div>
           </div>
         </button>
+        <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />
         <AnimatePresence>
           {actions.length && (
             <motion.button
@@ -79,7 +71,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
               animate={{ width: 'auto' }}
               exit={{ width: 0 }}
               transition={{ duration: 0.15, ease: cubicEasingFn }}
-              className="hover:bg-gray-200"
+              className="bg-bolt-elements-artifacts-background hover:bg-bolt-elements-artifacts-backgroundHover"
               onClick={toggleActions}
             >
               <div className="p-4">
@@ -98,7 +90,8 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
             exit={{ height: '0px' }}
             transition={{ duration: 0.15 }}
           >
-            <div className="p-4 text-left border-t">
+            <div className="bg-bolt-elements-artifacts-borderColor h-[1px]" />
+            <div className="p-5 text-left bg-bolt-elements-actions-background">
               <ActionList actions={actions} />
             </div>
           </motion.div>
@@ -107,29 +100,6 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
     </div>
   );
 });
-
-function getTextColor(status: ActionState['status']) {
-  switch (status) {
-    case 'pending': {
-      return 'text-gray-500';
-    }
-    case 'running': {
-      return 'text-gray-1000';
-    }
-    case 'complete': {
-      return 'text-positive-600';
-    }
-    case 'aborted': {
-      return 'text-gray-600';
-    }
-    case 'failed': {
-      return 'text-negative-600';
-    }
-    default: {
-      return undefined;
-    }
-  }
-}
 
 interface ShellCodeBlockProps {
   classsName?: string;
@@ -140,7 +110,12 @@ function ShellCodeBlock({ classsName, code }: ShellCodeBlockProps) {
   return (
     <div
       className={classNames('text-xs', classsName)}
-      dangerouslySetInnerHTML={{ __html: shellHighlighter.codeToHtml(code, { lang: 'shell', theme: 'dark-plus' }) }}
+      dangerouslySetInnerHTML={{
+        __html: shellHighlighter.codeToHtml(code, {
+          lang: 'shell',
+          theme: 'dark-plus',
+        }),
+      }}
     ></div>
   );
 }
@@ -160,6 +135,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
       <ul className="list-none space-y-2.5">
         {actions.map((action, index) => {
           const { status, type, content } = action;
+          const isLast = index === actions.length - 1;
 
           return (
             <motion.li
@@ -172,21 +148,24 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                 ease: cubicEasingFn,
               }}
             >
-              <div className="flex items-center gap-1.5">
-                <div className={classNames('text-lg', getTextColor(action.status))}>
+              <div className="flex items-center gap-1.5 text-sm">
+                <div className={classNames('text-lg', getIconColor(action.status))}>
                   {status === 'running' ? (
                     <div className="i-svg-spinners:90-ring-with-bg"></div>
                   ) : status === 'pending' ? (
                     <div className="i-ph:circle-duotone"></div>
                   ) : status === 'complete' ? (
-                    <div className="i-ph:check-circle-duotone"></div>
+                    <div className="i-ph:check"></div>
                   ) : status === 'failed' || status === 'aborted' ? (
-                    <div className="i-ph:x-circle-duotone"></div>
+                    <div className="i-ph:x"></div>
                   ) : null}
                 </div>
                 {type === 'file' ? (
                   <div>
-                    Create <code className="bg-gray-100 text-gray-700">{action.filePath}</code>
+                    Create{' '}
+                    <code className="bg-bolt-elements-artifacts-inlineCode-background text-bolt-elements-artifacts-inlineCode-text px-1.5 py-1 rounded-md">
+                      {action.filePath}
+                    </code>
                   </div>
                 ) : type === 'shell' ? (
                   <div className="flex items-center w-full min-h-[28px]">
@@ -194,7 +173,14 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   </div>
                 ) : null}
               </div>
-              {type === 'shell' && <ShellCodeBlock classsName="mt-1" code={content} />}
+              {type === 'shell' && (
+                <ShellCodeBlock
+                  classsName={classNames('mt-1', {
+                    'mb-3.5': !isLast,
+                  })}
+                  code={content}
+                />
+              )}
             </motion.li>
           );
         })}
@@ -202,3 +188,26 @@ const ActionList = memo(({ actions }: ActionListProps) => {
     </motion.div>
   );
 });
+
+function getIconColor(status: ActionState['status']) {
+  switch (status) {
+    case 'pending': {
+      return 'text-bolt-elements-textTertiary';
+    }
+    case 'running': {
+      return 'text-bolt-elements-loader-progress';
+    }
+    case 'complete': {
+      return 'text-bolt-elements-icon-success';
+    }
+    case 'aborted': {
+      return 'text-bolt-elements-textSecondary';
+    }
+    case 'failed': {
+      return 'text-bolt-elements-icon-error';
+    }
+    default: {
+      return undefined;
+    }
+  }
+}

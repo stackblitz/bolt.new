@@ -23,7 +23,7 @@ export const Slider = genericMemo(<T,>({ selected, options, setSelected }: Slide
   const isLeftSelected = selected === options.left.value;
 
   return (
-    <div className="flex items-center flex-wrap gap-1 border rounded-lg p-1">
+    <div className="flex items-center flex-wrap gap-1 bg-bolt-elements-background-depth-1 rounded-full p-1">
       <SliderButton selected={isLeftSelected} setSelected={() => setSelected?.(options.left.value)}>
         {options.left.text}
       </SliderButton>
@@ -45,8 +45,10 @@ const SliderButton = memo(({ selected, children, setSelected }: SliderButtonProp
     <button
       onClick={setSelected}
       className={classNames(
-        'bg-transparent text-sm transition-colors px-2.5 py-0.5 rounded-md relative',
-        selected ? 'text-white' : 'text-gray-600 hover:text-accent-600 hover:bg-accent-600/10',
+        'bg-transparent text-sm px-2.5 py-0.5 rounded-full relative',
+        selected
+          ? 'text-bolt-elements-item-contentAccent'
+          : 'text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive',
       )}
     >
       <span className="relative z-10">{children}</span>
@@ -54,7 +56,7 @@ const SliderButton = memo(({ selected, children, setSelected }: SliderButtonProp
         <motion.span
           layoutId="pill-tab"
           transition={{ type: 'spring', duration: 0.5 }}
-          className="absolute inset-0 z-0 bg-accent-600 rounded-md"
+          className="absolute inset-0 z-0 bg-bolt-elements-item-backgroundAccent rounded-full"
         ></motion.span>
       )}
     </button>

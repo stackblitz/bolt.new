@@ -1,7 +1,7 @@
 import { useStore } from '@nanostores/react';
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import {
   type OnChangeCallback as OnEditorChange,
@@ -10,7 +10,7 @@ import {
 import { IconButton } from '~/components/ui/IconButton';
 import { PanelHeaderButton } from '~/components/ui/PanelHeaderButton';
 import { Slider, type SliderOptions } from '~/components/ui/Slider';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore, type WorkbenchViewType } from '~/lib/stores/workbench';
 import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
@@ -21,11 +21,9 @@ interface WorkspaceProps {
   isStreaming?: boolean;
 }
 
-type ViewType = 'code' | 'preview';
-
 const viewTransition = { ease: cubicEasingFn };
 
-const sliderOptions: SliderOptions<ViewType> = {
+const sliderOptions: SliderOptions<WorkbenchViewType> = {
   left: {
     value: 'code',
     text: 'Code',
@@ -62,8 +60,11 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
   const currentDocument = useStore(workbenchStore.currentDocument);
   const unsavedFiles = useStore(workbenchStore.unsavedFiles);
   const files = useStore(workbenchStore.files);
+  const selectedView = useStore(workbenchStore.currentView);
 
-  const [selectedView, setSelectedView] = useState<ViewType>(hasPreview ? 'preview' : 'code');
+  const setSelectedView = (view: WorkbenchViewType) => {
+    workbenchStore.currentView.set(view);
+  };
 
   useEffect(() => {
     if (hasPreview) {

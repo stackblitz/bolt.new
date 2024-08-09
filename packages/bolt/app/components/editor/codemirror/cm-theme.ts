@@ -168,6 +168,18 @@ function getEditorTheme(settings: EditorSettings) {
     '.cm-searchMatch': {
       backgroundColor: 'var(--cm-searchMatch-backgroundColor)',
     },
+    '.cm-tooltip.cm-readonly-tooltip': {
+      padding: '4px',
+      whiteSpace: 'nowrap',
+      backgroundColor: 'var(--bolt-elements-bg-depth-2)',
+      borderColor: 'var(--bolt-elements-borderColorActive)',
+      '& .cm-tooltip-arrow:before': {
+        borderTopColor: 'var(--bolt-elements-borderColorActive)',
+      },
+      '& .cm-tooltip-arrow:after': {
+        borderTopColor: 'transparent',
+      },
+    },
   });
 }
 

@@ -4,14 +4,17 @@ import { bracketMatching, foldGutter, indentOnInput, indentUnit } from '@codemir
 import { searchKeymap } from '@codemirror/search';
 import { Compartment, EditorSelection, EditorState, StateEffect, StateField, type Extension } from '@codemirror/state';
 import {
-  EditorView,
   drawSelection,
   dropCursor,
+  EditorView,
   highlightActiveLine,
   highlightActiveLineGutter,
   keymap,
   lineNumbers,
   scrollPastEnd,
+  showTooltip,
+  tooltips,
+  type Tooltip,
 } from '@codemirror/view';
 import { memo, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { Theme } from '~/types/theme';
@@ -72,6 +75,28 @@ interface Props {
 }
 
 type EditorStates = Map<string, EditorState>;
+
+const readOnlyTooltipStateEffect = StateEffect.define<boolean>();
+
+const editableTooltipField = StateField.define<readonly Tooltip[]>({
+  create: () => [],
+  update(_tooltips, transaction) {
+    if (!transaction.state.readOnly) {
+      return [];
+    }
+
+    for (const effect of transaction.effects) {
+      if (effect.is(readOnlyTooltipStateEffect) && effect.value) {
+        return getReadOnlyTooltip(transaction.state);
+      }
+    }
+
+    return [];
+  },
+  provide: (field) => {
+    return showTooltip.computeN([field], (state) => state.field(field));
+  },
+});
 
 const editableStateEffect = StateEffect.define<boolean>();
 
@@ -261,6 +286,17 @@ function newEditorState(
 
           onScrollRef.current?.({ left: view.scrollDOM.scrollLeft, top: view.scrollDOM.scrollTop });
         }, debounceScroll),
+        keydown: (event, view) => {
+          if (view.state.readOnly) {
+            view.dispatch({
+              effects: [readOnlyTooltipStateEffect.of(event.key !== 'Escape')],
+            });
+
+            return true;
+          }
+
+          return false;
+        },
       }),
       getTheme(theme, settings),
       history(),
@@ -283,6 +319,20 @@ function newEditorState(
       autocompletion({
         closeOnBlur: false,
       }),
+      tooltips({
+        position: 'absolute',
+        parent: document.body,
+        tooltipSpace: (view) => {
+          const rect = view.dom.getBoundingClientRect();
+
+          return {
+            top: rect.top - 50,
+            left: rect.left,
+            bottom: rect.bottom,
+            right: rect.right + 10,
+          };
+        },
+      }),
       closeBrackets(),
       lineNumbers(),
       scrollPastEnd(),
@@ -291,9 +341,9 @@ function newEditorState(
       bracketMatching(),
       EditorState.tabSize.of(settings?.tabSize ?? 2),
       indentOnInput(),
+      editableTooltipField,
       editableStateField,
       EditorState.readOnly.from(editableStateField, (editable) => !editable),
-      EditorView.editable.from(editableStateField, (editable) => editable),
       highlightActiveLineGutter(),
       highlightActiveLine(),
       foldGutter({
@@ -382,4 +432,30 @@ function setEditorDocument(
       view.scrollDOM.scrollTo(newLeft, newTop);
     });
   });
+}
+
+function getReadOnlyTooltip(state: EditorState) {
+  if (!state.readOnly) {
+    return [];
+  }
+
+  return state.selection.ranges
+    .filter((range) => {
+      return range.empty;
+    })
+    .map((range) => {
+      return {
+        pos: range.head,
+        above: true,
+        strictSide: true,
+        arrow: true,
+        create: () => {
+          const divElement = document.createElement('div');
+          divElement.className = 'cm-readonly-tooltip';
+          divElement.textContent = 'Cannot edit file while AI response is being generated';
+
+          return { dom: divElement };
+        },
+      };
+    });
 }

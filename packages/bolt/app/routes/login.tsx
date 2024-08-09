@@ -6,12 +6,12 @@ import {
   type LoaderFunctionArgs,
 } from '@remix-run/cloudflare';
 import { useFetcher, useLoaderData } from '@remix-run/react';
-import { auth, type AuthAPI } from '@webcontainer/api';
 import { useEffect, useState } from 'react';
 import { LoadingDots } from '~/components/ui/LoadingDots';
 import { createUserSession, isAuthenticated, validateAccessToken } from '~/lib/.server/sessions';
 import { CLIENT_ID, CLIENT_ORIGIN } from '~/lib/constants';
 import { request as doRequest } from '~/lib/fetch';
+import { auth, type AuthAPI } from '~/lib/webcontainer/auth.client';
 import { logger } from '~/utils/logger';
 
 export async function loader({ request, context }: LoaderFunctionArgs) {

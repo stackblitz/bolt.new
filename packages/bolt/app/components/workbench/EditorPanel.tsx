@@ -144,7 +144,7 @@ export const EditorPanel = memo(
                 {activeFile && (
                   <div className="flex items-center flex-1 text-sm">
                     <div className="i-ph:file-duotone mr-2" />
-                    {activeFile} {isStreaming && <span className="text-xs ml-1 font-semibold">(read-only)</span>}
+                    {activeFile}
                     {activeFileUnsaved && (
                       <div className="flex gap-1 ml-auto -mr-1.5">
                         <PanelHeaderButton onClick={onFileSave}>

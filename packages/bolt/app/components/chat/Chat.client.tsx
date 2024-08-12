@@ -11,6 +11,7 @@ import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
+import { sendAnalyticsEvent, AnalyticsTrackEvent, AnalyticsAction } from '~/lib/analytics';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -191,6 +192,18 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     resetEnhancer();
 
     textareaRef.current?.blur();
+
+    const event = messages.length === 0 ? AnalyticsTrackEvent.ChatCreated : AnalyticsTrackEvent.MessageSent;
+
+    sendAnalyticsEvent({
+      action: AnalyticsAction.Track,
+      payload: {
+        event,
+        properties: {
+          message: _input,
+        },
+      },
+    });
   };
 
   const [messageRef, scrollRef] = useSnapScroll();

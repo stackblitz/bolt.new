@@ -9,6 +9,7 @@ import { useFetcher, useLoaderData } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import { LoadingDots } from '~/components/ui/LoadingDots';
 import { createUserSession, isAuthenticated, validateAccessToken } from '~/lib/.server/sessions';
+import { identifyUser } from '~/lib/analytics';
 import { CLIENT_ID, CLIENT_ORIGIN } from '~/lib/constants';
 import { request as doRequest } from '~/lib/fetch';
 import { auth, type AuthAPI } from '~/lib/webcontainer/auth.client';
@@ -62,9 +63,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return json({ error: 'bolt-access' as const }, { status: 401 });
   }
 
+  const identity = await identifyUser(payload.access);
+
   const tokenInfo: { expires_in: number; created_at: number } = await response.json();
 
-  const init = await createUserSession(request, context.cloudflare.env, { ...payload, ...tokenInfo });
+  const init = await createUserSession(request, context.cloudflare.env, { ...payload, ...tokenInfo }, identity);
 
   return redirectDocument('/', init);
 }
@@ -105,6 +108,9 @@ export default function Login() {
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Login</h2>
           </div>
           <LoginForm />
+          <p className="mt-4 text-sm text-center text-gray-600">
+            By using Bolt, you agree to the collection of usage data for analytics.
+          </p>
         </div>
       )}
     </div>
@@ -146,7 +152,7 @@ function LoginForm() {
       });
     }
 
-    function onTokens() {
+    async function onTokens() {
       const tokens = auth.tokens()!;
 
       fetcher.submit(tokens, {

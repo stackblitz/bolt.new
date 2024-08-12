@@ -1,7 +1,9 @@
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/cloudflare';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
+import { useEffect } from 'react';
+import { sendAnalyticsEvent, AnalyticsAction } from './lib/analytics';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
 
@@ -52,6 +54,20 @@ const inlineThemeCode = stripIndents`
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
+
+  const { pathname } = useLocation();
+
+  // log page events when the window location changes
+  useEffect(() => {
+    sendAnalyticsEvent({
+      action: AnalyticsAction.Page,
+      payload: {
+        properties: {
+          url: window.location.href,
+        },
+      },
+    });
+  }, [pathname]);
 
   return (
     <html lang="en" data-theme={theme}>

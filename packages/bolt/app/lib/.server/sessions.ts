@@ -3,12 +3,15 @@ import { decodeJwt } from 'jose';
 import { CLIENT_ID, CLIENT_ORIGIN } from '~/lib/constants';
 import { request as doRequest } from '~/lib/fetch';
 import { logger } from '~/utils/logger';
+import type { Identity } from '~/lib/analytics';
 
 const DEV_SESSION_SECRET = import.meta.env.DEV ? 'LZQMrERo3Ewn/AbpSYJ9aw==' : undefined;
 
 interface SessionData {
   refresh: string;
   expiresAt: number;
+  userId: string | null;
+  segmentWriteKey: string | null;
 }
 
 export async function isAuthenticated(request: Request, env: Env) {
@@ -50,6 +53,7 @@ export async function createUserSession(
   request: Request,
   env: Env,
   tokens: { refresh: string; expires_in: number; created_at: number },
+  identity?: Identity,
 ): Promise<ResponseInit> {
   const { session, sessionStorage } = await getSession(request, env);
 
@@ -57,6 +61,11 @@ export async function createUserSession(
 
   session.set('refresh', tokens.refresh);
   session.set('expiresAt', expiresAt);
+
+  if (identity) {
+    session.set('userId', identity.userId ?? null);
+    session.set('segmentWriteKey', identity.segmentWriteKey ?? null);
+  }
 
   return {
     headers: {
@@ -97,7 +106,7 @@ export function validateAccessToken(access: string) {
   return jwtPayload.bolt === true;
 }
 
-async function getSession(request: Request, env: Env) {
+export async function getSession(request: Request, env: Env) {
   const sessionStorage = getSessionStorage(env);
   const cookie = request.headers.get('Cookie');
 

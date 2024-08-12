@@ -4,6 +4,7 @@ import type { Message } from 'ai';
 import { openDatabase, setMessages, getMessages, getNextId, getUrlId } from './db';
 import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { sendAnalyticsEvent, AnalyticsAction } from '~/lib/analytics';
 
 export interface ChatHistory {
   id: string;
@@ -111,4 +112,14 @@ function navigateChat(nextId: string) {
   url.pathname = `/chat/${nextId}`;
 
   window.history.replaceState({}, '', url);
+
+  // since the `replaceState` call doesn't trigger a page reload, we need to manually log this event
+  sendAnalyticsEvent({
+    action: AnalyticsAction.Page,
+    payload: {
+      properties: {
+        url: url.href,
+      },
+    },
+  });
 }

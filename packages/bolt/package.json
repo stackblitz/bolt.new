@@ -39,6 +39,7 @@
     "@remix-run/cloudflare": "^2.10.2",
     "@remix-run/cloudflare-pages": "^2.10.2",
     "@remix-run/react": "^2.10.2",
+    "@segment/analytics-node": "^2.1.2",
     "@stackblitz/sdk": "^1.11.0",
     "@uiw/codemirror-theme-vscode": "^4.23.0",
     "@unocss/reset": "^0.61.0",

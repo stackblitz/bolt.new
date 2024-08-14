@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { classNames } from '~/utils/classNames';
+import { cubicEasingFn } from '~/utils/easings';
 import { genericMemo } from '~/utils/react';
 
 interface SliderOption<T> {
@@ -23,7 +24,7 @@ export const Slider = genericMemo(<T,>({ selected, options, setSelected }: Slide
   const isLeftSelected = selected === options.left.value;
 
   return (
-    <div className="flex items-center flex-wrap gap-1 bg-bolt-elements-background-depth-1 rounded-full p-1">
+    <div className="flex items-center flex-wrap shrink-0 gap-1 bg-bolt-elements-background-depth-1 overflow-hidden rounded-full p-1">
       <SliderButton selected={isLeftSelected} setSelected={() => setSelected?.(options.left.value)}>
         {options.left.text}
       </SliderButton>
@@ -55,7 +56,7 @@ const SliderButton = memo(({ selected, children, setSelected }: SliderButtonProp
       {selected && (
         <motion.span
           layoutId="pill-tab"
-          transition={{ type: 'spring', duration: 0.5 }}
+          transition={{ duration: 0.2, ease: cubicEasingFn }}
           className="absolute inset-0 z-0 bg-bolt-elements-item-backgroundAccent rounded-full"
         ></motion.span>
       )}

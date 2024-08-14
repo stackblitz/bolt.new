@@ -8,6 +8,14 @@ $zIndexMax: 999;
   z-index: $zIndexMax - 2;
 }
 
+.z-prompt {
+  z-index: 2;
+}
+
+.z-workbench {
+  z-index: 3;
+}
+
 .z-max {
   z-index: $zIndexMax;
 }

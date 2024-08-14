@@ -1,8 +1,10 @@
+import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { memo, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
+import { AnalyticsAction, AnalyticsTrackEvent, sendAnalyticsEvent } from '~/lib/analytics';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
@@ -11,7 +13,6 @@ import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
-import { sendAnalyticsEvent, AnalyticsTrackEvent, AnalyticsAction } from '~/lib/analytics';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -70,6 +71,8 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
+
+  const { showChat } = useStore(chatStore);
 
   const [animationScope, animate] = useAnimate();
 
@@ -213,6 +216,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       ref={animationScope}
       textareaRef={textareaRef}
       input={input}
+      showChat={showChat}
       chatStarted={chatStarted}
       isStreaming={isLoading}
       enhancingPrompt={enhancingPrompt}

@@ -17,9 +17,10 @@ import type { FileMap } from '~/lib/stores/files';
 import { themeStore } from '~/lib/stores/theme';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
+import { WORK_DIR } from '~/utils/constants';
 import { renderLogger } from '~/utils/logger';
 import { isMobile } from '~/utils/mobile';
-import { FileTreePanel } from './FileTreePanel';
+import { FileTree } from './FileTree';
 import { Terminal, type TerminalRef } from './terminal/Terminal';
 
 interface EditorPanelProps {
@@ -124,22 +125,24 @@ export const EditorPanel = memo(
       <PanelGroup direction="vertical">
         <Panel defaultSize={showTerminal ? DEFAULT_EDITOR_SIZE : 100} minSize={20}>
           <PanelGroup direction="horizontal">
-            <Panel defaultSize={25} minSize={10} collapsible>
+            <Panel defaultSize={20} minSize={10} collapsible>
               <div className="flex flex-col border-r border-bolt-elements-borderColor h-full">
                 <PanelHeader>
                   <div className="i-ph:tree-structure-duotone shrink-0" />
                   Files
                 </PanelHeader>
-                <FileTreePanel
+                <FileTree
+                  className="h-full"
                   files={files}
                   unsavedFiles={unsavedFiles}
+                  rootFolder={WORK_DIR}
                   selectedFile={selectedFile}
                   onFileSelect={onFileSelect}
                 />
               </div>
             </Panel>
             <PanelResizeHandle />
-            <Panel className="flex flex-col" defaultSize={75} minSize={20}>
+            <Panel className="flex flex-col" defaultSize={80} minSize={20}>
               <PanelHeader>
                 {activeFile && (
                   <div className="flex items-center flex-1 text-sm">

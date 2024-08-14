@@ -8,10 +8,13 @@ import { classNames } from '~/utils/classNames';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 
+import styles from './BaseChat.module.scss';
+
 interface BaseChatProps {
   textareaRef?: React.RefObject<HTMLTextAreaElement> | undefined;
   messageRef?: RefCallback<HTMLDivElement> | undefined;
   scrollRef?: RefCallback<HTMLDivElement> | undefined;
+  showChat?: boolean;
   chatStarted?: boolean;
   isStreaming?: boolean;
   messages?: Message[];
@@ -40,6 +43,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       textareaRef,
       messageRef,
       scrollRef,
+      showChat = true,
       chatStarted = false,
       isStreaming = false,
       enhancingPrompt = false,
@@ -56,12 +60,19 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
 
     return (
-      <div ref={ref} className="relative flex h-full w-full overflow-hidden bg-bolt-elements-background-depth-1">
+      <div
+        ref={ref}
+        className={classNames(
+          styles.BaseChat,
+          'relative flex h-full w-full overflow-hidden bg-bolt-elements-background-depth-1',
+        )}
+        data-chat-visible={showChat}
+      >
         <ClientOnly>{() => <Menu />}</ClientOnly>
         <div ref={scrollRef} className="flex overflow-scroll w-full h-full">
-          <div className="flex flex-col w-full h-full px-6">
+          <div className={classNames(styles.Chat, 'flex flex-col flex-grow min-w-[var(--chat-min-width)] h-full')}>
             {!chatStarted && (
-              <div id="intro" className="mt-[26vh] max-w-2xl mx-auto">
+              <div id="intro" className="mt-[26vh] max-w-chat mx-auto">
                 <h1 className="text-5xl text-center font-bold text-bolt-elements-textPrimary mb-2">
                   Where ideas begin
                 </h1>
@@ -71,7 +82,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </div>
             )}
             <div
-              className={classNames('pt-6', {
+              className={classNames('pt-6 px-6', {
                 'h-full flex flex-col': chatStarted,
               })}
             >
@@ -80,7 +91,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   return chatStarted ? (
                     <Messages
                       ref={messageRef}
-                      className="flex flex-col w-full flex-1 max-w-2xl px-4 pb-6 mx-auto z-1"
+                      className="flex flex-col w-full flex-1 max-w-chat px-4 pb-6 mx-auto z-1"
                       messages={messages}
                       isStreaming={isStreaming}
                     />
@@ -88,7 +99,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 }}
               </ClientOnly>
               <div
-                className={classNames('relative w-full max-w-2xl md:mx-auto z-2', {
+                className={classNames('relative w-full max-w-chat mx-auto z-prompt', {
                   'sticky bottom-0': chatStarted,
                 })}
               >
@@ -174,7 +185,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </div>
             </div>
             {!chatStarted && (
-              <div id="examples" className="relative w-full max-w-2xl mx-auto mt-8 flex justify-center">
+              <div id="examples" className="relative w-full max-w-xl mx-auto mt-8 flex justify-center">
                 <div className="flex flex-col space-y-2 [mask-image:linear-gradient(to_bottom,black_0%,transparent_180%)] hover:[mask-image:none]">
                   {EXAMPLE_PROMPTS.map((examplePrompt, index) => {
                     return (

@@ -82,11 +82,11 @@ export const Preview = memo(() => {
           />
         </div>
       </div>
-      <div className="flex-1 bg-white border-t">
+      <div className="flex-1 border-t border-bolt-elements-borderColor">
         {activePreview ? (
-          <iframe ref={iframeRef} className="border-none w-full h-full" src={iframeUrl} />
+          <iframe ref={iframeRef} className="border-none w-full h-full bg-white" src={iframeUrl} />
         ) : (
-          <div className="flex w-full h-full justify-center items-center">No preview available</div>
+          <div className="flex w-full h-full justify-center items-center bg-white">No preview available</div>
         )}
       </div>
     </div>

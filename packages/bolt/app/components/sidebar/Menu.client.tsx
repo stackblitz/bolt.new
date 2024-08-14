@@ -50,7 +50,7 @@ export function Menu() {
   }, [open]);
 
   useEffect(() => {
-    const enterThreshold = 80;
+    const enterThreshold = 40;
     const exitThreshold = 40;
 
     function onMouseMove(event: MouseEvent) {

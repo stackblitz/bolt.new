@@ -91,7 +91,7 @@ export class ActionRunner {
         return this.#executeAction(actionId);
       })
       .catch((error) => {
-        console.error('Action execution failed:', error);
+        console.error('Action failed:', error);
       });
   }
 

@@ -1,7 +1,9 @@
 import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { FileMap } from '~/lib/stores/files';
 import { classNames } from '~/utils/classNames';
-import { renderLogger } from '~/utils/logger';
+import { createScopedLogger, renderLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('FileTree');
 
 const NODE_PADDING_LEFT = 8;
 const DEFAULT_HIDDEN_FILES = [/\/node_modules\//, /\/\.next/, /\/\.astro/];
@@ -279,7 +281,7 @@ function buildFileList(files: FileMap, rootFolder = '/', hiddenFiles: Array<stri
     }
   }
 
-  return fileList;
+  return sortFileList(rootFolder, fileList);
 }
 
 function isHiddenFile(filePath: string, fileName: string, hiddenFiles: Array<string | RegExp>) {
@@ -290,4 +292,78 @@ function isHiddenFile(filePath: string, fileName: string, hiddenFiles: Array<str
 
     return pathOrRegex.test(filePath);
   });
+}
+
+/**
+ * Sorts the given list of nodes into a tree structure (still a flat list).
+ *
+ * This function organizes the nodes into a hierarchical structure based on their paths,
+ * with folders appearing before files and all items sorted alphabetically within their level.
+ *
+ * @note This function mutates the given `nodeList` array for performance reasons.
+ *
+ * @param rootFolder - The path of the root folder to start the sorting from.
+ * @param nodeList - The list of nodes to be sorted.
+ *
+ * @returns A new array of nodes sorted in depth-first order.
+ */
+function sortFileList(rootFolder: string, nodeList: Node[]): Node[] {
+  logger.trace('sortFileList');
+
+  const nodeMap = new Map<string, Node>();
+  const childrenMap = new Map<string, Node[]>();
+
+  // pre-sort nodes by name and type
+  nodeList.sort((a, b) => compareNodes(a, b));
+
+  for (const node of nodeList) {
+    nodeMap.set(node.fullPath, node);
+
+    const parentPath = node.fullPath.slice(0, node.fullPath.lastIndexOf('/'));
+
+    if (parentPath !== rootFolder.slice(0, rootFolder.lastIndexOf('/'))) {
+      if (!childrenMap.has(parentPath)) {
+        childrenMap.set(parentPath, []);
+      }
+
+      childrenMap.get(parentPath)?.push(node);
+    }
+  }
+
+  const sortedList: Node[] = [];
+
+  const depthFirstTraversal = (path: string): void => {
+    const node = nodeMap.get(path);
+
+    if (!node) {
+      logger.warn(`Node not found for path: ${path}`);
+      return;
+    }
+
+    sortedList.push(node);
+
+    const children = childrenMap.get(path);
+
+    if (children) {
+      for (const child of children) {
+        if (child.kind === 'folder') {
+          depthFirstTraversal(child.fullPath);
+        } else {
+          sortedList.push(child);
+        }
+      }
+    }
+  };
+
+  depthFirstTraversal(rootFolder);
+
+  return sortedList;
+}
+
+function compareNodes(a: Node, b: Node): number {
+  if (a.kind !== b.kind) {
+    return a.kind === 'folder' ? -1 : 1;
+  }
+
+  return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
 }

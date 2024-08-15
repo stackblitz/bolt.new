@@ -104,6 +104,13 @@ export default defineConfig({
     kdb: 'bg-bolt-elements-code-background text-bolt-elements-code-text py-1 px-1.5 rounded-md',
     'max-w-chat': 'max-w-[var(--chat-max-width)]',
   },
+  rules: [
+    /**
+     * This shorthand doesn't exist in Tailwind and we overwrite it to avoid
+     * any conflicts with minified CSS classes.
+     */
+    ['b', {}],
+  ],
   theme: {
     colors: {
       ...COLOR_PRIMITIVES,

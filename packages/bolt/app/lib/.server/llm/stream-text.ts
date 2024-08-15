@@ -30,9 +30,6 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
       'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15',
     },
     messages: convertToCoreMessages(messages),
-    onFinish: ({ finishReason, usage, warnings }) => {
-      console.log({ finishReason, usage, warnings });
-    },
     ...options,
   });
 }

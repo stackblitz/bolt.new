@@ -13,6 +13,7 @@ const MESSAGE_PREFIX = 'Bolt';
 
 export enum AnalyticsTrackEvent {
   MessageSent = `${MESSAGE_PREFIX} Message Sent`,
+  MessageComplete = `${MESSAGE_PREFIX} Message Complete`,
   ChatCreated = `${MESSAGE_PREFIX} Chat Created`,
 }
 

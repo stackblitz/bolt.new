@@ -24,8 +24,6 @@ export default class SwitchableStream extends TransformStream {
       await this._currentReader.cancel();
     }
 
-    console.log('Switching stream');
-
     this._currentReader = newStream.getReader();
 
     this._pumpStream();

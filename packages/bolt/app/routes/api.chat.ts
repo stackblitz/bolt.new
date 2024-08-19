@@ -4,7 +4,7 @@ import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
 import { handleWithAuth } from '~/lib/.server/login';
-import { getSession } from '~/lib/.server/sessions';
+import { getSessionData } from '~/lib/.server/sessions';
 import { AnalyticsAction, AnalyticsTrackEvent, sendEventInternal } from '~/lib/analytics';
 
 export async function action(args: ActionFunctionArgs) {
@@ -21,9 +21,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
       toolChoice: 'none',
       onFinish: async ({ text: content, finishReason, usage }) => {
         if (finishReason !== 'length') {
-          const { session } = await getSession(request, context.cloudflare.env);
+          const sessionData = await getSessionData(request, context.cloudflare.env);
 
-          await sendEventInternal(session.data, {
+          await sendEventInternal(sessionData, {
             action: AnalyticsAction.Track,
             payload: {
               event: AnalyticsTrackEvent.MessageComplete,

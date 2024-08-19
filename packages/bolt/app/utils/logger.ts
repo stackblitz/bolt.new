@@ -13,6 +13,9 @@ interface Logger {
 
 let currentLevel: DebugLevel = import.meta.env.VITE_LOG_LEVEL ?? import.meta.env.DEV ? 'debug' : 'info';
 
+const isWorker = 'HTMLRewriter' in globalThis;
+const supportsColor = !isWorker;
+
 export const logger: Logger = {
   trace: (...messages: any[]) => log('trace', undefined, messages),
   debug: (...messages: any[]) => log('debug', undefined, messages),
@@ -44,35 +47,41 @@ function setLevel(level: DebugLevel) {
 function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
   const levelOrder: DebugLevel[] = ['trace', 'debug', 'info', 'warn', 'error'];
 
-  if (levelOrder.indexOf(level) >= levelOrder.indexOf(currentLevel)) {
-    const labelBackgroundColor = getColorForLevel(level);
-    const labelTextColor = level === 'warn' ? 'black' : 'white';
+  if (levelOrder.indexOf(level) < levelOrder.indexOf(currentLevel)) {
+    return;
+  }
 
-    const labelStyles = getLabelStyles(labelBackgroundColor, labelTextColor);
-    const scopeStyles = getLabelStyles('#77828D', 'white');
-
-    const styles = [labelStyles];
-
-    if (typeof scope === 'string') {
-      styles.push('', scopeStyles);
+  const allMessages = messages.reduce((acc, current) => {
+    if (acc.endsWith('\n')) {
+      return acc + current;
     }
 
-    console.log(
-      `%c${level.toUpperCase()}${scope ? `%c %c${scope}` : ''}`,
-      ...styles,
-      messages.reduce((acc, current) => {
-        if (acc.endsWith('\n')) {
-          return acc + current;
-        }
+    if (!acc) {
+      return current;
+    }
 
-        if (!acc) {
-          return current;
-        }
+    return `${acc} ${current}`;
+  }, '');
 
-        return `${acc} ${current}`;
-      }, ''),
-    );
+  if (!supportsColor) {
+    console.log(`[${level.toUpperCase()}]`, allMessages);
+
+    return;
   }
+
+  const labelBackgroundColor = getColorForLevel(level);
+  const labelTextColor = level === 'warn' ? 'black' : 'white';
+
+  const labelStyles = getLabelStyles(labelBackgroundColor, labelTextColor);
+  const scopeStyles = getLabelStyles('#77828D', 'white');
+
+  const styles = [labelStyles];
+
+  if (typeof scope === 'string') {
+    styles.push('', scopeStyles);
+  }
+
+  console.log(`%c${level.toUpperCase()}${scope ? `%c %c${scope}` : ''}`, ...styles, allMessages);
 }
 
 function getLabelStyles(color: string, textColor: string) {

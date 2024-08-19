@@ -24,7 +24,7 @@ cd bolt
 pnpm install
 ```
 
-3. Create a `.env.local` file in the root of the bolt package directory and add your Anthropic API key:
+3. Create a `.env.local` file in the current `packages/bolt` directory and add your Anthropic API key:
 
 ```
 ANTHROPIC_API_KEY=XXX

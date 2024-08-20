@@ -2,11 +2,14 @@ import { useStore } from '@nanostores/react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { PortDropdown } from './PortDropdown';
 
 export const Preview = memo(() => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [activePreviewIndex] = useState(0);
+  const [activePreviewIndex, setActivePreviewIndex] = useState(0);
+  const [isPortDropdownOpen, setIsPortDropdownOpen] = useState(false);
+  const hasSelectedPreview = useRef(false);
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
 
@@ -21,12 +24,10 @@ export const Preview = memo(() => {
       return;
     }
 
-    if (!iframeUrl) {
-      const { baseUrl } = activePreview;
+    const { baseUrl } = activePreview;
 
-      setUrl(baseUrl);
-      setIframeUrl(baseUrl);
-    }
+    setUrl(baseUrl);
+    setIframeUrl(baseUrl);
   }, [activePreview, iframeUrl]);
 
   const validateUrl = useCallback(
@@ -48,6 +49,22 @@ export const Preview = memo(() => {
     [activePreview],
   );
 
+  const findMinPortIndex = useCallback(
+    (minIndex: number, preview: { port: number }, index: number, array: { port: number }[]) => {
+      return preview.port < array[minIndex].port ? index : minIndex;
+    },
+    [],
+  );
+
+  // when previews change, display the lowest port if user hasn't selected a preview
+  useEffect(() => {
+    if (previews.length > 1 && !hasSelectedPreview.current) {
+      const minPortIndex = previews.reduce(findMinPortIndex, 0);
+
+      setActivePreviewIndex(minPortIndex);
+    }
+  }, [previews]);
+
   const reloadPreview = () => {
     if (iframeRef.current) {
       iframeRef.current.src = iframeRef.current.src;
@@ -56,6 +73,9 @@ export const Preview = memo(() => {
 
   return (
     <div className="w-full h-full flex flex-col">
+      {isPortDropdownOpen && (
+        <div className="z-iframe-overlay w-full h-full absolute" onClick={() => setIsPortDropdownOpen(false)} />
+      )}
       <div className="bg-bolt-elements-background-depth-2 p-2 flex items-center gap-1.5">
         <IconButton icon="i-ph:arrow-clockwise" onClick={reloadPreview} />
         <div
@@ -81,6 +101,16 @@ export const Preview = memo(() => {
             }}
           />
         </div>
+        {previews.length > 1 && (
+          <PortDropdown
+            activePreviewIndex={activePreviewIndex}
+            setActivePreviewIndex={setActivePreviewIndex}
+            isDropdownOpen={isPortDropdownOpen}
+            setHasSelectedPreview={(value) => (hasSelectedPreview.current = value)}
+            setIsDropdownOpen={setIsPortDropdownOpen}
+            previews={previews}
+          />
+        )}
       </div>
       <div className="flex-1 border-t border-bolt-elements-borderColor">
         {activePreview ? (

@@ -8,6 +8,14 @@ $zIndexMax: 999;
   z-index: $zIndexMax - 2;
 }
 
+.z-port-dropdown {
+  z-index: $zIndexMax - 3;
+}
+
+.z-iframe-overlay {
+  z-index: $zIndexMax - 4;
+}
+
 .z-prompt {
   z-index: 2;
 }

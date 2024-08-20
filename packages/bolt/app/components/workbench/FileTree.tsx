@@ -13,24 +13,47 @@ interface Props {
   selectedFile?: string;
   onFileSelect?: (filePath: string) => void;
   rootFolder?: string;
+  hideRoot?: boolean;
+  collapsed?: boolean;
+  allowFolderSelection?: boolean;
   hiddenFiles?: Array<string | RegExp>;
   unsavedFiles?: Set<string>;
   className?: string;
 }
 
 export const FileTree = memo(
-  ({ files = {}, onFileSelect, selectedFile, rootFolder, hiddenFiles, className, unsavedFiles }: Props) => {
+  ({
+    files = {},
+    onFileSelect,
+    selectedFile,
+    rootFolder,
+    hideRoot = false,
+    collapsed = false,
+    allowFolderSelection = false,
+    hiddenFiles,
+    className,
+    unsavedFiles,
+  }: Props) => {
     renderLogger.trace('FileTree');
 
     const computedHiddenFiles = useMemo(() => [...DEFAULT_HIDDEN_FILES, ...(hiddenFiles ?? [])], [hiddenFiles]);
 
     const fileList = useMemo(() => {
-      return buildFileList(files, rootFolder, computedHiddenFiles);
-    }, [files, rootFolder, computedHiddenFiles]);
+      return buildFileList(files, rootFolder, hideRoot, computedHiddenFiles);
+    }, [files, rootFolder, hideRoot, computedHiddenFiles]);
 
-    const [collapsedFolders, setCollapsedFolders] = useState(() => new Set<string>());
+    const [collapsedFolders, setCollapsedFolders] = useState(() => {
+      return collapsed
+        ? new Set(fileList.filter((item) => item.kind === 'folder').map((item) => item.fullPath))
+        : new Set<string>();
+    });
 
     useEffect(() => {
+      if (collapsed) {
+        setCollapsedFolders(new Set(fileList.filter((item) => item.kind === 'folder').map((item) => item.fullPath)));
+        return;
+      }
+
       setCollapsedFolders((prevCollapsed) => {
         const newCollapsed = new Set<string>();
 
@@ -42,7 +65,7 @@ export const FileTree = memo(
 
         return newCollapsed;
       });
-    }, [fileList]);
+    }, [fileList, collapsed]);
 
     const filteredFileList = useMemo(() => {
       const list = [];
@@ -109,6 +132,7 @@ export const FileTree = memo(
                 <Folder
                   key={fileOrFolder.id}
                   folder={fileOrFolder}
+                  selected={allowFolderSelection && selectedFile === fileOrFolder.fullPath}
                   collapsed={collapsedFolders.has(fileOrFolder.fullPath)}
                   onClick={() => {
                     toggleCollapseState(fileOrFolder.fullPath);
@@ -131,13 +155,18 @@ export default FileTree;
 interface FolderProps {
   folder: FolderNode;
   collapsed: boolean;
+  selected?: boolean;
   onClick: () => void;
 }
 
-function Folder({ folder: { depth, name }, collapsed, onClick }: FolderProps) {
+function Folder({ folder: { depth, name }, collapsed, selected = false, onClick }: FolderProps) {
   return (
     <NodeButton
-      className="group bg-transparent text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive"
+      className={classNames('group', {
+        'bg-transparent text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive':
+          !selected,
+        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': selected,
+      })}
       depth={depth}
       iconClasses={classNames({
         'i-ph:caret-right scale-98': collapsed,
@@ -223,13 +252,18 @@ interface FolderNode extends BaseNode {
   kind: 'folder';
 }
 
-function buildFileList(files: FileMap, rootFolder = '/', hiddenFiles: Array<string | RegExp>): Node[] {
+function buildFileList(
+  files: FileMap,
+  rootFolder = '/',
+  hideRoot: boolean,
+  hiddenFiles: Array<string | RegExp>,
+): Node[] {
   const folderPaths = new Set<string>();
   const fileList: Node[] = [];
 
   let defaultDepth = 0;
 
-  if (rootFolder === '/') {
+  if (rootFolder === '/' && !hideRoot) {
     defaultDepth = 1;
     fileList.push({ kind: 'folder', name: '/', depth: 0, id: 0, fullPath: '/' });
   }
@@ -251,7 +285,7 @@ function buildFileList(files: FileMap, rootFolder = '/', hiddenFiles: Array<stri
       const name = segments[i];
       const fullPath = (currentPath += `/${name}`);
 
-      if (!fullPath.startsWith(rootFolder)) {
+      if (!fullPath.startsWith(rootFolder) || (hideRoot && fullPath === rootFolder)) {
         i++;
         continue;
       }
@@ -281,7 +315,7 @@ function buildFileList(files: FileMap, rootFolder = '/', hiddenFiles: Array<stri
     }
   }
 
-  return sortFileList(rootFolder, fileList);
+  return sortFileList(rootFolder, fileList, hideRoot);
 }
 
 function isHiddenFile(filePath: string, fileName: string, hiddenFiles: Array<string | RegExp>) {
@@ -307,7 +341,7 @@ function isHiddenFile(filePath: string, fileName: string, hiddenFiles: Array<str
  *
  * @returns A new array of nodes sorted in depth-first order.
  */
-function sortFileList(rootFolder: string, nodeList: Node[]): Node[] {
+function sortFileList(rootFolder: string, nodeList: Node[], hideRoot: boolean): Node[] {
   logger.trace('sortFileList');
 
   const nodeMap = new Map<string, Node>();
@@ -335,12 +369,9 @@ function sortFileList(rootFolder: string, nodeList: Node[]): Node[] {
   const depthFirstTraversal = (path: string): void => {
     const node = nodeMap.get(path);
 
-    if (!node) {
-      logger.warn(`Node not found for path: ${path}`);
-      return;
+    if (node) {
+      sortedList.push(node);
     }
-
-    sortedList.push(node);
 
     const children = childrenMap.get(path);
 
@@ -355,7 +386,16 @@ function sortFileList(rootFolder: string, nodeList: Node[]): Node[] {
     }
   };
 
-  depthFirstTraversal(rootFolder);
+  if (hideRoot) {
+    // if root is hidden, start traversal from its immediate children
+    const rootChildren = childrenMap.get(rootFolder) || [];
+
+    for (const child of rootChildren) {
+      depthFirstTraversal(child.fullPath);
+    }
+  } else {
+    depthFirstTraversal(rootFolder);
+  }
 
   return sortedList;
 }

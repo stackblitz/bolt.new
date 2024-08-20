@@ -24,6 +24,10 @@ $zIndexMax: 999;
   z-index: 3;
 }
 
+.z-file-tree-breadcrumb {
+  z-index: $zIndexMax - 1;
+}
+
 .z-max {
   z-index: $zIndexMax;
 }

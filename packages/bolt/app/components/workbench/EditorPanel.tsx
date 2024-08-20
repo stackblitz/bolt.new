@@ -20,6 +20,7 @@ import { classNames } from '~/utils/classNames';
 import { WORK_DIR } from '~/utils/constants';
 import { renderLogger } from '~/utils/logger';
 import { isMobile } from '~/utils/mobile';
+import { FileBreadcrumb } from './FileBreadcrumb';
 import { FileTree } from './FileTree';
 import { Terminal, type TerminalRef } from './terminal/Terminal';
 
@@ -67,12 +68,12 @@ export const EditorPanel = memo(
     const [activeTerminal, setActiveTerminal] = useState(0);
     const [terminalCount, setTerminalCount] = useState(1);
 
-    const activeFile = useMemo(() => {
+    const activeFileSegments = useMemo(() => {
       if (!editorDocument) {
-        return '';
+        return undefined;
       }
 
-      return editorDocument.filePath.split('/').at(-1);
+      return editorDocument.filePath.split('/');
     }, [editorDocument]);
 
     const activeFileUnsaved = useMemo(() => {
@@ -134,6 +135,7 @@ export const EditorPanel = memo(
                 <FileTree
                   className="h-full"
                   files={files}
+                  hideRoot
                   unsavedFiles={unsavedFiles}
                   rootFolder={WORK_DIR}
                   selectedFile={selectedFile}
@@ -143,11 +145,10 @@ export const EditorPanel = memo(
             </Panel>
             <PanelResizeHandle />
             <Panel className="flex flex-col" defaultSize={80} minSize={20}>
-              <PanelHeader>
-                {activeFile && (
+              <PanelHeader className="overflow-x-auto">
+                {activeFileSegments?.length && (
                   <div className="flex items-center flex-1 text-sm">
-                    <div className="i-ph:file-duotone mr-2" />
-                    {activeFile}
+                    <FileBreadcrumb pathSegments={activeFileSegments} files={files} onFileSelect={onFileSelect} />
                     {activeFileUnsaved && (
                       <div className="flex gap-1 ml-auto -mr-1.5">
                         <PanelHeaderButton onClick={onFileSave}>

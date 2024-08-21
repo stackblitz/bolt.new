@@ -1,12 +1,12 @@
-import { useNavigate, useLoaderData } from '@remix-run/react';
-import { useState, useEffect } from 'react';
+import { useLoaderData, useNavigate } from '@remix-run/react';
 import type { Message } from 'ai';
-import { openDatabase, setMessages, getMessages, getNextId, getUrlId } from './db';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { AnalyticsAction, sendAnalyticsEvent } from '~/lib/analytics';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { sendAnalyticsEvent, AnalyticsAction } from '~/lib/analytics';
+import { getMessages, getNextId, getUrlId, openDatabase, setMessages } from './db';
 
-export interface ChatHistory {
+export interface ChatHistoryItem {
   id: string;
   urlId?: string;
   description?: string;

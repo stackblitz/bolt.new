@@ -1,25 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { toast } from 'react-toastify';
-import { db, deleteId, type ChatHistory } from '~/lib/persistence';
-import { logger } from '~/utils/logger';
+import * as Dialog from '@radix-ui/react-dialog';
+import { useEffect, useRef, useState } from 'react';
+import { type ChatHistoryItem } from '~/lib/persistence';
 
-export function HistoryItem({ item, loadEntries }: { item: ChatHistory; loadEntries: () => void }) {
-  const [requestingDelete, setRequestingDelete] = useState(false);
+interface HistoryItemProps {
+  item: ChatHistoryItem;
+  onDelete?: (event: React.UIEvent) => void;
+}
+
+export function HistoryItem({ item, onDelete }: HistoryItemProps) {
   const [hovering, setHovering] = useState(false);
   const hoverRef = useRef<HTMLDivElement>(null);
-
-  const deleteItem = useCallback((event: React.UIEvent) => {
-    event.preventDefault();
-
-    if (db) {
-      deleteId(db, item.id)
-        .then(() => loadEntries())
-        .catch((error) => {
-          toast.error('Failed to delete conversation');
-          logger.error(error);
-        });
-    }
-  }, []);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout | undefined;
@@ -34,11 +24,6 @@ export function HistoryItem({ item, loadEntries }: { item: ChatHistory; loadEntr
 
     function mouseLeave() {
       setHovering(false);
-
-      // wait for animation to finish before unsetting
-      timeout = setTimeout(() => {
-        setRequestingDelete(false);
-      }, 200);
     }
 
     hoverRef.current?.addEventListener('mouseenter', mouseEnter);
@@ -59,18 +44,17 @@ export function HistoryItem({ item, loadEntries }: { item: ChatHistory; loadEntr
         {item.description}
         <div className="absolute right-0 z-1 top-0 bottom-0 bg-gradient-to-l from-bolt-elements-background-depth-2 group-hover:from-bolt-elements-background-depth-3 to-transparent w-10 flex justify-end group-hover:w-15 group-hover:from-45%">
           {hovering && (
-            <div className="flex items-center p-1 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary">
-              {requestingDelete ? (
-                <button className="i-ph:check scale-110" onClick={deleteItem} />
-              ) : (
+            <div className="flex items-center p-1 text-bolt-elements-textSecondary hover:text-bolt-elements-item-contentDanger">
+              <Dialog.Trigger asChild>
                 <button
                   className="i-ph:trash scale-110"
                   onClick={(event) => {
+                    // we prevent the default so we don't trigger the anchor above
                     event.preventDefault();
-                    setRequestingDelete(true);
+                    onDelete?.(event);
                   }}
                 />
-              )}
+              </Dialog.Trigger>
             </div>
           )}
         </div>

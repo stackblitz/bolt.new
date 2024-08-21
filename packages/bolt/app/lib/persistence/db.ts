@@ -1,6 +1,6 @@
 import type { Message } from 'ai';
-import type { ChatHistory } from './useChatHistory';
 import { createScopedLogger } from '~/utils/logger';
+import type { ChatHistoryItem } from './useChatHistory';
 
 const logger = createScopedLogger('ChatHistory');
 
@@ -30,13 +30,13 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
   });
 }
 
-export async function getAll(db: IDBDatabase): Promise<ChatHistory[]> {
+export async function getAll(db: IDBDatabase): Promise<ChatHistoryItem[]> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readonly');
     const store = transaction.objectStore('chats');
     const request = store.getAll();
 
-    request.onsuccess = () => resolve(request.result as ChatHistory[]);
+    request.onsuccess = () => resolve(request.result as ChatHistoryItem[]);
     request.onerror = () => reject(request.error);
   });
 }
@@ -65,29 +65,29 @@ export async function setMessages(
   });
 }
 
-export async function getMessages(db: IDBDatabase, id: string): Promise<ChatHistory> {
+export async function getMessages(db: IDBDatabase, id: string): Promise<ChatHistoryItem> {
   return (await getMessagesById(db, id)) || (await getMessagesByUrlId(db, id));
 }
 
-export async function getMessagesByUrlId(db: IDBDatabase, id: string): Promise<ChatHistory> {
+export async function getMessagesByUrlId(db: IDBDatabase, id: string): Promise<ChatHistoryItem> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readonly');
     const store = transaction.objectStore('chats');
     const index = store.index('urlId');
     const request = index.get(id);
 
-    request.onsuccess = () => resolve(request.result as ChatHistory);
+    request.onsuccess = () => resolve(request.result as ChatHistoryItem);
     request.onerror = () => reject(request.error);
   });
 }
 
-export async function getMessagesById(db: IDBDatabase, id: string): Promise<ChatHistory> {
+export async function getMessagesById(db: IDBDatabase, id: string): Promise<ChatHistoryItem> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readonly');
     const store = transaction.objectStore('chats');
     const request = store.get(id);
 
-    request.onsuccess = () => resolve(request.result as ChatHistory);
+    request.onsuccess = () => resolve(request.result as ChatHistoryItem);
     request.onerror = () => reject(request.error);
   });
 }

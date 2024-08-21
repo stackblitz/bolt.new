@@ -133,6 +133,23 @@ export default defineConfig({
             background: 'var(--bolt-elements-code-background)',
             text: 'var(--bolt-elements-code-text)',
           },
+          button: {
+            primary: {
+              background: 'var(--bolt-elements-button-primary-background)',
+              backgroundHover: 'var(--bolt-elements-button-primary-backgroundHover)',
+              text: 'var(--bolt-elements-button-primary-text)',
+            },
+            secondary: {
+              background: 'var(--bolt-elements-button-secondary-background)',
+              backgroundHover: 'var(--bolt-elements-button-secondary-backgroundHover)',
+              text: 'var(--bolt-elements-button-secondary-text)',
+            },
+            danger: {
+              background: 'var(--bolt-elements-button-danger-background)',
+              backgroundHover: 'var(--bolt-elements-button-danger-backgroundHover)',
+              text: 'var(--bolt-elements-button-danger-text)',
+            },
+          },
           item: {
             contentDefault: 'var(--bolt-elements-item-contentDefault)',
             contentActive: 'var(--bolt-elements-item-contentActive)',

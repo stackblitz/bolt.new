@@ -92,7 +92,7 @@ export async function getMessagesById(db: IDBDatabase, id: string): Promise<Chat
   });
 }
 
-export async function deleteId(db: IDBDatabase, id: string): Promise<void> {
+export async function deleteById(db: IDBDatabase, id: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readwrite');
     const store = transaction.objectStore('chats');

@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { IconButton } from '~/components/ui/IconButton';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
-import { db, deleteId, getAll, type ChatHistoryItem } from '~/lib/persistence';
+import { db, deleteById, getAll, chatId, type ChatHistoryItem } from '~/lib/persistence';
 import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
@@ -52,8 +52,15 @@ export function Menu() {
     event.preventDefault();
 
     if (db) {
-      deleteId(db, item.id)
-        .then(() => loadEntries())
+      deleteById(db, item.id)
+        .then(() => {
+          loadEntries();
+
+          if (chatId.get() === item.id) {
+            // hard page navigation to clear the stores
+            window.location.pathname = '/';
+          }
+        })
         .catch((error) => {
           toast.error('Failed to delete conversation');
           logger.error(error);

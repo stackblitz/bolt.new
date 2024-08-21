@@ -1,6 +1,7 @@
 import { useLoaderData, useNavigate } from '@remix-run/react';
+import { useState, useEffect } from 'react';
+import { atom } from 'nanostores';
 import type { Message } from 'ai';
-import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { AnalyticsAction, sendAnalyticsEvent } from '~/lib/analytics';
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -18,16 +19,16 @@ const persistenceEnabled = !import.meta.env.VITE_DISABLE_PERSISTENCE;
 
 export const db = persistenceEnabled ? await openDatabase() : undefined;
 
+export const chatId = atom<string | undefined>(undefined);
+export const description = atom<string | undefined>(undefined);
+
 export function useChatHistory() {
   const navigate = useNavigate();
   const { id: mixedId } = useLoaderData<{ id?: string }>();
 
-  const [chatId, setChatId] = useState(mixedId);
   const [initialMessages, setInitialMessages] = useState<Message[]>([]);
   const [ready, setReady] = useState<boolean>(false);
-  const [entryId, setEntryId] = useState<string | undefined>();
   const [urlId, setUrlId] = useState<string | undefined>();
-  const [description, setDescription] = useState<string | undefined>();
 
   useEffect(() => {
     if (!db) {
@@ -40,14 +41,14 @@ export function useChatHistory() {
       return;
     }
 
-    if (chatId) {
-      getMessages(db, chatId)
+    if (mixedId) {
+      getMessages(db, mixedId)
         .then((storedMessages) => {
           if (storedMessages && storedMessages.messages.length > 0) {
             setInitialMessages(storedMessages.messages);
             setUrlId(storedMessages.urlId);
-            setDescription(storedMessages.description);
-            setChatId(storedMessages.id);
+            description.set(storedMessages.description);
+            chatId.set(storedMessages.id);
           } else {
             navigate(`/`, { replace: true });
           }
@@ -61,7 +62,7 @@ export function useChatHistory() {
   }, []);
 
   return {
-    ready: !chatId || ready,
+    ready: !mixedId || ready,
     initialMessages,
     storeMessageHistory: async (messages: Message[]) => {
       if (!db || messages.length === 0) {
@@ -77,27 +78,21 @@ export function useChatHistory() {
         setUrlId(urlId);
       }
 
-      if (!description && firstArtifact?.title) {
-        setDescription(firstArtifact?.title);
+      if (!description.get() && firstArtifact?.title) {
+        description.set(firstArtifact?.title);
       }
 
-      if (initialMessages.length === 0) {
-        if (!entryId) {
-          const nextId = await getNextId(db);
+      if (initialMessages.length === 0 && !chatId.get()) {
+        const nextId = await getNextId(db);
 
-          await setMessages(db, nextId, messages, urlId, description);
+        chatId.set(nextId);
 
-          setEntryId(nextId);
-
-          if (!urlId) {
-            navigateChat(nextId);
-          }
-        } else {
-          await setMessages(db, entryId, messages, urlId, description);
+        if (!urlId) {
+          navigateChat(nextId);
         }
-      } else {
-        await setMessages(db, chatId as string, messages, urlId, description);
       }
+
+      await setMessages(db, chatId.get() as string, messages, urlId, description.get());
     },
   };
 }

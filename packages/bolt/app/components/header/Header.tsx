@@ -3,6 +3,7 @@ import { ClientOnly } from 'remix-utils/client-only';
 import { chatStore } from '~/lib/stores/chat';
 import { classNames } from '~/utils/classNames';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
+import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 
 export function Header() {
   const chat = useStore(chatStore);
@@ -23,7 +24,9 @@ export function Header() {
           <span className="i-bolt:logo-text?mask w-[46px] inline-block" />
         </a>
       </div>
-      <div className="flex-1" />
+      <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
+        <ClientOnly>{() => <ChatDescription />}</ClientOnly>
+      </span>
       {chat.started && (
         <ClientOnly>
           {() => (

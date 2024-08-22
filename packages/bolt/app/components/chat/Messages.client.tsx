@@ -35,8 +35,12 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                 })}
               >
                 {isUserMessage && (
-                  <div className="flex items-center justify-center min-w-[34px] min-h-[34px] bg-white text-gray-600 rounded-full p-1 self-start">
-                    {avatar ? <img className="w-6 h-6" src={avatar} /> : <div className="i-ph:user-fill text-xl"></div>}
+                  <div className="flex items-center justify-center w-[34px] h-[34px] overflow-hidden bg-white text-gray-600 rounded-full shrink-0 self-start">
+                    {avatar ? (
+                      <img className="w-full h-full object-cover" src={avatar} />
+                    ) : (
+                      <div className="i-ph:user-fill text-xl"></div>
+                    )}
                   </div>
                 )}
                 <div className="grid grid-col-1 w-full">

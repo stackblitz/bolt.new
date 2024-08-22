@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from '@remix-run/cloudflare';
+import { createCookieSessionStorage, redirect, type Session as RemixSession } from '@remix-run/cloudflare';
 import { decodeJwt } from 'jose';
 import { CLIENT_ID, CLIENT_ORIGIN } from '~/lib/constants';
 import { request as doRequest } from '~/lib/fetch';
@@ -13,30 +13,43 @@ const TOKEN_KEY = 't';
 const EXPIRES_KEY = 'e';
 const USER_ID_KEY = 'u';
 const SEGMENT_KEY = 's';
+const AVATAR_KEY = 'a';
+const ENCRYPTED_KEY = 'd';
 
-interface SessionData {
+interface PrivateSession {
   [TOKEN_KEY]: string;
   [EXPIRES_KEY]: number;
   [USER_ID_KEY]?: string;
   [SEGMENT_KEY]?: string;
 }
 
+interface PublicSession {
+  [ENCRYPTED_KEY]: string;
+  [AVATAR_KEY]?: string;
+}
+
+export interface Session {
+  userId?: string;
+  segmentWriteKey?: string;
+  avatar?: string;
+}
+
 export async function isAuthenticated(request: Request, env: Env) {
   const { session, sessionStorage } = await getSession(request, env);
 
-  const sessionData: SessionData | null = await decryptSessionData(env, session.get('d'));
+  const sessionData: PrivateSession | null = await decryptSessionData(env, session.get(ENCRYPTED_KEY));
 
   const header = async (cookie: Promise<string>) => ({ headers: { 'Set-Cookie': await cookie } });
   const destroy = () => header(sessionStorage.destroySession(session));
 
   if (sessionData?.[TOKEN_KEY] == null) {
-    return { authenticated: false as const, response: await destroy() };
+    return { session: null, response: await destroy() };
   }
 
   const expiresAt = sessionData[EXPIRES_KEY] ?? 0;
 
   if (Date.now() < expiresAt) {
-    return { authenticated: true as const };
+    return { session: getSessionData(session, sessionData) };
   }
 
   logger.debug('Renewing token');
@@ -56,11 +69,14 @@ export async function isAuthenticated(request: Request, env: Env) {
     const newSessionData = { ...sessionData, [EXPIRES_KEY]: expiresAt };
     const encryptedData = await encryptSessionData(env, newSessionData);
 
-    session.set('d', encryptedData);
+    session.set(ENCRYPTED_KEY, encryptedData);
 
-    return { authenticated: true as const, response: await header(sessionStorage.commitSession(session)) };
+    return {
+      session: getSessionData(session, newSessionData),
+      response: await header(sessionStorage.commitSession(session)),
+    };
   } else {
-    return { authenticated: false as const, response: await destroy() };
+    return { session: null, response: await destroy() };
   }
 }
 
@@ -74,7 +90,7 @@ export async function createUserSession(
 
   const expiresAt = cookieExpiration(tokens.expires_in, tokens.created_at);
 
-  const sessionData: SessionData = {
+  const sessionData: PrivateSession = {
     [TOKEN_KEY]: tokens.refresh,
     [EXPIRES_KEY]: expiresAt,
     [USER_ID_KEY]: identity?.userId ?? undefined,
@@ -82,7 +98,8 @@ export async function createUserSession(
   };
 
   const encryptedData = await encryptSessionData(env, sessionData);
-  session.set('d', encryptedData);
+  session.set(ENCRYPTED_KEY, encryptedData);
+  session.set(AVATAR_KEY, identity?.avatar);
 
   return {
     headers: {
@@ -94,7 +111,7 @@ export async function createUserSession(
 }
 
 function getSessionStorage(cloudflareEnv: Env) {
-  return createCookieSessionStorage<{ d: string }>({
+  return createCookieSessionStorage<PublicSession>({
     cookie: {
       name: '__session',
       httpOnly: true,
@@ -108,7 +125,7 @@ function getSessionStorage(cloudflareEnv: Env) {
 export async function logout(request: Request, env: Env) {
   const { session, sessionStorage } = await getSession(request, env);
 
-  const sessionData = await decryptSessionData(env, session.get('d'));
+  const sessionData = await decryptSessionData(env, session.get(ENCRYPTED_KEY));
 
   if (sessionData) {
     revokeToken(sessionData[TOKEN_KEY]);
@@ -127,14 +144,11 @@ export function validateAccessToken(access: string) {
   return jwtPayload.bolt === true;
 }
 
-export async function getSessionData(request: Request, env: Env) {
-  const { session } = await getSession(request, env);
-
-  const decrypted = await decryptSessionData(env, session.get('d'));
-
+function getSessionData(session: RemixSession<PublicSession>, data: PrivateSession): Session {
   return {
-    userId: decrypted?.[USER_ID_KEY],
-    segmentWriteKey: decrypted?.[SEGMENT_KEY],
+    userId: data?.[USER_ID_KEY],
+    segmentWriteKey: data?.[SEGMENT_KEY],
+    avatar: session.get(AVATAR_KEY),
   };
 }
 
@@ -212,12 +226,12 @@ function urlParams(data: Record<string, string>) {
 
 async function decryptSessionData(env: Env, encryptedData?: string) {
   const decryptedData = encryptedData ? await decrypt(payloadSecret(env), encryptedData) : undefined;
-  const sessionData: SessionData | null = JSON.parse(decryptedData ?? 'null');
+  const sessionData: PrivateSession | null = JSON.parse(decryptedData ?? 'null');
 
   return sessionData;
 }
 
-async function encryptSessionData(env: Env, sessionData: SessionData) {
+async function encryptSessionData(env: Env, sessionData: PrivateSession) {
   return await encrypt(payloadSecret(env), JSON.stringify(sessionData));
 }
 

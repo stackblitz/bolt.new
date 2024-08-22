@@ -16,9 +16,9 @@ import { auth, type AuthAPI } from '~/lib/webcontainer/auth.client';
 import { logger } from '~/utils/logger';
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
-  const { authenticated, response } = await isAuthenticated(request, context.cloudflare.env);
+  const { session, response } = await isAuthenticated(request, context.cloudflare.env);
 
-  if (authenticated) {
+  if (session != null) {
     return redirect('/', response);
   }
 

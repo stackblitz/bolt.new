@@ -9,10 +9,11 @@ interface MessagesProps {
   className?: string;
   isStreaming?: boolean;
   messages?: Message[];
+  avatar?: string;
 }
 
 export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: MessagesProps, ref) => {
-  const { id, isStreaming = false, messages = [] } = props;
+  const { id, isStreaming = false, messages = [], avatar } = props;
 
   return (
     <div id={id} ref={ref} className={props.className}>
@@ -34,12 +35,8 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                 })}
               >
                 {isUserMessage && (
-                  <div
-                    className={classNames(
-                      'flex items-center justify-center min-w-[34px] min-h-[34px] bg-white text-gray-600 rounded-full p-1 self-start',
-                    )}
-                  >
-                    <div className="i-ph:user-fill text-xl"></div>
+                  <div className="flex items-center justify-center min-w-[34px] min-h-[34px] bg-white text-gray-600 rounded-full p-1 self-start">
+                    {avatar ? <img className="w-6 h-6" src={avatar} /> : <div className="i-ph:user-fill text-xl"></div>}
                   </div>
                 )}
                 <div className="grid grid-col-1 w-full">

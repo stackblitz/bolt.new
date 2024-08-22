@@ -7,6 +7,7 @@ export interface Identity {
   userId?: string | null;
   guestId?: string | null;
   segmentWriteKey?: string | null;
+  avatar?: string;
 }
 
 const MESSAGE_PREFIX = 'Bolt';

@@ -1,12 +1,11 @@
 import { json, type ActionFunctionArgs } from '@remix-run/cloudflare';
-import { handleWithAuth } from '~/lib/.server/login';
-import { getSessionData } from '~/lib/.server/sessions';
+import { actionWithAuth } from '~/lib/.server/auth';
+import type { Session } from '~/lib/.server/sessions';
 import { sendEventInternal, type AnalyticsEvent } from '~/lib/analytics';
 
-async function analyticsAction({ request, context }: ActionFunctionArgs) {
+async function analyticsAction({ request }: ActionFunctionArgs, session: Session) {
   const event: AnalyticsEvent = await request.json();
-  const sessionData = await getSessionData(request, context.cloudflare.env);
-  const { success, error } = await sendEventInternal(sessionData, event);
+  const { success, error } = await sendEventInternal(session, event);
 
   if (!success) {
     return json({ error }, { status: 500 });
@@ -16,5 +15,5 @@ async function analyticsAction({ request, context }: ActionFunctionArgs) {
 }
 
 export async function action(args: ActionFunctionArgs) {
-  return handleWithAuth(args, analyticsAction);
+  return actionWithAuth(args, analyticsAction);
 }

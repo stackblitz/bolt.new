@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import type { BundledLanguage } from 'shiki';
 import { createScopedLogger } from '~/utils/logger';
-import { rehypePlugins, remarkPlugins } from '~/utils/markdown';
+import { rehypePlugins, remarkPlugins, allowedHTMLElements } from '~/utils/markdown';
 import { Artifact } from './Artifact';
 import { CodeBlock } from './CodeBlock';
 
@@ -12,12 +12,14 @@ const logger = createScopedLogger('MarkdownComponent');
 
 interface MarkdownProps {
   children: string;
+  html?: boolean;
+  limitedMarkdown?: boolean;
 }
 
-export const Markdown = memo(({ children }: MarkdownProps) => {
+export const Markdown = memo(({ children, html = false, limitedMarkdown = false }: MarkdownProps) => {
   logger.trace('Render');
 
-  const components = useMemo<Components>(() => {
+  const components = useMemo(() => {
     return {
       div: ({ className, children, node, ...props }) => {
         if (className?.includes('__boltArtifact__')) {
@@ -55,15 +57,16 @@ export const Markdown = memo(({ children }: MarkdownProps) => {
 
         return <pre {...rest}>{children}</pre>;
       },
-    };
+    } satisfies Components;
   }, []);
 
   return (
     <ReactMarkdown
+      allowedElements={allowedHTMLElements}
       className={styles.MarkdownContent}
       components={components}
-      remarkPlugins={remarkPlugins}
-      rehypePlugins={rehypePlugins}
+      remarkPlugins={remarkPlugins(limitedMarkdown)}
+      rehypePlugins={rehypePlugins(html)}
     >
       {children}
     </ReactMarkdown>

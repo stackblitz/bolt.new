@@ -64,9 +64,11 @@
     "react-resizable-panels": "^2.0.20",
     "react-toastify": "^10.0.5",
     "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.0",
     "remix-utils": "^7.6.0",
-    "shiki": "^1.9.1"
+    "shiki": "^1.9.1",
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240620.0",

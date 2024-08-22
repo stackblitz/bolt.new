@@ -1,4 +1,5 @@
 import { MODIFICATIONS_TAG_NAME, WORK_DIR } from '~/utils/constants';
+import { allowedHTMLElements } from '~/utils/markdown';
 import { stripIndents } from '~/utils/stripIndent';
 
 export const getSystemPrompt = (cwd: string = WORK_DIR) => `
@@ -34,6 +35,10 @@ You are Bolt, an expert AI assistant and exceptional senior software developer w
 <code_formatting_info>
   Use 2 spaces for code indentation
 </code_formatting_info>
+
+<message_formatting_info>
+  You can make the output pretty by using only the following available HTML elements: ${allowedHTMLElements.map((tagName) => `<${tagName}>`).join(', ')}
+</message_formatting_info>
 
 <diff_spec>
   For user-made file modifications, a \`<${MODIFICATIONS_TAG_NAME}>\` section will appear at the start of the user message. It will contain either \`<diff>\` or \`<file>\` elements for each modified file:

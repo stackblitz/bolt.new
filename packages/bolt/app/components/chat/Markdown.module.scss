@@ -58,9 +58,13 @@ $code-font-size: 13px;
     color: #6a737d;
   }
 
-  p:not(:last-of-type) {
-    margin-block-start: 0;
-    margin-block-end: 16px;
+  p {
+    white-space: pre-wrap;
+
+    &:not(:last-of-type) {
+      margin-block-start: 0;
+      margin-block-end: 16px;
+    }
   }
 
   a {

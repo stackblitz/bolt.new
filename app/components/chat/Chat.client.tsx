@@ -4,7 +4,6 @@ import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { memo, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
-import { AnalyticsAction, AnalyticsTrackEvent, sendAnalyticsEvent } from '~/lib/analytics';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
@@ -195,18 +194,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     resetEnhancer();
 
     textareaRef.current?.blur();
-
-    const event = messages.length === 0 ? AnalyticsTrackEvent.ChatCreated : AnalyticsTrackEvent.MessageSent;
-
-    sendAnalyticsEvent({
-      action: AnalyticsAction.Track,
-      payload: {
-        event,
-        properties: {
-          message: _input,
-        },
-      },
-    });
   };
 
   const [messageRef, scrollRef] = useSnapScroll();

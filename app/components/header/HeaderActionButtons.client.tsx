@@ -2,7 +2,6 @@ import { useStore } from '@nanostores/react';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
-import { OpenStackBlitz } from './OpenStackBlitz.client';
 
 interface HeaderActionButtonsProps {}
 
@@ -39,9 +38,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         >
           <div className="i-ph:code-bold" />
         </Button>
-      </div>
-      <div className="flex ml-2">
-        <OpenStackBlitz />
       </div>
     </div>
   );

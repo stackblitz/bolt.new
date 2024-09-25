@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { atom } from 'nanostores';
 import type { Message } from 'ai';
 import { toast } from 'react-toastify';
-import { AnalyticsAction, sendAnalyticsEvent } from '~/lib/analytics';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { getMessages, getNextId, getUrlId, openDatabase, setMessages } from './db';
 
@@ -107,14 +106,4 @@ function navigateChat(nextId: string) {
   url.pathname = `/chat/${nextId}`;
 
   window.history.replaceState({}, '', url);
-
-  // since the `replaceState` call doesn't trigger a page reload, we need to manually log this event
-  sendAnalyticsEvent({
-    action: AnalyticsAction.Page,
-    payload: {
-      properties: {
-        url: url.href,
-      },
-    },
-  });
 }

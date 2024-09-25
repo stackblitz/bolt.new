@@ -4,14 +4,12 @@ import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
-import type { Session } from '~/lib/.server/sessions';
-import { AnalyticsAction, AnalyticsTrackEvent, sendEventInternal } from '~/lib/analytics';
 
 export async function action(args: ActionFunctionArgs) {
   return actionWithAuth(args, chatAction);
 }
 
-async function chatAction({ context, request }: ActionFunctionArgs, session: Session) {
+async function chatAction({ context, request }: ActionFunctionArgs) {
   const { messages } = await request.json<{ messages: Messages }>();
 
   const stream = new SwitchableStream();
@@ -19,19 +17,8 @@ async function chatAction({ context, request }: ActionFunctionArgs, session: Ses
   try {
     const options: StreamingOptions = {
       toolChoice: 'none',
-      onFinish: async ({ text: content, finishReason, usage }) => {
+      onFinish: async ({ text: content, finishReason }) => {
         if (finishReason !== 'length') {
-          await sendEventInternal(session, {
-            action: AnalyticsAction.Track,
-            payload: {
-              event: AnalyticsTrackEvent.MessageComplete,
-              properties: {
-                usage,
-                finishReason,
-              },
-            },
-          });
-
           return stream.close();
         }
 

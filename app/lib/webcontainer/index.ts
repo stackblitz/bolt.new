@@ -1,6 +1,5 @@
 import { WebContainer } from '@webcontainer/api';
 import { WORK_DIR_NAME } from '~/utils/constants';
-import { forgetAuth } from '~/lib/auth';
 
 interface WebContainerContext {
   loaded: boolean;
@@ -23,7 +22,6 @@ if (!import.meta.env.SSR) {
     import.meta.hot?.data.webcontainer ??
     Promise.resolve()
       .then(() => {
-        forgetAuth();
         return WebContainer.boot({ workdirName: WORK_DIR_NAME });
       })
       .then((webcontainer) => {

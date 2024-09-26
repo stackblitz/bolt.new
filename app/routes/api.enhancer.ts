@@ -1,6 +1,5 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { StreamingTextResponse, parseStreamPart } from 'ai';
-import { actionWithAuth } from '~/lib/.server/auth';
 import { streamText } from '~/lib/.server/llm/stream-text';
 import { stripIndents } from '~/utils/stripIndent';
 
@@ -8,7 +7,7 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
 export async function action(args: ActionFunctionArgs) {
-  return actionWithAuth(args, enhancerAction);
+  return enhancerAction(args);
 }
 
 async function enhancerAction({ context, request }: ActionFunctionArgs) {

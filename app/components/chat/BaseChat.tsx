@@ -9,7 +9,6 @@ import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 
 import styles from './BaseChat.module.scss';
-import { useLoaderData } from '@remix-run/react';
 
 interface BaseChatProps {
   textareaRef?: React.RefObject<HTMLTextAreaElement> | undefined;
@@ -59,7 +58,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     ref,
   ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
-    const { avatar } = useLoaderData<{ avatar?: string }>();
 
     return (
       <div
@@ -96,7 +94,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       className="flex flex-col w-full flex-1 max-w-chat px-4 pb-6 mx-auto z-1"
                       messages={messages}
                       isStreaming={isStreaming}
-                      avatar={avatar}
                     />
                   ) : null;
                 }}

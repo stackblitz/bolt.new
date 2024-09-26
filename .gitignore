@@ -21,3 +21,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/.cache
+/build
+.env*
+*.vars
+.wrangler
+_worker.bundle

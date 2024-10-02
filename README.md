@@ -96,7 +96,7 @@ to create a collaborative experience where code can be developed by the
 assistant and the programmer together. Bolt combines
 [WebContainer API](https://webcontainers.io/api) with
 [Claude Sonnet 3.5](https://www.anthropic.com/news/claude-3-5-sonnet)
-using [Remix](https://remix.run/) and the the [AI SDK](https://sdk.vercel.ai/).
+using [Remix](https://remix.run/) and the [AI SDK](https://sdk.vercel.ai/).
 
 ### WebContainer API
 

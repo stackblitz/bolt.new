@@ -11,8 +11,6 @@ By building with the Bolt + WebContainer API you can create browser-based applic
 
 - **Bolt (This Repo)**: This open-source repository provides the building blocks behind **Bolt.new**. This package contains the UI interface for Bolt as well as the server components, built using [Remix Run](https://remix.run/). By leveraging this repo and StackBlitz’s **WebContainer API**, you can create your own AI-powered development tools and full-stack applications that run entirely in the browser. This code allows you to customize and expand use cases, integrating AI and WebContainers into your own unique applications.
 
-The [WebContainer API](https://webcontainers.io) is free for personal and open source usage. If you're building an application for commercial usage, you can learn more about our [WebContainer API commercial usage pricing here](https://stackblitz.com/pricing#webcontainer-api).
-
 # Get Started Building with Bolt
 
 Bolt combines the capabilities of AI with sandboxed development environments
@@ -30,7 +28,9 @@ using [WebContainer API](https://webcontainers.io/api). WebContainers run full-
 stack applications directly in the browser without the cost and security
 concerns of cloud hosted AI agents. WebContainers are interactive and editable,
 and enables Bolt's AI to run code and understand any changes from the user.
-Take a look at how [Bolt integrates with WebContainer API](https://github.com/search?q=repo%3Astackblitz%2Fbolt-oss%20%40webcontainer%2Fapi&type=code).
+Take a look at how [Bolt integrates with WebContainer API](https://github.com/search?q=repo%3Astackblitz%2Fbolt-oss%20%40webcontainer%2Fapi&type=code). 
+
+The [WebContainer API](https://webcontainers.io) is free for personal and open source usage. If you're building an application for commercial usage, you can learn more about our [WebContainer API commercial usage pricing here](https://stackblitz.com/pricing#webcontainer-api).
 
 ### Remix App
 

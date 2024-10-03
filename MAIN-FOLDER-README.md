@@ -1,3 +1,5 @@
+[![Bolt.new: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.new)
+
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
 Welcome to **Bolt.new**, where **AI meets instant web development environments**. Bolt.new is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required.

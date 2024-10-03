@@ -1,7 +1,3 @@
-Here's the updated README with a "Tips and Tricks" section based on your provided instructions:
-
----
-
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
 Welcome to **Bolt.new**, where **AI meets instant web development environments**. Bolt.new is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required.
@@ -58,7 +54,3 @@ Bolt.new supports frameworks like React, Vue, Angular, and Node.js. More librari
 
 **How can I add my own framework/project to the official starter templates?**  
 To contribute a new framework or project template, submit a pull request or join the discussion on our community board.
-
----
-
-This version now includes the tips and tricks section to guide users on how to maximize Bolt.new’s functionality. Let me know if you need any more changes!

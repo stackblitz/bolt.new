@@ -1,4 +1,4 @@
-# Bolt
+# Bolt Open Source Codebase
 Welcome to the **Bolt** open-source codebase! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**. 
 
 ### Why Build with Bolt + WebContainer API

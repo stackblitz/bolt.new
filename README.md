@@ -72,7 +72,7 @@ pnpm install
 ANTHROPIC_API_KEY=XXX
 ```
 
-Optionally, you an set the debug level:
+Optionally, you can set the debug level:
 
 ```
 VITE_LOG_LEVEL=debug

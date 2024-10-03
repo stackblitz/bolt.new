@@ -8,27 +8,17 @@ By building with the Bolt + WebContainer API you can create browser-based applic
 
 ### What’s the Difference Between Bolt (This Repo) and [Bolt.new](https://bolt.new)?
 
-- **Bolt.new**: This is the **commercial product** from StackBlitz—a hosted, browser-based AI development tool that enables users to prompt, run, edit, and deploy full-stack web applications directly in the browser. Built on top of the [Bolt open-source repo](https://github.com/stackblitz/bolt.new) and powered by the StackBlitz **WebContainer API**, it offers non-technical users the ability to create production-grade apps using AI.
+- **Bolt.new**: This is the **commercial product** from StackBlitz—a hosted, browser-based AI development tool that enables users to prompt, run, edit, and deploy full-stack web applications directly in the browser. Built on top of the [Bolt open-source repo](https://github.com/stackblitz/bolt.new) and powered by the StackBlitz **WebContainer API**.
 
-- **Bolt (This Repo)**: This open-source repository provides the building blocks behind **Bolt.new**. This package contains the UI interface for Bolt as well as the server components, built using [Remix Run](https://remix.run/). By leveraging this repo and StackBlitz’s **WebContainer API**, you can create your own AI-powered development tools and full-stack applications that run entirely in the browser. This code allows you to customize and expand use cases, integrating AI and WebContainers into your own unique applications.
+- **Bolt (This Repo)**: This open-source repository provides the core components used to make **Bolt.new**. This repo contains the UI interface for Bolt as well as the server components, built using [Remix Run](https://remix.run/). By leveraging this repo and StackBlitz’s **WebContainer API**, you can create your own AI-powered development tools and full-stack applications that run entirely in the browser.
 
 # Get Started Building with Bolt
 
-Bolt combines the capabilities of AI with sandboxed development environments
-to create a collaborative experience where code can be developed by the
-assistant and the programmer together. Bolt combines
-[WebContainer API](https://webcontainers.io/api) with
-[Claude Sonnet 3.5](https://www.anthropic.com/news/claude-3-5-sonnet)
-using [Remix](https://remix.run/) and the [AI SDK](https://sdk.vercel.ai/).
+Bolt combines the capabilities of AI with sandboxed development environments to create a collaborative experience where code can be developed by the assistant and the programmer together. Bolt combines [WebContainer API](https://webcontainers.io/api) with [Claude Sonnet 3.5](https://www.anthropic.com/news/claude-3-5-sonnet) using [Remix](https://remix.run/) and the [AI SDK](https://sdk.vercel.ai/).
 
 ### WebContainer API
 
-Bolt uses [WebContainers](https://webcontainers.io/) to run generated code in
-the browser. WebContainers provide Bolt with a full-stack sandbox environment
-using [WebContainer API](https://webcontainers.io/api). WebContainers run full-
-stack applications directly in the browser without the cost and security
-concerns of cloud hosted AI agents. WebContainers are interactive and editable,
-and enables Bolt's AI to run code and understand any changes from the user.
+Bolt uses [WebContainers](https://webcontainers.io/) to run generated code in the browser. WebContainers provide Bolt with a full-stack sandbox environment using [WebContainer API](https://webcontainers.io/api). WebContainers run full-stack applications directly in the browser without the cost and security concerns of cloud hosted AI agents. WebContainers are interactive and editable, and enables Bolt's AI to run code and understand any changes from the user.
 
 The [WebContainer API](https://webcontainers.io) is free for personal and open source usage. If you're building an application for commercial usage, you can learn more about our [WebContainer API commercial usage pricing here](https://stackblitz.com/pricing#webcontainer-api).
 

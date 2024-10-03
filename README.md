@@ -27,8 +27,7 @@ the browser. WebContainers provide Bolt with a full-stack sandbox environment
 using [WebContainer API](https://webcontainers.io/api). WebContainers run full-
 stack applications directly in the browser without the cost and security
 concerns of cloud hosted AI agents. WebContainers are interactive and editable,
-and enables Bolt's AI to run code and understand any changes from the user.
-Take a look at how [Bolt integrates with WebContainer API](https://github.com/search?q=repo%3Astackblitz%2Fbolt-oss%20%40webcontainer%2Fapi&type=code). 
+and enables Bolt's AI to run code and understand any changes from the user. 
 
 The [WebContainer API](https://webcontainers.io) is free for personal and open source usage. If you're building an application for commercial usage, you can learn more about our [WebContainer API commercial usage pricing here](https://stackblitz.com/pricing#webcontainer-api).
 

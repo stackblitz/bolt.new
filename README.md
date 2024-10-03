@@ -1,9 +1,10 @@
-# Bolt Open Source Codebase
-Welcome to the **Bolt** open-source codebase! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**. 
+[![Bolt Open Source Codebase](./public/social_preview_index.jpg)](https://bolt.new)
+
+> Welcome to the **Bolt** open-source codebase! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**.
 
 ### Why Build with Bolt + WebContainer API
-By building with the Bolt + WebContainer API you can create browser-based applications that let users **prompt, run, edit, and deploy** full-stack web apps directly in the browser, without the need for virtual machines. With WebContainer API, you can build apps that give AI direct access and full control over a **Node.js server**, **filesystem**, **package manager** and **dev terminal** inside your users browser tab. This powerful combination allows you to create a new class of development tools that support all major javascript libraries and node packages right out of the box, all without remote environments or local installs.
 
+By building with the Bolt + WebContainer API you can create browser-based applications that let users **prompt, run, edit, and deploy** full-stack web apps directly in the browser, without the need for virtual machines. With WebContainer API, you can build apps that give AI direct access and full control over a **Node.js server**, **filesystem**, **package manager** and **dev terminal** inside your users browser tab. This powerful combination allows you to create a new class of development tools that support all major javascript libraries and node packages right out of the box, all without remote environments or local installs.
 
 ### What’s the Difference Between Bolt (This Repo) and [Bolt.new](https://bolt.new)?
 
@@ -27,7 +28,7 @@ the browser. WebContainers provide Bolt with a full-stack sandbox environment
 using [WebContainer API](https://webcontainers.io/api). WebContainers run full-
 stack applications directly in the browser without the cost and security
 concerns of cloud hosted AI agents. WebContainers are interactive and editable,
-and enables Bolt's AI to run code and understand any changes from the user. 
+and enables Bolt's AI to run code and understand any changes from the user.
 
 The [WebContainer API](https://webcontainers.io) is free for personal and open source usage. If you're building an application for commercial usage, you can learn more about our [WebContainer API commercial usage pricing here](https://stackblitz.com/pricing#webcontainer-api).
 
@@ -43,7 +44,6 @@ Bolt uses the [AI SDK](https://github.com/vercel/ai) to integrate with AI
 models. At this time, Bolt supports using Anthropic's Claude Sonnet 3.5.
 You can get an API key from the [Anthropic API Console](https://console.anthropic.com/) to use with Bolt.
 Take a look at how [Bolt uses the AI SDK](https://github.com/stackblitz/bolt-oss/tree/main/app/lib/.server/llm)
-
 
 ## Prerequisites
 

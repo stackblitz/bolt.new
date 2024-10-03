@@ -1,6 +1,6 @@
 [![Bolt Open Source Codebase](./public/social_preview_index.jpg)](https://bolt.new)
 
-Welcome to the **Bolt** open-source codebase! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**.
+> Welcome to the **Bolt** open-source codebase! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**.
 
 ### Why Build with Bolt + WebContainer API
 

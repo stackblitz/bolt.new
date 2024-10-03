@@ -1,5 +1,5 @@
 # Bolt
-Welcome to the **Bolt** open-source repository! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**. 
+Welcome to the **Bolt** open-source codebase! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**. 
 
 ### Why Build with Bolt + WebContainer API
 By building with the Bolt + WebContainer API you can create browser-based applications that let users **prompt, run, edit, and deploy** full-stack web apps directly in the browser, without the need for virtual machines. With WebContainer API, you can build apps that give AI direct access and full control over a **Node.js server**, **filesystem**, **package manager** and **dev terminal** inside your users browser tab. This powerful combination allows you to create a new class of development tools that support all major javascript libraries and node packages right out of the box, all without remote environments or local installs.

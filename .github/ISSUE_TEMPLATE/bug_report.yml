@@ -46,8 +46,8 @@ body:
   - type: textarea
     id: screenshots
     attributes:
-      label: Screenshots
-      description: If applicable, add screenshots to help explain your problem.
+      label: Screen Recording / Screenshot
+      description: If applicable, **please include a screen recording** (preferably) or screenshot showcasing the issue. This will assist us in resolving your issue <u>quickly</u>.
   - type: textarea
     id: platform
     attributes:

@@ -1,5 +1,5 @@
-# Bolt
-Welcome to the **Bolt** open-source repository! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**. 
+# Bolt Open Source Codebase
+Welcome to the **Bolt** open-source codebase! This repo provides everything you need to start building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**. 
 
 ### Why Build with Bolt + WebContainer API
 By building with the Bolt + WebContainer API you can create browser-based applications that let users **prompt, run, edit, and deploy** full-stack web apps directly in the browser, without the need for virtual machines. With WebContainer API, you can build apps that give AI direct access and full control over a **Node.js server**, **filesystem**, **package manager** and **dev terminal** inside your users browser tab. This powerful combination allows you to create a new class of development tools that support all major javascript libraries and node packages right out of the box, all without remote environments or local installs.
@@ -11,9 +11,39 @@ By building with the Bolt + WebContainer API you can create browser-based applic
 
 - **Bolt (This Repo)**: This open-source repository provides the building blocks behind **Bolt.new**. This package contains the UI interface for Bolt as well as the server components, built using [Remix Run](https://remix.run/). By leveraging this repo and StackBlitz’s **WebContainer API**, you can create your own AI-powered development tools and full-stack applications that run entirely in the browser. This code allows you to customize and expand use cases, integrating AI and WebContainers into your own unique applications.
 
+# Get Started Building with Bolt
+
+Bolt combines the capabilities of AI with sandboxed development environments
+to create a collaborative experience where code can be developed by the
+assistant and the programmer together. Bolt combines
+[WebContainer API](https://webcontainers.io/api) with
+[Claude Sonnet 3.5](https://www.anthropic.com/news/claude-3-5-sonnet)
+using [Remix](https://remix.run/) and the [AI SDK](https://sdk.vercel.ai/).
+
+### WebContainer API
+
+Bolt uses [WebContainers](https://webcontainers.io/) to run generated code in
+the browser. WebContainers provide Bolt with a full-stack sandbox environment
+using [WebContainer API](https://webcontainers.io/api). WebContainers run full-
+stack applications directly in the browser without the cost and security
+concerns of cloud hosted AI agents. WebContainers are interactive and editable,
+and enables Bolt's AI to run code and understand any changes from the user. 
+
 The [WebContainer API](https://webcontainers.io) is free for personal and open source usage. If you're building an application for commercial usage, you can learn more about our [WebContainer API commercial usage pricing here](https://stackblitz.com/pricing#webcontainer-api).
 
-# Get Started Building with Bolt
+### Remix App
+
+Bolt is built with [Remix](https://remix.run/) and
+deployed using [CloudFlare Pages](https://pages.cloudflare.com/) and
+[CloudFlare Workers](https://workers.cloudflare.com/).
+
+### AI SDK Integration
+
+Bolt uses the [AI SDK](https://github.com/vercel/ai) to integrate with AI
+models. At this time, Bolt supports using Anthropic's Claude Sonnet 3.5.
+You can get an API key from the [Anthropic API Console](https://console.anthropic.com/) to use with Bolt.
+Take a look at how [Bolt uses the AI SDK](https://github.com/stackblitz/bolt-oss/tree/main/app/lib/.server/llm)
+
 
 ## Prerequisites
 
@@ -88,35 +118,3 @@ pnpm run deploy
 ```
 
 Make sure you have the necessary permissions and Wrangler is correctly configured for your Cloudflare account.
-
-## Getting Started
-
-Bolt combines the capabilities of AI with sandboxed development environments
-to create a collaborative experience where code can be developed by the
-assistant and the programmer together. Bolt combines
-[WebContainer API](https://webcontainers.io/api) with
-[Claude Sonnet 3.5](https://www.anthropic.com/news/claude-3-5-sonnet)
-using [Remix](https://remix.run/) and the [AI SDK](https://sdk.vercel.ai/).
-
-### WebContainer API
-
-Bolt uses [WebContainers](https://webcontainers.io/) to run generated code in
-the browser. WebContainers provide Bolt with a full-stack sandbox environment
-using [WebContainer API](https://webcontainers.io/api). WebContainer run full-
-stack applications directly in the browser without the cost and security
-concerns of cloud hosted AI agents. WebContainers are interactive and editable,
-and enables Bolt's AI to run code and understand any changes from the user.
-Take a look at how [Bolt integrates with WebContainer API](https://github.com/search?q=repo%3Astackblitz%2Fbolt-oss%20%40webcontainer%2Fapi&type=code).
-
-### Remix App
-
-Bolt is built with [Remix](https://remix.run/) and
-deployed using [CloudFlare Pages](https://pages.cloudflare.com/) and
-[CloudFlare Workers](https://workers.cloudflare.com/).
-
-### AI SDK Integration
-
-Bolt uses the [AI SDK](https://github.com/vercel/ai) to integrate with AI
-models. At this time, Bolt supports using Anthropic's Claude Sonnet 3.5.
-You can get an API key from the [Anthropic API Console](https://console.anthropic.com/) to use with Bolt.
-Take a look at how [Bolt uses the AI SDK](https://github.com/stackblitz/bolt-oss/tree/main/app/lib/.server/llm)

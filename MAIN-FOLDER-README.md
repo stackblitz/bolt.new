@@ -4,53 +4,50 @@ Welcome to **Bolt.new**, where **AI meets instant web development environments**
 
 ## What Makes Bolt.new Different
 
-While tools like Claude and Vercel’s V0 offer AI-powered coding assistance, they fall short when it comes to providing **full control over the development environment**. That’s where Bolt.new stands out:
+While tools like Claude and V0 offer AI-powered coding assistance, you can't install packages, run backends or edit code. That’s where Bolt.new stands out:
 
-- **Full-Stack in the Browser**: Bolt.new integrates cutting-edge AI models with an instant development environment powered by **StackBlitz’s WebContainer**. This allows you to:
-  - Install and run any npm tools and libraries (like Vite, Next.js, and more)
-  - Run Node.js servers and backend processes
-  - Debug and deploy code instantly
-  - Share your work via a URL—all without leaving the browser
+- **Full-Stack in the Browser**: Bolt.new integrates cutting-edge AI models with an in-browser development environment powered by **StackBlitz’s WebContainers**. This allows you to:
+  - Install and run npm tools and libraries (like Vite, Next.js, and more)
+  - Run Node.js servers
+  - Interact with 3rd party APIs
+  - Deploy to production from chat
+  - Share your work via a URL
 
-- **AI with Environment Control**: Unlike limited environments where the AI can only assist in code generation, Bolt.new gives AI models **complete control** over the development environment, from the terminal to the browser console. This empowers AI agents to handle the entire app lifecycle—from creation to deployment.
+- **AI with Environment Control**: Unlike traditional dev environments where the AI can only assist in code generation, Bolt.new gives AI models **complete control** over the entire  environment including the filesystem, node server, package manager, terminal, and browser console. This empowers AI agents to handle the entire app lifecycle—from creation to deployment.
 
-- **Zero Setup**: Start coding instantly. There’s no need for software installations or environment configuration. Just open the browser, and you’re ready to build.
+Whether you’re an experienced developer, a PM or designer, Bolt.new allows you to build production-grade full-stack applications with ease.
 
-Whether you’re an experienced developer or a quasi-technical PM or designer, Bolt.new helps you build production-grade full-stack applications with ease.
-
-For developers interested in building their own AI-powered development tools, check out the [README](./subfolder/README.md) in the open-source code subfolder.
+For developers interested in building their own AI-powered development tools with WebContainers, check out the open-source Bolt codebase in this repo!
 
 ## Tips and Tricks
 
 Here are some tips to get the most out of Bolt.new:
 
-- **Be specific with your technologies**: If you're using specific frameworks or libraries (like Astro, Tailwind, ShadCN), mention them in your initial prompt to ensure Bolt sets up the environment accordingly.
+- **Be specific with your technologies**: If you want to use specific frameworks or libraries (like Astro, Tailwind, ShadCN, or any other popular Javacsript framework), mention them in your initial prompt to ensure Bolt scaffolds the project accordingly.
   
-- **Use the "Enhance" prompt button**: After getting results, click the "Enhance" button to refine them. You can also edit the results before submitting them for further AI processing.
+- **Use the enhance prompt icon**: Before sending your prompt, try clicking the 'enhance' icon to have the AI model help you refine your prompt, then edit the results before submitting.
 
-- **Scaffold first, then build**: Make sure the basic structure of your application is in place before diving into more advanced functionality. This helps Bolt understand the foundation of your project.
+- **Scaffold first, then add features**: Make sure the basic structure of your application is in place before diving into more advanced functionality. This helps Bolt understand the foundation of your project and ensure everything is wired upu right before building out more advanced functionality.
 
-- **Batch your instructions**: Save time by combining simple instructions into one message. For example, you can ask Bolt to change the color scheme, add mobile responsiveness, and safely restart the dev server—all in one go.
+- **Batch your simple instructions**: Save time by combining simple instructions into one message. For example, you can ask Bolt to change the color scheme, add mobile responsiveness, and restart the dev server, all in one go saving you time and reducing API credit consumption significantly.
 
 ## FAQs
 
-**How many tokens do I get?**  
-Each user is allocated a specific number of tokens per month based on their plan. Visit the subscription page for details.
+**Where do sign up for a paid plan?**  
+Bolt.new is free to get started. If you need more AI tokens or want private projects, you can purchase a paid subscription in your Bolt.new settings, in the lower left hand corner of the application. 
 
-**What happens if I hit the rate limit?**  
-Once your token limit is reached, AI interactions are paused until the next cycle or until you upgrade your plan.
+**What happens if I hit the free usage limit?**  
+Once your free daily token limit is reached, AI interactions are paused until the next day or until you upgrade your plan.
 
-**Where do I get a subscription?**  
-You can purchase a subscription directly on the [StackBlitz pricing page](https://stackblitz.com/pricing#webcontainer-api).
 
 **Is Bolt in beta?**  
 Yes, Bolt.new is in beta, and we are actively improving it based on feedback.
 
-**How can I debug Bolt issues?**  
-Check out the [Issues section](https://github.com/your-repo/issues) for known bugs and troubleshooting tips. Feel free to report any new issues.
+**How can I report Bolt.new issues?**  
+Check out the [Issues section](https://github.com/bolt.new/issues) to report an issue or request a new feature. Please use the search feature to check if someone else has already submitted the same issue/request.
 
 **What frameworks/libraries currently work on Bolt?**  
-Bolt.new supports frameworks like React, Vue, Angular, and Node.js. More libraries and templates are continually being added.
+Bolt.new supports most popular javascript frameworks and libraries. If it runs on StackBlitz, it will run on Bolt.new as well.
 
-**How can I add my own framework/project to the official starter templates?**  
-To contribute a new framework or project template, submit a pull request or join the discussion on our community board.
+**How can I add make sure my framework/project works well in bolt?**  
+We are excited to work with the javascript ecosystem to improve functionality in Bolt. Reach out to us via [hello@stackblitz.com](mailto:hello@stackblitz.com) to discuss how we can partner!

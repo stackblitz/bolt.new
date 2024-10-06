@@ -1,4 +1,4 @@
-FROM node:20.15.1
+FROM node:20.18.0
 
 WORKDIR /app
 
@@ -13,4 +13,4 @@ RUN pnpm install
 # Expose the port the app runs on
 EXPOSE 5173
 
-CMD [ "pnpm", "run", "dev" ]
+CMD [ "pnpm", "run", "dev", "--host" ]

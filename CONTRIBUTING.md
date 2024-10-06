@@ -108,3 +108,17 @@ pnpm run deploy
 ```
 
 Make sure you have the necessary permissions and Wrangler is correctly configured for your Cloudflare account.
+
+## Docker Dev
+
+To build docker image 
+
+```
+docker build -t bolt-ai .
+```
+
+To run bolt dev in docker(Add ANTHROPIC_API_KEY=XXX before running)
+
+```
+docker run -p 5173:5173 --env-file .env.local bolt-ai 
+```

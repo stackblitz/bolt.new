@@ -22,6 +22,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
           I want you to improve the user prompt that is wrapped in \`<original_prompt>\` tags.
 
           IMPORTANT: Only respond with the improved prompt and nothing else!
+          Keep the original language of the prompt.
 
           <original_prompt>
             ${message}

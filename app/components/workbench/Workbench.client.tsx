@@ -3,6 +3,7 @@ import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
 import { memo, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import {
   type OnChangeCallback as OnEditorChange,
   type OnScrollCallback as OnEditorScroll,
@@ -24,17 +25,6 @@ interface WorkspaceProps {
 
 const viewTransition = { ease: cubicEasingFn };
 
-const sliderOptions: SliderOptions<WorkbenchViewType> = {
-  left: {
-    value: 'code',
-    text: 'Code',
-  },
-  right: {
-    value: 'preview',
-    text: 'Preview',
-  },
-};
-
 const workbenchVariants = {
   closed: {
     width: 0,
@@ -54,6 +44,17 @@ const workbenchVariants = {
 
 export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => {
   renderLogger.trace('Workbench');
+  const { t } = useTranslation();
+  const sliderOptions: SliderOptions<WorkbenchViewType> = {
+    left: {
+      value: 'code',
+    text: t('workbench.code'),
+   },
+    right: {
+      value: 'preview',
+      text: t('workbench.preview'),
+    },
+  };
 
   const hasPreview = useStore(computed(workbenchStore.previews, (previews) => previews.length > 0));
   const showWorkbench = useStore(workbenchStore.showWorkbench);
@@ -129,7 +130,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                     }}
                   >
                     <div className="i-ph:terminal" />
-                    Toggle Terminal
+                    {t('workbench.toggleTerminal')}
                   </PanelHeaderButton>
                 )}
                 <IconButton
@@ -139,6 +140,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                   onClick={() => {
                     workbenchStore.showWorkbench.set(false);
                   }}
+                  title={t('workbench.closeWorkbench')}
                 />
               </div>
               <div className="relative flex-1 overflow-hidden">

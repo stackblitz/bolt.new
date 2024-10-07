@@ -1,0 +1,50 @@
+{
+  "title": "¿Qué quieres construir?",
+  "subtitle": "Genera, ejecuta, edita y despliega aplicaciones web full-stack.",
+  "clearHistory": "Borrar historial",
+  "sendMessage": "Enviar",
+  "messagePlaceholder": "¿Cómo puede ayudarte Bolt hoy?",
+  "startNewChat": "Iniciar nuevo chat",
+  "yourChats": "Tus chats",
+  "noPreviousConversations": "No hay conversaciones previas",
+  "logout": "Cerrar sesión",
+  "deleteChat": "¿Eliminar chat?",
+  "deleteChatConfirmation": "¿Estás seguro de que quieres eliminar este chat?",
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "aboutToDelete": "Estás a punto de eliminar",
+  "artifact": {
+    "openWorkbench": "Haz clic para abrir el espacio de desarrollo",
+    "createFile": "Crear",
+    "runCommand": "Ejecutar comando"
+  },
+  "workbench": {
+    "code": "Código",
+    "files": "Archivos",
+    "save": "Guardar",
+    "reset": "Reiniciar",
+    "toggleTerminal": "Mostrar/Ocultar terminal",
+    "closeWorkbench": "Cerrar espacio de desarrollo"
+  },
+  "preview": {
+    "noPreview": "Vista previa no disponible",
+    "previewError": "Se produjo un error al generar la vista previa",
+    "retry": "Reintentar"
+  },
+  "chat": {
+    "enhancePrompt": "Mejorar la pregunta",
+    "enhancingPrompt": "Mejorando la pregunta...",
+    "promptEnhanced": "Pregunta mejorada",
+    "use": "Usa",
+    "shiftKey": "Shift",
+    "returnKey": "Enter",
+    "forNewLine": "para una nueva línea",
+    "examplePrompts": {
+      "todoApp": "Crea una aplicació de tareas en React utilizando Tailwind",
+      "astroBlog": "Crea un blog sencillo utilizando Astro",
+      "cookieConsent": "Crea un formulario de consentimiento para cookies utilizando Material UI",
+      "spaceInvaders": "Crea un juego como Space Invaders",
+      "centerDiv": "¿Cómo centro un div?"
+    }
+  }
+}

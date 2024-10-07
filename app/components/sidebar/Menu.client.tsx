@@ -9,6 +9,7 @@ import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
 import { binDates } from './date-binning';
+import { useTranslation } from 'react-i18next';
 
 const menuVariants = {
   closed: {
@@ -34,6 +35,7 @@ const menuVariants = {
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
 export function Menu() {
+  const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);
@@ -115,12 +117,12 @@ export function Menu() {
             className="flex gap-2 items-center bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme"
           >
             <span className="inline-block i-bolt:chat scale-110" />
-            Start new chat
+            {t('startNewChat')}
           </a>
         </div>
-        <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">Your Chats</div>
+        <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">{t('yourChats')}</div>
         <div className="flex-1 overflow-scroll pl-4 pr-5 pb-5">
-          {list.length === 0 && <div className="pl-2 text-bolt-elements-textTertiary">No previous conversations</div>}
+          {list.length === 0 && <div className="pl-2 text-bolt-elements-textTertiary">{t('noPreviousConversations')}</div>}
           <DialogRoot open={dialogContent !== null}>
             {binDates(list).map(({ category, items }) => (
               <div key={category} className="mt-4 first:mt-0 space-y-1">
@@ -139,14 +141,14 @@ export function Menu() {
                   <DialogDescription asChild>
                     <div>
                       <p>
-                        You are about to delete <strong>{dialogContent.item.description}</strong>.
+                        {t('aboutToDelete')} <strong>{dialogContent.item.description}</strong>.
                       </p>
-                      <p className="mt-1">Are you sure you want to delete this chat?</p>
+                      <p className="mt-1">{t('deleteChatConfirmation')}</p>
                     </div>
                   </DialogDescription>
                   <div className="px-5 pb-4 bg-bolt-elements-background-depth-2 flex gap-2 justify-end">
                     <DialogButton type="secondary" onClick={closeDialog}>
-                      Cancel
+                      {t('cancel')}
                     </DialogButton>
                     <DialogButton
                       type="danger"
@@ -155,7 +157,7 @@ export function Menu() {
                         closeDialog();
                       }}
                     >
-                      Delete
+                      {t('delete')}
                     </DialogButton>
                   </div>
                 </>
@@ -167,7 +169,7 @@ export function Menu() {
           <a href="/logout">
             <IconButton className="p-1.5 gap-1.5">
               <>
-                Logout <span className="i-ph:sign-out text-lg" />
+                {t('logout')} <span className="i-ph:sign-out text-lg" />
               </>
             </IconButton>
           </a>

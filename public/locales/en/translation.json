@@ -1,0 +1,51 @@
+{
+  "title": "What do you want to build?",
+  "subtitle": "Prompt, run, edit, and deploy full-stack web apps.",
+  "clearHistory": "Clear History",
+  "sendMessage": "Send",
+  "messagePlaceholder": "How can Bolt help you today?",
+  "startNewChat": "Start new chat",
+  "yourChats": "Your Chats",
+  "noPreviousConversations": "No previous conversations",
+  "logout": "Logout",
+  "deleteChat": "Delete Chat?",
+  "deleteChatConfirmation": "Are you sure you want to delete this chat?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "aboutToDelete": "You are about to delete",
+  "artifact": {
+    "openWorkbench": "Click to open Workbench",
+    "createFile": "Create",
+    "runCommand": "Run command"
+  },
+  "workbench": {
+    "code": "Code",
+    "preview": "Preview",
+    "toggleTerminal": "Toggle Terminal",
+    "closeWorkbench": "Close Workbench",
+    "save": "Save",
+    "reset": "Reset",
+    "files": "Files"
+  },
+  "preview": {
+    "noPreview": "No preview available",
+    "previewError": "An error occurred while generating the preview",
+    "retry": "Retry"
+  },
+  "chat": {
+    "enhancePrompt": "Enhance prompt",
+    "enhancingPrompt": "Enhancing prompt...",
+    "promptEnhanced": "Prompt enhanced",
+    "use": "Use",
+    "shiftKey": "Shift",
+    "returnKey": "Enter",
+    "forNewLine": "for a new line",
+    "examplePrompts": {
+      "todoApp": "Build a todo app in React using Tailwind",
+      "astroBlog": "Build a simple blog using Astro",
+      "cookieConsent": "Create a cookie consent form using Material UI",
+      "spaceInvaders": "Make a space invaders game",
+      "centerDiv": "How do I center a div?"
+    }
+  }
+}

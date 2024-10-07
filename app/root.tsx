@@ -6,6 +6,8 @@ import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
 import { createHead } from 'remix-island';
 import { useEffect } from 'react';
+import { I18nextProvider } from 'react-i18next';
+import { initI18n } from './i18n';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
@@ -64,17 +66,20 @@ export const Head = createHead(() => (
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
+  const i18n = initI18n();
 
   useEffect(() => {
     document.querySelector('html')?.setAttribute('data-theme', theme);
   }, [theme]);
 
   return (
-    <>
-      {children}
-      <ScrollRestoration />
-      <Scripts />
-    </>
+    <I18nextProvider i18n={i18n}>
+      <>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </>
+    </I18nextProvider>
   );
 }
 

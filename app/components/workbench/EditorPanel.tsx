@@ -23,6 +23,7 @@ import { isMobile } from '~/utils/mobile';
 import { FileBreadcrumb } from './FileBreadcrumb';
 import { FileTree } from './FileTree';
 import { Terminal, type TerminalRef } from './terminal/Terminal';
+import { useTranslation } from 'react-i18next';
 
 interface EditorPanelProps {
   files?: FileMap;
@@ -80,6 +81,8 @@ export const EditorPanel = memo(
       return editorDocument !== undefined && unsavedFiles?.has(editorDocument.filePath);
     }, [editorDocument, unsavedFiles]);
 
+    const { t } = useTranslation();
+
     useEffect(() => {
       const unsubscribeFromEventEmitter = shortcutEventEmitter.on('toggleTerminal', () => {
         terminalToggledByShortcut.current = true;
@@ -130,7 +133,7 @@ export const EditorPanel = memo(
               <div className="flex flex-col border-r border-bolt-elements-borderColor h-full">
                 <PanelHeader>
                   <div className="i-ph:tree-structure-duotone shrink-0" />
-                  Files
+                  {t('workbench.files')}
                 </PanelHeader>
                 <FileTree
                   className="h-full"
@@ -153,11 +156,11 @@ export const EditorPanel = memo(
                       <div className="flex gap-1 ml-auto -mr-1.5">
                         <PanelHeaderButton onClick={onFileSave}>
                           <div className="i-ph:floppy-disk-duotone" />
-                          Save
+                          {t('workbench.save')}
                         </PanelHeaderButton>
                         <PanelHeaderButton onClick={onFileReset}>
                           <div className="i-ph:clock-counter-clockwise-duotone" />
-                          Reset
+                          {t('workbench.reset')}
                         </PanelHeaderButton>
                       </div>
                     )}
@@ -216,7 +219,7 @@ export const EditorPanel = memo(
                       onClick={() => setActiveTerminal(index)}
                     >
                       <div className="i-ph:terminal-window-duotone text-lg" />
-                      Terminal {terminalCount > 1 && index + 1}
+                      {t('Terminal')} {terminalCount > 1 && index + 1} {/* Translate "Terminal" */}
                     </button>
                   );
                 })}
@@ -224,7 +227,7 @@ export const EditorPanel = memo(
                 <IconButton
                   className="ml-auto"
                   icon="i-ph:caret-down"
-                  title="Close"
+                  title={t('workbench.closeWorkbench')}
                   size="md"
                   onClick={() => workbenchStore.toggleTerminal(false)}
                 />

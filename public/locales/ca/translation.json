@@ -1,0 +1,51 @@
+{
+  "title": "Què vols construir?",
+  "subtitle": "Demana, executa, edita i desplega aplicacions web full-stack.",
+  "clearHistory": "Esborrar historial",
+  "sendMessage": "Enviar",
+  "messagePlaceholder": "Com pot ajudar-te el Bolt avui?",
+  "startNewChat": "Inicia un nou xat",
+  "yourChats": "Els teus xats",
+  "noPreviousConversations": "No hi ha converses prèvies",
+  "logout": "Tancar sessió",
+  "deleteChat": "Eliminar xat?",
+  "deleteChatConfirmation": "Estàs segur que vols eliminar aquest xat?",
+  "cancel": "Cancel·lar",
+  "delete": "Eliminar",
+  "aboutToDelete": "Estàs a punt d'eliminar",
+  "artifact": {
+    "openWorkbench": "Feu clic per obrir l'espai de desenvolupament",
+    "createFile": "Crea",
+    "runCommand": "Executa comanda"
+  },
+  "workbench": {
+    "code": "Codi",
+    "preview": "Vista prèvia",
+    "toggleTerminal": "Mostra/Oculta terminal",
+    "closeWorkbench": "Tanca l'espai de desenvolupament",
+    "files": "Fitxers",
+    "save": "Guardar",
+    "reset": "Reiniciar"
+  },
+  "preview": {
+    "noPreview": "Vista prèvia no disponible",
+    "previewError": "S'ha produït un error en generar la vista prèvia",
+    "retry": "Tornem-hi"
+  },
+  "chat": {
+    "enhancePrompt": "Millora la pregunta",
+    "enhancingPrompt": "Millorant la pregunta...",
+    "promptEnhanced": "Pregunta millorada",
+    "use": "Prem",
+    "shiftKey": "Shift",
+    "returnKey": "Enter",
+    "forNewLine": "per a una nova línia",
+    "examplePrompts": {
+      "todoApp": "Crea una aplicació de tasques en React utilitzant Tailwind",
+      "astroBlog": "Crea un bloc senzill utilitzant Astro",
+      "cookieConsent": "Crea un formulari de consentiment per a cookies utilitzant Material UI",
+      "spaceInvaders": "Crea un joc d'Space Invaders",
+      "centerDiv": "Com centro un div?"
+    }
+  }
+}

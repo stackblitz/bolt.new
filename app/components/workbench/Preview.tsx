@@ -3,6 +3,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { PortDropdown } from './PortDropdown';
+import { useTranslation } from 'react-i18next';
 
 export const Preview = memo(() => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -71,6 +72,8 @@ export const Preview = memo(() => {
     }
   };
 
+  const { t } = useTranslation();
+
   return (
     <div className="w-full h-full flex flex-col">
       {isPortDropdownOpen && (
@@ -116,7 +119,7 @@ export const Preview = memo(() => {
         {activePreview ? (
           <iframe ref={iframeRef} className="border-none w-full h-full bg-white" src={iframeUrl} />
         ) : (
-          <div className="flex w-full h-full justify-center items-center bg-white">No preview available</div>
+          <div className="flex w-full h-full justify-center items-center bg-white">{t('preview.noPreview')}</div>
         )}
       </div>
     </div>

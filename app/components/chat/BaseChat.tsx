@@ -7,6 +7,7 @@ import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
+import { useTranslation } from 'react-i18next';
 
 import styles from './BaseChat.module.scss';
 
@@ -26,14 +27,6 @@ interface BaseChatProps {
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
 }
-
-const EXAMPLE_PROMPTS = [
-  { text: 'Build a todo app in React using Tailwind' },
-  { text: 'Build a simple blog using Astro' },
-  { text: 'Create a cookie consent form using Material UI' },
-  { text: 'Make a space invaders game' },
-  { text: 'How do I center a div?' },
-];
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -57,7 +50,15 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
+    const EXAMPLE_PROMPTS = [
+      { text: t('chat.examplePrompts.todoApp') },
+      { text: t('chat.examplePrompts.astroBlog') },
+      { text: t('chat.examplePrompts.cookieConsent') },
+      { text: t('chat.examplePrompts.spaceInvaders') },
+      { text: t('chat.examplePrompts.centerDiv') },
+    ];
 
     return (
       <div
@@ -74,10 +75,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             {!chatStarted && (
               <div id="intro" className="mt-[26vh] max-w-chat mx-auto">
                 <h1 className="text-5xl text-center font-bold text-bolt-elements-textPrimary mb-2">
-                  Where ideas begin
+                  {t('title')}
                 </h1>
                 <p className="mb-4 text-center text-bolt-elements-textSecondary">
-                  Bring ideas to life in seconds or get help on existing projects.
+                  {t('subtitle')}
                 </p>
               </div>
             )}
@@ -130,7 +131,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       minHeight: TEXTAREA_MIN_HEIGHT,
                       maxHeight: TEXTAREA_MAX_HEIGHT,
                     }}
-                    placeholder="How can Bolt help you today?"
+                    placeholder={t('messagePlaceholder')}
                     translate="no"
                   />
                   <ClientOnly>
@@ -152,7 +153,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <div className="flex justify-between text-sm p-4 pt-2">
                     <div className="flex gap-1 items-center">
                       <IconButton
-                        title="Enhance prompt"
+                        title={t('chat.enhancePrompt')}
                         disabled={input.length === 0 || enhancingPrompt}
                         className={classNames({
                           'opacity-100!': enhancingPrompt,
@@ -164,19 +165,19 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         {enhancingPrompt ? (
                           <>
                             <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl"></div>
-                            <div className="ml-1.5">Enhancing prompt...</div>
+                            <div className="ml-1.5">{t('chat.enhancingPrompt')}</div>
                           </>
                         ) : (
                           <>
                             <div className="i-bolt:stars text-xl"></div>
-                            {promptEnhanced && <div className="ml-1.5">Prompt enhanced</div>}
+                            {promptEnhanced && <div className="ml-1.5">{t('chat.promptEnhanced')}</div>}
                           </>
                         )}
                       </IconButton>
                     </div>
                     {input.length > 3 ? (
                       <div className="text-xs text-bolt-elements-textTertiary">
-                        Use <kbd className="kdb">Shift</kbd> + <kbd className="kdb">Return</kbd> for a new line
+                        {t('chat.use')} <kbd className="kdb">{t('chat.shiftKey')}</kbd> + <kbd className="kdb">{t('chat.returnKey')}</kbd> {t('chat.forNewLine')}
                       </div>
                     ) : null}
                   </div>

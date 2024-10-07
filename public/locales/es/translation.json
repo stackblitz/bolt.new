@@ -46,5 +46,13 @@
       "spaceInvaders": "Crea un juego como Space Invaders",
       "centerDiv": "¿Cómo centro un div?"
     }
+  },
+  "toast": {
+    "error": {
+      "generic": "Se produjo un error",
+      "failedToDeleteConversation": "No se pudo eliminar la conversación",
+      "failedToUpdateFileContent": "No se pudo actualizar el contenido del archivo",
+      "chatPersistenceUnavailable": "La persistencia del chat no está disponible"
+    }
   }
 }

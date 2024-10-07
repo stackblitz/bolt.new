@@ -47,5 +47,13 @@
       "spaceInvaders": "Crea un joc d'Space Invaders",
       "centerDiv": "Com centro un div?"
     }
+  },
+  "toast": {
+    "error": {
+      "generic": "S'ha produït un error",
+      "failedToDeleteConversation": "No s'ha pogut eliminar la conversa",
+      "failedToUpdateFileContent": "No s'ha pogut actualitzar el contingut del fitxer",
+      "chatPersistenceUnavailable": "La persistència del xat no està disponible"
+    }
   }
 }

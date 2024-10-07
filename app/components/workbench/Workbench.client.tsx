@@ -92,7 +92,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
 
   const onFileSave = useCallback(() => {
     workbenchStore.saveCurrentDocument().catch(() => {
-      toast.error('Failed to update file content');
+      toast.error(t('toast.error.failedToUpdateFileContent'));
     });
   }, []);
 

@@ -64,7 +64,7 @@ export function Menu() {
           }
         })
         .catch((error) => {
-          toast.error('Failed to delete conversation');
+          toast.error(t('toast.error.failedToDeleteConversation'));
           logger.error(error);
         });
     }

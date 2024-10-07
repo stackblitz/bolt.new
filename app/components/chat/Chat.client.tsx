@@ -12,6 +12,7 @@ import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
+import { useTranslation } from 'react-i18next';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -75,11 +76,13 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const [animationScope, animate] = useAnimate();
 
+  const { t } = useTranslation();
+
   const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
     onError: (error) => {
       logger.error('Request failed\n\n', error);
-      toast.error('There was an error processing your request');
+      toast.error(t('toast.error.generic'));
     },
     onFinish: () => {
       logger.debug('Finished streaming');

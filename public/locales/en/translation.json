@@ -47,5 +47,13 @@
       "spaceInvaders": "Make a space invaders game",
       "centerDiv": "How do I center a div?"
     }
+  },
+  "toast": {
+    "error": {
+      "generic": "There was an error processing your request",
+      "failedToDeleteConversation": "Failed to delete conversation",
+      "failedToUpdateFileContent": "Failed to update file content",
+      "chatPersistenceUnavailable": "Chat persistence is unavailable"
+    }
   }
 }

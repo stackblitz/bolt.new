@@ -5,7 +5,7 @@ import type { Message } from 'ai';
 import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { getMessages, getNextId, getUrlId, openDatabase, setMessages } from './db';
-
+import { useTranslation } from 'react-i18next';
 export interface ChatHistoryItem {
   id: string;
   urlId?: string;
@@ -28,13 +28,14 @@ export function useChatHistory() {
   const [initialMessages, setInitialMessages] = useState<Message[]>([]);
   const [ready, setReady] = useState<boolean>(false);
   const [urlId, setUrlId] = useState<string | undefined>();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!db) {
       setReady(true);
 
       if (persistenceEnabled) {
-        toast.error(`Chat persistence is unavailable`);
+        toast.error(t('toast.error.chatPersistenceUnavailable'));
       }
 
       return;

@@ -37,13 +37,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
         const result = await streamText(messages, context.cloudflare.env, options);
 
-        return stream.switchSource(result.toAIStream());
+        return stream.switchSource(result.toDataStream( { result }));
       },
     };
 
     const result = await streamText(messages, context.cloudflare.env, options);
 
-    stream.switchSource(result.toAIStream());
+    stream.switchSource(result.toDataStream({ result }));
 
     return new Response(stream.readable, {
       status: 200,

@@ -4,7 +4,7 @@ import { MAX_TOKENS } from './constants';
 import { getPrompts } from './prompts';
 import type { LLM } from './llm-interface';
 import type { Prompts } from './prompts-interface';
-import type { Messages, StreamingOptions }from './llm-interface';
+import type { Message, Messages, StreamingOptions }from './llm-interface';
 
 // export type Messages = Message[];
 
@@ -28,15 +28,21 @@ export class OpenAILLM implements LLM {
     }
 
     const openai = createOpenAI({ apiKey: this.apiKey, compatibility: 'strict' });
-    const model = openai('gpt-4o');
+    const model = openai('o1-mini');
+
+    const o1sysmessage: Message = {
+      role: 'user',
+      content: this.getPrompts().getSystemPrompt()
+    };
+
+    // this is just some jank to get o1 working, proof of concept.
+    // for 4o, update the model above, remove the o1sysmessage, and set the system prompt and maxTokens
 
     return _streamText({
       model: model as any, // Use type assertion to bypass strict type checking
-      system: this.getPrompts().getSystemPrompt(),
-      messages: 
-        // { role: 'system', content: this.getPrompts().getSystemPrompt() },
-        convertToCoreMessages(messages),
-      maxTokens: MAX_TOKENS,
+      // system: this.getPrompts().getSystemPrompt(),
+      messages: [o1sysmessage, ...convertToCoreMessages(messages)],
+      // maxTokens: MAX_TOKENS,
       ...options,
     });
   }

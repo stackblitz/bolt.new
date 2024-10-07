@@ -1,7 +1,7 @@
 import { streamText as _streamText } from 'ai';
 import type { Prompts } from './prompts-interface';
 
-interface Message {
+export interface Message {
     role: 'user' | 'assistant' | 'system';
     content: string;
   }

@@ -1,6 +1,6 @@
 import { cloudflareDevProxyVitePlugin as remixCloudflareDevProxy, vitePlugin as remixVitePlugin } from '@remix-run/dev';
 import UnoCSS from 'unocss/vite';
-import { defineConfig } from 'vite';
+import { defineConfig, type ViteDevServer } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -24,7 +24,35 @@ export default defineConfig((config) => {
       }),
       UnoCSS(),
       tsconfigPaths(),
+      chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
     ],
   };
 });
+
+function chrome129IssuePlugin() {
+  return {
+    name: 'chrome129IssuePlugin',
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use((req, res, next) => {
+        const raw = req.headers['user-agent']?.match(/Chrom(e|ium)\/([0-9]+)\./);
+
+        if (raw) {
+          const version = parseInt(raw[2], 10);
+
+          if (version === 129) {
+            res.setHeader('content-type', 'text/html');
+            res.write(
+              '<body><h1>Please use Chrome Canary for testing.</h1><p>Chrome 129 has an issue with JavaScript modules & vite local development, see <a href="https://github.com/stackblitz/bolt.new/issues/86#issuecomment-2395519258">here for more.</a></p><p>`pnpm run build` and `pnpm run start` will work fine in this browser though.</p></body>',
+            );
+            res.end();
+
+            return;
+          }
+        }
+
+        next();
+      });
+    },
+  };
+}

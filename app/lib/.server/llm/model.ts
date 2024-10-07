@@ -1,9 +1,25 @@
-import { createAnthropic } from '@ai-sdk/anthropic';
+import { getCurrentLLMType } from './llm-selector';
+import { AnthropicLLM } from './anthropic-llm';
+import { OpenAILLM } from './openai-llm';
+import type { LLM } from './llm-interface';
 
-export function getAnthropicModel(apiKey: string) {
-  const anthropic = createAnthropic({
-    apiKey,
-  });
+export function getModel(apiKey: string): LLM {
+  const llmType = getCurrentLLMType();
 
-  return anthropic('claude-3-5-sonnet-20240620');
+  let llm: LLM;
+
+  switch (llmType) {
+    case 'anthropic':
+      llm = new AnthropicLLM();
+      (llm as AnthropicLLM).setApiKey(apiKey);
+      break;
+    case 'openai':
+      llm = new OpenAILLM();
+      (llm as OpenAILLM).setApiKey(apiKey);
+      break;
+    default:
+      throw new Error(`Unsupported LLM type: ${llmType}`);
+  }
+
+  return llm;
 }

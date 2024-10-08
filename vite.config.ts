@@ -4,6 +4,7 @@ import { defineConfig, type ViteDevServer } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { remixDevTools } from 'remix-development-tools';
 
 export default defineConfig((config) => {
   return {
@@ -15,6 +16,7 @@ export default defineConfig((config) => {
         include: ['path', 'buffer'],
       }),
       config.mode !== 'test' && remixCloudflareDevProxy(),
+      remixDevTools(),
       remixVitePlugin({
         future: {
           v3_fetcherPersist: true,

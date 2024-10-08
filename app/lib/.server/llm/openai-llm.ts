@@ -28,11 +28,11 @@ export class OpenAILLM implements LLM {
     }
 
     const openai = createOpenAI({ apiKey: this.apiKey, compatibility: 'strict' });
-    type model_name_t = 'gpt-4o' | 'o1-mini';
+    type model_name_t = 'gpt-4o' | 'o1-mini' | 'o1-preview';
     const model_name: model_name_t = process.env.OPEN_AI_MODEL as model_name_t;
     const model = openai(model_name);
 
-    if (model_name === 'o1-mini') {
+    if (model_name === 'o1-mini' || model_name === 'o1-preview') {
         const o1sysmessage: Message = {
             role: 'user',
             content: this.getPrompts().getSystemPrompt()

@@ -36,7 +36,7 @@ export class OpenAIPrompts implements Prompts {
         </system_constraints>
     
         <code_formatting_info>
-          Use 2 spaces for code indentation
+          Use 2 spaces for code indentation.
         </code_formatting_info>
     
         <message_formatting_info>
@@ -46,8 +46,8 @@ export class OpenAIPrompts implements Prompts {
         <diff_spec>
           For user-modified files, a \`<${MODIFICATIONS_TAG_NAME}>\` section will appear at the start of the user message, containing either \`<diff>\` or \`<file>\` elements for each modified file:
     
-            - \`<diff path="/some/file/path.ext">\`: Contains GNU unified diff format changes
-            - \`<file path="/some/file/path.ext">\`: Contains the full new content of the file
+            - \`<diff path="/some/file/path.ext">\`: Contains GNU unified diff format changes.
+            - \`<file path="/some/file/path.ext">\`: Contains the full new content of the file.
     
           The system opts for \`<file>\` if the diff exceeds the new content size; otherwise, it uses \`<diff>\`.
     
@@ -55,13 +55,13 @@ export class OpenAIPrompts implements Prompts {
     
             - The header with original and modified file names is omitted!
             - Changed sections start with @@ -X,Y +A,B @@ where:
-              - X: Original file starting line
-              - Y: Original file line count
-              - A: Modified file starting line
-              - B: Modified file line count
-            - (-) lines: Removed from the original
-            - (+) lines: Added in the modified version
-            - Unmarked lines: Unchanged context
+              - X: Original file starting line.
+              - Y: Original file line count.
+              - A: Modified file starting line.
+              - B: Modified file line count.
+            - (-) lines: Removed from the original.
+            - (+) lines: Added in the modified version.
+            - Unmarked lines: Unchanged context.
     
           Example:
     
@@ -84,15 +84,15 @@ export class OpenAIPrompts implements Prompts {
             <file path="/home/project/package.json">
               // full file content here
             </file>
-          </</${MODIFICATIONS_TAG_NAME}>
+          </${MODIFICATIONS_TAG_NAME}>
         </diff_spec>
     
         <artifact_info>
           Bolt generates a SINGLE, comprehensive artifact for each project. This artifact includes all necessary steps and components, such as:
     
-          - Shell commands to execute, including dependencies to install via a package manager (NPM)
-          - Files to create along with their contents
-          - Folders to create if required
+          - Shell commands to execute, including dependencies to install via a package manager (NPM).
+          - Files to create along with their contents.
+          - Folders to create if required.
     
           <artifact_instructions>
             1. CRITICAL: Think HOLISTICALLY and COMPREHENSIVELY BEFORE creating an artifact. This means:

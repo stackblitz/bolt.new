@@ -28,23 +28,30 @@ export class OpenAILLM implements LLM {
     }
 
     const openai = createOpenAI({ apiKey: this.apiKey, compatibility: 'strict' });
-    const model = openai('o1-mini');
+    type model_name_t = 'gpt-4o' | 'o1-mini';
+    const model_name: model_name_t = process.env.OPEN_AI_MODEL as model_name_t;
+    const model = openai(model_name);
 
-    const o1sysmessage: Message = {
-      role: 'user',
-      content: this.getPrompts().getSystemPrompt()
-    };
+    if (model_name === 'o1-mini') {
+        const o1sysmessage: Message = {
+            role: 'user',
+            content: this.getPrompts().getSystemPrompt()
+        };
 
-    // this is just some jank to get o1 working, proof of concept.
-    // for 4o, update the model above, remove the o1sysmessage, and set the system prompt and maxTokens
-
-    return _streamText({
-      model: model as any, // Use type assertion to bypass strict type checking
-      // system: this.getPrompts().getSystemPrompt(),
-      messages: [o1sysmessage, ...convertToCoreMessages(messages)],
-      // maxTokens: MAX_TOKENS,
-      ...options,
-    });
+        return _streamText({
+            model: model as any, // Use type assertion to bypass strict type checking
+            messages: [o1sysmessage, ...convertToCoreMessages(messages)],
+            ...options,
+        });    
+    } else {
+        return _streamText({
+            model: model as any, // Use type assertion to bypass strict type checking
+            system: this.getPrompts().getSystemPrompt(),
+            messages: convertToCoreMessages(messages),
+            maxTokens: MAX_TOKENS,
+            ...options,
+        });    
+    }
   }
 
   getPrompts(): Prompts {

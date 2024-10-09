@@ -1,14 +1,10 @@
 import {streamText as _streamText, convertToCoreMessages } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { MAX_TOKENS } from './constants';
-import { getPrompts } from './prompts';
 import type { LLM } from './llm-interface';
 import type { Prompts } from './prompts-interface';
 import type { Messages, StreamingOptions }from './llm-interface';
-
-// export type Messages = Message[];
-
-// export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
+import { AnthropicPrompts } from './anthropic-prompts';
 
 export class AnthropicLLM implements LLM {
   private apiKey: string = '';
@@ -42,6 +38,6 @@ export class AnthropicLLM implements LLM {
   }
 
   getPrompts(): Prompts {
-    return getPrompts();
+    return new AnthropicPrompts();
   }
 }

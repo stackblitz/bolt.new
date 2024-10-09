@@ -35,6 +35,14 @@ models. At this time, Bolt supports using Anthropic's Claude Sonnet 3.5.
 You can get an API key from the [Anthropic API Console](https://console.anthropic.com/) to use with Bolt.
 Take a look at how [Bolt uses the AI SDK](https://github.com/stackblitz/bolt.new/tree/main/app/lib/.server/llm)
 
+Preliminary support for OpenAI gpt-4o, gpt-4o-mini, o1-preview, and o1-mini is usable, YMMV.  Be sure to set
+
+LLM_TYPE=openai
+
+OPENAI_MODEL=gpt-4o // or other
+
+OPENAI_API_KEY=sk-... // your key
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:

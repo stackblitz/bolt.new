@@ -1,7 +1,6 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { getCurrentLLMType, selectLLM } from '~/lib/.server/llm/llm-selector';
-// import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText } from '~/lib/.server/llm/stream-text';
 import type { Messages, StreamingOptions } from '~/lib/.server/llm/llm-interface';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';

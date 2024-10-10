@@ -2,11 +2,10 @@ FROM node:20.18.0
 
 WORKDIR /app
 
-RUN npm install -g pnpm
-
 # Install dependencies (this step is cached as long as the dependencies don't change)
-COPY package.json package-lock.json .
-RUN pnpm install
+COPY package.json pnpm-lock.yaml ./
+
+RUN corepack enable pnpm && pnpm install
 
 # Copy the rest of your app's source code
 COPY . .

@@ -12,6 +12,8 @@ import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
+import { ProviderSelector } from './ProviderSelector';
+import { providerStore } from '~/lib/stores/provider';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -75,6 +77,8 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const [animationScope, animate] = useAnimate();
 
+  const provider = useStore(providerStore);
+
   const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
     onError: (error) => {
@@ -85,6 +89,9 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       logger.debug('Finished streaming');
     },
     initialMessages,
+    body: {
+      provider: provider === 'anthropic' ? 'anthropic' : { type: 'together', model: provider.model },
+    },
   });
 
   const { enhancingPrompt, promptEnhanced, enhancePrompt, resetEnhancer } = usePromptEnhancer();
@@ -153,13 +160,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       return;
     }
 
-    /**
-     * @note (delm) Usually saving files shouldn't take long but it may take longer if there
-     * many unsaved files. In that case we need to block user input and show an indicator
-     * of some kind so the user is aware that something is happening. But I consider the
-     * happy case to be no unsaved files and I would expect users to save their changes
-     * before they send another message.
-     */
     await workbenchStore.saveAllFiles();
 
     const fileModifications = workbenchStore.getFileModifcations();
@@ -171,64 +171,59 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     if (fileModifications !== undefined) {
       const diff = fileModificationsToHTML(fileModifications);
 
-      /**
-       * If we have file modifications we append a new user message manually since we have to prefix
-       * the user input with the file modifications and we don't want the new user input to appear
-       * in the prompt. Using `append` is almost the same as `handleSubmit` except that we have to
-       * manually reset the input and we'd have to manually pass in file attachments. However, those
-       * aren't relevant here.
-       */
-      append({ role: 'user', content: `${diff}\n\n${_input}` });
+      append({
+        role: 'user',
+        content: `${diff}\n\n${_input}`,
+        // We don't need to manually include the provider here as it's handled by the useChat hook
+      });
 
-      /**
-       * After sending a new message we reset all modifications since the model
-       * should now be aware of all the changes.
-       */
       workbenchStore.resetAllFileModifications();
     } else {
-      append({ role: 'user', content: _input });
+      append({
+        role: 'user',
+        content: _input,
+        // We don't need to manually include the provider here as it's handled by the useChat hook
+      });
     }
 
     setInput('');
-
     resetEnhancer();
-
     textareaRef.current?.blur();
   };
 
   const [messageRef, scrollRef] = useSnapScroll();
 
   return (
-    <BaseChat
-      ref={animationScope}
-      textareaRef={textareaRef}
-      input={input}
-      showChat={showChat}
-      chatStarted={chatStarted}
-      isStreaming={isLoading}
-      enhancingPrompt={enhancingPrompt}
-      promptEnhanced={promptEnhanced}
-      sendMessage={sendMessage}
-      messageRef={messageRef}
-      scrollRef={scrollRef}
-      handleInputChange={handleInputChange}
-      handleStop={abort}
-      messages={messages.map((message, i) => {
-        if (message.role === 'user') {
-          return message;
-        }
+      <BaseChat
+        ref={animationScope}
+        textareaRef={textareaRef}
+        input={input}
+        showChat={showChat}
+        chatStarted={chatStarted}
+        isStreaming={isLoading}
+        enhancingPrompt={enhancingPrompt}
+        promptEnhanced={promptEnhanced}
+        sendMessage={sendMessage}
+        messageRef={messageRef}
+        scrollRef={scrollRef}
+        handleInputChange={handleInputChange}
+        handleStop={abort}
+        messages={messages.map((message, i) => {
+          if (message.role === 'user') {
+            return message;
+          }
 
-        return {
-          ...message,
-          content: parsedMessages[i] || '',
-        };
-      })}
-      enhancePrompt={() => {
-        enhancePrompt(input, (input) => {
-          setInput(input);
-          scrollTextArea();
-        });
-      }}
-    />
+          return {
+            ...message,
+            content: parsedMessages[i] || '',
+          };
+        })}
+        enhancePrompt={() => {
+          enhancePrompt(input, (input) => {
+            setInput(input);
+            scrollTextArea();
+          });
+        }}
+      />
   );
 });

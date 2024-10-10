@@ -62,6 +62,10 @@ pnpm install
 ANTHROPIC_API_KEY=XXX
 ```
 
+```
+TOGETHER_API_KEY=XXX
+```
+
 Optionally, you can set the debug level:
 
 ```
@@ -70,9 +74,21 @@ VITE_LOG_LEVEL=debug
 
 **Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 
+## Add Custom Models from Together AI
+
+To add custom models from Together AI, you can add them to the `app/components/chat/ProviderSelector.tsx` file.
+
+```
+const togetherModels = [
+  'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+  'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+  'mistralai/Mixtral-8x7B-Instruct-v0.1',
+  '... add more models here ...'
+];
+
 ## Available Scripts
 
-- `pnpm run dev`: Starts the development server.
+- `pnpm run dev`: Starts the development server (use Chrome Canary for best results when testing locally).
 - `pnpm run build`: Builds the project.
 - `pnpm run start`: Runs the built application locally using Wrangler Pages. This script uses `bindings.sh` to set up necessary bindings so you don't have to duplicate environment variables.
 - `pnpm run preview`: Builds the project and then starts it locally, useful for testing the production build. Note, HTTP streaming currently doesn't work as expected with `wrangler pages dev`.

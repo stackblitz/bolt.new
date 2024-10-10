@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createScopedLogger } from '~/utils/logger';
+import { providerStore } from '~/lib/stores/provider';
 
 const logger = createScopedLogger('usePromptEnhancement');
 
@@ -20,6 +21,7 @@ export function usePromptEnhancer() {
       method: 'POST',
       body: JSON.stringify({
         message: input,
+        provider: providerStore.get(),
       }),
     });
 

@@ -7,3 +7,4 @@ export function getAPIKey(cloudflareEnv: Env) {
    */
   return env.ANTHROPIC_API_KEY || cloudflareEnv.ANTHROPIC_API_KEY;
 }
+

@@ -1,7 +1,6 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
-import { env } from 'node:process';
-export function getAnthropicModel(apiKey: string) {
-  const baseURL = env.ANTHROPIC_BASE_URL;
+export function getAnthropicModel(apiKey: string, baseURL: string) {
+  console.log('baseURL', baseURL);
   const anthropic = createAnthropic({
     apiKey,
     baseURL,

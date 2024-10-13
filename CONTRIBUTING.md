@@ -63,6 +63,7 @@ ANTHROPIC_API_KEY=XXX
 PROVIDER= gemini | antrophic | openai | ollama
 MODEL_NAME=XXX
 GOOGLE_GENERATIVE_AI_API_KEY=XXX
+OPEN_AI_API_KEY=XXX
 ```
 
 Optionally, you can set the debug level:

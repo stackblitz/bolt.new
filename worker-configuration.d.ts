@@ -3,4 +3,5 @@ interface Env {
   PROVIDER: string;
   MODEL_NAME: string;
   GOOGLE_GENERATIVE_AI_API_KEY: string;
+  OPEN_AI_API_KEY: string;
 }

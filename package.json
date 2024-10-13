@@ -23,7 +23,9 @@
     "node": ">=18.18.0"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.39",
+    "@ai-sdk/anthropic": "^0.0.51",
+    "@ai-sdk/google": "^0.0.51",
+    "@ai-sdk/openai": "^0.0.66",
     "@codemirror/autocomplete": "^6.17.0",
     "@codemirror/commands": "^6.6.0",
     "@codemirror/lang-cpp": "^6.0.2",
@@ -54,7 +56,7 @@
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-web-links": "^0.11.0",
     "@xterm/xterm": "^5.5.0",
-    "ai": "^3.3.4",
+    "ai": "^3.4.9",
     "date-fns": "^3.6.0",
     "diff": "^5.2.0",
     "framer-motion": "^11.2.12",
@@ -62,6 +64,8 @@
     "istextorbinary": "^9.5.0",
     "jose": "^5.6.3",
     "nanostores": "^0.10.3",
+    "ollama": "^0.5.9",
+    "ollama-ai-provider": "^0.15.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.5.0",

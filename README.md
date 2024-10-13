@@ -45,7 +45,7 @@ Once your free daily token limit is reached, AI interactions are paused until th
 Yes, Bolt.new is in beta, and we are actively improving it based on feedback.
 
 **How can I report Bolt.new issues?**  
-Check out the [Issues section](https://github.com/bolt.new/issues) to report an issue or request a new feature. Please use the search feature to check if someone else has already submitted the same issue/request.
+Check out the [Issues section](https://github.com/stackblitz/bolt.new/issues) to report an issue or request a new feature. Please use the search feature to check if someone else has already submitted the same issue/request.
 
 **What frameworks/libraries currently work on Bolt?**  
 Bolt.new supports most popular JavaScript frameworks and libraries. If it runs on StackBlitz, it will run on Bolt.new as well.

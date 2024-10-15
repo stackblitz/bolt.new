@@ -44,6 +44,7 @@
     "@iconify-json/svg-spinners": "^1.1.2",
     "@lezer/highlight": "^1.2.0",
     "@nanostores/react": "^0.7.2",
+    "@openrouter/ai-sdk-provider": "^0.0.5",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
     "@remix-run/cloudflare": "^2.10.2",

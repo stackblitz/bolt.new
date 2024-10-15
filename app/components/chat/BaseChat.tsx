@@ -7,7 +7,7 @@ import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import { MODEL_LIST } from '~/utils/constants';
+import { MODEL_LIST, DEFAULT_PROVIDER } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { useState } from 'react';
@@ -25,7 +25,7 @@ const EXAMPLE_PROMPTS = [
 const providerList = [...new Set(MODEL_LIST.map((model) => model.provider))]
 
 const ModelSelector = ({ model, setModel, modelList, providerList }) => {
-  const [provider, setProvider] = useState(null);
+  const [provider, setProvider] = useState(DEFAULT_PROVIDER);
   return (
     <div className="mb-2">
       <select 

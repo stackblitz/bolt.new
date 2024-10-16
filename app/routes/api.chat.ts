@@ -1,7 +1,7 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
-import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
+import { streamText, streamTextOpenAI, streamTextBedrock, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
 
 export async function action(args: ActionFunctionArgs) {
@@ -9,13 +9,12 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{ messages: Messages }>();
+  let { messages, selectedModel } = await request.json<{ messages: Messages; selectedModel: string }>();
 
   const stream = new SwitchableStream();
 
   try {
     const options: StreamingOptions = {
-      toolChoice: 'none',
       onFinish: async ({ text: content, finishReason }) => {
         if (finishReason !== 'length') {
           return stream.close();
@@ -32,24 +31,38 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         messages.push({ role: 'assistant', content });
         messages.push({ role: 'user', content: CONTINUE_PROMPT });
 
-        const result = await streamText(messages, context.cloudflare.env, options);
+        let result;
+        if (selectedModel === 'bedrock') {
+          result = await streamTextBedrock(messages, context.cloudflare.env, 'anthropic.claude-3-5-sonnet-20240620-v1:0', options);
+        } else if (selectedModel === 'openai') {
+          result = await streamTextOpenAI(messages, context.cloudflare.env, 'gpt-3.5-turbo', options);
+        } else {
+          result = await streamText(messages, context.cloudflare.env, options);
+        }
 
         return stream.switchSource(result.toAIStream());
       },
     };
 
-    const result = await streamText(messages, context.cloudflare.env, options);
+    let result;
+    if (selectedModel === 'bedrock') {
+      result = await streamTextBedrock(messages, context.cloudflare.env, 'anthropic.claude-3-5-sonnet-20240620-v1:0', options);
+    } else if (selectedModel === 'openai') {
+      result = await streamTextOpenAI(messages, context.cloudflare.env, 'gpt-3.5-turbo', options);
+    } else {
+      result = await streamText(messages, context.cloudflare.env, options);
+    }
 
     stream.switchSource(result.toAIStream());
 
     return new Response(stream.readable, {
       status: 200,
       headers: {
-        contentType: 'text/plain; charset=utf-8',
+        'Content-Type': 'text/plain; charset=utf-8',
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error('Unhandled error:', error);
 
     throw new Response(null, {
       status: 500,

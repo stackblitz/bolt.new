@@ -1,6 +1,6 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { StreamingTextResponse, parseStreamPart } from 'ai';
-import { streamText } from '~/lib/.server/llm/stream-text';
+import { streamTextOpenAI } from '~/lib/.server/llm/stream-text';
 import { stripIndents } from '~/utils/stripIndent';
 
 const encoder = new TextEncoder();
@@ -14,7 +14,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
   const { message } = await request.json<{ message: string }>();
 
   try {
-    const result = await streamText(
+    const result = await streamTextOpenAI(
       [
         {
           role: 'user',

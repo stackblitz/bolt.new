@@ -25,6 +25,8 @@ interface BaseChatProps {
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
+  selectedModel: string;
+  setSelectedModel: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const EXAMPLE_PROMPTS = [
@@ -54,6 +56,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       handleInputChange,
       enhancePrompt,
       handleStop,
+      selectedModel,
+      setSelectedModel,
     },
     ref,
   ) => {
@@ -86,6 +90,21 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 'h-full flex flex-col': chatStarted,
               })}
             >
+              <div className="flex justify-center items-center p-2">
+                {/* モデル選択用のセレクトボックス */}
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="p-0.5 border rounded bg-black text-white text-sm"
+                >
+                  <option value="claude">Claude 3.5</option>
+                  <option value="gpt-4o">OpenAI GPT-4o</option>
+                  <option value="o1-preview">OpenAI o1-preview</option>
+                  <option value="o1-mini">OpenAI o1-mini</option>
+                  <option value="bedrock">AWS Bedrock Claude</option>
+                  <option value="gemini" disabled>gemini-pro(not implemented)</option>
+                </select>
+              </div>
               <ClientOnly>
                 {() => {
                   return chatStarted ? (
@@ -133,6 +152,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     placeholder="How can Bolt help you today?"
                     translate="no"
                   />
+
                   <ClientOnly>
                     {() => (
                       <SendButton

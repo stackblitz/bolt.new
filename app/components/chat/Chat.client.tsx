@@ -27,7 +27,12 @@ export function Chat() {
 
   return (
     <>
-      {ready && <ChatImpl initialMessages={initialMessages} storeMessageHistory={storeMessageHistory} />}
+      {ready && (
+        <ChatImpl
+          initialMessages={initialMessages}
+          storeMessageHistory={storeMessageHistory}
+        />
+      )}
       <ToastContainer
         closeButton={({ closeToast }) => {
           return (
@@ -75,6 +80,8 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const [animationScope, animate] = useAnimate();
 
+  const [selectedModel, setSelectedModel] = useState('claude');
+
   const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
     onError: (error) => {
@@ -85,6 +92,9 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       logger.debug('Finished streaming');
     },
     initialMessages,
+    body: {
+      selectedModel: selectedModel,
+    }
   });
 
   const { enhancingPrompt, promptEnhanced, enhancePrompt, resetEnhancer } = usePromptEnhancer();
@@ -153,13 +163,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       return;
     }
 
-    /**
-     * @note (delm) Usually saving files shouldn't take long but it may take longer if there
-     * many unsaved files. In that case we need to block user input and show an indicator
-     * of some kind so the user is aware that something is happening. But I consider the
-     * happy case to be no unsaved files and I would expect users to save their changes
-     * before they send another message.
-     */
     await workbenchStore.saveAllFiles();
 
     const fileModifications = workbenchStore.getFileModifcations();
@@ -171,22 +174,25 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     if (fileModifications !== undefined) {
       const diff = fileModificationsToHTML(fileModifications);
 
-      /**
-       * If we have file modifications we append a new user message manually since we have to prefix
-       * the user input with the file modifications and we don't want the new user input to appear
-       * in the prompt. Using `append` is almost the same as `handleSubmit` except that we have to
-       * manually reset the input and we'd have to manually pass in file attachments. However, those
-       * aren't relevant here.
-       */
-      append({ role: 'user', content: `${diff}\n\n${_input}` });
+      append(
+        { role: 'user', content: `${diff}\n\n${_input}` },
+        {
+          body: {
+            selectedModel: selectedModel,
+          },
+        }
+      );
 
-      /**
-       * After sending a new message we reset all modifications since the model
-       * should now be aware of all the changes.
-       */
       workbenchStore.resetAllFileModifications();
     } else {
-      append({ role: 'user', content: _input });
+      append(
+        { role: 'user', content: _input },
+        {
+          body: {
+            selectedModel: selectedModel,
+          },
+        }
+      );
     }
 
     setInput('');
@@ -229,6 +235,8 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
           scrollTextArea();
         });
       }}
+      selectedModel={selectedModel}
+      setSelectedModel={setSelectedModel}
     />
   );
 });

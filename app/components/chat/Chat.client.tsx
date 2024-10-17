@@ -1,3 +1,5 @@
+// @ts-nocheck
+// Preventing TS checks with files presented in the video for a better presentation.
 import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
@@ -9,6 +11,7 @@ import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { fileModificationsToHTML } from '~/utils/diff';
+import { DEFAULT_MODEL } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
@@ -70,6 +73,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
+  const [model, setModel] = useState(DEFAULT_MODEL);
 
   const { showChat } = useStore(chatStore);
 
@@ -178,7 +182,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
        * manually reset the input and we'd have to manually pass in file attachments. However, those
        * aren't relevant here.
        */
-      append({ role: 'user', content: `${diff}\n\n${_input}` });
+      append({ role: 'user', content: `[Model: ${model}]\n\n${diff}\n\n${_input}` });
 
       /**
        * After sending a new message we reset all modifications since the model
@@ -186,7 +190,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
        */
       workbenchStore.resetAllFileModifications();
     } else {
-      append({ role: 'user', content: _input });
+      append({ role: 'user', content: `[Model: ${model}]\n\n${_input}` });
     }
 
     setInput('');
@@ -209,6 +213,8 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       enhancingPrompt={enhancingPrompt}
       promptEnhanced={promptEnhanced}
       sendMessage={sendMessage}
+      model={model}
+      setModel={setModel}
       messageRef={messageRef}
       scrollRef={scrollRef}
       handleInputChange={handleInputChange}

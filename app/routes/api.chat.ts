@@ -1,3 +1,5 @@
+// @ts-nocheck
+// Preventing TS checks with files presented in the video for a better presentation.
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
@@ -9,7 +11,7 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{ messages: Messages }>();
+  const { messages, selectedModel } = await request.json<{ messages: Messages; selectedModel?: string }>();
 
   const stream = new SwitchableStream();
 
@@ -45,7 +47,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     return new Response(stream.readable, {
       status: 200,
       headers: {
-        contentType: 'text/plain; charset=utf-8',
+        'Content-Type': 'text/plain; charset=utf-8',
       },
     });
   } catch (error) {

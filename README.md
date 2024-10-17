@@ -1,5 +1,9 @@
 [![Bolt.new: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.new)
 
+# Bolt.new Fork by Cole Medin
+
+This fork of bolt.new allows you to choose the LLM that you use for each prompt! Currently you can use OpenAI, Anthropic, Ollama, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See instructions below for running this locally and extending to include more models.
+
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
 Bolt.new is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. If you're here to build your own AI-powered web dev agent using the Bolt open source codebase, [click here to get started!](./CONTRIBUTING.md)
@@ -21,6 +25,72 @@ Whether you’re an experienced developer, a PM or designer, Bolt.new allows you
 
 For developers interested in building their own AI-powered development tools with WebContainers, check out the open-source Bolt codebase in this repo!
 
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- Node.js (v20.15.1)
+- pnpm (v9.4.0)
+
+## Setup
+
+1. Clone the repository (if you haven't already):
+
+```bash
+git clone https://github.com/coleam00/bolt.new-any-llm.git
+```
+
+2. Install dependencies:
+
+```bash
+pnpm install
+```
+
+3. Rename `.env.example` to .env.local and add your LLM API keys (you only have to set the ones you want to use and Ollama doesn't need an API key because it runs locally on your computer):
+
+```
+GROQ_API_KEY=XXX
+OPENAI_API_KEY=XXX
+ANTHROPIC_API_KEY=XXX
+```
+
+Optionally, you can set the debug level:
+
+```
+VITE_LOG_LEVEL=debug
+```
+
+**Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
+
+## Adding New LLMs:
+
+To make new LLMs available to use in this version of Bolt.new, head on over to `app/utils/constants.ts` and find the constant MODEL_LIST. Each element in this array is an object that has the model ID for the name (get this from the provider's API documentation), a lable for the frontend model dropdown, and the provider. 
+
+By default, Anthropic, OpenAI, Groq, and Ollama are implemented as providers, but the YouTube video for this repo covers how to extend this to work with more providers if you wish!
+
+When you add a new model to the MODEL_LIST array, it will immediately be available to use when you run the app locally or reload it. For Ollama models, make sure you have the model installed already before trying to use it here!
+
+## Available Scripts
+
+- `pnpm run dev`: Starts the development server.
+- `pnpm run build`: Builds the project.
+- `pnpm run start`: Runs the built application locally using Wrangler Pages. This script uses `bindings.sh` to set up necessary bindings so you don't have to duplicate environment variables.
+- `pnpm run preview`: Builds the project and then starts it locally, useful for testing the production build. Note, HTTP streaming currently doesn't work as expected with `wrangler pages dev`.
+- `pnpm test`: Runs the test suite using Vitest.
+- `pnpm run typecheck`: Runs TypeScript type checking.
+- `pnpm run typegen`: Generates TypeScript types using Wrangler.
+- `pnpm run deploy`: Builds the project and deploys it to Cloudflare Pages.
+
+## Development
+
+To start the development server:
+
+```bash
+pnpm run dev
+```
+
+This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally! It's a very easy install and a good browser for web development anyway.
+
 ## Tips and Tricks
 
 Here are some tips to get the most out of Bolt.new:
@@ -32,23 +102,3 @@ Here are some tips to get the most out of Bolt.new:
 - **Scaffold the basics first, then add features**: Make sure the basic structure of your application is in place before diving into more advanced functionality. This helps Bolt understand the foundation of your project and ensure everything is wired up right before building out more advanced functionality.
 
 - **Batch simple instructions**: Save time by combining simple instructions into one message. For example, you can ask Bolt to change the color scheme, add mobile responsiveness, and restart the dev server, all in one go saving you time and reducing API credit consumption significantly.
-
-## FAQs
-
-**Where do I sign up for a paid plan?**  
-Bolt.new is free to get started. If you need more AI tokens or want private projects, you can purchase a paid subscription in your [Bolt.new](https://bolt.new) settings, in the lower-left hand corner of the application. 
-
-**What happens if I hit the free usage limit?**  
-Once your free daily token limit is reached, AI interactions are paused until the next day or until you upgrade your plan.
-
-**Is Bolt in beta?**  
-Yes, Bolt.new is in beta, and we are actively improving it based on feedback.
-
-**How can I report Bolt.new issues?**  
-Check out the [Issues section](https://github.com/bolt.new/issues) to report an issue or request a new feature. Please use the search feature to check if someone else has already submitted the same issue/request.
-
-**What frameworks/libraries currently work on Bolt?**  
-Bolt.new supports most popular JavaScript frameworks and libraries. If it runs on StackBlitz, it will run on Bolt.new as well.
-
-**How can I add make sure my framework/project works well in bolt?**  
-We are excited to work with the JavaScript ecosystem to improve functionality in Bolt. Reach out to us via [hello@stackblitz.com](mailto:hello@stackblitz.com) to discuss how we can partner!

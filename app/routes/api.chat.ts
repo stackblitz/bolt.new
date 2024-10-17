@@ -11,7 +11,7 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{ messages: Messages }>();
+  const { messages, selectedModel } = await request.json<{ messages: Messages; selectedModel?: string }>();
 
   const stream = new SwitchableStream();
 
@@ -47,7 +47,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     return new Response(stream.readable, {
       status: 200,
       headers: {
-        contentType: 'text/plain; charset=utf-8',
+        'Content-Type': 'text/plain; charset=utf-8',
       },
     });
   } catch (error) {

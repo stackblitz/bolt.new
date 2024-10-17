@@ -1,8 +1,9 @@
 // @ts-nocheck
 // Preventing TS checks with files presented in the video for a better presentation.
-import { getAPIKey } from '~/lib/.server/llm/api-key';
+import { getAPIKey, getAWSCredentials } from '~/lib/.server/llm/api-key';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
+import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock';
 import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
@@ -43,7 +44,22 @@ export function getOpenRouterModel(apiKey: string, model: string) {
   return openRouter.chat(model);
 }
 
+export function getBedrockModel(modelId: string, credentials: any) {
+  const bedrock = createAmazonBedrock({
+    region: credentials.region,
+    accessKeyId: credentials.accessKeyId,
+    secretAccessKey: credentials.secretAccessKey,
+  });
+
+  return bedrock(modelId);
+}
+
 export function getModel(provider: string, model: string, env: Env) {
+  if (provider === 'Bedrock') {
+    const credentials = getAWSCredentials(env);
+    return getBedrockModel(model, credentials);
+  }
+
   const apiKey = getAPIKey(env, provider);
   
   switch (provider) {

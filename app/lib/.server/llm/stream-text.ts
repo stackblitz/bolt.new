@@ -2,7 +2,7 @@
 // Preventing TS checks with files presented in the video for a better presentation.
 import { streamText as _streamText, convertToCoreMessages } from 'ai';
 import { getModel } from '~/lib/.server/llm/model';
-import { MAX_TOKENS } from './constants';
+import { MAX_TOKENS, MAX_TOKENS_BEDROCK } from './constants';
 import { getSystemPrompt } from './prompts';
 import { MODEL_LIST, DEFAULT_MODEL, DEFAULT_PROVIDER } from '~/utils/constants';
 
@@ -52,14 +52,12 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
   });
 
   const provider = MODEL_LIST.find((model) => model.name === currentModel)?.provider || DEFAULT_PROVIDER;
+  const maxTokens = provider === 'Bedrock' ? MAX_TOKENS_BEDROCK : MAX_TOKENS;
 
   return _streamText({
     model: getModel(provider, currentModel, env),
     system: getSystemPrompt(),
-    maxTokens: MAX_TOKENS,
-    // headers: {
-    //   'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15',
-    // },
+    maxTokens,
     messages: convertToCoreMessages(processedMessages),
     ...options,
   });

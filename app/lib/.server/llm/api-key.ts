@@ -16,16 +16,17 @@ export function getAPIKey(cloudflareEnv: Env, provider: string) {
       return env.GROQ_API_KEY || cloudflareEnv.GROQ_API_KEY;
     case 'OpenRouter':
       return env.OPEN_ROUTER_API_KEY || cloudflareEnv.OPEN_ROUTER_API_KEY;
-    // Bedrock用のAWSクレデンシャルは別途取得
+    // AWS credentials for Bedrock are obtained separately
     default:
       return "";
   }
 }
 
+// This function retrieves AWS credentials from environment variables
 export function getAWSCredentials(cloudflareEnv: Env) {
   return {
     accessKeyId: env.AWS_ACCESS_KEY_ID || cloudflareEnv.AWS_ACCESS_KEY_ID,
     secretAccessKey: env.AWS_SECRET_ACCESS_KEY || cloudflareEnv.AWS_SECRET_ACCESS_KEY,
-    region: env.AWS_REGION || cloudflareEnv.AWS_REGION || 'us-east-1', // デフォルトリージョン
+    region: env.AWS_REGION || cloudflareEnv.AWS_REGION || 'us-east-1', // Default region
   };
 }

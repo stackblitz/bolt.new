@@ -33,7 +33,7 @@ bolt.new/
 
 - [WebContainer](./modules/webcontainer.md): 浏览器中的全栈运行环境
 - [文件系统](./modules/文件系统-FileSystem.md): 管理项目文件
-- [编辑器](./modules/编辑器-Editor.md): 代码编��功能
+- [编辑器](./modules/编辑器-Editor.md): 代码编功能
 - [AI 集成](./modules/AI集成-AIIntegration.md): 与 AI 模型交互
 - [工作台](./modules/工作台-Workbench.md): 集成开发环境
 - [聊天界面](./modules/聊天界面-ChatInterface.md): 用户与 AI 交互的主要入口
@@ -66,7 +66,7 @@ bolt.new/
 ## 8. 构建和部署
 
 - 构建项目: `pnpm build`
-- 部署到 Cloudflare Pages: 通过 GitHub Actions 自动��署
+- 部署到 Cloudflare Pages: 通过 GitHub Actions 自动署
 
 ## 9. 贡献指南
 
@@ -95,9 +95,9 @@ bolt.new/
 - GitHub Issues: [https://github.com/stackblitz/bolt.new/issues](https://github.com/stackblitz/bolt.new/issues)
 - 邮箱: support@stackblitz.com
 
-## 13. AI 响应任务执行和终端显示
+## 13. AI 响应任务执行
 
-Bolt 系统的一个关键特性是能够根据 AI 的响应执行各种任务，并将命令执行过程实时显示在终端中。这个功能增强了用户与 AI 助手之间的交互，使得开发过程更加直观和高效。
+Bolt 系统的一个关键特性是能够根据 AI 的响应执行各种任务。这个功能增强了用户与 AI 助手之间的交互,使得开发过程更加直观和高效。
 
 ### 实现细节
 
@@ -106,34 +106,46 @@ Bolt 系统的一个关键特性是能够根据 AI 的响应执行各种任务�
 
 ### 主要功能
 
-1. 解析 AI 响应中的���务指令
-2. 执行相应的操作（如文件修改、安装依赖等）
-3. 将执行过程实时显示在终端组件中
+1. 解析 AI 响应中的任务指令
+2. 执行相应的操作（如 shell 命令、文件修改等）
+3. 管理任务的状态和执行过程
 
 ### 使用方式
 
-在处理 AI 响应时，系统会自动识别和执行相关任务。开发者可以通过以下方式与此功能交互：
+在处理 AI 响应时,系统会自动识别和执行相关任务。开发者可以通过以下方式与此功能交互：
 
 ```typescript
 import { ActionRunner } from '~/lib/runtime/action-runner';
-
+import { webcontainer } from '~/lib/webcontainer';
 // 创建 ActionRunner 实例
 const actionRunner = new ActionRunner(webcontainer);
-
-// 执行 AI 响应中的任务
-await actionRunner.run(aiResponse);
+// 添加任务
+actionRunner.addAction({
+  actionId: 'action1',
+  action: {
+    type: 'shell',
+    content: 'npm install lodash',
+  },
+});
+// 执行任务
+actionRunner.runAction({
+  actionId: 'action1',
+  action: {
+    type: 'shell',
+    content: 'npm install lodash',
+  },
+});
 ```
+
 
 ### 注意事项
 
 - 确保 AI 响应的格式符合预定义的任务指令结构
-- 考虑任务执行的安全性，避免执行潜在的危险操作
-- 优化终端显示的性能，特别是在处理大量输出时
+- 考虑任务执行的安全性,避免执行潜在的危险操作
+- 优化任务执行的性能,特别是在处理多个任务时
 - 提供适当的错误处理和用户反馈机制
 
-更多详细信息，请参阅 [任务执行模块文档](./modules/任务执行-TaskExecution.md)。
-
-欢迎加入 Bolt 开发社区,一起打造下一代的 AI 辅助开发工具!
+更多详细信息,请参阅 [任务执行模块文档](./modules/任务执行-TaskExecution.md)。
 
 ## 14. 项目上下文提供
 
@@ -142,7 +154,7 @@ Bolt 系统的一个关键特性是能够在用户发送对话时,自动收集�
 ### 实现细节
 
 - 位置: `app/lib/.server/llm/`
-- 主要功能: 提供系统提示词、管理对话历史、处理��件修改信息
+- 主要功能: 提供系统提示词、管理对话历史、处理文件修改信息
 
 ### 主要功能
 

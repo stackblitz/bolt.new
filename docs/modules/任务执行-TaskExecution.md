@@ -2,7 +2,7 @@
 
 ## 概述
 
-任务执行模块是 Bolt 系统的核心功能之一,负责解析和执行 AI 响应中的任务指令,并将执行过程实时显示在终端中。这个模块增强了用户与 AI 助手之间的交互,使开发过程更加直观和高效。
+任务执行模块是 Bolt 系统的核心功能之一,负责解析和执行 AI 响应中的任务指令。这个模块增强了用户与 AI 助手之间的交互,使开发过程更加直观和高效。
 
 ## 实现细节
 
@@ -10,22 +10,28 @@
 
 ### 主要类: ActionRunner
 
-`ActionRunner` 类是任务执行模块的核心,它负责解析 AI 响应并执行相应的操作。
+`ActionRunner` 类是任务执行模块的核心,它负责管理和执行 AI 响应中的任务。
+
+#### 主要属性
+
+- `#webcontainer`: WebContainer 实例的 Promise
+- `#currentExecutionPromise`: 当前执行任务的 Promise
+- `actions`: 存储所有任务的 Map
 
 #### 主要方法
 
-1. `run(aiResponse: string): Promise<void>`: 解析并执行 AI 响应中的任务
-2. `executeAction(action: Action): Promise<void>`: 执行单个任务
-3. `updateTerminal(output: string): void`: 更新终端显示
+1. `addAction(data: ActionCallbackData)`: 添加新的任务
+2. `runAction(data: ActionCallbackData)`: 运行指定的任务
+3. `#executeAction(actionId: string)`: 执行单个任务
+4. `#runShellAction(action: ActionState)`: 执行 shell 类型的任务
+5. `#runFileAction(action: ActionState)`: 执行文件操作类型的任务
 
 ### 任务类型
 
-任务执行模块支持多种类型的任务,包括但不限于:
+任务执行模块支持两种主要类型的任务:
 
-- 文件操作: 创建、修改、删除文件
-- 依赖管理: 安装、更新、删除依赖包
-- 命令执行: 运行 shell 命令
-- 项目配置: 修改项目设置
+- Shell 操作: 执行 shell 命令
+- 文件操作: 创建、修改文件
 
 ## 使用方式
 
@@ -34,70 +40,55 @@
 ```typescript
 import { ActionRunner } from '~/lib/runtime/action-runner';
 import { webcontainer } from '~/lib/webcontainer';
-
-async function handleAIResponse(aiResponse: string) {
-  const actionRunner = new ActionRunner(webcontainer);
-  await actionRunner.run(aiResponse);
-}
-````
-
-
-## 终端显示
-
-任务执行过程会实时显示在终端组件中。终端组件位于 `app/components/workbench/terminal/Terminal.tsx`。
-
-### 更新终端显示
-
-`ActionRunner` 使用 `updateTerminal` 方法来更新终端显示:
-
-```typescript
-private updateTerminal(output: string) {
-  // 使用 terminalStore 或其他状态管理方法更新终端显示
-  terminalStore.appendOutput(output);
-}
-````
+const actionRunner = new ActionRunner(webcontainer);
+// 添加任务
+actionRunner.addAction({
+  actionId: 'action1',
+  action: {
+    type: 'shell',
+    content: 'npm install lodash',
+  },
+});
+// 运行任务
+actionRunner.runAction({
+  actionId: 'action1',
+  action: {
+    type: 'shell',
+    content: 'npm install lodash',
+  },
+});
+```
 
 
 ## 安全考虑
 
 为确保系统安全,任务执行模块实施了以下安全措施:
 
-1. 任务白名单: 只允许执行预定义的安全任务
-2. 输入验证: 严格验证和清理所有输入
-3. 资源限制: 限制任务的执行时间和资源使用
+1. 使用 WebContainer 提供的安全沙箱环境执行任务
+2. 限制可执行的任务类型
+3. 提供任务中断机制
 
 ## 错误处理
 
-任务执行过程中可能遇到的错误会被捕获并显示在终端中,同时也会通过用户界面提供适当的反馈。
+任务执行过程中可能遇到的错误会被捕获并记录,同时更新任务状态为 "failed"。
 
 ## 性能优化
 
-为了保证在处理大量输出时的性能,任务执行模块采用了以下优化策略:
+为了保证在处理多个任务时的性能,任务执行模块采用了以下优化策略:
 
-1. 批量更新: 合并短时间内的多次更新
-2. 虚拟滚动: 在显示大量输出时使用虚拟滚动技术
-3. 输出截断: 当输出超过一定限制时,截断旧的输出
+1. 任务队列: 使用 Promise 链式执行任务,避免并发执行导致的问题
+2. 状态管理: 使用 nanostores 进行高效的状态管理和更新
 
 ## 扩展性
 
 任务执行模块设计为可扩展的,允许轻松添加新的任务类型。要添加新的任务类型,需要:
 
-1. 在 `Action` 类型中定义新的任务结构
+1. 在 `ActionState` 类型中定义新的任务结构
 2. 在 `ActionRunner` 类中实现相应的执行逻辑
 3. 更新 AI 模型,使其能够生成新任务类型的指令
 
 ## 注意事项
 
 - 确保 AI 响应的格式符合预定义的任务指令结构
-- 定期审查和更新任务白名单,以适应新的需求和潜在的安全风险
+- 定期审查和更新可执行的任务类型,以适应新的需求和潜在的安全风险
 - 监控任务执行的性能,及时优化高耗时或高资源消耗的操作
-- 提供清晰的文档,说明支持的任务类型和使用方法
-
-## 未来改进
-
-- 实现任务队列,支持并行执行多个任务
-- 添加任务执行的撤销/重做功能
-- 实现更细粒度的权限控制,允许用户自定义允许的任务类型
-- 集成日志系统,方便调试和问题追踪
-
-通过这个强大的任务执行模块,Bolt 系统能够将 AI 的建议直接转化为实际的代码修改和操作,大大提高了开发效率和用户体验。

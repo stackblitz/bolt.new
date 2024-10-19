@@ -30,7 +30,11 @@ const ModelSelector = ({ model, setModel, modelList, providerList }) => {
     <div className="mb-2">
       <select 
         value={provider}
-        onChange={(e) => setProvider(e.target.value)}
+        onChange={(e) => {
+          setProvider(e.target.value);
+          const firstModel = [...modelList].find(m => m.provider == e.target.value);
+          setModel(firstModel ? firstModel.name : '');
+        }}
         className="w-full p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none"
       >
         {providerList.map((provider) => (
@@ -38,23 +42,24 @@ const ModelSelector = ({ model, setModel, modelList, providerList }) => {
             {provider}
           </option>
         ))}
-
+          <option key="Ollama" value="Ollama">
+            Ollama
+          </option>        
       </select>
       <select
         value={model}
-        provider={provider}
         onChange={(e) => setModel(e.target.value)}
         className="w-full p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none"
       >
-        {[...modelList].filter( e => e.provider == provider ).map((modelOption) => (
+        {[...modelList].filter(e => e.provider == provider && e.name).map((modelOption) => (
           <option key={modelOption.name} value={modelOption.name}>
             {modelOption.label}
           </option>
         ))}
       </select>
     </div>
-  )
-}
+  );
+};
 
 const TEXTAREA_MIN_HEIGHT = 76;
 

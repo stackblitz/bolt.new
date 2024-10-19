@@ -147,10 +147,6 @@ actionRunner.runAction({
 
 更多详细信息,请参阅 [任务执行模块文档](./modules/任务执行-TaskExecution.md)。
 
-## 14. 项目上下文提供
 
-
-
-更多详细信息,请参阅 [上下文提供模块文档](./modules/上下文提供-ContextProvider.md)。
 
 欢迎加入 Bolt 开发社区,一起打造下一代的 AI 辅助开发工具!

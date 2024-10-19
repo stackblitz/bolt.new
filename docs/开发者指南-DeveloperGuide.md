@@ -41,6 +41,7 @@ bolt.new/
 - [路由和页面](./modules/路由和页面-RoutesAndPages.md): 应用路由结构
 - [工具和辅助函数](./modules/工具和辅助函数-UtilsAndHelpers.md): 通用工具函数
 - [任务执行](./modules/任务执行-TaskExecution.md): AI 响应的任务执行和终端显示
+- [上下文提供](./modules/上下文提供-ContextProvider.md): 为 AI 提供项目上下文信息
 
 ## 5. 开发流程
 
@@ -133,3 +134,34 @@ await actionRunner.run(aiResponse);
 更多详细信息，请参阅 [任务执行模块文档](./modules/任务执行-TaskExecution.md)。
 
 欢迎加入 Bolt 开发社区,一起打造下一代的 AI 辅助开发工具!
+
+## 14. 项目上下文提供
+
+Bolt 系统的另一个关键特性是能够在用户发送对话时，自动收集并提供项目的相关上下文信息给 AI 处理。这个功能确保了 AI 能够基于当前项目状态提供准确的建议和解决方案。
+
+### 实现细节
+
+- 位置: `app/lib/context-provider/`
+- 主要功能: 收集文件信息、提取相关代码片段、生成项目结构摘要
+
+### 主要功能
+
+1. 收集项目文件信息
+2. 提取与用户查询相关的代码片段
+3. 生成项目结构的简洁摘要
+4. 整合上下文信息并提供给 AI
+
+### 使用方式
+
+系统会在处理用户查询时自动调用上下文提供模块：
+
+```typescript
+import { prepareContext } from '~/lib/context-provider';
+import { sendToAI } from '~/lib/ai-integration';
+
+async function handleUserQuery(query: string) {
+  const context = await prepareContext(query);
+  const aiResponse = await sendToAI(context);
+  // 处理 AI 响应
+}
+```

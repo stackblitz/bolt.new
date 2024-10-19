@@ -149,37 +149,7 @@ actionRunner.runAction({
 
 ## 14. 项目上下文提供
 
-Bolt 系统的一个关键特性是能够在用户发送对话时,自动收集并提供项目的相关上下文信息给 AI 处理。这个功能确保了 AI 能够基于当前项目状态提供准确的建议和解决方案。
 
-### 实现细节
-
-- 位置: `app/lib/.server/llm/`
-- 主要功能: 提供系统提示词、管理对话历史、处理文件修改信息
-
-### 主要功能
-
-1. 获取系统提示词
-2. 处理对话历史
-3. 处理文件修改信息
-
-### 使用方式
-
-系统会在处理用户查询时自动调用上下文提供模块：
-
-```typescript
-// app/routes/api.chat.ts
-async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{ messages: Messages }>();
-  const result = await streamText(messages, context.cloudflare.env, options);
-  // ...
-}
-```
-
-### 注意事项
-
-- 确保只发送必要的项目信息给 AI,保护用户隐私
-- 优化上下文收集的性能,特别是对于大型项目
-- 定期更新系统提示词以适应新的需求和功能
 
 更多详细信息,请参阅 [上下文提供模块文档](./modules/上下文提供-ContextProvider.md)。
 

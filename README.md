@@ -2,7 +2,23 @@
 
 # Bolt.new Fork by Cole Medin
 
-This fork of bolt.new allows you to choose the LLM that you use for each prompt! Currently you can use OpenAI, Anthropic, Ollama, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See instructions below for running this locally and extending to include more models.
+This fork of bolt.new allows you to choose the LLM that you use for each prompt! Currently you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See instructions below for running this locally and extending to include more models.
+
+# Requested Additions to this Fork - Feel Free to Contribute!!
+
+- ✅ OpenRouter Integration (@coleam00)
+- ✅ Gemini Integration (@jonathands)
+- ✅ Autogenerate Ollama models from what is downloaded (@mosquet)
+- ✅ Filter models by provider (@jasonm23)
+- ✅ Download project as ZIP (@fabwaseem)
+- ⬜ LM Studio Integration
+- ⬜ DeepSeek API Integration
+- ⬜ Better prompting for smaller LLMs (code window sometimes doesn't start)
+- ⬜ Attach images to prompts
+- ⬜ Run agents in the backend instead of a single model call
+- ⬜ Publish projects directly to GitHub
+- ⬜ Load local projects into the app
+- ⬜ Improvements to the main Bolt.new prompt in `app\lib\.server\llm\prompts.ts` (there is definitely opportunity there)
 
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 

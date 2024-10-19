@@ -6,7 +6,13 @@ export const DEFAULT_MODEL = "claude-3-5-sonnet-20240620";
 export const DEFAULT_PROVIDER = "Anthropic";
 export const MODEL_LIST = [
     { name: 'claude-3-5-sonnet-20240620', label: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
+    { name: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', provider: 'Google' },
+    { name: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', provider: 'Google'},
     { name: 'gpt-4o', label: 'GPT-4o', provider: 'OpenAI' },
+    { name: 'gpt-4o-mini', label: 'GPT-4o Mini', provider: 'OpenAI' },
+    { name: 'gpt-4-turbo', label: 'GPT-4 Turbo', provider: 'OpenAI' },
+    { name: 'gpt-4', label: 'GPT-4', provider: 'OpenAI' },
+    { name: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', provider: 'OpenAI' },
     { name: 'qwen2.5-coder:7b', label: 'Qwen 2.5 Coder 7b', provider: 'Ollama' },
     { name: 'qwen2.5-coder:1.5b', label: 'Qwen 2.5 Coder 1.5b', provider: 'Ollama' },
     { name: 'deepseek-coder-v2:236b', label: 'DeepSeek-Coder-V2 236b', provider: 'Ollama' },
@@ -31,8 +37,4 @@ export const MODEL_LIST = [
     { name: 'claude-3-opus-20240229', label: 'Claude 3 Opus', provider: 'Anthropic' },
     { name: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet', provider: 'Anthropic' },
     { name: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku', provider: 'Anthropic' },
-    { name: 'gpt-4o-mini', label: 'GPT-4o Mini', provider: 'OpenAI' },
-    { name: 'gpt-4-turbo', label: 'GPT-4 Turbo', provider: 'OpenAI' },
-    { name: 'gpt-4', label: 'GPT-4', provider: 'OpenAI' },
-    { name: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', provider: 'OpenAI' },
 ];

@@ -6,6 +6,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock';
 import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 export function getAnthropicModel(apiKey: string, model: string) {
   const anthropic = createAnthropic({
@@ -54,6 +55,14 @@ export function getBedrockModel(modelId: string, credentials: any) {
   return bedrock(modelId);
 }
 
+export function getGeminiModel(apiKey: string, model: string = 'gemini-1.5-pro-latest') {
+  const google = createGoogleGenerativeAI({
+    apiKey,
+  });
+
+  return google(model);
+}
+
 export function getModel(provider: string, model: string, env: Env) {
   if (provider === 'Bedrock') {
     const credentials = getAWSCredentials(env);
@@ -71,6 +80,8 @@ export function getModel(provider: string, model: string, env: Env) {
       return getGroqModel(apiKey, model);
     case 'OpenRouter':
       return getOpenRouterModel(apiKey, model);
+    case 'Gemini':
+      return getGeminiModel(apiKey, model);
     default:
       return getOllamaModel(model);
   }

@@ -13,6 +13,7 @@ This fork of bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ Download project as ZIP (@fabwaseem)
 - ⬜ LM Studio Integration
 - ⬜ DeepSeek API Integration
+- ⬜ Together Integration
 - ⬜ Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ Attach images to prompts
 - ⬜ Run agents in the backend instead of a single model call

@@ -39,4 +39,8 @@ export const MODEL_LIST = [
     { name: 'anthropic.claude-3-opus-20240229-v1:0', label: 'Claude 3 Opus (Bedrock)', provider: 'Bedrock' },
     { name: 'anthropic.claude-3-sonnet-20240229-v1:0', label: 'Claude 3 Sonnet (Bedrock)', provider: 'Bedrock' },
     { name: 'anthropic.claude-3-haiku-20240307-v1:0', label: 'Claude 3 Haiku (Bedrock)', provider: 'Bedrock' },
+    { name: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro Latest', provider: 'Gemini' },
+    { name: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', provider: 'Gemini' },
+    { name: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash Latest', provider: 'Gemini' },
+    { name: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', provider: 'Gemini' },
 ];

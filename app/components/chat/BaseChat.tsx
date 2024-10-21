@@ -93,12 +93,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <p className="mb-4 text-center text-bolt-elements-textSecondary">
                   在几秒钟内将想法变为现实，或获取现有项目的帮助。
                 </p>
-                <TemplateSelector
+                {/* <TemplateSelector
                   className="w-full mb-4"
                   value={selectedTemplate}
                   onChange={handleTemplateChange}
-                />
-                <ClientOnly>{() => <div>123</div>}</ClientOnly>
+                /> */}
               </div>
             )}
             <div
@@ -150,7 +149,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       minHeight: TEXTAREA_MIN_HEIGHT,
                       maxHeight: TEXTAREA_MAX_HEIGHT,
                     }}
-                    placeholder="Bolt 今天能为您做些什么？"
+                    placeholder="多八多今天能为您做些什么？"
                     translate="no"
                   />
                   <ClientOnly>

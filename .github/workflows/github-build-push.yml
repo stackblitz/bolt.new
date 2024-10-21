@@ -36,15 +36,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-
-      - name: Build and Push Containers
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          platforms: linux/amd64,linux/arm64,linux/arm
-          push: true
-          tags: |
-            registry.bukn.net/${{ github.event.repository.name }}:latest
-            registry.bukn.net/${{ github.event.repository.name }}:${{ github.sha }}            
+            ghcr.io/${{ github.repository }}:${{ github.sha }}        

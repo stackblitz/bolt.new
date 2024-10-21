@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'Dockerfile'
+    # paths:
+    #   - 'Dockerfile'
   workflow_dispatch:    
 jobs:
   build-and-push:

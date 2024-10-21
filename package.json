@@ -74,6 +74,7 @@
     "remark-gfm": "^4.0.0",
     "remix-island": "^0.2.0",
     "remix-utils": "^7.6.0",
+    "set-cookie-parser": "2.4.8",
     "shiki": "^1.9.1",
     "unist-util-visit": "^5.0.0"
   },
@@ -88,7 +89,7 @@
     "is-ci": "^3.0.1",
     "node-fetch": "^3.3.2",
     "prettier": "^3.3.2",
-    "sass-embedded": "^1.79.4",
+    "sass-embedded": "^1.80.3",
     "typescript": "^5.5.2",
     "unified": "^11.0.5",
     "unocss": "^0.61.3",

@@ -1,11 +1,11 @@
-@import './variables.scss';
-@import './z-index.scss';
-@import './animations.scss';
-@import './components/terminal.scss';
-@import './components/resize-handle.scss';
-@import './components/code.scss';
-@import './components/editor.scss';
-@import './components/toast.scss';
+@use './variables';
+@use './z-index';
+@use './animations';
+@use './components/terminal';
+@use './components/resize-handle';
+@use './components/code';
+@use './components/editor';
+@use './components/toast';
 
 html,
 body {

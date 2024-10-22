@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogTitle, DialogDescription, DialogRoot } from '~/components/ui/Dialog';
 import { toast } from 'react-toastify';
+import { useAuth } from '~/hooks/useAuth'; // 导入 useAuth hook
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ interface PaymentResponse {
   did: string;
   expires_in: string;
   return_url: string;
+  orderNo: string;
 }
 
 interface PaymentStatusResponse {
@@ -31,10 +33,20 @@ interface PaymentStatusResponse {
 
 export function PaymentModal({ isOpen, onClose, paymentData, onPaymentSuccess }: PaymentModalProps) {
   const [timeLeft, setTimeLeft] = useState(parseInt(paymentData.expires_in));
+  const { token } = useAuth(); // 获取认证token
 
   const checkPaymentStatus = useCallback(async () => {
+    if (!token) {
+      console.error('No authentication token available');
+      return;
+    }
+
     try {
-      const response = await fetch(`/api/check-payment-status?orderNo=${paymentData.no}`);
+      const response = await fetch(`/api/check-payment-status?orderNo=${paymentData.orderNo}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         if (response.status === 404) {
           console.error('Order not found');
@@ -52,7 +64,7 @@ export function PaymentModal({ isOpen, onClose, paymentData, onPaymentSuccess }:
       console.error('Error checking payment status:', error);
       toast.error('检查支付状态时出错，请稍后再试');
     }
-  }, [paymentData.no, onPaymentSuccess, onClose]);
+  }, [paymentData.orderNo, onPaymentSuccess, onClose, token]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -89,7 +101,7 @@ export function PaymentModal({ isOpen, onClose, paymentData, onPaymentSuccess }:
             </div>
             <div className="text-center">
               <p className="text-bolt-elements-textPrimary">订单金额: ¥{paymentData.order_amount}</p>
-              <p className="text-bolt-elements-textSecondary">订单号: {paymentData.no}</p>
+              <p className="text-bolt-elements-textSecondary">订单号: {paymentData.orderNo}</p>
               <p className="text-bolt-elements-textSecondary">支付方式: {paymentData.pay_type}</p>
             </div>
             <div className="text-center">

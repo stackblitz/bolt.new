@@ -11,7 +11,7 @@ export async function action({ request }: { request: Request }) {
     return error as Response;
   }
 
-  const { planId, billingCycle } = await request.json() as { planId: string; billingCycle: string };
+  const { planId, billingCycle } = (await request.json()) as { planId: string; billingCycle: string };
 
   try {
     // 获取订阅计划详情
@@ -36,7 +36,7 @@ export async function action({ request }: { request: Request }) {
       `${plan.name} 订阅 (${billingCycle === 'yearly' ? '年付' : '月付'})`,
       'alipay', // 或其他支付方式
       price, // 不用转换为分
-      userId.toString()
+      userId.toString(),
     );
 
     // 创建待处理的交易记录
@@ -51,7 +51,7 @@ export async function action({ request }: { request: Request }) {
       transaction_id: orderNo,
     });
 
-    return json({ success: true, paymentData });
+    return json({ success: true, paymentData: { ...paymentData, orderNo } });
   } catch (error) {
     console.error('初始化订阅购买时出错:', error);
     return json({ error: '初始化订阅购买失败' }, { status: 500 });

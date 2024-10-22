@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface AvatarProps {
   src: string;
@@ -7,13 +7,13 @@ interface AvatarProps {
 }
 
 export function Avatar({ src, alt, className = '' }: AvatarProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(src.startsWith('http') ? src : `${window.ENV.OSS_HOST}${src}`);
   const [error, setError] = useState(false);
 
   const handleError = () => {
     setError(true);
     // 设置一个默认的头像 URL
-    setImgSrc('/avatars/default-avatar.png');
+    setImgSrc(`${window.ENV.OSS_HOST}/avatars/default-avatar.png`);
   };
 
   return (

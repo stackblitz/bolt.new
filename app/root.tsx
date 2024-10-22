@@ -1,11 +1,13 @@
 import { useStore } from '@nanostores/react';
-import type { LinksFunction } from '@remix-run/cloudflare';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import type { LinksFunction, LoaderFunction } from '@remix-run/cloudflare';
+import { json } from '@remix-run/cloudflare';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
 import { createHead } from 'remix-island';
 import { useEffect } from 'react';
+import { env } from 'node:process';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
@@ -62,9 +64,17 @@ export const Head = createHead(() => (
   </>
 ));
 
+export const loader: LoaderFunction = async () => {
+  return json({
+    ENV: {
+      OSS_HOST: env.VITE_OSS_BASE_URL,
+    },
+  });
+};
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
-
+  const data = useLoaderData<typeof loader>() as { ENV: { OSS_HOST: string } };
   useEffect(() => {
     document.querySelector('html')?.setAttribute('data-theme', theme);
   }, [theme]);
@@ -73,6 +83,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <>
       {children}
       <ScrollRestoration />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+        }}
+      />
       <Scripts />
     </>
   );

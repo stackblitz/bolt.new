@@ -1,4 +1,4 @@
-
+or
 interface OllamaModelDetails {
   parent_model: string;
   format: string;
@@ -8,7 +8,7 @@ interface OllamaModelDetails {
   quantization_level: string;
 }
 
-interface OllamaModel {
+export interface OllamaModel {
   name: string;
   model: string;
   modified_at: string;

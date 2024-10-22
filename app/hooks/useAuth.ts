@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@remix-run/react';
 
-interface User {
+export interface User {
   id: number;
   phone: string;
   nickname: string;

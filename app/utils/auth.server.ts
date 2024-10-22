@@ -8,8 +8,8 @@ export async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
 }
 
-export async function verifyLogin(email: string, password: string) {
-  const user = await db('users').where({ email }).first();
+export async function verifyLogin(phone: string, password: string) {
+  const user = await db('users').where({ phone }).first();
   if (!user) return null;
   
   const isValid = await bcrypt.compare(password, user.password);

@@ -3,6 +3,18 @@ import type { ActionFunction } from '@remix-run/node';
 import { validatePhoneNumber } from '~/utils/validation';
 import { verifyLogin, createToken } from '~/utils/auth.server';
 
+export interface LoginResponse {
+  success: boolean;
+  token?: string;
+  user?: {
+    id: number;
+    phone: string;
+    nickname: string;
+    avatarUrl: string;
+  };
+  error?: string;
+}
+
 export const action: ActionFunction = async ({ request }) => {
   const { phone, password } = await request.json() as { phone: string, password: string };
 

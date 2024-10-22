@@ -1,33 +1,40 @@
 import React, { useState } from 'react';
-import { useNavigate } from '@remix-run/react';
+import { useAuth } from '~/hooks/useAuth';
+import type { LoginResponse } from '~/routes/api.auth.login';
 
 export function Login() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ phone, password }),
       });
-      if (response.ok) {
-        const data = (await response.json()) as { token: string };
-        localStorage.setItem('token', data.token);
-        navigate('/dashboard');
+      const data = (await response.json()) as LoginResponse;
+      if (response.ok && data.token && data.user) {
+        login(data.token, data.user);
+        // 登录成功后的处理,例如重定向或显示成功消息
       } else {
-        // 处理错误
+        setError(data.error || '登录失败，请检查您的手机号和密码');
       }
     } catch (error) {
       console.error('Login failed:', error);
+      setError('登录失败，请稍后再试');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="phone" className="block text-sm font-medium text-bolt-elements-textPrimary">
           手机号
@@ -54,6 +61,7 @@ export function Login() {
           className="mt-1 block w-full px-3 py-2 bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor rounded-md shadow-sm focus:outline-none focus:ring-bolt-elements-button-primary-background focus:border-bolt-elements-button-primary-background"
         />
       </div>
+      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
       <div>
         <button
           type="submit"

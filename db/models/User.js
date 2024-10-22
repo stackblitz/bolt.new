@@ -1,6 +1,6 @@
-const { Model } = require('objection');
+import { Model } from 'objection';
 
-class User extends Model {
+export class User extends Model {
   static get tableName() {
     return 'users';
   }
@@ -26,4 +26,3 @@ class User extends Model {
   }
 }
 
-module.exports = User;

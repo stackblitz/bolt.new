@@ -1,4 +1,4 @@
-exports.up = function(knex) {
+export function up(knex) {
   return knex.schema.createTable('users', function(table) {
     table.increments('_id').primary().comment('主键ID');
     table.string('username', 255).notNullable().unique().comment('用户名');
@@ -13,8 +13,8 @@ exports.up = function(knex) {
     table.timestamp('_create').defaultTo(knex.fn.now()).comment('创建时间');
     table.timestamp('_update').defaultTo(knex.fn.now()).comment('更新时间');
   });
-};
+}
 
-exports.down = function(knex) {
+export function down(knex) {
   return knex.schema.dropTable('users');
-};
+}

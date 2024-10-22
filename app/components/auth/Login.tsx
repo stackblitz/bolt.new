@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { useAuth } from '~/hooks/useAuth';
 import type { LoginResponse } from '~/routes/api.auth.login';
 
-export function Login({ onClose }: { onClose: () => void }) {
+interface LoginProps {
+  onClose: () => void;
+  onLoginSuccess: () => void;
+}
+
+export function Login({ onClose, onLoginSuccess }: LoginProps) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +29,7 @@ export function Login({ onClose }: { onClose: () => void }) {
       if (response.ok && data.token && data.user) {
         login(data.token, data.user);
         onClose(); // 登录成功后关闭登录窗口
+        onLoginSuccess();
       } else {
         setError(data.error || '登录失败，请检查您的手机号和密码');
       }

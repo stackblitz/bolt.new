@@ -3,7 +3,12 @@ import { useAuth } from '~/hooks/useAuth';
 import type { RegisterResponse } from '~/routes/api.auth.register';
 import { uploadToOSS } from '~/utils/uploadToOSS';
 
-export function Register() {
+interface RegisterProps {
+  onClose: () => void;
+  onRegisterSuccess: () => void;
+}
+
+export function Register({ onClose, onRegisterSuccess }: RegisterProps) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -62,7 +67,8 @@ export function Register() {
       const data = await registerResponse.json() as RegisterResponse;
       if (registerResponse.ok && data.token && data.user) {
         login(data.token, data.user);
-        // 登录成功后，直接显示用户信息，不跳转
+        onClose(); // 关闭注册窗口
+        onRegisterSuccess(); // 调用注册成功的回调
       } else {
         setError(data.error || '注册失败，请稍后再试');
       }

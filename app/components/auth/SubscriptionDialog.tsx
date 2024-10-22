@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '~/hooks/useAuth';
 import { toast } from 'react-toastify';
 import { PaymentModal } from './PaymentModal';
+import { LoginRegisterDialog } from './LoginRegisterDialog';
 import type { SubscriptionPlan } from '~/types/subscription';
 import pkg from 'lodash';
 const {toString} = pkg;
@@ -46,6 +47,7 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
   const [isLoading, setIsLoading] = useState(true);
   const { user, token, isAuthenticated, login } = useAuth();
   const [paymentData, setPaymentData] = useState<PaymentResponse | null>(null);
+  const [isLoginRegisterOpen, setIsLoginRegisterOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -94,10 +96,7 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
 
   const handlePurchase = async (planId: string) => {
     if (!isAuthenticated) {
-      // 如果用户未登录，提示用户登录
-      toast.info('请先登录以继续购买');
-      // 这里可以触发登录流程，例如打开登录对话框
-      // openLoginDialog();
+      setIsLoginRegisterOpen(true);
       return;
     }
     if (!token) {
@@ -131,6 +130,12 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
   const handlePaymentSuccess = useCallback(() => {
     fetchUserSubscription(); // 重新获取订阅信息
     toast.success('订阅成功！');
+  }, [fetchUserSubscription]);
+
+  const handleLoginSuccess = useCallback(() => {
+    setIsLoginRegisterOpen(false);
+    fetchUserSubscription();
+    toast.success('登录成功！');
   }, [fetchUserSubscription]);
 
   if (isLoading) return null;
@@ -232,6 +237,11 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
           onPaymentSuccess={handlePaymentSuccess}
         />
       )}
+      <LoginRegisterDialog
+        isOpen={isLoginRegisterOpen}
+        onClose={() => setIsLoginRegisterOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </>
   );
 }

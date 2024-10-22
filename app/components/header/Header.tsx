@@ -7,11 +7,14 @@ import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 import { useState } from 'react';
 import { LoginDialog } from '~/components/auth/LoginDialog';
 import { RegisterDialog } from '~/components/auth/RegisterDialog';
+import { useAuth } from '~/hooks/useAuth';
+import { Avatar } from '~/components/ui/Avatar';
 
 export function Header() {
   const chat = useStore(chatStore);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <header
@@ -42,18 +45,27 @@ export function Header() {
             )}
           </ClientOnly>
         )}
-        <button 
-          onClick={() => setIsLoginOpen(true)}
-          className="px-4 py-2 text-sm font-medium text-bolt-elements-button-secondary-text bg-bolt-elements-button-secondary-background hover:bg-bolt-elements-button-secondary-backgroundHover rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-secondary-background"
-        >
-          登录
-        </button>
-        <button 
-          onClick={() => setIsRegisterOpen(true)}
-          className="px-4 py-2 text-sm font-medium text-bolt-elements-button-primary-text bg-bolt-elements-button-primary-background hover:bg-bolt-elements-button-primary-backgroundHover rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-primary-background"
-        >
-          注册
-        </button>
+        {isAuthenticated && user ? (
+          <div className="flex items-center gap-2">
+            <Avatar src={user.avatarUrl} alt={user.nickname} />
+            <span className="text-sm font-medium text-bolt-elements-textPrimary">{user.nickname}</span>
+          </div>
+        ) : (
+          <>
+            <button 
+              onClick={() => setIsLoginOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-bolt-elements-button-secondary-text bg-bolt-elements-button-secondary-background hover:bg-bolt-elements-button-secondary-backgroundHover rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-secondary-background"
+            >
+              登录
+            </button>
+            <button 
+              onClick={() => setIsRegisterOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-bolt-elements-button-primary-text bg-bolt-elements-button-primary-background hover:bg-bolt-elements-button-primary-backgroundHover rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-primary-background"
+            >
+              注册
+            </button>
+          </>
+        )}
       </div>
 
       <LoginDialog isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />

@@ -8,13 +8,13 @@ import { useState } from 'react';
 import { LoginDialog } from '~/components/auth/LoginDialog';
 import { RegisterDialog } from '~/components/auth/RegisterDialog';
 import { useAuth } from '~/hooks/useAuth';
-import { Avatar } from '~/components/ui/Avatar';
+import { UserMenu } from './UserMenu';
 
 export function Header() {
   const chat = useStore(chatStore);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
     <header
@@ -45,11 +45,8 @@ export function Header() {
             )}
           </ClientOnly>
         )}
-        {isAuthenticated && user ? (
-          <div className="flex items-center gap-2">
-            <Avatar src={user.avatarUrl} alt={user.nickname} />
-            <span className="text-sm font-medium text-bolt-elements-textPrimary">{user.nickname}</span>
-          </div>
+        {isAuthenticated ? (
+          <UserMenu />
         ) : (
           <>
             <button 

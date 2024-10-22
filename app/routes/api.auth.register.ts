@@ -2,30 +2,51 @@ import { json } from '@remix-run/node';
 import type { ActionFunction } from '@remix-run/node';
 import { validatePhoneNumber } from '~/utils/validation';
 import { db } from '~/utils/db.server';
-import { hashPassword } from '~/utils/auth.server';
+import { hashPassword, createToken } from '~/utils/auth.server';
+
+export interface RegisterResponse {
+  success: boolean;
+  token?: string;
+  user?: {
+    id: number;
+    phone: string;
+    nickname: string;
+    avatarUrl: string;
+  };
+  error?: string;
+}
 
 export const action: ActionFunction = async ({ request }) => {
-  const { phone, password } = await request.json() as { phone: string, password: string };
+  const { phone, password, nickname, avatarUrl } = await request.json() as { phone: string, password: string, nickname: string, avatarUrl: string };
 
   if (!validatePhoneNumber(phone)) {
-    return json({ error: '无效的手机号码' }, { status: 400 });
+    const response: RegisterResponse = { success: false, error: '无效的手机号码' };
+    return json(response, { status: 400 });
   }
 
   try {
     const existingUser = await db('users').where({ phone }).first();
     if (existingUser) {
-      return json({ error: '该手机号已被注册' }, { status: 400 });
+      const response: RegisterResponse = { success: false, error: '该手机号已被注册' };
+      return json(response, { status: 400 });
     }
 
     const hashedPassword = await hashPassword(password);
     const [userId] = await db('users').insert({
       phone,
-      password: hashedPassword
+      password: hashedPassword,
+      nickname,
+      avatar_url: avatarUrl
     });
 
-    return json({ success: true, userId });
+    const token = createToken(userId.toString());
+    const user = { id: userId, phone, nickname, avatarUrl };
+
+    const response: RegisterResponse = { success: true, token, user };
+    return json(response);
   } catch (error) {
     console.error('Registration error:', error);
-    return json({ error: '注册失败，请稍后再试' }, { status: 500 });
+    const response: RegisterResponse = { success: false, error: '注册失败，请稍后再试' };
+    return json(response, { status: 500 });
   }
 };

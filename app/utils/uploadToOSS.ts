@@ -26,7 +26,8 @@ export async function uploadToOSS(file: File): Promise<string> {
     }
 
     // 返回文件的URL
-    return `${ossPolicy.host}/${ossPolicy.key}`;
+    // return `${ossPolicy.host}/${ossPolicy.key}`;
+    return `/${ossPolicy.key}`;
   } catch (error) {
     console.error('Upload to OSS failed:', error);
     throw error;

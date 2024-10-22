@@ -13,7 +13,7 @@ export function Avatar({ src, alt, className = '' }: AvatarProps) {
   const handleError = () => {
     setError(true);
     // 设置一个默认的头像 URL
-    setImgSrc('/default-avatar.png');
+    setImgSrc('/avatars/default-avatar.png');
   };
 
   return (

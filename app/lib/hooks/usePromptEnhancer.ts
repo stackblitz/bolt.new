@@ -43,11 +43,21 @@ export function usePromptEnhancer() {
             break;
           }
 
-          _input += decoder.decode(value);
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
 
-          logger.trace('Set input', _input);
+          for (const line of lines) {
+            if (line.startsWith('0:')) {
+              const content = JSON.parse(line.slice(2));
+              _input += content;
+              setInput(_input);
+            } else if (line.startsWith('e:') || line.startsWith('d:')) {
+              // 处理元数据,如果需要的话
+              logger.trace('Metadata', line);
+            }
+          }
 
-          setInput(_input);
+          logger.trace('Processed input', _input);
         }
       } catch (error) {
         _error = error;
@@ -59,10 +69,6 @@ export function usePromptEnhancer() {
 
         setEnhancingPrompt(false);
         setPromptEnhanced(true);
-
-        setTimeout(() => {
-          setInput(_input);
-        });
       }
     }
   };

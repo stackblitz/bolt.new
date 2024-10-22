@@ -1,5 +1,5 @@
 import { json } from '@remix-run/cloudflare';
-import { db } from '~/lib/db.server';
+import { db } from '~/utils/db.server';
 
 export async function loader() {
   try {

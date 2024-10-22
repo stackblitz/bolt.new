@@ -1,10 +1,16 @@
 import { json } from '@remix-run/cloudflare';
-import { db } from '~/lib/db.server';
-import { requireUserId } from '~/lib/session.server';
+import { db } from '~/utils/db.server';
+import { requireAuth } from '~/middleware/auth.server';
 
-export async function loader({ request }) {
-  const userId = await requireUserId(request);
-  try {
+export async function loader({ request }: { request: Request }) {
+    let userId;
+    try {
+      userId = await requireAuth(request);
+    } catch (error) {
+      return error as Response;
+    }
+    
+    try {
     const userSubscription = await db.select(
       'subscription_plans.*',
       'user_transactions.tokens as tokensLeft',

@@ -1,6 +1,8 @@
 import CryptoJS from "crypto-js";
-import { toNumber } from "lodash";
+import pkg from 'lodash';
+
 import { env } from "node:process";
+const {toNumber} = pkg;
 
 export interface SDNotifyBody {
   no: string;

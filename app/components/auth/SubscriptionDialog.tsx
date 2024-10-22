@@ -4,6 +4,8 @@ import { useAuth } from '~/hooks/useAuth';
 import { toast } from 'react-toastify';
 import { PaymentModal } from './PaymentModal';
 import type { SubscriptionPlan } from '~/types/subscription';
+import pkg from 'lodash';
+const {toString} = pkg;
 
 interface SubscriptionDialogProps {
   isOpen: boolean;
@@ -42,16 +44,19 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
   const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, token, isAuthenticated, login } = useAuth();
   const [paymentData, setPaymentData] = useState<PaymentResponse | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      fetchSubscriptionData();
+      fetchSubscriptionPlans();
+      if (isAuthenticated && token) {
+        fetchUserSubscription();
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, isAuthenticated, token]);
 
-  const fetchSubscriptionData = async () => {
+  const fetchSubscriptionPlans = async () => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/subscription-plans');
@@ -60,23 +65,50 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
       }
       const data = await response.json() as SubscriptionPlan[];
       setSubscriptionPlans(data);
-
-      const userSubResponse = await fetch('/api/user-subscription');
-      const userSub = await userSubResponse.json() as UserSubscription;
-      setUserSubscription(userSub);
     } catch (error) {
-      console.error('获取订阅数据时出错:', error);
-      toast.error('获取订阅信息失败，请稍后再试');
+      console.error('获取订阅计划时出错:', error);
+      toast.error('获取订阅计划失败，请稍后再试');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const fetchUserSubscription = async () => {
+    if (!token) return;
+    try {
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+      const userSubResponse = await fetch('/api/user-subscription', { headers });
+      if (!userSubResponse.ok) {
+        throw new Error('获取用户订阅信息失败');
+      }
+      const userSub = await userSubResponse.json() as UserSubscription;
+      setUserSubscription(userSub);
+    } catch (error) {
+      console.error('获取用户订阅信息时出错:', error);
+      toast.error('获取用户订阅信息失败，请稍后再试');
+    }
+  };
+
   const handlePurchase = async (planId: string) => {
+    if (!isAuthenticated) {
+      // 如果用户未登录，提示用户登录
+      toast.info('请先登录以继续购买');
+      // 这里可以触发登录流程，例如打开登录对话框
+      // openLoginDialog();
+      return;
+    }
+    if (!token) {
+      toast.error('登录状态异常，请重新登录');
+      return;
+    }
     try {
       const response = await fetch('/api/purchase-subscription', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -97,24 +129,11 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
   };
 
   const handlePaymentSuccess = useCallback(() => {
-    fetchSubscriptionData(); // 重新获取订阅信息
+    fetchUserSubscription(); // 重新获取订阅信息
     toast.success('订阅成功！');
-  }, [fetchSubscriptionData]);
+  }, [fetchUserSubscription]);
 
-  // 类型守卫函数
-  function isSubscriptionPlan(plan: any): plan is SubscriptionPlan {
-    return (
-      typeof plan === 'object' &&
-      typeof plan._id === 'string' &&
-      typeof plan.name === 'string' &&
-      typeof plan.tokens === 'number' &&
-      typeof plan.price === 'number' &&
-      typeof plan.description === 'string' &&
-      (plan.save_percentage === null || typeof plan.save_percentage === 'number')
-    );
-  }
-
-  if (!user || isLoading) return null;
+  if (isLoading) return null;
 
   return (
     <>
@@ -129,11 +148,11 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
                 </p>
               </div>
 
-              {userSubscription && (
+              {isAuthenticated && userSubscription && (
                 <div className="bg-bolt-elements-background-depth-2 p-4 rounded-lg">
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-bolt-elements-textPrimary font-bold">{userSubscription.tokensLeft.toLocaleString()}</span>
+                      <span className="text-bolt-elements-textPrimary font-bold">{toString(userSubscription.tokensLeft)}</span>
                       <span className="text-bolt-elements-textSecondary"> 代币剩余。</span>
                       <span className="text-bolt-elements-textSecondary">
                         {userSubscription.plan.tokens.toLocaleString()}代币将在{new Date(userSubscription.nextReloadDate).toLocaleDateString()}后添加。
@@ -176,7 +195,7 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {subscriptionPlans.map((plan) => (
-                  <div key={plan._id} className={`bg-bolt-elements-background-depth-2 p-4 rounded-lg ${plan._id === userSubscription?.plan._id ? 'border-2 border-bolt-elements-item-contentAccent' : ''}`}>
+                  <div key={plan._id} className={`bg-bolt-elements-background-depth-2 p-4 rounded-lg ${isAuthenticated && plan._id === userSubscription?.plan._id ? 'border-2 border-bolt-elements-item-contentAccent' : ''}`}>
                     <h3 className="text-bolt-elements-textPrimary font-bold text-lg">{plan.name}</h3>
                     <div className="text-bolt-elements-textSecondary mb-2">
                       {(plan.tokens / 1000000).toFixed(0)}M 代币
@@ -191,12 +210,12 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
                     <button
                       onClick={() => handlePurchase(plan._id)}
                       className={`w-full py-2 rounded-md ${
-                        plan._id === userSubscription?.plan._id
+                        isAuthenticated && plan._id === userSubscription?.plan._id
                           ? 'bg-bolt-elements-button-secondary-background text-bolt-elements-button-secondary-text'
                           : 'bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text'
                       }`}
                     >
-                      {plan._id === userSubscription?.plan._id ? '管理当前计划' : `升级到${plan.name}`}
+                      {isAuthenticated && plan._id === userSubscription?.plan._id ? '管理当前计划' : `升级到${plan.name}`}
                     </button>
                   </div>
                 ))}

@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Dialog, DialogTitle, DialogDescription } from '~/components/ui/Dialog';
+import { Dialog, DialogTitle, DialogDescription, DialogRoot } from '~/components/ui/Dialog';
 import { Register } from '~/components/auth/Register';
 
 interface RegisterDialogProps {
@@ -9,15 +8,13 @@ interface RegisterDialogProps {
 
 export function RegisterDialog({ isOpen, onClose }: RegisterDialogProps) {
   return (
-    <Dialog onClose={onClose}>
-      {isOpen && (
-        <>
-          <DialogTitle>注册</DialogTitle>
-          <DialogDescription>
-            <Register />
-          </DialogDescription>
-        </>
-      )}
-    </Dialog>
+    <DialogRoot open={isOpen}>
+      <Dialog onBackdrop={onClose} onClose={onClose}>
+        <DialogTitle>注册</DialogTitle>
+        <DialogDescription>
+          <Register />
+        </DialogDescription>
+      </Dialog>
+    </DialogRoot>
   );
 }

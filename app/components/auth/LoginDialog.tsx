@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Dialog, DialogTitle, DialogDescription } from '~/components/ui/Dialog';
+import { Dialog, DialogTitle, DialogDescription, DialogRoot } from '~/components/ui/Dialog';
 import { Login } from '~/components/auth/Login';
 
 interface LoginDialogProps {
@@ -9,15 +8,13 @@ interface LoginDialogProps {
 
 export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
   return (
-    <Dialog onClose={onClose}>
-      {isOpen && (
-        <>
-          <DialogTitle>登录</DialogTitle>
-          <DialogDescription>
-            <Login />
-          </DialogDescription>
-        </>
-      )}
-    </Dialog>
+    <DialogRoot open={isOpen}>
+      <Dialog onBackdrop={onClose} onClose={onClose}>
+        <DialogTitle>登录</DialogTitle>
+        <DialogDescription>
+          <Login />
+        </DialogDescription>
+      </Dialog>
+    </DialogRoot>
   );
 }

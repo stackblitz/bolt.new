@@ -6,7 +6,7 @@ export default {
       host: 'devide.y2o.me',
       user: 'd8d_design_ai',
       password: 'Kw8aEcm37FwNaCk6',
-      database: 'bolt_development',
+      database: 'd8d_design_ai',
       port: 13306
     },
     migrations: {

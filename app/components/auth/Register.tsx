@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from '@remix-run/react';
 import { useAuth } from '~/hooks/useAuth';
 import type { RegisterResponse } from '~/routes/api.auth.register';
@@ -10,8 +10,22 @@ export function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatar(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +38,8 @@ export function Register() {
       return;
     }
     try {
-      // 上传头像到OSS
       const avatarUrl = await uploadToOSS(avatar);
 
-      // 注册用户
       const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -43,9 +55,7 @@ export function Register() {
 
       const data = await registerResponse.json() as RegisterResponse;
       if (registerResponse.ok && data.token && data.user) {
-        // 注册成功后直接登录
         login(data.token, data.user);
-        navigate('/dashboard');
       } else {
         alert(data.error || '注册失败，请稍后再试');
       }
@@ -84,17 +94,33 @@ export function Register() {
         />
       </div>
       <div>
-        <label htmlFor="avatar" className="block text-sm font-medium text-bolt-elements-textPrimary">
+        <label htmlFor="avatar" className="block text-sm font-medium text-bolt-elements-textPrimary mb-2">
           头像
         </label>
-        <input
-          type="file"
-          id="avatar"
-          accept="image/*"
-          onChange={(e) => setAvatar(e.target.files?.[0] || null)}
-          required
-          className="mt-1 block w-full px-3 py-2 bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor rounded-md shadow-sm focus:outline-none focus:ring-bolt-elements-button-primary-background focus:border-bolt-elements-button-primary-background"
-        />
+        <div className="flex items-center space-x-4">
+          <div className="w-24 h-24 border-2 border-dashed border-bolt-elements-borderColor rounded-full flex items-center justify-center overflow-hidden">
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="Avatar preview" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-bolt-elements-textSecondary">No image</span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="px-4 py-2 bg-bolt-elements-button-secondary-background text-bolt-elements-button-secondary-text rounded-md hover:bg-bolt-elements-button-secondary-backgroundHover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-secondary-background"
+          >
+            选择头像
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            id="avatar"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
+        </div>
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-bolt-elements-textPrimary">

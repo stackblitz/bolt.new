@@ -12,7 +12,7 @@ export function LoginDialog({ isOpen, onClose }: LoginDialogProps) {
       <Dialog onBackdrop={onClose} onClose={onClose}>
         <DialogTitle>登录</DialogTitle>
         <DialogDescription>
-          <Login />
+          <Login onClose={onClose} />
         </DialogDescription>
       </Dialog>
     </DialogRoot>

@@ -24,59 +24,68 @@ function* mockDataGenerator(message: string) {
 
 // 环境变量或配置来控制是否使用模拟数据
 // const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true';
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
-export async function action({ context, request }: ActionFunctionArgs) {
-  const { message } = await request.json<{ message: string }>();
+export async function action({ request, context }: ActionFunctionArgs) {
+  const { message } = (await request.json()) as { message: string };
 
-  try {
-    if (USE_MOCK_DATA) {
-      // 使用模拟数据
-      const stream = new ReadableStream({
-        async start(controller) {
-          for (const chunk of mockDataGenerator(message)) {
-            controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk)}\n`));
-            await new Promise(resolve => setTimeout(resolve, 50)); // 模拟延迟
-          }
-          controller.enqueue(encoder.encode('e:{"finishReason":"unknown","usage":{"promptTokens":null,"completionTokens":null},"isContinued":false}\n'));
-          controller.enqueue(encoder.encode('d:{"finishReason":"unknown","usage":{"promptTokens":null,"completionTokens":null}}\n'));
-          controller.close();
-        }
-      });
+  let stream: ReadableStream;
 
-      return new Response(stream, {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-      });
-    } else {
-      // 使用实际 AI 服务
-      const result = await streamText(
-        [
-          {
-            role: 'user',
-            content: stripIndents`
-            I want you to improve the user prompt that is wrapped in \`<original_prompt>\` tags.
-
-            IMPORTANT: Only respond with the improved prompt and nothing else!
-
-            Also, please ensure your response is entirely in Chinese.
-
-            <original_prompt>
-              ${message}
-            </original_prompt>
-          `,
-          },
-        ],
-        context.cloudflare.env,
-      );
-
-      return result.toDataStreamResponse();
-    }
-  } catch (error) {
-    console.log(error);
-
-    throw new Response(null, {
-      status: 500,
-      statusText: 'Internal Server Error',
-    });
+  if (USE_MOCK_DATA) {
+    stream = createMockStream(message);
+  } else {
+    stream = await createAIStream(message, context.cloudflare.env);
   }
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    },
+  });
+}
+
+function createMockStream(message: string): ReadableStream {
+  return new ReadableStream({
+    async start(controller) {
+      for (const chunk of mockDataGenerator(message)) {
+        controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk)}\n`));
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      controller.enqueue(
+        encoder.encode(
+          'e:{"finishReason":"unknown","usage":{"promptTokens":null,"completionTokens":null},"isContinued":false}\n',
+        ),
+      );
+      controller.enqueue(
+        encoder.encode('d:{"finishReason":"unknown","usage":{"promptTokens":null,"completionTokens":null}}\n'),
+      );
+      controller.close();
+    },
+  });
+}
+
+async function createAIStream(message: string, env: any): Promise<ReadableStream> {
+  const result = await streamText(
+    [
+      {
+        role: 'user',
+        content: stripIndents`
+          I want you to improve the user prompt that is wrapped in \`<original_prompt>\` tags.
+
+          IMPORTANT: Only respond with the improved prompt and nothing else!
+
+          Also, please ensure your response is entirely in Chinese.
+
+          <original_prompt>
+            ${message}
+          </original_prompt>
+        `,
+      },
+    ],
+    env,
+  );
+
+  return result.toDataStreamResponse().body as ReadableStream;
 }

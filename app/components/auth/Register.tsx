@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from '@remix-run/react';
-import { validatePhoneNumber } from '~/utils/validation';
 
 export function Register() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [phoneError, setPhoneError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validatePhoneNumber(phone)) {
-      setPhoneError('请输入有效的手机号码');
-      return;
-    }
     if (password !== confirmPassword) {
       alert('两次输入的密码不一致');
       return;
@@ -45,14 +39,10 @@ export function Register() {
           type="tel"
           id="phone"
           value={phone}
-          onChange={(e) => {
-            setPhone(e.target.value);
-            setPhoneError('');
-          }}
+          onChange={(e) => setPhone(e.target.value)}
           required
           className="mt-1 block w-full px-3 py-2 bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor rounded-md shadow-sm focus:outline-none focus:ring-bolt-elements-button-primary-background focus:border-bolt-elements-button-primary-background"
         />
-        {phoneError && <p className="mt-2 text-sm text-red-600">{phoneError}</p>}
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-bolt-elements-textPrimary">

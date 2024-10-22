@@ -12,7 +12,7 @@ export function RegisterDialog({ isOpen, onClose }: RegisterDialogProps) {
       <Dialog onBackdrop={onClose} onClose={onClose}>
         <DialogTitle>注册</DialogTitle>
         <DialogDescription>
-          <Register />
+          <Register onClose={onClose} onRegisterSuccess={onClose} />
         </DialogDescription>
       </Dialog>
     </DialogRoot>

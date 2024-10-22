@@ -16,7 +16,7 @@ export interface LoginResponse {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const { phone, password } = await request.json() as { phone: string, password: string };
+  const { phone, password } = (await request.json()) as { phone: string; password: string };
 
   if (!validatePhoneNumber(phone)) {
     return json({ error: '无效的手机号码' }, { status: 400 });
@@ -27,9 +27,19 @@ export const action: ActionFunction = async ({ request }) => {
     if (!user) {
       return json({ error: '手机号或密码不正确' }, { status: 401 });
     }
-    
+
     const token = createToken(user._id.toString());
-    return json({ token });
+    const response: LoginResponse = {
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        phone: user.phone,
+        nickname: user.nickname,
+        avatarUrl: user.avatar_url,
+      },
+    };
+    return json(response);
   } catch (error) {
     console.error('Login error:', error);
     return json({ error: '登录失败，请稍后再试' }, { status: 500 });

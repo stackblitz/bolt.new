@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from '@remix-run/react';
 import { useAuth } from '~/hooks/useAuth';
 import type { RegisterResponse } from '~/routes/api.auth.register';
 import { uploadToOSS } from '~/utils/uploadToOSS';
@@ -14,7 +13,6 @@ export function Register() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {

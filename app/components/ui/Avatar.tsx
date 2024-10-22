@@ -7,7 +7,7 @@ interface AvatarProps {
   className?: string;
 }
 
-export function Avatar({ src, alt, className = '' }: AvatarProps) {
+export function Avatar({ src = '', alt, className = '' }: AvatarProps) {
   const [imgSrc, setImgSrc] = useState(src.startsWith('http') ? src : `${env.OSS_HOST}${src}`);
   const [error, setError] = useState(false);
 

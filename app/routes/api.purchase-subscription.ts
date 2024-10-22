@@ -1,17 +1,23 @@
 import { json } from '@remix-run/cloudflare';
 import { db } from '~/utils/db.server';
-import { requireUserId } from '../utils/session.server'; // 使用相对路径
 import SDPay from '~/utils/SDPay.server';
+import { requireAuth } from '~/middleware/auth.server';
 
 export async function action({ request }: { request: Request }) {
-  const userId = await requireUserId(request);
+  let userId;
+  try {
+    userId = await requireAuth(request);
+  } catch (error) {
+    return error as Response;
+  }
+
   const { planId, billingCycle } = await request.json() as { planId: string; billingCycle: string };
 
   try {
     // 获取订阅计划详情
     const plan = await db('subscription_plans').where('_id', planId).first();
     if (!plan) {
-      return json({ error: 'Invalid subscription plan' }, { status: 400 });
+      return json({ error: '无效的订阅计划' }, { status: 400 });
     }
 
     // 计算实际价格和代币数量
@@ -47,7 +53,7 @@ export async function action({ request }: { request: Request }) {
 
     return json({ success: true, paymentData });
   } catch (error) {
-    console.error('Error initiating subscription purchase:', error);
-    return json({ error: 'Failed to initiate subscription purchase' }, { status: 500 });
+    console.error('初始化订阅购买时出错:', error);
+    return json({ error: '初始化订阅购买失败' }, { status: 500 });
   }
 }

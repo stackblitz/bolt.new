@@ -3,19 +3,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '~/hooks/useAuth';
 import { toast } from 'react-toastify';
 import { PaymentModal } from './PaymentModal';
+import type { SubscriptionPlan } from '~/types/subscription';
 
 interface SubscriptionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-}
-
-interface SubscriptionPlan {
-  _id: number;
-  name: string;
-  tokens: number;
-  price: number;
-  description: string;
-  save_percentage?: number;
 }
 
 interface UserSubscription {
@@ -39,6 +31,12 @@ interface PaymentResponse {
   return_url: string;
 }
 
+interface PurchaseResponse {
+  success: boolean;
+  paymentData?: PaymentResponse;
+  error?: string;
+}
+
 export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
@@ -48,31 +46,33 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
   const [paymentData, setPaymentData] = useState<PaymentResponse | null>(null);
 
   useEffect(() => {
-    if (isOpen && user) {
+    if (isOpen) {
       fetchSubscriptionData();
     }
-  }, [isOpen, user]);
+  }, [isOpen]);
 
   const fetchSubscriptionData = async () => {
     setIsLoading(true);
     try {
-      const [plansResponse, userSubResponse] = await Promise.all([
-        fetch('/api/subscription-plans'),
-        fetch('/api/user-subscription')
-      ]);
-      const plans = await plansResponse.json();
-      const userSub = await userSubResponse.json();
-      setSubscriptionPlans(plans);
+      const response = await fetch('/api/subscription-plans');
+      if (!response.ok) {
+        throw new Error('获取订阅计划失败');
+      }
+      const data = await response.json() as SubscriptionPlan[];
+      setSubscriptionPlans(data);
+
+      const userSubResponse = await fetch('/api/user-subscription');
+      const userSub = await userSubResponse.json() as UserSubscription;
       setUserSubscription(userSub);
     } catch (error) {
-      console.error('Error fetching subscription data:', error);
-      toast.error('获取订阅信息失败,请稍后重试。');
+      console.error('获取订阅数据时出错:', error);
+      toast.error('获取订阅信息失败，请稍后再试');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handlePurchase = async (planId: number) => {
+  const handlePurchase = async (planId: string) => {
     try {
       const response = await fetch('/api/purchase-subscription', {
         method: 'POST',
@@ -84,11 +84,11 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
           billingCycle,
         }),
       });
-      const result = await response.json();
-      if (response.ok && result.paymentData) {
+      const result = await response.json() as PurchaseResponse;
+      if (response.ok && result.success && result.paymentData) {
         setPaymentData(result.paymentData);
       } else {
-        toast.error(result.message || '获取支付信息失败,请稍后重试。');
+        toast.error(result.error || '获取支付信息失败,请稍后重试。');
       }
     } catch (error) {
       console.error('Error initiating purchase:', error);
@@ -100,6 +100,19 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
     fetchSubscriptionData(); // 重新获取订阅信息
     toast.success('订阅成功！');
   }, [fetchSubscriptionData]);
+
+  // 类型守卫函数
+  function isSubscriptionPlan(plan: any): plan is SubscriptionPlan {
+    return (
+      typeof plan === 'object' &&
+      typeof plan._id === 'string' &&
+      typeof plan.name === 'string' &&
+      typeof plan.tokens === 'number' &&
+      typeof plan.price === 'number' &&
+      typeof plan.description === 'string' &&
+      (plan.save_percentage === null || typeof plan.save_percentage === 'number')
+    );
+  }
 
   if (!user || isLoading) return null;
 

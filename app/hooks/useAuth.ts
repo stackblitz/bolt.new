@@ -36,7 +36,6 @@ export function useAuth() {
     localStorage.removeItem('user');
     setIsAuthenticated(false);
     setUser(null);
-    navigate('/login');
   };
 
   return { isAuthenticated, isLoading, user, login, logout };

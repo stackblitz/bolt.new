@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from '@remix-run/react';
 import { useAuth } from '~/hooks/useAuth';
-import { getOSSUploadPolicy } from '~/utils/aliyunOSS';
-
-// 导入我们刚刚定义的接口
 import type { RegisterResponse } from '~/routes/api.auth.register';
+import { uploadToOSS } from '~/utils/uploadToOSS';
 
 export function Register() {
   const [phone, setPhone] = useState('');
@@ -26,26 +24,8 @@ export function Register() {
       return;
     }
     try {
-      // 获取OSS上传策略
-      const ossPolicy = await getOSSUploadPolicy();
-
       // 上传头像到OSS
-      const formData = new FormData();
-      Object.entries(ossPolicy).forEach(([key, value]) => {
-        formData.append(key, value as string);
-      });
-      formData.append('file', avatar);
-
-      const uploadResponse = await fetch(ossPolicy.host, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('头像上传失败');
-      }
-
-      const avatarUrl = `${ossPolicy.host}/${ossPolicy.key}`;
+      const avatarUrl = await uploadToOSS(avatar);
 
       // 注册用户
       const registerResponse = await fetch('/api/auth/register', {
@@ -65,6 +45,7 @@ export function Register() {
       if (registerResponse.ok && data.token && data.user) {
         // 注册成功后直接登录
         login(data.token, data.user);
+        navigate('/dashboard');
       } else {
         alert(data.error || '注册失败，请稍后再试');
       }

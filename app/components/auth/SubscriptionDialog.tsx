@@ -7,6 +7,7 @@ import { LoginRegisterDialog } from './LoginRegisterDialog';
 import type { SubscriptionPlan } from '~/types/subscription';
 import pkg from 'lodash';
 const {toString} = pkg;
+import { TokenReloadModal } from './TokenReloadModal'; // 新增导入
 
 interface SubscriptionDialogProps {
   isOpen: boolean;
@@ -48,6 +49,7 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
   const { user, token, isAuthenticated, login } = useAuth();
   const [paymentData, setPaymentData] = useState<PaymentResponse | null>(null);
   const [isLoginRegisterOpen, setIsLoginRegisterOpen] = useState(false);
+  const [isTokenReloadModalOpen, setIsTokenReloadModalOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -138,6 +140,15 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
     toast.success('登录成功！');
   }, [fetchUserSubscription]);
 
+  const handleTokenReloadClick = () => {
+    setIsTokenReloadModalOpen(true);
+  };
+
+  const handleTokenReloadSuccess = useCallback(() => {
+    fetchUserSubscription(); // 重新获取用户订阅信息
+    toast.success('代币充值成功！');
+  }, [fetchUserSubscription]);
+
   if (isLoading) return null;
 
   return (
@@ -167,8 +178,17 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
                       <span className="text-bolt-elements-textSecondary">需要更多代币？</span>
                       <br />
                       <span className="text-bolt-elements-textSecondary">
-                        升级您的计划或购买
-                        <a href="#" className="text-bolt-elements-item-contentAccent hover:underline">代币充值包</a>
+                        升级您的计划或
+                        <a 
+                          href="#" 
+                          className="text-bolt-elements-item-contentAccent hover:underline"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTokenReloadClick();
+                          }}
+                        >
+                          购买代币充值包
+                        </a>
                       </span>
                     </div>
                   </div>
@@ -241,6 +261,11 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
         isOpen={isLoginRegisterOpen}
         onClose={() => setIsLoginRegisterOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+      />
+      <TokenReloadModal
+        isOpen={isTokenReloadModalOpen}
+        onClose={() => setIsTokenReloadModalOpen(false)}
+        onReloadSuccess={handleTokenReloadSuccess}
       />
     </>
   );

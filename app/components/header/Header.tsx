@@ -9,12 +9,14 @@ import { LoginDialog } from '~/components/auth/LoginDialog';
 import { RegisterDialog } from '~/components/auth/RegisterDialog';
 import { useAuth } from '~/hooks/useAuth';
 import { UserMenu } from './UserMenu';
+import { SubscriptionDialog } from '~/components/auth/SubscriptionDialog';
 
 export function Header() {
   const chat = useStore(chatStore);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
 
   return (
     <header
@@ -63,10 +65,19 @@ export function Header() {
             </button>
           </>
         )}
+        {isAuthenticated && (
+          <button 
+            onClick={() => setIsSubscriptionOpen(true)}
+            className="px-4 py-2 text-sm font-medium text-bolt-elements-button-secondary-text bg-bolt-elements-button-secondary-background hover:bg-bolt-elements-button-secondary-backgroundHover rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-secondary-background"
+          >
+            订阅管理
+          </button>
+        )}
       </div>
 
       <LoginDialog isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
       <RegisterDialog isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)} />
+      <SubscriptionDialog isOpen={isSubscriptionOpen} onClose={() => setIsSubscriptionOpen(false)} />
     </header>
   );
 }

@@ -44,13 +44,13 @@ export function Header() {
         )}
         <button 
           onClick={() => setIsLoginOpen(true)}
-          className="text-bolt-elements-textPrimary hover:text-bolt-elements-textSecondary transition-colors"
+          className="px-4 py-2 text-sm font-medium text-bolt-elements-button-secondary-text bg-bolt-elements-button-secondary-background hover:bg-bolt-elements-button-secondary-backgroundHover rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-secondary-background"
         >
           登录
         </button>
         <button 
           onClick={() => setIsRegisterOpen(true)}
-          className="text-bolt-elements-textPrimary hover:text-bolt-elements-textSecondary transition-colors"
+          className="px-4 py-2 text-sm font-medium text-bolt-elements-button-primary-text bg-bolt-elements-button-primary-background hover:bg-bolt-elements-button-primary-backgroundHover rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-primary-background"
         >
           注册
         </button>

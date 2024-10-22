@@ -1,15 +1,25 @@
-import { json } from '@remix-run/cloudflare';
-import { type ActionFunction } from '@remix-run/node';
+import { json } from '@remix-run/node';
+import type { ActionFunction } from '@remix-run/node';
+import { validatePhoneNumber } from '~/utils/validation';
 import { verifyLogin, createToken } from '~/utils/auth.server';
 
 export const action: ActionFunction = async ({ request }) => {
-  const { email, password } = (await request.json()) as { email: string; password: string };
-  
-  const user = await verifyLogin(email, password);
-  if (!user) {
-    return json({ success: false, error: 'Invalid credentials' }, { status: 400 });
+  const { phone, password } = await request.json() as { phone: string, password: string };
+
+  if (!validatePhoneNumber(phone)) {
+    return json({ error: '无效的手机号码' }, { status: 400 });
   }
-  
-  const token = createToken(user._id.toString());
-  return json({ success: true, token });
+
+  try {
+    const user = await verifyLogin(phone, password);
+    if (!user) {
+      return json({ error: '手机号或密码不正确' }, { status: 401 });
+    }
+    
+    const token = createToken(user._id.toString());
+    return json({ token });
+  } catch (error) {
+    console.error('Login error:', error);
+    return json({ error: '登录失败，请稍后再试' }, { status: 500 });
+  }
 };

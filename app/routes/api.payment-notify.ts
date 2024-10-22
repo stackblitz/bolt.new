@@ -35,6 +35,21 @@ export async function action({ request }: { request: Request }) {
       await trx('users')
         .where('_id', transaction.user_id)
         .increment('token_balance', transaction.tokens);
+
+      // 如果是订阅计划,更新用户的订阅信息
+      if (transaction.type === 'subscription') {
+        const now = new Date();
+        const expirationDate = new Date(now.setMonth(now.getMonth() + (transaction.billing_cycle === 'yearly' ? 12 : 1)));
+
+        await trx('user_subscriptions').insert({
+          user_id: transaction.user_id,
+          plan_id: transaction.plan_id,
+          start_date: db.fn.now(),
+          expiration_date: expirationDate,
+          status: 'active',
+        }).onConflict('user_id')
+        .merge();
+      }
     });
 
     return json({ success: true });

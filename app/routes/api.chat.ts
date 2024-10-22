@@ -88,8 +88,11 @@ async function recordTokenConsumption(userId: string, tokensConsumed: number) {
         throw new Error('Insufficient token balance');
       }
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error recording token consumption:', error);
+    if (error instanceof Error && error.message === 'Insufficient token balance') {
+      throw new Response(null, { status: 402, statusText: 'Payment Required' });
+    }
     throw error;
   }
 }

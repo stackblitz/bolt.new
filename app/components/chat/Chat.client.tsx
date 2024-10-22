@@ -12,6 +12,7 @@ import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
+import { SubscriptionDialog } from '~/components/auth/SubscriptionDialog';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -24,10 +25,28 @@ export function Chat() {
   renderLogger.trace('Chat');
 
   const { ready, initialMessages, storeMessageHistory } = useChatHistory();
+  const [isSubscriptionDialogOpen, setIsSubscriptionDialogOpen] = useState(false);
+
+  const handleError = (error: Error) => {
+    console.error('Chat error:', error);
+    if (error.message === 'Insufficient token balance') {
+      toast.error('代币余额不足,请购买更多代币或升级订阅计划', {
+        onClick: () => setIsSubscriptionDialogOpen(true),
+      });
+    } else {
+      toast.error('发生错误,请稍后重试');
+    }
+  };
 
   return (
     <>
-      {ready && <ChatImpl initialMessages={initialMessages} storeMessageHistory={storeMessageHistory} />}
+      {ready && (
+        <ChatImpl 
+          initialMessages={initialMessages} 
+          storeMessageHistory={storeMessageHistory} 
+          onError={handleError}
+        />
+      )}
       <ToastContainer
         closeButton={({ closeToast }) => {
           return (
@@ -48,23 +67,27 @@ export function Chat() {
               return <div className="i-ph:warning-circle-bold text-bolt-elements-icon-error text-2xl" />;
             }
           }
-
           return undefined;
         }}
         position="bottom-right"
         pauseOnFocusLoss
         transition={toastAnimation}
       />
+      <SubscriptionDialog 
+        isOpen={isSubscriptionDialogOpen} 
+        onClose={() => setIsSubscriptionDialogOpen(false)} 
+      />
     </>
   );
 }
 
-interface ChatProps {
+interface ChatImplProps {
   initialMessages: Message[];
-  storeMessageHistory: (messages: Message[]) => Promise<void>;
+  storeMessageHistory: (messages: Message[]) => void | Promise<void>;
+  onError: (error: Error) => void;
 }
 
-export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProps) => {
+const ChatImpl = memo(function ChatImpl({ initialMessages, storeMessageHistory, onError }: ChatImplProps) {
   useShortcuts();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -75,7 +98,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const [animationScope, animate] = useAnimate();
 
-  const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
+  const { messages, isLoading, input, handleInputChange, setInput, stop, append, reload, error } = useChat({
     api: '/api/chat',
     onError: (error) => {
       logger.error('Request failed\n\n', error);
@@ -85,6 +108,15 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       logger.debug('Finished streaming');
     },
     initialMessages,
+    onResponse(response) {
+      if (response.status === 401) {
+        // 处理未授权错误
+        onError(new Error('Unauthorized'));
+      } else if (response.status === 402) {
+        // 处理代币不足错误
+        onError(new Error('Insufficient token balance'));
+      }
+    },
   });
 
   const { enhancingPrompt, promptEnhanced, enhancePrompt, resetEnhancer } = usePromptEnhancer();
@@ -100,9 +132,12 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     parseMessages(messages, isLoading);
 
     if (messages.length > initialMessages.length) {
-      storeMessageHistory(messages).catch((error) => toast.error(error.message));
+      const result = storeMessageHistory(messages);
+      if (result instanceof Promise) {
+        result.catch((error: Error) => toast.error(error.message));
+      }
     }
-  }, [messages, isLoading, parseMessages]);
+  }, [messages, isLoading, parseMessages, initialMessages.length, storeMessageHistory]);
 
   const scrollTextArea = () => {
     const textarea = textareaRef.current;
@@ -197,6 +232,12 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   };
 
   const [messageRef, scrollRef] = useSnapScroll();
+
+  useEffect(() => {
+    if (error) {
+      onError(error);
+    }
+  }, [error, onError]);
 
   return (
     <BaseChat

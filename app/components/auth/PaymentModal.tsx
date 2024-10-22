@@ -24,28 +24,42 @@ interface PaymentResponse {
   return_url: string;
 }
 
+interface PaymentStatusResponse {
+  status: string;
+  error?: string;
+}
+
 export function PaymentModal({ isOpen, onClose, paymentData, onPaymentSuccess }: PaymentModalProps) {
   const [timeLeft, setTimeLeft] = useState(parseInt(paymentData.expires_in));
 
   const checkPaymentStatus = useCallback(async () => {
     try {
       const response = await fetch(`/api/check-payment-status?orderNo=${paymentData.no}`);
-      const data = await response.json();
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.error('Order not found');
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json() as PaymentStatusResponse;
       if (data.status === 'completed') {
-        clearInterval(timer);
         onPaymentSuccess();
         onClose();
         toast.success('支付成功！');
       }
     } catch (error) {
       console.error('Error checking payment status:', error);
+      toast.error('检查支付状态时出错，请稍后再试');
     }
   }, [paymentData.no, onPaymentSuccess, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    const timer = setInterval(() => {
+    let timer: NodeJS.Timeout;
+
+    const checkAndUpdateStatus = () => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
           clearInterval(timer);
@@ -57,7 +71,9 @@ export function PaymentModal({ isOpen, onClose, paymentData, onPaymentSuccess }:
       });
 
       checkPaymentStatus();
-    }, 3000); // 每3秒检查一次支付状态
+    };
+
+    timer = setInterval(checkAndUpdateStatus, 3000); // 每3秒检查一次支付状态
 
     return () => clearInterval(timer);
   }, [isOpen, onClose, checkPaymentStatus]);

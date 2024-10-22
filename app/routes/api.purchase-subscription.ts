@@ -35,7 +35,7 @@ export async function action({ request }: { request: Request }) {
       orderNo,
       `${plan.name} 订阅 (${billingCycle === 'yearly' ? '年付' : '月付'})`,
       'alipay', // 或其他支付方式
-      price * 100, // 转换为分
+      price, // 不用转换为分
       userId.toString()
     );
 

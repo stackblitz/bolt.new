@@ -15,10 +15,19 @@ interface SubscriptionDialogProps {
 }
 
 interface UserSubscription {
-  plan: SubscriptionPlan;
-  tokensLeft: number;
-  nextReloadDate: string;
-}
+    tokenBalance: number;
+    subscription: {
+      plan: {
+        _id: string;
+        name: string;
+        tokens: number;
+        price: number;
+        description: string;
+        save_percentage?: number;
+      };
+      expirationDate: string;
+    } | null;
+  }
 
 interface PaymentResponse {
   status: string;
@@ -164,14 +173,14 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
                 </p>
               </div>
 
-              {isAuthenticated && userSubscription && (
+              {isAuthenticated && userSubscription && userSubscription.subscription && (
                 <div className="bg-bolt-elements-background-depth-2 p-4 rounded-lg">
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-bolt-elements-textPrimary font-bold">{toString(userSubscription.tokensLeft)}</span>
+                      <span className="text-bolt-elements-textPrimary font-bold">{toString(userSubscription.tokenBalance)}</span>
                       <span className="text-bolt-elements-textSecondary"> 代币剩余。</span>
                       <span className="text-bolt-elements-textSecondary">
-                        {userSubscription.plan.tokens.toLocaleString()}代币将在{new Date(userSubscription.nextReloadDate).toLocaleDateString()}后添加。
+                        {userSubscription.subscription.plan.tokens.toLocaleString()}代币将在{new Date(userSubscription.subscription.expirationDate).toLocaleDateString()}后添加。
                       </span>
                     </div>
                     <div className="text-right">
@@ -220,7 +229,7 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {subscriptionPlans.map((plan) => (
-                  <div key={plan._id} className={`bg-bolt-elements-background-depth-2 p-4 rounded-lg ${isAuthenticated && plan._id === userSubscription?.plan._id ? 'border-2 border-bolt-elements-item-contentAccent' : ''}`}>
+                  <div key={plan._id} className={`bg-bolt-elements-background-depth-2 p-4 rounded-lg ${isAuthenticated && userSubscription && userSubscription.subscription && plan._id === userSubscription.subscription.plan._id ? 'border-2 border-bolt-elements-item-contentAccent' : ''}`}>
                     <h3 className="text-bolt-elements-textPrimary font-bold text-lg">{plan.name}</h3>
                     <div className="text-bolt-elements-textSecondary mb-2">
                       {(plan.tokens / 1000000).toFixed(0)}M 代币
@@ -235,12 +244,12 @@ export function SubscriptionDialog({ isOpen, onClose }: SubscriptionDialogProps)
                     <button
                       onClick={() => handlePurchase(plan._id)}
                       className={`w-full py-2 rounded-md ${
-                        isAuthenticated && plan._id === userSubscription?.plan._id
+                        isAuthenticated && userSubscription && userSubscription.subscription && plan._id === userSubscription.subscription.plan._id
                           ? 'bg-bolt-elements-button-secondary-background text-bolt-elements-button-secondary-text'
                           : 'bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text'
                       }`}
                     >
-                      {isAuthenticated && plan._id === userSubscription?.plan._id ? '管理当前计划' : `升级到${plan.name}`}
+                      {isAuthenticated && userSubscription && userSubscription.subscription && plan._id === userSubscription.subscription.plan._id ? '管理当前计划' : `升级到${plan.name}`}
                     </button>
                   </div>
                 ))}

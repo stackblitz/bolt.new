@@ -30,9 +30,16 @@ export async function loader({ request }: { request: Request }) {
 
     return json({
       tokenBalance: user.token_balance,
-      subscription: subscription
+      subscription: subscription && subscriptionPlan
         ? {
-            planName: subscriptionPlan.name,
+            plan: {
+              _id: subscriptionPlan._id,
+              name: subscriptionPlan.name,
+              tokens: subscriptionPlan.tokens,
+              price: subscriptionPlan.price,
+              description: subscriptionPlan.description,
+              save_percentage: subscriptionPlan.save_percentage,
+            },
             expirationDate: subscription.expiration_date,
           }
         : null,

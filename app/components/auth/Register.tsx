@@ -11,6 +11,8 @@ export function Register() {
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -29,14 +31,20 @@ export function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
     if (password !== confirmPassword) {
-      alert('两次输入的密码不一致');
+      setError('两次输入的密码不一致');
+      setIsLoading(false);
       return;
     }
     if (!avatar) {
-      alert('请上传头像');
+      setError('请上传头像');
+      setIsLoading(false);
       return;
     }
+
     try {
       const avatarUrl = await uploadToOSS(avatar);
 
@@ -56,17 +64,25 @@ export function Register() {
       const data = await registerResponse.json() as RegisterResponse;
       if (registerResponse.ok && data.token && data.user) {
         login(data.token, data.user);
+        // 登录成功后，直接显示用户信息，不跳转
       } else {
-        alert(data.error || '注册失败，请稍后再试');
+        setError(data.error || '注册失败，请稍后再试');
       }
     } catch (error) {
       console.error('Registration failed:', error);
-      alert('注册失败，请稍后再试');
+      setError('注册失败，请稍后再试');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
       <div>
         <label htmlFor="phone" className="block text-sm font-medium text-bolt-elements-textPrimary">
           手机号
@@ -151,9 +167,12 @@ export function Register() {
       <div>
         <button
           type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-bolt-elements-button-primary-text bg-bolt-elements-button-primary-background hover:bg-bolt-elements-button-primary-backgroundHover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-primary-background"
+          disabled={isLoading}
+          className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-bolt-elements-button-primary-text bg-bolt-elements-button-primary-background hover:bg-bolt-elements-button-primary-backgroundHover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-primary-background ${
+            isLoading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
-          注册
+          {isLoading ? '注册中...' : '注册'}
         </button>
       </div>
     </form>

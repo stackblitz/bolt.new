@@ -30,8 +30,15 @@ function getDb() {
     },
     pool: {
       min: 2,
-      max: 10
-    }
+      max: 10,
+      createTimeoutMillis: 3000,
+      acquireTimeoutMillis: 30000,
+      idleTimeoutMillis: 30000,
+      reapIntervalMillis: 1000,
+      createRetryIntervalMillis: 100,
+      propagateCreateError: false, // 重要：这将允许连接池在初始连接失败时继续尝试
+    },
+    acquireConnectionTimeout: 60000,
   });
 }
 

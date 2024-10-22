@@ -11,20 +11,34 @@ export async function loader({ request }: { request: Request }) {
     }
     
     try {
-    const userSubscription = await db.select(
-      'subscription_plans.*',
-      'user_transactions.tokens as tokensLeft',
-      db.raw('DATE_ADD(user_transactions._create, INTERVAL 1 MONTH) as nextReloadDate')
-    )
-    .from('user_transactions')
-    .join('subscription_plans', 'user_transactions.plan_id', 'subscription_plans._id')
-    .where('user_transactions.user_id', userId)
-    .orderBy('user_transactions._create', 'desc')
-    .first();
+    const user = await db('users')
+      .select('token_balance')
+      .where('_id', userId)
+      .first();
 
-    return json(userSubscription);
+    const subscription = await db('user_subscriptions')
+      .where('user_id', userId)
+      .where('expiration_date', '>', db.fn.now())
+      .orderBy('expiration_date', 'desc')
+      .first();
+
+    const subscriptionPlan = subscription
+      ? await db('subscription_plans')
+          .where('_id', subscription.plan_id)
+          .first()
+      : null;
+
+    return json({
+      tokenBalance: user.token_balance,
+      subscription: subscription
+        ? {
+            planName: subscriptionPlan.name,
+            expirationDate: subscription.expiration_date,
+          }
+        : null,
+    });
   } catch (error) {
     console.error('Error fetching user subscription:', error);
-    return json({ error: 'Failed to fetch user subscription' }, { status: 500 });
+    return json({ error: '获取用户订阅信息失败' }, { status: 500 });
   }
 }

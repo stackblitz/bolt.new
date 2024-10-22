@@ -7,7 +7,7 @@ export default {
       user: 'd8d_design_ai',
       password: 'Kw8aEcm37FwNaCk6',
       database: 'd8d_design_ai',
-      port: 13306
+      port: 3306
     },
     migrations: {
       directory: './db/migrations'

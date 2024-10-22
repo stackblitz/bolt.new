@@ -1,42 +1,53 @@
 import { json } from '@remix-run/cloudflare';
-import { db } from '~/lib/db.server';
-import { requireUserId } from '~/lib/session.server';
+import { db } from '~/utils/db.server';
+import { requireUserId } from '../utils/session.server'; // 使用相对路径
+import SDPay from '~/utils/SDPay.server';
 
-export async function action({ request }) {
+export async function action({ request }: { request: Request }) {
   const userId = await requireUserId(request);
-  const { planId, billingCycle } = await request.json();
+  const { planId, billingCycle } = await request.json() as { planId: string; billingCycle: string };
 
   try {
-    // 开始数据库事务
-    await db.transaction(async (trx) => {
-      // 获取订阅计划详情
-      const plan = await trx('subscription_plans').where('_id', planId).first();
-      if (!plan) {
-        throw new Error('Invalid subscription plan');
-      }
+    // 获取订阅计划详情
+    const plan = await db('subscription_plans').where('_id', planId).first();
+    if (!plan) {
+      return json({ error: 'Invalid subscription plan' }, { status: 400 });
+    }
 
-      // 计算实际价格和代币数量
-      const price = billingCycle === 'yearly' ? plan.price * 10 : plan.price;
-      const tokens = billingCycle === 'yearly' ? plan.tokens * 12 : plan.tokens;
+    // 计算实际价格和代币数量
+    const price = billingCycle === 'yearly' ? plan.price * 10 : plan.price;
+    const tokens = billingCycle === 'yearly' ? plan.tokens * 12 : plan.tokens;
 
-      // 创建交易记录
-      await trx('user_transactions').insert({
-        user_id: userId,
-        type: 'subscription',
-        plan_id: planId,
-        amount: price,
-        tokens: tokens,
-        status: 'completed', // 假设支付已完成
-        payment_method: 'credit_card', // 假设使用信用卡支付
-        transaction_id: `sub_${Date.now()}`, // 生成一个简单的交易ID
-      });
+    // 创建 SDPay 实例
+    const sdpay = new SDPay();
 
-      // 这里可以添加更多逻辑,如更新用户的订阅状态等
+    // 生成订单号
+    const orderNo = `sub_${Date.now()}_${userId}`;
+
+    // 获取支付数据
+    const paymentData = await sdpay.createPayment(
+      orderNo,
+      `${plan.name} 订阅 (${billingCycle === 'yearly' ? '年付' : '月付'})`,
+      'alipay', // 或其他支付方式
+      price * 100, // 转换为分
+      userId.toString()
+    );
+
+    // 创建待处理的交易记录
+    await db('user_transactions').insert({
+      user_id: userId,
+      type: 'subscription',
+      plan_id: planId,
+      amount: price,
+      tokens: tokens,
+      status: 'pending',
+      payment_method: 'alipay', // 或其他支付方式
+      transaction_id: orderNo,
     });
 
-    return json({ success: true, message: '订阅购买成功' });
+    return json({ success: true, paymentData });
   } catch (error) {
-    console.error('Error purchasing subscription:', error);
-    return json({ error: 'Failed to purchase subscription' }, { status: 500 });
+    console.error('Error initiating subscription purchase:', error);
+    return json({ error: 'Failed to initiate subscription purchase' }, { status: 500 });
   }
 }

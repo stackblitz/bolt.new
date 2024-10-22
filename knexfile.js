@@ -3,7 +3,7 @@ export default {
   development: {
     client: 'mysql2',
     connection: {
-      host: 'devide.y2o.me',
+      host: 'localhost',
       user: 'd8d_design_ai',
       password: 'Kw8aEcm37FwNaCk6',
       database: 'd8d_design_ai',

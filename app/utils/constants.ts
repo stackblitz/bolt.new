@@ -1,4 +1,4 @@
-import type { ModelInfo, OllamaApiResponse } from './types';
+import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
 
 export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;

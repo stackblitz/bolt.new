@@ -4,14 +4,19 @@ import { chatStore } from '~/lib/stores/chat';
 import { classNames } from '~/utils/classNames';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
+import { useState } from 'react';
+import { LoginDialog } from '~/components/auth/LoginDialog';
+import { RegisterDialog } from '~/components/auth/RegisterDialog';
 
 export function Header() {
   const chat = useStore(chatStore);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   return (
     <header
       className={classNames(
-        'flex items-center bg-bolt-elements-background-depth-1 p-5 border-b h-[var(--header-height)]',
+        'flex items-center justify-between bg-bolt-elements-background-depth-1 p-5 border-b h-[var(--header-height)]',
         {
           'border-transparent': !chat.started,
           'border-bolt-elements-borderColor': chat.started,
@@ -27,15 +32,32 @@ export function Header() {
       <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
         <ClientOnly>{() => <ChatDescription />}</ClientOnly>
       </span>
-      {chat.started && (
-        <ClientOnly>
-          {() => (
-            <div className="mr-1">
-              <HeaderActionButtons />
-            </div>
-          )}
-        </ClientOnly>
-      )}
+      <div className="flex items-center gap-4">
+        {chat.started && (
+          <ClientOnly>
+            {() => (
+              <div className="mr-1">
+                <HeaderActionButtons />
+              </div>
+            )}
+          </ClientOnly>
+        )}
+        <button 
+          onClick={() => setIsLoginOpen(true)}
+          className="text-bolt-elements-textPrimary hover:text-bolt-elements-textSecondary transition-colors"
+        >
+          登录
+        </button>
+        <button 
+          onClick={() => setIsRegisterOpen(true)}
+          className="text-bolt-elements-textPrimary hover:text-bolt-elements-textSecondary transition-colors"
+        >
+          注册
+        </button>
+      </div>
+
+      <LoginDialog isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      <RegisterDialog isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)} />
     </header>
   );
 }

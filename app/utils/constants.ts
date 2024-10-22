@@ -35,7 +35,6 @@ const staticModels: ModelInfo[] = [
   { name: 'open-mixtral-8x22b', label: 'Mistral 8x22B', provider: 'Mistral' },
   { name: 'open-codestral-mamba', label: 'Codestral Mamba', provider: 'Mistral' },
   { name: 'open-mistral-nemo', label: 'Mistral Nemo', provider: 'Mistral' },
-  { name: 'pixtral-12b-2409', label: 'Pixtral 12B', provider: 'Mistral' },
   { name: 'ministral-8b-latest', label: 'Mistral 8B', provider: 'Mistral' },
   { name: 'ministral-small-latest', label: 'Mistral Small', provider: 'Mistral' },
   { name: 'codestral-latest', label: 'Codestral', provider: 'Mistral' },

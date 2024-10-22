@@ -30,6 +30,8 @@ const staticModels: ModelInfo[] = [
   { name: 'gpt-4-turbo', label: 'GPT-4 Turbo', provider: 'OpenAI' },
   { name: 'gpt-4', label: 'GPT-4', provider: 'OpenAI' },
   { name: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', provider: 'OpenAI' },
+  { name: 'open-mistral-7b', label: 'Mistral', provider: 'Mistral' },
+
 ];
 
 export let MODEL_LIST: ModelInfo[] = [...staticModels];

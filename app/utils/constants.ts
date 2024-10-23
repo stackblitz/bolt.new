@@ -54,12 +54,12 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
 async function getOpenAILikeModels(): Promise<ModelInfo[]> {
 
  try {
-   const base_url =import.meta.env.OPENAI_API_LIKE_BASE_URL || "";
+   const base_url =import.meta.env.OPENAI_LIKE_API_BASE_URL || "";
    if (!base_url) {
       return [];
    }
    const url = new URL(base_url).toString();
-   const api_key = import.meta.env.OPENAI_API_LIKE_KEY ?? "";
+   const api_key = import.meta.env.OPENAI_LIKE_API_KEY ?? "";
    const response = await fetch(`${url}/models`, {
      headers: {
        Authorization: `Bearer ${api_key}`,

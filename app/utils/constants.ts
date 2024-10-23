@@ -36,7 +36,9 @@ export let MODEL_LIST: ModelInfo[] = [...staticModels];
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
   try {
-    const response = await fetch(`http://localhost:11434/api/tags`);
+    const base_url =import.meta.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
+    const url = new URL(base_url).toString();
+    const response = await fetch(`${url}/api/tags`);
     const data = await response.json();
 
     return data.models.map((model: any) => ({
@@ -49,9 +51,36 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
   }
 }
 
+async function getOpenAILikeModels(): Promise<ModelInfo[]> {
+
+ try {
+   const base_url =import.meta.env.OPENAI_API_LIKE_BASE_URL || "";
+   if (!base_url) {
+      return [];
+   }
+   const url = new URL(base_url).toString();
+   const api_key = import.meta.env.OPENAI_API_LIKE_KEY ?? "";
+   const response = await fetch(`${url}/models`, {
+     headers: {
+       Authorization: `Bearer ${api_key}`,
+     }
+   });
+    const res = await response.json();
+    return res.data.map((model: any) => ({
+      name: model.id,
+      label: model.id,
+      provider: 'OpenAILike',
+    }));
+ }catch (e) {
+   return []
+ }
+
+}
 async function initializeModelList(): Promise<void> {
   const ollamaModels = await getOllamaModels();
-  MODEL_LIST = [...ollamaModels, ...staticModels];
+  const openAiLikeModels = await getOpenAILikeModels();
+  console.log(openAiLikeModels);
+  MODEL_LIST = [...ollamaModels,...openAiLikeModels, ...staticModels];
 }
 initializeModelList().then();
 export { getOllamaModels, initializeModelList };

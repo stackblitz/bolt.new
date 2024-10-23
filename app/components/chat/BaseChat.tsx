@@ -28,7 +28,7 @@ const ModelSelector = ({ model, setModel, modelList, providerList }) => {
   const [provider, setProvider] = useState(DEFAULT_PROVIDER);
   return (
     <div className="mb-2">
-      <select 
+      <select
         value={provider}
         onChange={(e) => {
           setProvider(e.target.value);
@@ -42,9 +42,12 @@ const ModelSelector = ({ model, setModel, modelList, providerList }) => {
             {provider}
           </option>
         ))}
-          <option key="Ollama" value="Ollama">
-            Ollama
-          </option>        
+        <option key="Ollama" value="Ollama">
+          Ollama
+        </option>
+        <option key="OpenAILike" value="OpenAILike">
+          Ollama
+        </option>
       </select>
       <select
         value={model}

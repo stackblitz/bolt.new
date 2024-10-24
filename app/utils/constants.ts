@@ -40,9 +40,9 @@ const staticModels: ModelInfo[] = [
   { name: 'open-codestral-mamba', label: 'Codestral Mamba', provider: 'Mistral' },
   { name: 'open-mistral-nemo', label: 'Mistral Nemo', provider: 'Mistral' },
   { name: 'ministral-8b-latest', label: 'Mistral 8B', provider: 'Mistral' },
-  { name: 'ministral-small-latest', label: 'Mistral Small', provider: 'Mistral' },
+  { name: 'mistral-small-latest', label: 'Mistral Small', provider: 'Mistral' },
   { name: 'codestral-latest', label: 'Codestral', provider: 'Mistral' },
-  { name: 'ministral-large-latest', label: 'Mistral Large Latest', provider: 'Mistral' },
+  { name: 'mistral-large-latest', label: 'Mistral Large Latest', provider: 'Mistral' },
 ];
 
 export let MODEL_LIST: ModelInfo[] = [...staticModels];

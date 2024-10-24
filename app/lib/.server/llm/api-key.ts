@@ -19,8 +19,12 @@ export function getAPIKey(cloudflareEnv: Env, provider: string) {
       return env.GROQ_API_KEY || cloudflareEnv.GROQ_API_KEY;
     case 'OpenRouter':
       return env.OPEN_ROUTER_API_KEY || cloudflareEnv.OPEN_ROUTER_API_KEY;
-      case "OpenAILike":
-        return env.OPENAI_LIKE_API_KEY || cloudflareEnv.OPENAI_LIKE_API_KEY;
+    case 'Deepseek':
+      return env.DEEPSEEK_API_KEY || cloudflareEnv.DEEPSEEK_API_KEY
+    case 'Mistral':
+      return env.MISTRAL_API_KEY || cloudflareEnv.MISTRAL_API_KEY;        
+    case "OpenAILike":
+      return env.OPENAI_LIKE_API_KEY || cloudflareEnv.OPENAI_LIKE_API_KEY;
     default:
       return "";
   }

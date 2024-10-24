@@ -1,110 +1,98 @@
-[![Bolt Open Source Codebase](./public/social_preview_index.jpg)](https://bolt.new)
+# Contributing to Bolt.new Fork
 
-> Welcome to the **Bolt** open-source codebase! This repo contains a simple example app using the core components from bolt.new to help you get started building **AI-powered software development tools** powered by StackBlitz’s **WebContainer API**.
+First off, thank you for considering contributing to Bolt.new! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make Bolt.new a better tool for developers worldwide.
 
-### Why Build with Bolt + WebContainer API
+## 📋 Table of Contents
+- [Code of Conduct](#code-of-conduct)
+- [How Can I Contribute?](#how-can-i-contribute)
+- [Pull Request Guidelines](#pull-request-guidelines)
+- [Coding Standards](#coding-standards)
+- [Development Setup](#development-setup)
+- [Project Structure](#project-structure)
 
-By building with the Bolt + WebContainer API you can create browser-based applications that let users **prompt, run, edit, and deploy** full-stack web apps directly in the browser, without the need for virtual machines. With WebContainer API, you can build apps that give AI direct access and full control over a **Node.js server**, **filesystem**, **package manager** and **dev terminal** inside your users browser tab. This powerful combination allows you to create a new class of development tools that support all major JavaScript libraries and Node packages right out of the box, all without remote environments or local installs.
+## Code of Conduct
 
-### What’s the Difference Between Bolt (This Repo) and [Bolt.new](https://bolt.new)?
+This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.
 
-- **Bolt.new**: This is the **commercial product** from StackBlitz—a hosted, browser-based AI development tool that enables users to prompt, run, edit, and deploy full-stack web applications directly in the browser. Built on top of the [Bolt open-source repo](https://github.com/stackblitz/bolt.new) and powered by the StackBlitz **WebContainer API**.
+## How Can I Contribute?
 
-- **Bolt (This Repo)**: This open-source repository provides the core components used to make **Bolt.new**. This repo contains the UI interface for Bolt as well as the server components, built using [Remix Run](https://remix.run/). By leveraging this repo and StackBlitz’s **WebContainer API**, you can create your own AI-powered development tools and full-stack applications that run entirely in the browser.
+### 🐞 Reporting Bugs and Feature Requests
+- Check the issue tracker to avoid duplicates
+- Use the issue templates when available
+- Include as much relevant information as possible
+- For bugs, add steps to reproduce the issue
 
-# Get Started Building with Bolt
+### 🔧 Code Contributions
+1. Fork the repository
+2. Create a new branch for your feature/fix
+3. Write your code
+4. Submit a pull request
 
-Bolt combines the capabilities of AI with sandboxed development environments to create a collaborative experience where code can be developed by the assistant and the programmer together. Bolt combines [WebContainer API](https://webcontainers.io/api) with [Claude Sonnet 3.5](https://www.anthropic.com/news/claude-3-5-sonnet) using [Remix](https://remix.run/) and the [AI SDK](https://sdk.vercel.ai/).
+### ✨ Becoming a Core Contributor
+We're looking for dedicated contributors to help maintain and grow this project. If you're interested in becoming a core contributor, please fill out our [Contributor Application Form](https://forms.gle/TBSteXSDCtBDwr5m7).
 
-### WebContainer API
+## Pull Request Guidelines
 
-Bolt uses [WebContainers](https://webcontainers.io/) to run generated code in the browser. WebContainers provide Bolt with a full-stack sandbox environment using [WebContainer API](https://webcontainers.io/api). WebContainers run full-stack applications directly in the browser without the cost and security concerns of cloud hosted AI agents. WebContainers are interactive and editable, and enables Bolt's AI to run code and understand any changes from the user.
+### 📝 PR Checklist
+- [ ] Branch from the main branch
+- [ ] Update documentation if needed
+- [ ] Manually verify all new functionality works as expected
+- [ ] Keep PRs focused and atomic
 
-The [WebContainer API](https://webcontainers.io) is free for personal and open source usage. If you're building an application for commercial usage, you can learn more about our [WebContainer API commercial usage pricing here](https://stackblitz.com/pricing#webcontainer-api).
+### 👀 Review Process
+1. Manually test the changes
+2. At least one maintainer review required
+3. Address all review comments
+4. Maintain clean commit history
 
-### Remix App
+## Coding Standards
 
-Bolt is built with [Remix](https://remix.run/) and
-deployed using [CloudFlare Pages](https://pages.cloudflare.com/) and
-[CloudFlare Workers](https://workers.cloudflare.com/).
+### 💻 General Guidelines
+- Follow existing code style
+- Comment complex logic
+- Keep functions focused and small
+- Use meaningful variable names
 
-### AI SDK Integration
+## Development Setup
 
-Bolt uses the [AI SDK](https://github.com/vercel/ai) to integrate with AI
-models. At this time, Bolt supports using Anthropic's Claude Sonnet 3.5.
-You can get an API key from the [Anthropic API Console](https://console.anthropic.com/) to use with Bolt.
-Take a look at how [Bolt uses the AI SDK](https://github.com/stackblitz/bolt.new/tree/main/app/lib/.server/llm)
-
-## Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- Node.js (v20.15.1)
-- pnpm (v9.4.0)
-
-## Setup
-
-1. Clone the repository (if you haven't already):
-
+### 🔄 Initial Setup
+1. Clone the repository:
 ```bash
-git clone https://github.com/stackblitz/bolt.new.git
+git clone https://github.com/coleam00/bolt.new-any-llm.git
 ```
 
 2. Install dependencies:
-
 ```bash
 pnpm install
 ```
 
-3. Create a `.env.local` file in the root directory and add your Anthropic API key:
-
-```
+3. Set up environment variables:
+   - Rename `.env.example` to `.env.local`
+   - Add your LLM API keys (only set the ones you plan to use):
+```bash
+GROQ_API_KEY=XXX
+OPENAI_API_KEY=XXX
 ANTHROPIC_API_KEY=XXX
+...
 ```
-
-Optionally, you can set the debug level:
-
-```
+   - Optionally set debug level:
+```bash
 VITE_LOG_LEVEL=debug
 ```
-
 **Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 
-## Available Scripts
-
-- `pnpm run dev`: Starts the development server.
-- `pnpm run build`: Builds the project.
-- `pnpm run start`: Runs the built application locally using Wrangler Pages. This script uses `bindings.sh` to set up necessary bindings so you don't have to duplicate environment variables.
-- `pnpm run preview`: Builds the project and then starts it locally, useful for testing the production build. Note, HTTP streaming currently doesn't work as expected with `wrangler pages dev`.
-- `pnpm test`: Runs the test suite using Vitest.
-- `pnpm run typecheck`: Runs TypeScript type checking.
-- `pnpm run typegen`: Generates TypeScript types using Wrangler.
-- `pnpm run deploy`: Builds the project and deploys it to Cloudflare Pages.
-
-## Development
-
-To start the development server:
-
+### 🚀 Running the Development Server
 ```bash
 pnpm run dev
 ```
 
-This will start the Remix Vite development server.
+**Note**: You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
 
-## Testing
+## Questions?
 
-Run the test suite with:
+For any questions about contributing, please:
+1. Check existing documentation
+2. Search through issues
+3. Create a new issue with the question label
 
-```bash
-pnpm test
-```
-
-## Deployment
-
-To deploy the application to Cloudflare Pages:
-
-```bash
-pnpm run deploy
-```
-
-Make sure you have the necessary permissions and Wrangler is correctly configured for your Cloudflare account.
+Thank you for contributing to Bolt.new! 🚀

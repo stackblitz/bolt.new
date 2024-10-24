@@ -9,6 +9,8 @@ import { EditorStore } from './editor';
 import { FilesStore, type FileMap } from './files';
 import { PreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 export interface ArtifactState {
   id: string;
@@ -270,6 +272,36 @@ export class WorkbenchStore {
   #getArtifact(id: string) {
     const artifacts = this.artifacts.get();
     return artifacts[id];
+  }
+
+  async downloadZip() {
+    const zip = new JSZip();
+    const files = this.files.get();
+
+    for (const [filePath, dirent] of Object.entries(files)) {
+      if (dirent?.type === 'file' && !dirent.isBinary) {
+        // Remove '/home/project/' from the beginning of the path
+        const relativePath = filePath.replace(/^\/home\/project\//, '');
+
+        // Split the path into segments
+        const pathSegments = relativePath.split('/');
+
+        // If there's more than one segment, we need to create folders
+        if (pathSegments.length > 1) {
+          let currentFolder = zip;
+          for (let i = 0; i < pathSegments.length - 1; i++) {
+            currentFolder = currentFolder.folder(pathSegments[i])!;
+          }
+          currentFolder.file(pathSegments[pathSegments.length - 1], dirent.content);
+        } else {
+          // If there's only one segment, it's a file in the root
+          zip.file(relativePath, dirent.content);
+        }
+      }
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    saveAs(content, 'project.zip');
   }
 }
 

@@ -24,7 +24,8 @@ dist-ssr
 
 /.cache
 /build
-.env*
+.env.local
+.env
 *.vars
 .wrangler
 _worker.bundle

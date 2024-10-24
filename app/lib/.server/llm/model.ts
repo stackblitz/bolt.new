@@ -6,6 +6,8 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { mistral } from '@ai-sdk/mistral';
+import { createMistral } from '@ai-sdk/mistral';
 
 export function getAnthropicModel(apiKey: string, model: string) {
   const anthropic = createAnthropic({
@@ -30,6 +32,14 @@ export function getOpenAIModel(apiKey: string, model: string) {
   return openai(model);
 }
 
+export function getMistralModel(apiKey: string, model: string) {
+  const mistral = createMistral({
+    apiKey
+  });
+
+  return mistral(model);
+}
+
 export function getGoogleModel(apiKey: string, model: string) {
   const google = createGoogleGenerativeAI(
     apiKey,
@@ -51,6 +61,15 @@ export function getOllamaModel(baseURL: string, model: string) {
   let Ollama = ollama(model);
   Ollama.config.baseURL = `${baseURL}/api`;
   return Ollama;
+}
+
+export function getDeepseekModel(apiKey: string, model: string){
+  const openai = createOpenAI({
+    baseURL: 'https://api.deepseek.com/beta',
+    apiKey,
+  });
+
+  return openai(model);
 }
 
 export function getOpenRouterModel(apiKey: string, model: string) {
@@ -78,6 +97,10 @@ export function getModel(provider: string, model: string, env: Env) {
       return getGoogleModel(apiKey, model)
     case 'OpenAILike':
       return getOpenAILikeModel(baseURL,apiKey, model);
+    case 'Deepseek':
+      return getDeepseekModel(apiKey, model)
+    case 'Mistral':
+      return  getMistralModel(apiKey, model);
     default:
       return getOllamaModel(baseURL, model);
   }

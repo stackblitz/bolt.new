@@ -10,6 +10,7 @@ services:
     env_file: ".env.local"
     environment:
       - NODE_ENV=production
+      - COMPOSE_PROFILES=production
     command: pnpm run dockerstart
     profiles:
       - production  # This service only runs in the production profile
@@ -20,6 +21,7 @@ services:
       target: bolt-ai-development
     environment:
       - NODE_ENV=development
+      - COMPOSE_PROFILES=development
     volumes:
       - .:/app
       - /app/node_modules

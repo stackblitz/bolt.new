@@ -21,6 +21,8 @@ export function getAPIKey(cloudflareEnv: Env, provider: string) {
       return env.OPEN_ROUTER_API_KEY || cloudflareEnv.OPEN_ROUTER_API_KEY;
     case 'Deepseek':
       return env.DEEPSEEK_API_KEY || cloudflareEnv.DEEPSEEK_API_KEY
+    case 'Mistral':
+      return env.MISTRAL_API_KEY || cloudflareEnv.MISTRAL_API_KEY;  
     default:
       return "";
   }

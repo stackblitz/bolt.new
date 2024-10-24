@@ -1,6 +1,6 @@
 // @ts-nocheck
 // Preventing TS checks with files presented in the video for a better presentation.
-import { getAPIKey } from '~/lib/.server/llm/api-key';
+import { getAPIKey, getBaseURL } from '~/lib/.server/llm/api-key';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
@@ -16,7 +16,14 @@ export function getAnthropicModel(apiKey: string, model: string) {
 
   return anthropic(model);
 }
+export function getOpenAILikeModel(baseURL:string,apiKey: string, model: string) {
+  const openai = createOpenAI({
+    baseURL,
+    apiKey,
+  });
 
+  return openai(model);
+}
 export function getOpenAIModel(apiKey: string, model: string) {
   const openai = createOpenAI({
     apiKey,
@@ -72,7 +79,7 @@ export function getOpenRouterModel(apiKey: string, model: string) {
 
 export function getModel(provider: string, model: string, env: Env) {
   const apiKey = getAPIKey(env, provider);
-
+  const baseURL = getBaseURL(env, provider);
 
   switch (provider) {
     case 'Anthropic':
@@ -85,6 +92,8 @@ export function getModel(provider: string, model: string, env: Env) {
       return getOpenRouterModel(apiKey, model);
     case 'Google':
       return getGoogleModel(apiKey, model)
+    case 'OpenAILike':
+      return getOpenAILikeModel(baseURL,apiKey, model);
     case 'Deepseek':
       return getDeepseekModel(apiKey, model)
     case 'Mistral':

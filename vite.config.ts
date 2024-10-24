@@ -27,6 +27,7 @@ export default defineConfig((config) => {
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
     ],
+    envPrefix:["VITE_","OPENAI_LIKE_API_","OLLAMA_API_BASE_URL"],
     css: {
       preprocessorOptions: {
         scss: {

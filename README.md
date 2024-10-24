@@ -11,6 +11,7 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ Autogenerate Ollama models from what is downloaded (@yunatamos)
 - ✅ Filter models by provider (@jasonm23)
 - ✅ Download project as ZIP (@fabwaseem)
+- ✅ Improvements to the main Bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
 - ⬜ LM Studio Integration
 - ⬜ DeepSeek API Integration
 - ⬜ Together Integration

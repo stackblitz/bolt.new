@@ -1,0 +1,29 @@
+services:
+  bolt-ai:
+    image: bolt-ai:production
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: bolt-ai-production
+    ports:
+      - "5173:5173"
+    env_file: ".env.local"
+    environment:
+      - NODE_ENV=production
+    command: pnpm run dockerstart
+    profiles:
+      - production  # This service only runs in the production profile
+
+  bolt-ai-dev:
+    image: bolt-ai:development
+    build:
+      target: bolt-ai-development
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"  # Same port, no conflict as only one runs at a time
+    command: pnpm run dev --host 0.0.0.0
+    profiles: ["development", "default"]  # Make development the default profile

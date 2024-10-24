@@ -11,6 +11,7 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ Autogenerate Ollama models from what is downloaded (@yunatamos)
 - ✅ Filter models by provider (@jasonm23)
 - ✅ Download project as ZIP (@fabwaseem)
+- ✅ Improvements to the main Bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
 - ⬜ LM Studio Integration
 - ⬜ DeepSeek API Integration
 - ⬜ Together Integration
@@ -28,6 +29,7 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ⬜ Prompt caching
 - ⬜ Ability to enter API keys in the UI
 - ⬜ Prevent Bolt from rewriting files as often
+- ⬜ Have LLM plan the project in a MD file for better results/transparency
 
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
@@ -114,7 +116,7 @@ To start the development server:
 pnpm run dev
 ```
 
-This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally! It's an easy install and a good browser for web development anyway.
+This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
 
 ## Tips and Tricks
 

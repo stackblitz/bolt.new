@@ -28,5 +28,6 @@ RUN npm run build
 CMD [ "pnpm", "run", "dockerstart"]
 
 # Development image
-FROM base AS bolt-ai-dev
-ENTRYPOINT ["pnpm", "run", "dev", "--host"]
+FROM base AS bolt-ai-development
+RUN mkdir -p ${WORKDIR}/run
+CMD pnpm run dev --host

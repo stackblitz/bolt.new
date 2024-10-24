@@ -1,0 +1,38 @@
+# nixpacks.toml
+
+[build]
+# Specify the Node.js version for your application
+builder = "node"
+working_directory = "./"  # Adjust if your source is in a different directory
+
+[environment]
+# Define your environment variables
+# You can add more variables as needed from your .env.local file
+NODE_ENV = "production"
+COMPOSE_PROFILES = "production"  # Set to "development" for dev builds
+GROQ_API_KEY=""
+OPENAI_API_KEY=""
+ANTHROPIC_API_KEY=""
+OPEN_ROUTER_API_KEY=""
+GOOGLE_GENERATIVE_AI_API_KEY=""
+OLLAMA_API_BASE_URL=""
+# Include this environment variable if you want more logging for debugging locally
+#VITE_LOG_LEVEL="debug"
+
+[dev]
+# Define any development-specific settings
+NODE_ENV = "development"
+COMPOSE_PROFILES = "development"  # Set to "development" for dev builds
+
+[deploy]
+# Optional: Define your deployment settings for Coolify
+provider = "coolify"  # Specify the provider
+branch = "main"        # Specify the branch you want to deploy from
+
+[commands]
+# Commands to run your application
+start = "pnpm run dockerstart"
+dev = "pnpm run dev --host 0.0.0.0"
+build = "pnpm run build"
+test = "pnpm run test"
+

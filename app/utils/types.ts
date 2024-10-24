@@ -8,7 +8,7 @@ interface OllamaModelDetails {
   quantization_level: string;
 }
 
-interface OllamaModel {
+export interface OllamaModel {
   name: string;
   model: string;
   modified_at: string;

@@ -1,4 +1,4 @@
-import type { ModelInfo } from './types';
+import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
 
 export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
@@ -48,9 +48,9 @@ export let MODEL_LIST: ModelInfo[] = [...staticModels];
 async function getOllamaModels(): Promise<ModelInfo[]> {
   try {
     const response = await fetch(`http://localhost:11434/api/tags`);
-    const data = await response.json();
+    const data = await response.json() as OllamaApiResponse;
 
-    return data.models.map((model: any) => ({
+    return data.models.map((model: OllamaModel) => ({
       name: model.name,
       label: `${model.name} (${model.details.parameter_size})`,
       provider: 'Ollama',

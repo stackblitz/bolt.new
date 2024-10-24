@@ -35,7 +35,7 @@ export function getBaseURL(cloudflareEnv: Env, provider: string) {
     case 'OpenAILike':
       return env.OPENAI_LIKE_API_BASE_URL || cloudflareEnv.OPENAI_LIKE_API_BASE_URL;
     case 'Ollama':
-        return env.OLLAMA_API_BASE_URL || cloudflareEnv.OLLAMA_API_BASE_URL;
+        return env.OLLAMA_API_BASE_URL || cloudflareEnv.OLLAMA_API_BASE_URL || "http://localhost:11434";
     default:
       return "";
   }

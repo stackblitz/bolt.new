@@ -40,9 +40,9 @@ const staticModels: ModelInfo[] = [
   { name: 'open-codestral-mamba', label: 'Codestral Mamba', provider: 'Mistral' },
   { name: 'open-mistral-nemo', label: 'Mistral Nemo', provider: 'Mistral' },
   { name: 'ministral-8b-latest', label: 'Mistral 8B', provider: 'Mistral' },
-  { name: 'ministral-small-latest', label: 'Mistral Small', provider: 'Mistral' },
+  { name: 'mistral-small-latest', label: 'Mistral Small', provider: 'Mistral' },
   { name: 'codestral-latest', label: 'Codestral', provider: 'Mistral' },
-  { name: 'ministral-large-latest', label: 'Mistral Large Latest', provider: 'Mistral' },
+  { name: 'mistral-large-latest', label: 'Mistral Large Latest', provider: 'Mistral' },
 ];
 
 export let MODEL_LIST: ModelInfo[] = [...staticModels];
@@ -50,8 +50,7 @@ export let MODEL_LIST: ModelInfo[] = [...staticModels];
 async function getOllamaModels(): Promise<ModelInfo[]> {
   try {
     const base_url = import.meta.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
-    const url = new URL(base_url).toString();
-    const response = await fetch(`${url}/api/tags`);
+    const response = await fetch(`${base_url}/api/tags`);
     const data = await response.json() as OllamaApiResponse;
 
     return data.models.map((model: OllamaModel) => ({
@@ -65,20 +64,18 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
 }
 
 async function getOpenAILikeModels(): Promise<ModelInfo[]> {
-
  try {
    const base_url =import.meta.env.OPENAI_LIKE_API_BASE_URL || "";
    if (!base_url) {
       return [];
    }
-   const url = new URL(base_url).toString();
    const api_key = import.meta.env.OPENAI_LIKE_API_KEY ?? "";
-   const response = await fetch(`${url}/models`, {
+   const response = await fetch(`${base_url}/models`, {
      headers: {
        Authorization: `Bearer ${api_key}`,
      }
    });
-    const res = await response.json();
+    const res = await response.json() as any;
     return res.data.map((model: any) => ({
       name: model.id,
       label: model.id,
@@ -92,8 +89,7 @@ async function getOpenAILikeModels(): Promise<ModelInfo[]> {
 async function initializeModelList(): Promise<void> {
   const ollamaModels = await getOllamaModels();
   const openAiLikeModels = await getOpenAILikeModels();
-  console.log(openAiLikeModels);
   MODEL_LIST = [...ollamaModels,...openAiLikeModels, ...staticModels];
 }
 initializeModelList().then();
-export { getOllamaModels, initializeModelList };
+export { getOllamaModels, getOpenAILikeModels, initializeModelList };

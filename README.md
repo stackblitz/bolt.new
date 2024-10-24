@@ -12,23 +12,26 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ Filter models by provider (@jasonm23)
 - ✅ Download project as ZIP (@fabwaseem)
 - ✅ Improvements to the main Bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
+- ✅ DeepSeek API Integration (@zenith110)
+- ✅ Mistral API Integration (@ArulGandhi)
+- ✅ "Open AI Like" API Integration (@ZerxZ)
+- ✅ Ability to sync files (one way sync) to local folder (@muzafferkadir)
+- ✅ Containerize the application with Docker for easy installation (@aaronbolton)
+- ✅ Publish projects directly to GitHub (@goncaloalves)
+- ⬜ Prevent Bolt from rewriting files as often (Done but need to review PR still)
+- ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
+- ⬜ **HIGH PRIORITY** - Attach images to prompts
+- ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
 - ⬜ LM Studio Integration
-- ⬜ DeepSeek API Integration
 - ⬜ Together Integration
 - ⬜ Azure Open AI API Integration
 - ⬜ HuggingFace Integration
 - ⬜ Perplexity Integration
-- ⬜ Containerize the application with Docker for easy installation
-- ⬜ Better prompting for smaller LLMs (code window sometimes doesn't start)
-- ⬜ Attach images to prompts
-- ⬜ Run agents in the backend as opposed to a single model call
-- ⬜ Publish projects directly to GitHub
 - ⬜ Deploy directly to Vercel/Netlify/other similar platforms
 - ⬜ Load local projects into the app
 - ⬜ Ability to revert code to earlier version
 - ⬜ Prompt caching
 - ⬜ Ability to enter API keys in the UI
-- ⬜ Prevent Bolt from rewriting files as often
 - ⬜ Have LLM plan the project in a MD file for better results/transparency
 
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser

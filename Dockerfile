@@ -1,4 +1,5 @@
-FROM node:20.18.0
+ARG BASE=node:20.18.0
+FROM ${BASE} AS base
 
 WORKDIR /app
 
@@ -13,4 +14,19 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 5173
 
-CMD [ "pnpm", "run", "dev", "--host" ]
+# Production image
+FROM base AS bolt-ai-production
+
+ENV WRANGLER_SEND_METRICS=false
+
+# Pre-configure wrangler to disable metrics
+RUN mkdir -p /root/.config/.wrangler && \
+    echo '{"enabled":false}' > /root/.config/.wrangler/metrics.json
+
+RUN npm run build
+
+CMD [ "pnpm", "run", "dockerstart"]
+
+# Development image
+FROM base AS bolt-ai-dev
+ENTRYPOINT ["pnpm", "run", "dev", "--host"]

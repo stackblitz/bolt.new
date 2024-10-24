@@ -38,7 +38,7 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
   try {
     const base_url =import.meta.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
     const url = new URL(base_url).toString();
-    const response = await fetch(`${url}/api/tags`);
+    const response = await fetch(`${url}api/tags`);
     const data = await response.json();
 
     return data.models.map((model: any) => ({

@@ -34,6 +34,8 @@ export function getBaseURL(cloudflareEnv: Env, provider: string) {
   switch (provider) {
     case 'OpenAILike':
       return env.OPENAI_LIKE_API_BASE_URL || cloudflareEnv.OPENAI_LIKE_API_BASE_URL;
+    case 'Ollama':
+        return env.OLLAMA_API_BASE_URL || cloudflareEnv.OLLAMA_API_BASE_URL;
     default:
       return "";
   }

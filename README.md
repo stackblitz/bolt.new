@@ -2,24 +2,34 @@
 
 # Bolt.new Fork by Cole Medin
 
-This fork of bolt.new allows you to choose the LLM that you use for each prompt! Currently you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See instructions below for running this locally and extending to include more models.
+This fork of Bolt.new allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
 
 # Requested Additions to this Fork - Feel Free to Contribute!!
 
 - ✅ OpenRouter Integration (@coleam00)
 - ✅ Gemini Integration (@jonathands)
-- ✅ Autogenerate Ollama models from what is downloaded (@mosquet)
+- ✅ Autogenerate Ollama models from what is downloaded (@yunatamos)
 - ✅ Filter models by provider (@jasonm23)
 - ✅ Download project as ZIP (@fabwaseem)
 - ✅ Improvements to the main Bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
 - ⬜ LM Studio Integration
 - ⬜ DeepSeek API Integration
 - ⬜ Together Integration
+- ⬜ Azure Open AI API Integration
+- ⬜ HuggingFace Integration
+- ⬜ Perplexity Integration
+- ⬜ Containerize the application with Docker for easy installation
 - ⬜ Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ Attach images to prompts
-- ⬜ Run agents in the backend instead of a single model call
+- ⬜ Run agents in the backend as opposed to a single model call
 - ⬜ Publish projects directly to GitHub
+- ⬜ Deploy directly to Vercel/Netlify/other similar platforms
 - ⬜ Load local projects into the app
+- ⬜ Ability to revert code to earlier version
+- ⬜ Prompt caching
+- ⬜ Ability to enter API keys in the UI
+- ⬜ Prevent Bolt from rewriting files as often
+- ⬜ Have LLM plan the project in a MD file for better results/transparency
 
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
@@ -27,7 +37,7 @@ Bolt.new is an AI-powered web development agent that allows you to prompt, run, 
 
 ## What Makes Bolt.new Different
 
-Claude, v0, etc are incredible- but you can't install packages, run backends or edit code. That’s where Bolt.new stands out:
+Claude, v0, etc are incredible- but you can't install packages, run backends, or edit code. That’s where Bolt.new stands out:
 
 - **Full-Stack in the Browser**: Bolt.new integrates cutting-edge AI models with an in-browser development environment powered by **StackBlitz’s WebContainers**. This allows you to:
   - Install and run npm tools and libraries (like Vite, Next.js, and more)
@@ -36,9 +46,9 @@ Claude, v0, etc are incredible- but you can't install packages, run backends or 
   - Deploy to production from chat
   - Share your work via a URL
 
-- **AI with Environment Control**: Unlike traditional dev environments where the AI can only assist in code generation, Bolt.new gives AI models **complete control** over the entire  environment including the filesystem, node server, package manager, terminal, and browser console. This empowers AI agents to handle the entire app lifecycle—from creation to deployment.
+- **AI with Environment Control**: Unlike traditional dev environments where the AI can only assist in code generation, Bolt.new gives AI models **complete control** over the entire  environment including the filesystem, node server, package manager, terminal, and browser console. This empowers AI agents to handle the whole app lifecycle—from creation to deployment.
 
-Whether you’re an experienced developer, a PM or designer, Bolt.new allows you to build production-grade full-stack applications with ease.
+Whether you’re an experienced developer, a PM, or a designer, Bolt.new allows you to easily build production-grade full-stack applications.
 
 For developers interested in building their own AI-powered development tools with WebContainers, check out the open-source Bolt codebase in this repo!
 
@@ -81,7 +91,7 @@ VITE_LOG_LEVEL=debug
 
 ## Adding New LLMs:
 
-To make new LLMs available to use in this version of Bolt.new, head on over to `app/utils/constants.ts` and find the constant MODEL_LIST. Each element in this array is an object that has the model ID for the name (get this from the provider's API documentation), a lable for the frontend model dropdown, and the provider. 
+To make new LLMs available to use in this version of Bolt.new, head on over to `app/utils/constants.ts` and find the constant MODEL_LIST. Each element in this array is an object that has the model ID for the name (get this from the provider's API documentation), a label for the frontend model dropdown, and the provider. 
 
 By default, Anthropic, OpenAI, Groq, and Ollama are implemented as providers, but the YouTube video for this repo covers how to extend this to work with more providers if you wish!
 
@@ -106,7 +116,7 @@ To start the development server:
 pnpm run dev
 ```
 
-This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally! It's a very easy install and a good browser for web development anyway.
+This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
 
 ## Tips and Tricks
 

@@ -8,6 +8,7 @@ First off, thank you for considering contributing to Bolt.new! This fork aims to
 - [Pull Request Guidelines](#pull-request-guidelines)
 - [Coding Standards](#coding-standards)
 - [Development Setup](#development-setup)
+- [Deploymnt with Docker](#docker-deployment-documentation)
 - [Project Structure](#project-structure)
 
 ## Code of Conduct
@@ -106,16 +107,95 @@ pnpm run deploy
 
 Make sure you have the necessary permissions and Wrangler is correctly configured for your Cloudflare account.
 
-## Docker Dev
+# Docker Deployment Documentation
 
-To build docker image 
+This guide outlines various methods for building and deploying the application using Docker.
 
-```
-docker build -t bolt-ai .
+## Build Methods
+
+### 1. Using Helper Scripts
+
+NPM scripts are provided for convenient building:
+
+```bash
+# Development build
+npm run dockerbuild
+
+# Production build
+npm run dockerbuild:prod
 ```
 
-To run bolt dev in docker(Add ANTHROPIC_API_KEY=XXX before running)
+### 2. Direct Docker Build Commands
 
+You can use Docker's target feature to specify the build environment:
+
+```bash
+# Development build
+docker build . --target bolt-ai-development
+
+# Production build
+docker build . --target bolt-ai-production
 ```
-docker run -p 5173:5173 --env-file .env.local bolt-ai 
+
+### 3. Docker Compose with Profiles
+
+Use Docker Compose profiles to manage different environments:
+
+```bash
+# Development environment
+docker-compose --profile development up
+
+# Production environment
+docker-compose --profile production up
 ```
+
+## Running the Application
+
+After building using any of the methods above, run the container with:
+
+```bash
+# Development
+docker run -p 5173:5173 --env-file .env.local bolt-ai:development
+
+# Production
+docker run -p 5173:5173 --env-file .env.local bolt-ai:production
+```
+
+## Deployment with Coolify
+
+[Coolify](https://github.com/coollabsio/coolify) provides a straightforward deployment process:
+
+1. Import your Git repository as a new project
+2. Select your target environment (development/production)
+3. Choose "Docker Compose" as the Build Pack
+4. Configure deployment domains
+5. Set the custom start command:
+   ```bash
+   docker compose --profile production up
+   ```
+6. Configure environment variables
+   - Add necessary AI API keys
+   - Adjust other environment variables as needed
+7. Deploy the application
+
+## VS Code Integration
+
+The `docker-compose.yaml` configuration is compatible with VS Code dev containers:
+
+1. Open the command palette in VS Code
+2. Select the dev container configuration
+3. Choose the "development" profile from the context menu
+
+## Environment Files
+
+Ensure you have the appropriate `.env.local` file configured before running the containers. This file should contain:
+- API keys
+- Environment-specific configurations
+- Other required environment variables
+
+## Notes
+
+- Port 5173 is exposed and mapped for both development and production environments
+- Environment variables are loaded from `.env.local`
+- Different profiles (development/production) can be used for different deployment scenarios
+- The configuration supports both local development and production deployment

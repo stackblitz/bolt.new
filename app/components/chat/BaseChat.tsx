@@ -1,7 +1,7 @@
 // @ts-nocheck
 // Preventing TS checks with files presented in the video for a better presentation.
 import type { Message } from 'ai';
-import React, { type RefCallback } from 'react';
+import React, { type RefCallback, useEffect } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
@@ -11,6 +11,7 @@ import { MODEL_LIST, DEFAULT_PROVIDER } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { useState } from 'react';
+import { APIKeyManager } from './APIKeyManager';
 
 import styles from './BaseChat.module.scss';
 
@@ -24,18 +25,17 @@ const EXAMPLE_PROMPTS = [
 
 const providerList = [...new Set(MODEL_LIST.map((model) => model.provider))]
 
-const ModelSelector = ({ model, setModel, modelList, providerList }) => {
-  const [provider, setProvider] = useState(DEFAULT_PROVIDER);
+const ModelSelector = ({ model, setModel, modelList, providerList, provider, setProvider }) => {
   return (
-    <div className="mb-2">
-      <select
+    <div className="mb-2 flex gap-2">
+      <select 
         value={provider}
         onChange={(e) => {
           setProvider(e.target.value);
           const firstModel = [...modelList].find(m => m.provider == e.target.value);
           setModel(firstModel ? firstModel.name : '');
         }}
-        className="w-full p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none"
+        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
         {providerList.map((provider) => (
           <option key={provider} value={provider}>
@@ -52,7 +52,7 @@ const ModelSelector = ({ model, setModel, modelList, providerList }) => {
       <select
         value={model}
         onChange={(e) => setModel(e.target.value)}
-        className="w-full p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none"
+        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
         {[...modelList].filter(e => e.provider == provider && e.name).map((modelOption) => (
           <option key={modelOption.name} value={modelOption.name}>
@@ -108,6 +108,23 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     ref,
   ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
+    const [provider, setProvider] = useState(DEFAULT_PROVIDER);
+    const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+      // Load API keys from localStorage on component mount
+      const storedApiKeys = localStorage.getItem('apiKeys');
+      if (storedApiKeys) {
+        setApiKeys(JSON.parse(storedApiKeys));
+      }
+    }, []);
+
+    const updateApiKey = (provider: string, key: string) => {
+      const updatedApiKeys = { ...apiKeys, [provider]: key };
+      setApiKeys(updatedApiKeys);
+      // Save updated API keys to localStorage
+      localStorage.setItem('apiKeys', JSON.stringify(updatedApiKeys));
+    };
 
     return (
       <div
@@ -122,11 +139,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         <div ref={scrollRef} className="flex overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow min-w-[var(--chat-min-width)] h-full')}>
             {!chatStarted && (
-              <div id="intro" className="mt-[26vh] max-w-chat mx-auto">
-                <h1 className="text-5xl text-center font-bold text-bolt-elements-textPrimary mb-2">
+              <div id="intro" className="mt-[26vh] max-w-chat mx-auto text-center">
+                <h1 className="text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
                   Where ideas begin
                 </h1>
-                <p className="mb-4 text-center text-bolt-elements-textSecondary">
+                <p className="text-xl mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200">
                   Bring ideas to life in seconds or get help on existing projects.
                 </p>
               </div>
@@ -158,15 +175,22 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   setModel={setModel}
                   modelList={MODEL_LIST}
                   providerList={providerList}
+                  provider={provider}
+                  setProvider={setProvider}
+                />
+                <APIKeyManager
+                  provider={provider}
+                  apiKey={apiKeys[provider] || ''}
+                  setApiKey={(key) => updateApiKey(provider, key)}
                 />
                 <div
                   className={classNames(
-                    'shadow-sm border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden',
+                    'shadow-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden transition-all',
                   )}
                 >
                   <textarea
                     ref={textareaRef}
-                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-md text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent`}
+                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus resize-none text-md text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent transition-all`}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {
@@ -205,12 +229,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       />
                     )}
                   </ClientOnly>
-                  <div className="flex justify-between text-sm p-4 pt-2">
+                  <div className="flex justify-between items-center text-sm p-4 pt-2">
                     <div className="flex gap-1 items-center">
                       <IconButton
                         title="Enhance prompt"
                         disabled={input.length === 0 || enhancingPrompt}
-                        className={classNames({
+                        className={classNames('transition-all', {
                           'opacity-100!': enhancingPrompt,
                           'text-bolt-elements-item-contentAccent! pr-1.5 enabled:hover:bg-bolt-elements-item-backgroundAccent!':
                             promptEnhanced,
@@ -219,7 +243,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       >
                         {enhancingPrompt ? (
                           <>
-                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl"></div>
+                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
                             <div className="ml-1.5">Enhancing prompt...</div>
                           </>
                         ) : (
@@ -232,7 +256,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     </div>
                     {input.length > 3 ? (
                       <div className="text-xs text-bolt-elements-textTertiary">
-                        Use <kbd className="kdb">Shift</kbd> + <kbd className="kdb">Return</kbd> for a new line
+                        Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> + <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for a new line
                       </div>
                     ) : null}
                   </div>

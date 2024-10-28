@@ -80,6 +80,14 @@ export function getOpenRouterModel(apiKey: string, model: string) {
   return openRouter.chat(model);
 }
 
+export function getLMStudioModel(baseURL: string, model: string) {
+  const lmstudio = createOpenAI({
+    baseUrl: 'http://localhost:1234/v1',
+  });
+
+  return lmstudio(model);
+}
+
 export function getModel(provider: string, model: string, env: Env) {
   const apiKey = getAPIKey(env, provider);
   const baseURL = getBaseURL(env, provider);
@@ -94,13 +102,15 @@ export function getModel(provider: string, model: string, env: Env) {
     case 'OpenRouter':
       return getOpenRouterModel(apiKey, model);
     case 'Google':
-      return getGoogleModel(apiKey, model)
+      return getGoogleModel(apiKey, model);
     case 'OpenAILike':
       return getOpenAILikeModel(baseURL,apiKey, model);
     case 'Deepseek':
-      return getDeepseekModel(apiKey, model)
+      return getDeepseekModel(apiKey, model);
     case 'Mistral':
       return  getMistralModel(apiKey, model);
+    case 'LMStudio':
+      return getLMStudioModel(baseURL, model);
     default:
       return getOllamaModel(baseURL, model);
   }

@@ -7,4 +7,5 @@ interface Env {
   OPENAI_LIKE_API_KEY: string;
   OPENAI_LIKE_API_BASE_URL: string;
   DEEPSEEK_API_KEY: string;
+  LMSTUDIO_API_BASE_URL: string;
 }

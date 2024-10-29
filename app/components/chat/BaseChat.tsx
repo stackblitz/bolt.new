@@ -12,6 +12,7 @@ import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { useState } from 'react';
 import { APIKeyManager } from './APIKeyManager';
+import Cookies from 'js-cookie';
 
 import styles from './BaseChat.module.scss';
 
@@ -112,18 +113,36 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
 
     useEffect(() => {
-      // Load API keys from localStorage on component mount
-      const storedApiKeys = localStorage.getItem('apiKeys');
-      if (storedApiKeys) {
-        setApiKeys(JSON.parse(storedApiKeys));
+      // Load API keys from cookies on component mount
+      try {
+        const storedApiKeys = Cookies.get('apiKeys');
+        if (storedApiKeys) {
+          const parsedKeys = JSON.parse(storedApiKeys);
+          if (typeof parsedKeys === 'object' && parsedKeys !== null) {
+            setApiKeys(parsedKeys);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading API keys from cookies:', error);
+        // Clear invalid cookie data
+        Cookies.remove('apiKeys');
       }
     }, []);
 
     const updateApiKey = (provider: string, key: string) => {
-      const updatedApiKeys = { ...apiKeys, [provider]: key };
-      setApiKeys(updatedApiKeys);
-      // Save updated API keys to localStorage
-      localStorage.setItem('apiKeys', JSON.stringify(updatedApiKeys));
+      try {
+        const updatedApiKeys = { ...apiKeys, [provider]: key };
+        setApiKeys(updatedApiKeys);
+        // Save updated API keys to cookies with 30 day expiry and secure settings
+        Cookies.set('apiKeys', JSON.stringify(updatedApiKeys), {
+          expires: 30, // 30 days
+          secure: true, // Only send over HTTPS
+          sameSite: 'strict', // Protect against CSRF
+          path: '/' // Accessible across the site
+        });
+      } catch (error) {
+        console.error('Error saving API keys to cookies:', error);
+      }
     };
 
     return (

@@ -15,6 +15,7 @@ import { DEFAULT_MODEL } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
+import Cookies from 'js-cookie';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -79,8 +80,13 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const [animationScope, animate] = useAnimate();
 
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+
   const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
+    body: {
+      apiKeys
+    },
     onError: (error) => {
       logger.error('Request failed\n\n', error);
       toast.error('There was an error processing your request');
@@ -201,6 +207,13 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   };
 
   const [messageRef, scrollRef] = useSnapScroll();
+
+  useEffect(() => {
+    const storedApiKeys = Cookies.get('apiKeys');
+    if (storedApiKeys) {
+      setApiKeys(JSON.parse(storedApiKeys));
+    }
+  }, []);
 
   return (
     <BaseChat

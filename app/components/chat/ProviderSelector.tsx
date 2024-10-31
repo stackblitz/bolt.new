@@ -27,7 +27,7 @@ export function ProviderSelector() {
     'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
     'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
     'mistralai/Mixtral-8x7B-Instruct-v0.1',
-    // Add more Together AI models here
+    // You can add more Together AI models here
   ];
 
   return (

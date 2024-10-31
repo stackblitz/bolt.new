@@ -43,7 +43,6 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
           .map(parseStreamPart)
           .map((part) => part.value)
           .join('');
-
         controller.enqueue(encoder.encode(processedChunk));
       },
     });

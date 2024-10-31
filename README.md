@@ -20,6 +20,7 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ Publish projects directly to GitHub (@goncaloalves)
 - ⬜ Prevent Bolt from rewriting files as often (Done but need to review PR still)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
+- ⬜ **HIGH PRIORITY** Load local projects into the app
 - ⬜ **HIGH PRIORITY** - Attach images to prompts
 - ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
 - ⬜ LM Studio Integration
@@ -27,12 +28,17 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ⬜ Azure Open AI API Integration
 - ⬜ HuggingFace Integration
 - ⬜ Perplexity Integration
+- ⬜ Vertex AI Integration
+- ⬜ Cohere Integration
 - ⬜ Deploy directly to Vercel/Netlify/other similar platforms
-- ⬜ Load local projects into the app
 - ⬜ Ability to revert code to earlier version
 - ⬜ Prompt caching
+- ⬜ Better prompt enhancing
 - ⬜ Ability to enter API keys in the UI
 - ⬜ Have LLM plan the project in a MD file for better results/transparency
+- ⬜ VSCode Integration with git-like confirmations
+- ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.
+- ⬜ Voice prompting
 
 # Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 

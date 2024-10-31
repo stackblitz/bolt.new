@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createScopedLogger } from '~/utils/logger';
-import { providerStore } from '~/lib/stores/provider';
+import { providerStore } from '../stores/provider';
+import { useStore } from '@nanostores/react';
 
 const logger = createScopedLogger('usePromptEnhancement');
 
@@ -13,15 +14,19 @@ export function usePromptEnhancer() {
     setPromptEnhanced(false);
   };
 
+  const provider = useStore(providerStore);
+
   const enhancePrompt = async (input: string, setInput: (value: string) => void) => {
     setEnhancingPrompt(true);
     setPromptEnhanced(false);
+
+    const providerValue = provider === 'anthropic' ? 'anthropic' : { type: 'together', model: provider.model };
 
     const response = await fetch('/api/enhancer', {
       method: 'POST',
       body: JSON.stringify({
         message: input,
-        provider: providerStore.get(),
+        provider: providerValue,
       }),
     });
 

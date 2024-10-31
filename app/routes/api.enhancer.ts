@@ -41,8 +41,15 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
           .split('\n')
           .filter((line) => line !== '')
           .map(parseStreamPart)
-          .map((part) => part.value)
+          .map((part) => {
+            if (typeof part.value === 'string') {
+              return part.value;
+            }
+            // If it's an object, it's likely metadata we don't want to send to the client
+            return '';
+          })
           .join('');
+
         controller.enqueue(encoder.encode(processedChunk));
       },
     });
@@ -51,7 +58,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
 
     return new StreamingTextResponse(transformedStream);
   } catch (error) {
-    console.log(error);
+    console.error("Error in enhancerAction:", error);
 
     throw new Response(null, {
       status: 500,

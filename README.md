@@ -61,20 +61,17 @@ Whether you’re an experienced developer, a PM, or a designer, Bolt.new allows 
 
 For developers interested in building their own AI-powered development tools with WebContainers, check out the open-source Bolt codebase in this repo!
 
-## Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- Node.js (v20.15.1)
-- pnpm (v9.4.0)
-
 ## Setup
 
-Many of you are new users to installing software from Github. Below are instructions for Mac users. PC users may be able to follow the instructions below as well. If you have any installation troubles reach out and submit an "issue" using the links above, or feel free to enhance this documentation by forking, editing the instructions, and doing a pull request.
+Many of you are new users to installing software from Github. If you have any installation troubles reach out and submit an "issue" using the links above, or feel free to enhance this documentation by forking, editing the instructions, and doing a pull request.
 
 1. Install Git from https://git-scm.com/downloads
 
-2. Install Node.js from https://nodejs.org/en/download/. Pay attention to the installer notes after completion. On a Mac, it will tell you to check if /usr/local/bin is in your $PATH. To determine if usr/local/bin is included in $PATH open your Terminal and run 
+2. Install Node.js from https://nodejs.org/en/download/ 
+
+Pay attention to the installer notes after completion. 
+
+On all operating systems, the path to Node.js should automatically be added to your system path. But you can check your path if you want to be sure. On Windows, you can search for "edit the system environment variables" in your system, select "Environment Variables..." once you are in the system properties, and then check for a path to Node in your "Path" system variable. On a Mac or Linux machine, it will tell you to check if /usr/local/bin is in your $PATH. To determine if usr/local/bin is included in $PATH open your Terminal and run:
 
 ```
 echo $PATH .
@@ -88,19 +85,7 @@ If you see usr/local/bin in the output then you're good to go.
 git clone https://github.com/coleam00/bolt.new-any-llm.git
 ```
 
-4. Install dependencies using Terminal (or CMD in Windows with admin permissions):
-
-```
-pnpm install
-```
-
-If you get an error saying "command not found: pnpm" or similar, then that means pnpm isn't installed. You can install it via this:
-
-```
-sudo npm install -g pnpm
-```
-
-5. Rename .env.example to .env.local and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example"
+3. Rename .env.example to .env and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example". For Windows and Linux the path will be similar.
 
 ![image](https://github.com/user-attachments/assets/7e6a532c-2268-401f-8310-e8d20c731328)
 
@@ -130,7 +115,69 @@ Optionally, you can set the debug level:
 VITE_LOG_LEVEL=debug
 ```
 
-**Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
+**Important**: Never commit your `.env` file to version control. It's already included in .gitignore.
+
+## Run with Docker
+
+Prerequisites:
+
+Git and Node.js as mentioned above, as well as Docker: https://www.docker.com/
+
+### 1a. Using Helper Scripts
+
+NPM scripts are provided for convenient building:
+
+```bash
+# Development build
+npm run dockerbuild
+
+# Production build
+npm run dockerbuild:prod
+```
+
+### 1b. Direct Docker Build Commands (alternative to using NPM scripts)
+
+You can use Docker's target feature to specify the build environment instead of using NPM scripts if you wish:
+
+```bash
+# Development build
+docker build . --target bolt-ai-development
+
+# Production build
+docker build . --target bolt-ai-production
+```
+
+### 2. Docker Compose with Profiles to Run the Container
+
+Use Docker Compose profiles to manage different environments:
+
+```bash
+# Development environment
+docker-compose --profile development up
+
+# Production environment
+docker-compose --profile production up
+```
+
+## Run Without Docker
+
+1. Install dependencies using Terminal (or CMD in Windows with admin permissions):
+
+```
+pnpm install
+```
+
+If you get an error saying "command not found: pnpm" or similar, then that means pnpm isn't installed. You can install it via this:
+
+```
+sudo npm install -g pnpm
+```
+
+2. Start the application with the command:
+
+```bash
+pnpm run dev
+```
 
 ## Adding New LLMs:
 

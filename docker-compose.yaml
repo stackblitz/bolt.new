@@ -30,7 +30,11 @@ services:
       target: bolt-ai-development
     environment:
       - NODE_ENV=development
-      - COMPOSE_PROFILES=development
+      - VITE_HMR_PROTOCOL=ws
+      - VITE_HMR_HOST=localhost
+      - VITE_HMR_PORT=5173
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true  
       - PORT=5173
       - GROQ_API_KEY=${GROQ_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -40,7 +44,10 @@ services:
       - OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL}
       - VITE_LOG_LEVEL=${VITE_LOG_LEVEL:-debug}
     volumes:
-      - .:/app
+      - type: bind
+        source: .
+        target: /app
+        consistency: cached
       - /app/node_modules
     ports:
       - "5173:5173"  # Same port, no conflict as only one runs at a time

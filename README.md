@@ -183,6 +183,31 @@ sudo npm install -g pnpm
 pnpm run dev
 ```
 
+## Super Important Note on Running Ollama Models
+
+Ollama models by default only have 2048 tokens for their context window. Even for large models that can easily handle way more.
+This is not a large enough window to handle the Bolt.new/oTToDev prompt! You have to create a version of any model you want
+to use where you specify a larger context window. Luckily it's super easy to do that.
+
+All you have to do is:
+
+- Create a file called "Modelfile" (no file extension) anywhere on your computer
+- Put in the two lines:
+
+```
+FROM [Ollama model ID such as qwen2.5-coder:7b]
+PARAMETER num_ctx 32768
+```
+
+- Run the command: 
+
+```
+ollama create -f Modelfile [your new model ID, can be whatever you want (example: qwen2.5-coder-extra-ctx:7b)]
+```
+
+Now you have a new Ollama model that isn't heavily limited in the context length like Ollama models are by default for some reason.
+You'll see this new model in the list of Ollama models along with all the others you pulled!
+
 ## Adding New LLMs:
 
 To make new LLMs available to use in this version of Bolt.new, head on over to `app/utils/constants.ts` and find the constant MODEL_LIST. Each element in this array is an object that has the model ID for the name (get this from the provider's API documentation), a label for the frontend model dropdown, and the provider. 

@@ -56,7 +56,14 @@ git clone https://github.com/stackblitz/bolt.new.git
 pnpm install
 ```
 
-3. Create a `.env.local` file in the root directory and add your Anthropic API key:
+3. Set Up Supabase Auth & Providers:
+
+- Create a new project on Supabase and generate a new anon key.
+- Add the anon key to the `.env.local` file.
+- Add the supabase url to the `.env.local` file.
+- Configure supabase providers (Google, GitHub, etc).
+
+4. Create a `.env.local` file in the root directory and add your Anthropic API key:
 
 ```
 ANTHROPIC_API_KEY=XXX
@@ -64,6 +71,13 @@ ANTHROPIC_API_KEY=XXX
 
 ```
 TOGETHER_API_KEY=XXX
+```
+
+```
+SUPABASE_URL=XXX
+```
+```
+SUPABASE_ANON_KEY=XXX
 ```
 
 Optionally, you can set the debug level:

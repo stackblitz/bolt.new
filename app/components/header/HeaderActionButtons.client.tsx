@@ -1,7 +1,11 @@
 import { useStore } from '@nanostores/react';
+import { LightningBoltIcon } from '@radix-ui/react-icons';
+import { Rocket } from 'lucide-react';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
+import { Stackblitz } from '../workbench/Stackblitz';
+import { Deploy } from '../workbench/Deploy';
 
 interface HeaderActionButtonsProps {}
 
@@ -12,8 +16,11 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const canHideChat = showWorkbench || !showChat;
 
   return (
-    <div className="flex">
-      <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden">
+    <div className="flex gap-2">
+      <Stackblitz />
+      <Deploy />
+
+      {/*<div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden">
         <Button
           active={showChat}
           disabled={!canHideChat}
@@ -23,6 +30,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             }
           }}
         >
+          <div className="i-ph:chat text-sm" />
           <div className="i-bolt:chat text-sm" />
         </Button>
         <div className="w-[1px] bg-bolt-elements-borderColor" />
@@ -38,7 +46,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         >
           <div className="i-ph:code-bold" />
         </Button>
-      </div>
+      </div>*/}
     </div>
   );
 }

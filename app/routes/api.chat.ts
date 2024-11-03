@@ -4,12 +4,20 @@ import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
 import type { Provider } from '~/lib/stores/provider';
+import { createClient } from '~/utils/supabase.server';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
 }
-
+//TODO: change to getSession for all getUser!!!
 async function chatAction({ context, request }: ActionFunctionArgs) {
+  const { supabase, getUser } = createClient(request);
+  const user = await getUser();
+
+  if (!user) {
+    throw new Response('Unauthorized', { status: 401 });
+  }
+  
   const { messages, provider } = await request.json<{ messages: Messages; provider: Provider }>();
 
   const stream = new SwitchableStream();

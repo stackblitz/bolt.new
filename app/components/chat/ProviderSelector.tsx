@@ -27,20 +27,26 @@ export function ProviderSelector() {
     'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
     'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
     'mistralai/Mixtral-8x7B-Instruct-v0.1',
-    // You can add more Together AI models here
+    'deepseek-ai/deepseek-llm-67b-chat',
+    'meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo',
+    'google/gemma-2-27b-it',
+    'databricks/dbrx-instruct',
+    
+    // Add more Together AI models here
   ];
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-[250px] justify-between bg-transparent border-none ring-transparent outline-transparent text-white hover:text-white/80 truncate">
+        <Button variant="ghost" className="w-auto justify-start gap-1 max-w-[250px] bg-transparent border-none ring-transparent outline-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary/80 truncate">
           {currentProvider === 'anthropic' 
-            ? 'Anthropic (Claude)' 
-            : `Together AI (${currentProvider.model})`}
-          <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            ? 'Sonnet 3.5' 
+            : `Together AI (${currentProvider.model})`
+          }
+            <ChevronDownIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[250px] bg-black text-white border-none">
+      <DropdownMenuContent className="w-[250px] bg-[#141414] text-white border border-bolt-elements-borderColor">
         <DropdownMenuRadioGroup 
           value={currentProvider === 'anthropic' ? 'anthropic' : currentProvider.model} 
           onValueChange={handleProviderChange}

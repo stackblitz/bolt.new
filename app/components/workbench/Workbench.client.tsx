@@ -16,6 +16,9 @@ import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
+import { chatId } from '~/lib/persistence/useChatHistory';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { chatStore } from '~/lib/stores/chat';
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -62,6 +65,9 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
   const unsavedFiles = useStore(workbenchStore.unsavedFiles);
   const files = useStore(workbenchStore.files);
   const selectedView = useStore(workbenchStore.currentView);
+  const { showChat } = useStore(chatStore);
+
+  const canHideChat = showWorkbench || !showChat
 
   const setSelectedView = (view: WorkbenchViewType) => {
     workbenchStore.currentView.set(view);
@@ -89,10 +95,14 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     workbenchStore.setSelectedFile(filePath);
   }, []);
 
-  const onFileSave = useCallback(() => {
-    workbenchStore.saveCurrentDocument().catch(() => {
-      toast.error('Failed to update file content');
-    });
+  const onFileSave = useCallback(async () => {
+    try {
+      await workbenchStore.saveCurrentDocument();
+      toast.success('File saved and version updated');
+    } catch (error) {
+      console.error('Failed to save file or update version:', error);
+      toast.error('Failed to update file content or version');
+    }
   }, []);
 
   const onFileReset = useCallback(() => {
@@ -105,7 +115,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
         initial="closed"
         animate={showWorkbench ? 'open' : 'closed'}
         variants={workbenchVariants}
-        className="z-workbench"
+        className="z-workbench w-full"
       >
         <div
           className={classNames(
@@ -116,8 +126,20 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
             },
           )}
         >
-          <div className="absolute inset-0 px-6">
-            <div className="h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
+          <div className={`absolute flex inset-0 px-6 ${showChat ? 'ml-0' : 'ml-0'}`}>
+          <div className="h-full flex">
+            <button 
+              className='w-8 h-20 my-auto bg-transparent text-bolt-elements-textTertiary z-50'
+              onClick={() => {
+                if (canHideChat) {
+                  chatStore.setKey('showChat', !showChat);
+                }
+              }}
+            >
+              {showChat ? <div className="size-6 i-ph:caret-left" /> : <div className="size-6 i-ph:caret-right" />}
+            </button>
+          </div>
+            <div className="w-full h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
               <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor">
                 <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
                 <div className="ml-auto" />

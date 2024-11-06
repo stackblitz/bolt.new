@@ -4,7 +4,7 @@ import { streamText as _streamText, convertToCoreMessages } from 'ai';
 import { getModel } from '~/lib/.server/llm/model';
 import { MAX_TOKENS } from './constants';
 import { getSystemPrompt } from './prompts';
-import { MODEL_LIST, DEFAULT_MODEL, DEFAULT_PROVIDER } from '~/utils/constants';
+import { MODEL_LIST, DEFAULT_MODEL, DEFAULT_PROVIDER, MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
 
 interface ToolResult<Name extends string, Args, Result> {
   toolCallId: string;
@@ -25,21 +25,18 @@ export type Messages = Message[];
 export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
 
 function extractPropertiesFromMessage(message: Message): { model: string; provider: string; content: string } {
-  const modelRegex = /^\[Model: (.*?)\]\n\n/;
-  const providerRegex = /\[Provider: (.*?)\]\n\n/;
-
   // Extract model
-  const modelMatch = message.content.match(modelRegex);
+  const modelMatch = message.content.match(MODEL_REGEX);
   const model = modelMatch ? modelMatch[1] : DEFAULT_MODEL;
 
   // Extract provider
-  const providerMatch = message.content.match(providerRegex);
+  const providerMatch = message.content.match(PROVIDER_REGEX);
   const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER;
 
   // Remove model and provider lines from content
   const cleanedContent = message.content
-    .replace(modelRegex, '')
-    .replace(providerRegex, '')
+    .replace(MODEL_REGEX, '')
+    .replace(PROVIDER_REGEX, '')
     .trim();
 
   return { model, provider, content: cleanedContent };

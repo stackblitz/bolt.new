@@ -20,6 +20,9 @@ services:
       - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
       - OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL}
       - VITE_LOG_LEVEL=${VITE_LOG_LEVEL:-debug}
+      - RUNNING_IN_DOCKER=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"      
     command: pnpm run dockerstart
     profiles:
       - production  # This service only runs in the production profile
@@ -43,6 +46,9 @@ services:
       - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
       - OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL}
       - VITE_LOG_LEVEL=${VITE_LOG_LEVEL:-debug}
+      - RUNNING_IN_DOCKER=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"      
     volumes:
       - type: bind
         source: .

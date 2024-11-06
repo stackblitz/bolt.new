@@ -37,7 +37,11 @@ export function getBaseURL(cloudflareEnv: Env, provider: string) {
     case 'LMStudio':
       return env.LMSTUDIO_API_BASE_URL || cloudflareEnv.LMSTUDIO_API_BASE_URL || "http://localhost:1234";
     case 'Ollama':
-        return env.OLLAMA_API_BASE_URL || cloudflareEnv.OLLAMA_API_BASE_URL || "http://localhost:11434";
+        let baseUrl = env.OLLAMA_API_BASE_URL || cloudflareEnv.OLLAMA_API_BASE_URL || "http://localhost:11434";
+        if (env.RUNNING_IN_DOCKER === 'true') {
+          baseUrl = baseUrl.replace("localhost", "host.docker.internal");
+        }
+        return baseUrl;
     default:
       return "";
   }

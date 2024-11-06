@@ -11,7 +11,7 @@ import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { fileModificationsToHTML } from '~/utils/diff';
-import { DEFAULT_MODEL } from '~/utils/constants';
+import { DEFAULT_MODEL, DEFAULT_PROVIDER } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
@@ -74,6 +74,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
   const [model, setModel] = useState(DEFAULT_MODEL);
+  const [provider, setProvider] = useState(DEFAULT_PROVIDER);
 
   const { showChat } = useStore(chatStore);
 
@@ -182,7 +183,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
        * manually reset the input and we'd have to manually pass in file attachments. However, those
        * aren't relevant here.
        */
-      append({ role: 'user', content: `[Model: ${model}]\n\n${diff}\n\n${_input}` });
+      append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider}]\n\n${diff}\n\n${_input}` });
 
       /**
        * After sending a new message we reset all modifications since the model
@@ -190,7 +191,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
        */
       workbenchStore.resetAllFileModifications();
     } else {
-      append({ role: 'user', content: `[Model: ${model}]\n\n${_input}` });
+      append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider}]\n\n${_input}` });
     }
 
     setInput('');
@@ -215,6 +216,8 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       sendMessage={sendMessage}
       model={model}
       setModel={setModel}
+      provider={provider}
+      setProvider={setProvider}
       messageRef={messageRef}
       scrollRef={scrollRef}
       handleInputChange={handleInputChange}

@@ -24,8 +24,7 @@ const EXAMPLE_PROMPTS = [
 
 const providerList = [...new Set(MODEL_LIST.map((model) => model.provider))]
 
-const ModelSelector = ({ model, setModel, modelList, providerList }) => {
-  const [provider, setProvider] = useState(DEFAULT_PROVIDER);
+const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList }) => {
   return (
     <div className="mb-2">
       <select
@@ -79,6 +78,8 @@ interface BaseChatProps {
   input?: string;
   model: string;
   setModel: (model: string) => void;
+  provider: string;
+  setProvider: (provider: string) => void;
   handleStop?: () => void;
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -100,6 +101,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       input = '',
       model,
       setModel,
+      provider,
+      setProvider,
       sendMessage,
       handleInputChange,
       enhancePrompt,
@@ -157,6 +160,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   model={model}
                   setModel={setModel}
                   modelList={MODEL_LIST}
+                  provider={provider}
+                  setProvider={setProvider}
                   providerList={providerList}
                 />
                 <div

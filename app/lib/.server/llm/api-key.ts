@@ -25,6 +25,8 @@ export function getAPIKey(cloudflareEnv: Env, provider: string) {
       return env.MISTRAL_API_KEY || cloudflareEnv.MISTRAL_API_KEY;        
     case "OpenAILike":
       return env.OPENAI_LIKE_API_KEY || cloudflareEnv.OPENAI_LIKE_API_KEY;
+    case "xAI":
+      return env.XAI_API_KEY || cloudflareEnv.XAI_API_KEY;
     default:
       return "";
   }

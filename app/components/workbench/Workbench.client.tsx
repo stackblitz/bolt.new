@@ -1,7 +1,7 @@
 import { useStore } from '@nanostores/react';
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import {
   type OnChangeCallback as OnEditorChange,
@@ -55,6 +55,8 @@ const workbenchVariants = {
 export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => {
   renderLogger.trace('Workbench');
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   const hasPreview = useStore(computed(workbenchStore.previews, (previews) => previews.length > 0));
   const showWorkbench = useStore(workbenchStore.showWorkbench);
   const selectedFile = useStore(workbenchStore.selectedFile);
@@ -99,6 +101,21 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     workbenchStore.resetCurrentDocument();
   }, []);
 
+  const handleSyncFiles = useCallback(async () => {
+    setIsSyncing(true);
+
+    try {
+      const directoryHandle = await window.showDirectoryPicker();
+      await workbenchStore.syncFiles(directoryHandle);
+      toast.success('Files synced successfully');
+    } catch (error) {
+      console.error('Error syncing files:', error);
+      toast.error('Failed to sync files');
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
+
   return (
     chatStarted && (
       <motion.div
@@ -122,15 +139,55 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                 <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
                 <div className="ml-auto" />
                 {selectedView === 'code' && (
-                  <PanelHeaderButton
-                    className="mr-1 text-sm"
-                    onClick={() => {
-                      workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
-                    }}
-                  >
-                    <div className="i-ph:terminal" />
-                    Toggle Terminal
-                  </PanelHeaderButton>
+                  <>
+                    <PanelHeaderButton
+                      className="mr-1 text-sm"
+                      onClick={() => {
+                        workbenchStore.downloadZip();
+                      }}
+                    >
+                      <div className="i-ph:code" />
+                      Download Code
+                    </PanelHeaderButton>
+                    <PanelHeaderButton className="mr-1 text-sm" onClick={handleSyncFiles} disabled={isSyncing}>
+                      {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
+                      {isSyncing ? 'Syncing...' : 'Sync Files'}
+                    </PanelHeaderButton>
+                    <PanelHeaderButton
+                      className="mr-1 text-sm"
+                      onClick={() => {
+                        workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
+                      }}
+                    >
+                      <div className="i-ph:terminal" />
+                      Toggle Terminal
+                    </PanelHeaderButton>
+                    <PanelHeaderButton
+                      className="mr-1 text-sm"
+                      onClick={() => {
+                        const repoName = prompt("Please enter a name for your new GitHub repository:", "bolt-generated-project");
+                        if (!repoName) {
+                          alert("Repository name is required. Push to GitHub cancelled.");
+                          return;
+                        }
+                        const githubUsername = prompt("Please enter your GitHub username:");
+                        if (!githubUsername) {
+                          alert("GitHub username is required. Push to GitHub cancelled.");
+                          return;
+                        }
+                        const githubToken = prompt("Please enter your GitHub personal access token:");
+                        if (!githubToken) {
+                          alert("GitHub token is required. Push to GitHub cancelled.");
+                          return;
+                        }
+                        
+                      workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);  
+                      }}
+                    >
+                      <div className="i-ph:github-logo" />
+                      Push to GitHub
+                    </PanelHeaderButton>
+                  </>
                 )}
                 <IconButton
                   icon="i-ph:x-circle"
@@ -173,7 +230,6 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     )
   );
 });
-
 interface ViewProps extends HTMLMotionProps<'div'> {
   children: JSX.Element;
 }

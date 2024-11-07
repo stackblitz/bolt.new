@@ -164,13 +164,6 @@ export function Menu() {
           </DialogRoot>
         </div>
         <div className="flex items-center border-t border-bolt-elements-borderColor p-4">
-          <a href="/logout">
-            <IconButton className="p-1.5 gap-1.5">
-              <>
-                Logout <span className="i-ph:sign-out text-lg" />
-              </>
-            </IconButton>
-          </a>
           <ThemeSwitch className="ml-auto" />
         </div>
       </div>

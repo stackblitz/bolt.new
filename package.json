@@ -3,7 +3,6 @@
   "description": "StackBlitz AI Agent",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@9.4.0",
   "sideEffects": false,
   "type": "module",
   "scripts": {
@@ -15,6 +14,10 @@
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "lint:fix": "npm run lint -- --fix",
     "start": "bindings=$(./bindings.sh) && wrangler pages dev ./build/client $bindings",
+    "dockerstart": "bindings=$(./bindings.sh) && wrangler pages dev ./build/client $bindings --ip 0.0.0.0 --port 5173 --no-show-interactive-dev-session",
+    "dockerrun": "docker run -it -d --name bolt-ai-live -p 5173:5173 --env-file .env.local bolt-ai",
+    "dockerbuild:prod": "docker build -t bolt-ai:production bolt-ai:latest --target bolt-ai-production .",
+    "dockerbuild": "docker build -t bolt-ai:development -t bolt-ai:latest --target bolt-ai-development .",
     "typecheck": "tsc",
     "typegen": "wrangler types",
     "preview": "pnpm run build && pnpm run start"
@@ -24,6 +27,9 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.39",
+    "@ai-sdk/google": "^0.0.52",
+    "@ai-sdk/openai": "^0.0.66",
+    "@ai-sdk/mistral": "^0.0.43",
     "@codemirror/autocomplete": "^6.17.0",
     "@codemirror/commands": "^6.6.0",
     "@codemirror/lang-cpp": "^6.0.2",
@@ -43,6 +49,9 @@
     "@iconify-json/svg-spinners": "^1.1.2",
     "@lezer/highlight": "^1.2.0",
     "@nanostores/react": "^0.7.2",
+    "@octokit/rest": "^21.0.2",
+    "@octokit/types": "^13.6.1",
+    "@openrouter/ai-sdk-provider": "^0.0.5",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
     "@remix-run/cloudflare": "^2.10.2",
@@ -54,14 +63,17 @@
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-web-links": "^0.11.0",
     "@xterm/xterm": "^5.5.0",
-    "ai": "^3.3.4",
+    "ai": "^3.4.9",
     "date-fns": "^3.6.0",
     "diff": "^5.2.0",
+    "file-saver": "^2.0.5",
     "framer-motion": "^11.2.12",
     "isbot": "^4.1.0",
     "istextorbinary": "^9.5.0",
     "jose": "^5.6.3",
+    "jszip": "^3.10.1",
     "nanostores": "^0.10.3",
+    "ollama-ai-provider": "^0.15.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.5.0",
@@ -71,9 +83,9 @@
     "rehype-raw": "^7.0.0",
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.0",
+    "remix-island": "^0.2.0",
     "remix-utils": "^7.6.0",
     "shiki": "^1.9.1",
-    "remix-island": "^0.2.0",
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
@@ -81,12 +93,14 @@
     "@cloudflare/workers-types": "^4.20240620.0",
     "@remix-run/dev": "^2.10.0",
     "@types/diff": "^5.2.1",
+    "@types/file-saver": "^2.0.7",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "fast-glob": "^3.3.2",
     "is-ci": "^3.0.1",
     "node-fetch": "^3.3.2",
     "prettier": "^3.3.2",
+    "sass-embedded": "^1.80.3",
     "typescript": "^5.5.2",
     "unified": "^11.0.5",
     "unocss": "^0.61.3",
@@ -100,5 +114,6 @@
   },
   "resolutions": {
     "@typescript-eslint/utils": "^8.0.0-alpha.30"
-  }
+  },
+  "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228"
 }

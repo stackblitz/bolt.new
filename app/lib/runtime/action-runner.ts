@@ -72,7 +72,7 @@ export class ActionRunner {
     });
   }
 
-  async runAction(data: ActionCallbackData) {
+  async runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     const { actionId } = data;
     const action = this.actions.get()[actionId];
 
@@ -83,19 +83,22 @@ export class ActionRunner {
     if (action.executed) {
       return;
     }
+    if (isStreaming && action.type !== 'file') {
+      return;
+    }
 
-    this.#updateAction(actionId, { ...action, ...data.action, executed: true });
+    this.#updateAction(actionId, { ...action, ...data.action, executed: !isStreaming });
 
     this.#currentExecutionPromise = this.#currentExecutionPromise
       .then(() => {
-        return this.#executeAction(actionId);
+        return this.#executeAction(actionId, isStreaming);
       })
       .catch((error) => {
         console.error('Action failed:', error);
       });
   }
 
-  async #executeAction(actionId: string) {
+  async #executeAction(actionId: string, isStreaming: boolean = false) {
     const action = this.actions.get()[actionId];
 
     this.#updateAction(actionId, { status: 'running' });
@@ -112,7 +115,7 @@ export class ActionRunner {
         }
       }
 
-      this.#updateAction(actionId, { status: action.abortSignal.aborted ? 'aborted' : 'complete' });
+      this.#updateAction(actionId, { status: isStreaming ? 'running' : action.abortSignal.aborted ? 'aborted' : 'complete' });
     } catch (error) {
       this.#updateAction(actionId, { status: 'failed', error: 'Action failed' });
 

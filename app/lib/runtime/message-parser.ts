@@ -54,7 +54,7 @@ interface MessageState {
 export class StreamingMessageParser {
   #messages = new Map<string, MessageState>();
 
-  constructor(private _options: StreamingMessageParserOptions = {}) {}
+  constructor(private _options: StreamingMessageParserOptions = {}) { }
 
   parse(messageId: string, input: string) {
     let state = this.#messages.get(messageId);
@@ -256,7 +256,7 @@ export class StreamingMessageParser {
       }
 
       (actionAttributes as FileAction).filePath = filePath;
-    } else if (actionType !== 'shell') {
+    } else if (!(['shell', 'start'].includes(actionType))) {
       logger.warn(`Unknown action type '${actionType}'`);
     }
 

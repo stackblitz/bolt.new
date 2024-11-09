@@ -4,7 +4,7 @@ import { streamText as _streamText, convertToCoreMessages } from 'ai';
 import { getModel } from '~/lib/.server/llm/model';
 import { MAX_TOKENS } from './constants';
 import { getSystemPrompt } from './prompts';
-import { MODEL_LIST, DEFAULT_MODEL, DEFAULT_PROVIDER } from '~/utils/constants';
+import { MODEL_LIST, DEFAULT_MODEL, DEFAULT_PROVIDER, MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
 
 interface ToolResult<Name extends string, Args, Result> {
   toolCallId: string;
@@ -24,18 +24,22 @@ export type Messages = Message[];
 
 export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
 
-function extractModelFromMessage(message: Message): { model: string; content: string } {
-  const modelRegex = /^\[Model: (.*?)\]\n\n/;
-  const match = message.content.match(modelRegex);
+function extractPropertiesFromMessage(message: Message): { model: string; provider: string; content: string } {
+  // Extract model
+  const modelMatch = message.content.match(MODEL_REGEX);
+  const model = modelMatch ? modelMatch[1] : DEFAULT_MODEL;
 
-  if (match) {
-    const model = match[1];
-    const content = message.content.replace(modelRegex, '');
-    return { model, content };
-  }
+  // Extract provider
+  const providerMatch = message.content.match(PROVIDER_REGEX);
+  const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER;
 
-  // Default model if not specified
-  return { model: DEFAULT_MODEL, content: message.content };
+  // Remove model and provider lines from content
+  const cleanedContent = message.content
+    .replace(MODEL_REGEX, '')
+    .replace(PROVIDER_REGEX, '')
+    .trim();
+
+  return { model, provider, content: cleanedContent };
 }
 
 export function streamText(
@@ -45,26 +49,28 @@ export function streamText(
   apiKeys?: Record<string, string>
 ) {
   let currentModel = DEFAULT_MODEL;
+  let currentProvider = DEFAULT_PROVIDER;
+
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
-      const { model, content } = extractModelFromMessage(message);
-      if (model && MODEL_LIST.find((m) => m.name === model)) {
-        currentModel = model; // Update the current model
+      const { model, provider, content } = extractPropertiesFromMessage(message);
+
+      if (MODEL_LIST.find((m) => m.name === model)) {
+        currentModel = model;
       }
+
+      currentProvider = provider;
+
       return { ...message, content };
     }
-    return message;
+
+    return message; // No changes for non-user messages
   });
 
-  const provider = MODEL_LIST.find((model) => model.name === currentModel)?.provider || DEFAULT_PROVIDER;
-
   return _streamText({
-    model: getModel(provider, currentModel, env, apiKeys),
+    model: getModel(currentProvider, currentModel, env, apiKeys),
     system: getSystemPrompt(),
     maxTokens: MAX_TOKENS,
-    // headers: {
-    //   'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15',
-    // },
     messages: convertToCoreMessages(processedMessages),
     ...options,
   });

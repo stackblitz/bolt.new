@@ -4,6 +4,7 @@ export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
 export const MODIFICATIONS_TAG_NAME = 'bolt_file_modifications';
 export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
+export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
 export const DEFAULT_MODEL = 'claude-3-5-sonnet-20240620';
 export const DEFAULT_PROVIDER = 'Anthropic';
 
@@ -20,7 +21,7 @@ const staticModels: ModelInfo[] = [
   { name: 'qwen/qwen-110b-chat', label: 'OpenRouter Qwen 110b Chat (OpenRouter)', provider: 'OpenRouter' },
   { name: 'cohere/command', label: 'Cohere Command (OpenRouter)', provider: 'OpenRouter' },
   { name: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', provider: 'Google' },
-  { name: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', provider: 'Google'},
+  { name: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', provider: 'Google' },
   { name: 'llama-3.1-70b-versatile', label: 'Llama 3.1 70b (Groq)', provider: 'Groq' },
   { name: 'llama-3.1-8b-instant', label: 'Llama 3.1 8b (Groq)', provider: 'Groq' },
   { name: 'llama-3.2-11b-vision-preview', label: 'Llama 3.2 11b (Groq)', provider: 'Groq' },
@@ -56,11 +57,11 @@ const getOllamaBaseUrl = () => {
     // Frontend always uses localhost
     return defaultBaseUrl;
   }
-  
+
   // Backend: Check if we're running in Docker
   const isDocker = process.env.RUNNING_IN_DOCKER === 'true';
-  
-  return isDocker 
+
+  return isDocker
     ? defaultBaseUrl.replace("localhost", "host.docker.internal")
     : defaultBaseUrl;
 };
@@ -82,32 +83,32 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
 }
 
 async function getOpenAILikeModels(): Promise<ModelInfo[]> {
- try {
-   const base_url =import.meta.env.OPENAI_LIKE_API_BASE_URL || "";
-   if (!base_url) {
+  try {
+    const base_url = import.meta.env.OPENAI_LIKE_API_BASE_URL || "";
+    if (!base_url) {
       return [];
-   }
-   const api_key = import.meta.env.OPENAI_LIKE_API_KEY ?? "";
-   const response = await fetch(`${base_url}/models`, {
-     headers: {
-       Authorization: `Bearer ${api_key}`,
-     }
-   });
+    }
+    const api_key = import.meta.env.OPENAI_LIKE_API_KEY ?? "";
+    const response = await fetch(`${base_url}/models`, {
+      headers: {
+        Authorization: `Bearer ${api_key}`,
+      }
+    });
     const res = await response.json() as any;
     return res.data.map((model: any) => ({
       name: model.id,
       label: model.id,
       provider: 'OpenAILike',
     }));
- }catch (e) {
-   return []
- }
+  } catch (e) {
+    return []
+  }
 
 }
 async function initializeModelList(): Promise<void> {
   const ollamaModels = await getOllamaModels();
   const openAiLikeModels = await getOpenAILikeModels();
-  MODEL_LIST = [...ollamaModels,...openAiLikeModels, ...staticModels];
+  MODEL_LIST = [...ollamaModels, ...openAiLikeModels, ...staticModels];
 }
 initializeModelList().then();
 export { getOllamaModels, getOpenAILikeModels, initializeModelList };

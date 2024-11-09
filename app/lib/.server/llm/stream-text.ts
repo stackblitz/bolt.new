@@ -38,7 +38,12 @@ function extractModelFromMessage(message: Message): { model: string; content: st
   return { model: DEFAULT_MODEL, content: message.content };
 }
 
-export function streamText(messages: Messages, env: Env, options?: StreamingOptions) {
+export function streamText(
+  messages: Messages, 
+  env: Env, 
+  options?: StreamingOptions,
+  apiKeys?: Record<string, string>
+) {
   let currentModel = DEFAULT_MODEL;
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
@@ -54,7 +59,7 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
   const provider = MODEL_LIST.find((model) => model.name === currentModel)?.provider || DEFAULT_PROVIDER;
 
   return _streamText({
-    model: getModel(provider, currentModel, env),
+    model: getModel(provider, currentModel, env, apiKeys),
     system: getSystemPrompt(),
     maxTokens: MAX_TOKENS,
     // headers: {

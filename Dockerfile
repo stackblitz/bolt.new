@@ -1,29 +1,67 @@
-# Use an official Node.js runtime as the base image
-FROM node:20.15.1
+ARG BASE=node:20.18.0
+FROM ${BASE} AS base
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm@9.4.0
+# Install dependencies (this step is cached as long as the dependencies don't change)
+COPY package.json pnpm-lock.yaml ./
 
-# Copy package.json and pnpm-lock.yaml (if available)
-COPY package.json pnpm-lock.yaml* ./
+RUN corepack enable pnpm && pnpm install
 
-# Install dependencies
-RUN pnpm install
-
-# Copy the rest of the application code
+# Copy the rest of your app's source code
 COPY . .
 
-# Build the application
-RUN pnpm run build
+# Expose the port the app runs on
+EXPOSE 5173
 
-# Make sure bindings.sh is executable
-RUN chmod +x bindings.sh
+# Production image
+FROM base AS bolt-ai-production
 
-# Expose the port the app runs on (adjust if you specified a different port)
-EXPOSE 3000
+# Define environment variables with default values or let them be overridden
+ARG GROQ_API_KEY
+ARG OPENAI_API_KEY
+ARG ANTHROPIC_API_KEY
+ARG OPEN_ROUTER_API_KEY
+ARG GOOGLE_GENERATIVE_AI_API_KEY
+ARG OLLAMA_API_BASE_URL
+ARG VITE_LOG_LEVEL=debug
 
-# Start the application
-CMD ["pnpm", "run", "start"]
+ENV WRANGLER_SEND_METRICS=false \
+    GROQ_API_KEY=${GROQ_API_KEY} \
+    OPENAI_API_KEY=${OPENAI_API_KEY} \
+    ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} \
+    OPEN_ROUTER_API_KEY=${OPEN_ROUTER_API_KEY} \
+    GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY} \
+    OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL} \
+    VITE_LOG_LEVEL=${VITE_LOG_LEVEL}
+
+# Pre-configure wrangler to disable metrics
+RUN mkdir -p /root/.config/.wrangler && \
+    echo '{"enabled":false}' > /root/.config/.wrangler/metrics.json
+
+RUN npm run build
+
+CMD [ "pnpm", "run", "dockerstart"]
+
+# Development image
+FROM base AS bolt-ai-development
+
+# Define the same environment variables for development
+ARG GROQ_API_KEY
+ARG OPENAI_API_KEY
+ARG ANTHROPIC_API_KEY
+ARG OPEN_ROUTER_API_KEY
+ARG GOOGLE_GENERATIVE_AI_API_KEY
+ARG OLLAMA_API_BASE_URL
+ARG VITE_LOG_LEVEL=debug
+
+ENV GROQ_API_KEY=${GROQ_API_KEY} \
+    OPENAI_API_KEY=${OPENAI_API_KEY} \
+    ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} \
+    OPEN_ROUTER_API_KEY=${OPEN_ROUTER_API_KEY} \
+    GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY} \
+    OLLAMA_API_BASE_URL=${OLLAMA_API_BASE_URL} \
+    VITE_LOG_LEVEL=${VITE_LOG_LEVEL}
+
+RUN mkdir -p ${WORKDIR}/run
+CMD pnpm run dev --host

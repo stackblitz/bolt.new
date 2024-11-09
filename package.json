@@ -13,7 +13,11 @@
     "test:watch": "vitest",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "lint:fix": "npm run lint -- --fix",
-    "start": "bindings=$(./bindings.sh) && wrangler pages dev ./build/client $bindings --ip 0.0.0.0 --port 3000",
+    "start": "bindings=$(./bindings.sh) && wrangler pages dev ./build/client $bindings",
+    "dockerstart": "bindings=$(./bindings.sh) && wrangler pages dev ./build/client $bindings --ip 0.0.0.0 --port 5173 --no-show-interactive-dev-session",
+    "dockerrun": "docker run -it -d --name bolt-ai-live -p 5173:5173 --env-file .env.local bolt-ai",
+    "dockerbuild:prod": "docker build -t bolt-ai:production bolt-ai:latest --target bolt-ai-production .",
+    "dockerbuild": "docker build -t bolt-ai:development -t bolt-ai:latest --target bolt-ai-development .",
     "typecheck": "tsc",
     "typegen": "wrangler types",
     "preview": "pnpm run build && pnpm run start"
@@ -24,8 +28,8 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.39",
     "@ai-sdk/google": "^0.0.52",
-    "@ai-sdk/openai": "^0.0.66",
     "@ai-sdk/mistral": "^0.0.43",
+    "@ai-sdk/openai": "^0.0.66",
     "@codemirror/autocomplete": "^6.17.0",
     "@codemirror/commands": "^6.6.0",
     "@codemirror/lang-cpp": "^6.0.2",
@@ -67,6 +71,7 @@
     "isbot": "^4.1.0",
     "istextorbinary": "^9.5.0",
     "jose": "^5.6.3",
+    "js-cookie": "^3.0.5",
     "jszip": "^3.10.1",
     "nanostores": "^0.10.3",
     "ollama-ai-provider": "^0.15.2",
@@ -90,6 +95,7 @@
     "@remix-run/dev": "^2.10.0",
     "@types/diff": "^5.2.1",
     "@types/file-saver": "^2.0.7",
+    "@types/js-cookie": "^3.0.6",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "fast-glob": "^3.3.2",
@@ -110,5 +116,6 @@
   },
   "resolutions": {
     "@typescript-eslint/utils": "^8.0.0-alpha.30"
-  }
+  },
+  "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228"
 }

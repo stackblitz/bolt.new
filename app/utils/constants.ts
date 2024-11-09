@@ -4,8 +4,8 @@ export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
 export const MODIFICATIONS_TAG_NAME = 'bolt_file_modifications';
 export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
-export const DEFAULT_MODEL = 'google/gemini-flash-1.5-exp';
-export const DEFAULT_PROVIDER = 'OpenRouter';
+export const DEFAULT_MODEL = 'claude-3-5-sonnet-20240620';
+export const DEFAULT_PROVIDER = 'Anthropic';
 
 const staticModels: ModelInfo[] = [
   { name: 'claude-3-5-sonnet-20240620', label: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
@@ -13,8 +13,9 @@ const staticModels: ModelInfo[] = [
   { name: 'anthropic/claude-3.5-sonnet', label: 'Anthropic: Claude 3.5 Sonnet (OpenRouter)', provider: 'OpenRouter' },
   { name: 'anthropic/claude-3-haiku', label: 'Anthropic: Claude 3 Haiku (OpenRouter)', provider: 'OpenRouter' },
   { name: 'deepseek/deepseek-coder', label: 'Deepseek-Coder V2 236B (OpenRouter)', provider: 'OpenRouter' },
-  { name: 'google/gemini-flash-1.5-exp', label: 'Google Gemini Flash 1.5 Exp (OpenRouter)', provider: 'OpenRouter' },
-  { name: 'google/gemini-pro-1.5-exp', label: 'Google Gemini Pro 1.5 Exp (OpenRouter)', provider: 'OpenRouter' },
+  { name: 'google/gemini-flash-1.5', label: 'Google Gemini Flash 1.5 (OpenRouter)', provider: 'OpenRouter' },
+  { name: 'google/gemini-pro-1.5', label: 'Google Gemini Pro 1.5 (OpenRouter)', provider: 'OpenRouter' },
+  { name: 'x-ai/grok-beta', label: "xAI Grok Beta (OpenRouter)", provider: 'OpenRouter' },
   { name: 'mistralai/mistral-nemo', label: 'OpenRouter Mistral Nemo (OpenRouter)', provider: 'OpenRouter' },
   { name: 'qwen/qwen-110b-chat', label: 'OpenRouter Qwen 110b Chat (OpenRouter)', provider: 'OpenRouter' },
   { name: 'cohere/command', label: 'Cohere Command (OpenRouter)', provider: 'OpenRouter' },
@@ -32,6 +33,7 @@ const staticModels: ModelInfo[] = [
   { name: 'gpt-4-turbo', label: 'GPT-4 Turbo', provider: 'OpenAI' },
   { name: 'gpt-4', label: 'GPT-4', provider: 'OpenAI' },
   { name: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', provider: 'OpenAI' },
+  { name: 'grok-beta', label: "xAI Grok Beta", provider: 'xAI' },
   { name: 'deepseek-coder', label: 'Deepseek-Coder', provider: 'Deepseek'},
   { name: 'deepseek-chat', label: 'Deepseek-Chat', provider: 'Deepseek'},
   { name: 'open-mistral-7b', label: 'Mistral 7B', provider: 'Mistral' },
@@ -47,9 +49,25 @@ const staticModels: ModelInfo[] = [
 
 export let MODEL_LIST: ModelInfo[] = [...staticModels];
 
+const getOllamaBaseUrl = () => {
+  const defaultBaseUrl = import.meta.env.OLLAMA_API_BASE_URL || 'http://localhost:11434';
+  // Check if we're in the browser
+  if (typeof window !== 'undefined') {
+    // Frontend always uses localhost
+    return defaultBaseUrl;
+  }
+  
+  // Backend: Check if we're running in Docker
+  const isDocker = process.env.RUNNING_IN_DOCKER === 'true';
+  
+  return isDocker 
+    ? defaultBaseUrl.replace("localhost", "host.docker.internal")
+    : defaultBaseUrl;
+};
+
 async function getOllamaModels(): Promise<ModelInfo[]> {
   try {
-    const base_url = import.meta.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
+    const base_url = getOllamaBaseUrl();
     const response = await fetch(`${base_url}/api/tags`);
     const data = await response.json() as OllamaApiResponse;
 

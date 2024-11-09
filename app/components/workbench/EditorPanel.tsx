@@ -18,7 +18,7 @@ import { themeStore } from '~/lib/stores/theme';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { WORK_DIR } from '~/utils/constants';
-import { renderLogger } from '~/utils/logger';
+import { logger, renderLogger } from '~/utils/logger';
 import { isMobile } from '~/utils/mobile';
 import { FileBreadcrumb } from './FileBreadcrumb';
 import { FileTree } from './FileTree';
@@ -255,7 +255,7 @@ export const EditorPanel = memo(
               {Array.from({ length: terminalCount + 1 }, (_, index) => {
                 const isActive = activeTerminal === index;
                 if (index == 0) {
-                  console.log('starting bolt terminal');
+                  logger.info('Starting bolt terminal');
 
                   return (
                     <Terminal

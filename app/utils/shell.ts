@@ -60,8 +60,9 @@ export class BoltShell {
   #webcontainer: WebContainer | undefined
   #terminal: ITerminal | undefined
   #process: WebContainerProcess | undefined
-  executionState = atom<{ sessionId: string, active: boolean } | undefined>()
-  #outputStream: ReadableStream<string> | undefined
+  executionState = atom<{ sessionId: string, active: boolean, executionPrms?: Promise<any> } | undefined>()
+  #outputStream: ReadableStreamDefaultReader<string> | undefined
+  #shellInputStream: WritableStreamDefaultWriter<string> | undefined
   constructor() {
     this.#readyPromise = new Promise((resolve) => {
       this.#initialized = resolve
@@ -78,7 +79,8 @@ export class BoltShell {
     }
     let { process, output } = await this.newBoltShellProcess(webcontainer, terminal)
     this.#process = process
-    this.#outputStream = output
+    this.#outputStream = output.getReader()
+    await this.waitTillOscCode('interactive')
     this.#initialized?.()
   }
   get terminal() {
@@ -92,12 +94,21 @@ export class BoltShell {
       return
     }
     let state = this.executionState.get()
-    if (state && state.sessionId !== sessionId && state.active) {
-      this.terminal.input('\x03');
+
+    //interrupt the current execution
+    // this.#shellInputStream?.write('\x03');
+    this.terminal.input('\x03');
+    if (state && state.executionPrms) {
+      await state.executionPrms
     }
-    this.executionState.set({ sessionId, active: true })
+    //start a new execution
     this.terminal.input(command.trim() + '\n');
-    let resp = await this.getCurrentExecutionResult()
+
+    //wait for the execution to finish
+    let executionPrms = this.getCurrentExecutionResult()
+    this.executionState.set({ sessionId, active: true, executionPrms })
+
+    let resp = await executionPrms
     this.executionState.set({ sessionId, active: false })
     return resp
 
@@ -114,6 +125,7 @@ export class BoltShell {
     });
 
     const input = process.input.getWriter();
+    this.#shellInputStream = input;
     const [internalOutput, terminalOutput] = process.output.tee();
 
     const jshReady = withResolvers<void>();
@@ -151,10 +163,14 @@ export class BoltShell {
     return { process, output: internalOutput };
   }
   async getCurrentExecutionResult() {
+    let { output, exitCode } = await this.waitTillOscCode('exit')
+    return { output, exitCode };
+  }
+  async waitTillOscCode(waitCode: string) {
     let fullOutput = '';
     let exitCode: number = 0;
-    if (!this.#outputStream) return;
-    let tappedStream = this.#outputStream.getReader()
+    if (!this.#outputStream) return { output: fullOutput, exitCode };
+    let tappedStream = this.#outputStream
 
     while (true) {
       const { value, done } = await tappedStream.read();
@@ -163,11 +179,11 @@ export class BoltShell {
       fullOutput += text;
 
       // Check if command completion signal with exit code
-      const exitMatch = fullOutput.match(/\]654;exit=-?\d+:(\d+)/);
-      if (exitMatch) {
-        console.log(exitMatch);
-        exitCode = parseInt(exitMatch[1], 10);
-        tappedStream.releaseLock()
+      const [, osc, , pid, code] = text.match(/\x1b\]654;([^\x07=]+)=?((-?\d+):(\d+))?\x07/) || [];
+      if (osc === 'exit') {
+        exitCode = parseInt(code, 10);
+      }
+      if (osc === waitCode) {
         break;
       }
     }

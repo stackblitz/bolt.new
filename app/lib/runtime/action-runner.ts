@@ -116,7 +116,7 @@ export class ActionRunner {
           break;
         }
         case 'start': {
-          await this.#runStartAction(action);
+          await this.#runStartAction(action)
           break;
         }
       }
@@ -124,6 +124,7 @@ export class ActionRunner {
       this.#updateAction(actionId, { status: action.abortSignal.aborted ? 'aborted' : 'complete' });
     } catch (error) {
       this.#updateAction(actionId, { status: 'failed', error: 'Action failed' });
+      logger.error(`[${action.type}]:Action failed\n\n`, error);
 
       // re-throw the error to be caught in the promise chain
       throw error;
@@ -140,8 +141,9 @@ export class ActionRunner {
       unreachable('Shell terminal not found');
     }
     const resp = await shell.executeCommand(this.runnerId.get(), action.content)
+    logger.debug(`${action.type} Shell Response: [exit code:${resp?.exitCode}]`)
     if (resp?.exitCode != 0) {
-      throw new Error("Failed To Start Application");
+      throw new Error("Failed To Execute Shell Command");
 
     }
   }
@@ -159,10 +161,12 @@ export class ActionRunner {
       unreachable('Shell terminal not found');
     }
     const resp = await shell.executeCommand(this.runnerId.get(), action.content)
+    logger.debug(`${action.type} Shell Response: [exit code:${resp?.exitCode}]`)
+
     if (resp?.exitCode != 0) {
       throw new Error("Failed To Start Application");
-
     }
+    return resp
   }
 
   async #runFileAction(action: ActionState) {
@@ -193,24 +197,6 @@ export class ActionRunner {
       logger.error('Failed to write file\n\n', error);
     }
   }
-  async getCurrentExecutionResult(output: ReadableStreamDefaultReader<string>) {
-    let fullOutput = '';
-    let exitCode: number = 0;
-    while (true) {
-      const { value, done } = await output.read();
-      if (done) break;
-      const text = value || '';
-      fullOutput += text;
-      // Check if command completion signal with exit code
-      const exitMatch = fullOutput.match(/\]654;exit=-?\d+:(\d+)/);
-      if (exitMatch) {
-        exitCode = parseInt(exitMatch[1], 10);
-        break;
-      }
-    }
-    return { output: fullOutput, exitCode };
-  }
-
   #updateAction(id: string, newState: ActionStateUpdate) {
     const actions = this.actions.get();
 

@@ -5,6 +5,7 @@ import { getModel } from '~/lib/.server/llm/model';
 import { MAX_TOKENS } from './constants';
 import { getSystemPrompt } from './prompts';
 import { MODEL_LIST, DEFAULT_MODEL, DEFAULT_PROVIDER } from '~/utils/constants';
+import { logger } from '~/utils/logger';
 
 interface ToolResult<Name extends string, Args, Result> {
   toolCallId: string;
@@ -40,6 +41,7 @@ function extractModelFromMessage(message: Message): { model: string; content: st
 
 export function streamText(messages: Messages, env: Env, options?: StreamingOptions) {
   let currentModel = DEFAULT_MODEL;
+  logger.debug('model List', JSON.stringify(MODEL_LIST, null, 2))
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
       const { model, content } = extractModelFromMessage(message);

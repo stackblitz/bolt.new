@@ -151,7 +151,13 @@ const ActionList = memo(({ actions }: ActionListProps) => {
               <div className="flex items-center gap-1.5 text-sm">
                 <div className={classNames('text-lg', getIconColor(action.status))}>
                   {status === 'running' ? (
-                    <div className="i-svg-spinners:90-ring-with-bg"></div>
+                    <>
+                      {type !== 'start' ? (
+                        <div className="i-svg-spinners:90-ring-with-bg"></div>
+                      ) : (
+                        <div className="i-ph:terminal-window-duotone"></div>
+                      )}
+                    </>
                   ) : status === 'pending' ? (
                     <div className="i-ph:circle-duotone"></div>
                   ) : status === 'complete' ? (
@@ -177,7 +183,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   </div>
                 ) : null}
               </div>
-              {type === 'shell' && (
+              {(type === 'shell' || type === 'start') && (
                 <ShellCodeBlock
                   classsName={classNames('mt-1', {
                     'mb-3.5': !isLast,

@@ -31,6 +31,8 @@ export function getAPIKey(cloudflareEnv: Env, provider: string, userApiKeys?: Re
       return env.MISTRAL_API_KEY || cloudflareEnv.MISTRAL_API_KEY;        
     case "OpenAILike":
       return env.OPENAI_LIKE_API_KEY || cloudflareEnv.OPENAI_LIKE_API_KEY;
+    case "xAI":
+      return env.XAI_API_KEY || cloudflareEnv.XAI_API_KEY;
     default:
       return "";
   }
@@ -41,7 +43,11 @@ export function getBaseURL(cloudflareEnv: Env, provider: string) {
     case 'OpenAILike':
       return env.OPENAI_LIKE_API_BASE_URL || cloudflareEnv.OPENAI_LIKE_API_BASE_URL;
     case 'Ollama':
-        return env.OLLAMA_API_BASE_URL || cloudflareEnv.OLLAMA_API_BASE_URL || "http://localhost:11434";
+        let baseUrl = env.OLLAMA_API_BASE_URL || cloudflareEnv.OLLAMA_API_BASE_URL || "http://localhost:11434";
+        if (env.RUNNING_IN_DOCKER === 'true') {
+          baseUrl = baseUrl.replace("localhost", "host.docker.internal");
+        }
+        return baseUrl;
     default:
       return "";
   }

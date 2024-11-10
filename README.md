@@ -85,7 +85,7 @@ If you see usr/local/bin in the output then you're good to go.
 git clone https://github.com/coleam00/bolt.new-any-llm.git
 ```
 
-3. Rename .env.example to .env and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example". For Windows and Linux the path will be similar.
+3. Rename .env.example to .env.local and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example". For Windows and Linux the path will be similar.
 
 ![image](https://github.com/user-attachments/assets/7e6a532c-2268-401f-8310-e8d20c731328)
 
@@ -115,7 +115,7 @@ Optionally, you can set the debug level:
 VITE_LOG_LEVEL=debug
 ```
 
-**Important**: Never commit your `.env` file to version control. It's already included in .gitignore.
+**Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 
 ## Run with Docker
 

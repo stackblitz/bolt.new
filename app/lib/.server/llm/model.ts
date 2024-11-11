@@ -86,6 +86,7 @@ export function getOpenRouterModel(apiKey: string, model: string) {
 export function getLMStudioModel(baseURL: string, model: string) {
   const lmstudio = createOpenAI({
     baseUrl: `${baseURL}/v1`,
+    apiKey: "",
   });
 
   return lmstudio(model);

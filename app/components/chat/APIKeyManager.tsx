@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
+import type { ProviderInfo } from '~/utils/constants';
 
 interface APIKeyManagerProps {
-  provider: string;
+  provider: ProviderInfo;
   apiKey: string;
   setApiKey: (key: string) => void;
 }
@@ -18,7 +19,7 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
 
   return (
     <div className="flex items-center gap-2 mt-2 mb-2">
-      <span className="text-sm text-bolt-elements-textSecondary">{provider} API Key:</span>
+      <span className="text-sm text-bolt-elements-textSecondary">{provider?.name} API Key:</span>
       {isEditing ? (
         <>
           <input
@@ -42,6 +43,7 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
           <IconButton onClick={() => setIsEditing(true)} title="Edit API Key">
             <div className="i-ph:pencil-simple" />
           </IconButton>
+          {!!provider?.getApiKeyLink ? <a href={provider?.getApiKeyLink}>{provider?.labelForGetApiKey || "Get API Key"}</a> : "" }
         </>
       )}
     </div>

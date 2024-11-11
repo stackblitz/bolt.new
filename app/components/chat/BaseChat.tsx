@@ -7,7 +7,7 @@ import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import { MODEL_LIST, DEFAULT_PROVIDER } from '~/utils/constants';
+import { MODEL_LIST, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { useState } from 'react';
@@ -24,12 +24,12 @@ const EXAMPLE_PROMPTS = [
   { text: 'How do I center a div?' },
 ];
 
-const providerList = [...new Set(MODEL_LIST.map((model) => model.provider))]
+const providerList = PROVIDER_LIST;
 
 const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList }) => {
   return (
     <div className="mb-2 flex gap-2">
-      <select 
+      <select
         value={provider}
         onChange={(e) => {
           setProvider(e.target.value);
@@ -39,19 +39,10 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
         {providerList.map((provider) => (
-          <option key={provider} value={provider}>
-            {provider}
+          <option key={provider.name} value={provider.name}>
+            {provider.name}
           </option>
         ))}
-        <option key="Ollama" value="Ollama">
-          Ollama
-        </option>
-        <option key="OpenAILike" value="OpenAILike">
-          OpenAILike
-        </option>
-        <option key="LMStudio" value="LMStudio">
-          LMStudio
-        </option>
       </select>
       <select
         value={model}

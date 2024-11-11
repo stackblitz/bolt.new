@@ -100,9 +100,8 @@ export function getXAIModel(apiKey: string, model: string) {
 
   return openai(model);
 }
-
-export function getModel(provider: string, model: string, env: Env) {
-  const apiKey = getAPIKey(env, provider);
+export function getModel(provider: string, model: string, env: Env, apiKeys?: Record<string, string>) {
+  const apiKey = getAPIKey(env, provider, apiKeys);
   const baseURL = getBaseURL(env, provider);
 
   switch (provider) {

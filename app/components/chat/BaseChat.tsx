@@ -7,7 +7,7 @@ import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import { MODEL_LIST, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
+import { MODEL_LIST, DEFAULT_PROVIDER, PROVIDER_LIST, ProviderInfo } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { useState } from 'react';
@@ -30,9 +30,9 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
   return (
     <div className="mb-2 flex gap-2">
       <select
-        value={provider}
+        value={provider?.name}
         onChange={(e) => {
-          setProvider(e.target.value);
+          setProvider(providerList.find(p => p.name === e.target.value));
           const firstModel = [...modelList].find(m => m.provider == e.target.value);
           setModel(firstModel ? firstModel.name : '');
         }}
@@ -49,7 +49,7 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
         onChange={(e) => setModel(e.target.value)}
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
-        {[...modelList].filter(e => e.provider == provider && e.name).map((modelOption) => (
+        {[...modelList].filter(e => e.provider == provider?.name && e.name).map((modelOption) => (
           <option key={modelOption.name} value={modelOption.name}>
             {modelOption.label}
           </option>
@@ -74,8 +74,8 @@ interface BaseChatProps {
   input?: string;
   model: string;
   setModel: (model: string) => void;
-  provider: string;
-  setProvider: (provider: string) => void;
+  provider: ProviderInfo;
+  setProvider: (provider: ProviderInfo) => void;
   handleStop?: () => void;
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -106,6 +106,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     },
     ref,
   ) => {
+    console.log(provider);
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
 
@@ -194,11 +195,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   setProvider={setProvider}
                   providerList={providerList}
                 />
-                <APIKeyManager
-                  provider={provider}
-                  apiKey={apiKeys[provider] || ''}
-                  setApiKey={(key) => updateApiKey(provider, key)}
-                />
+                {provider &&
+                  <APIKeyManager
+                    provider={provider}
+                    apiKey={apiKeys[provider.name] || ''}
+                    setApiKey={(key) => updateApiKey(provider.name, key)}
+                  />}
                 <div
                   className={classNames(
                     'shadow-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden transition-all',

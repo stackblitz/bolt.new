@@ -6,7 +6,7 @@ export const MODIFICATIONS_TAG_NAME = 'bolt_file_modifications';
 export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
 export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
 export const DEFAULT_MODEL = 'claude-3-5-sonnet-latest';
-export const DEFAULT_PROVIDER = 'Anthropic';
+
 
 export type ProviderInfo = {
   staticModels: ModelInfo[],
@@ -14,13 +14,29 @@ export type ProviderInfo = {
   getDynamicModels?: () => Promise<ModelInfo[]>,
   getApiKeyLink?: string,
   labelForGetApiKey?: string,
+  icon?:string,
 };
 
 const PROVIDER_LIST: ProviderInfo[] = [
   {
+    name: 'Anthropic',
+    staticModels: [
+      { name: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet (new)', provider: 'Anthropic' },
+      { name: 'claude-3-5-sonnet-20240620', label: 'Claude 3.5 Sonnet (old)', provider: 'Anthropic' },
+      { name: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku (new)', provider: 'Anthropic' },
+      { name: 'claude-3-opus-latest', label: 'Claude 3 Opus', provider: 'Anthropic' },
+      { name: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet', provider: 'Anthropic' },
+      { name: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku', provider: 'Anthropic' }
+    ],
+    getApiKeyLink: "https://console.anthropic.com/settings/keys",
+  },
+  {
     name: 'Ollama',
     staticModels: [],
-    getDynamicModels: getOllamaModels
+    getDynamicModels: getOllamaModels,
+    getApiKeyLink: "https://ollama.com/download",
+    labelForGetApiKey: "Download Ollama",
+    icon: "i-ph:cloud-arrow-down",
   }, {
     name: 'OpenAILike',
     staticModels: [],
@@ -63,17 +79,6 @@ const PROVIDER_LIST: ProviderInfo[] = [
     ],
     getApiKeyLink: 'https://console.groq.com/keys'
   }, {
-    name: 'Anthropic',
-    staticModels: [
-      { name: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet (new)', provider: 'Anthropic' },
-      { name: 'claude-3-5-sonnet-20240620', label: 'Claude 3.5 Sonnet (old)', provider: 'Anthropic' },
-      { name: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku (new)', provider: 'Anthropic' },
-      { name: 'claude-3-opus-latest', label: 'Claude 3 Opus', provider: 'Anthropic' },
-      { name: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet', provider: 'Anthropic' },
-      { name: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku', provider: 'Anthropic' }
-    ],
-    getApiKeyLink: "https://console.anthropic.com/settings/keys",
-  }, {
     name: 'OpenAI',
     staticModels: [
       { name: 'gpt-4o-mini', label: 'GPT-4o Mini', provider: 'OpenAI' },
@@ -114,10 +119,12 @@ const PROVIDER_LIST: ProviderInfo[] = [
     staticModels: [],
     getDynamicModels: getLMStudioModels,
     getApiKeyLink: 'https://lmstudio.ai/',
-    labelForGetApiKey: 'Get LMStudio'
+    labelForGetApiKey: 'Get LMStudio',
+    icon: "i-ph:cloud-arrow-down",
   }
 ];
 
+export const DEFAULT_PROVIDER = PROVIDER_LIST[0];
 
 const staticModels: ModelInfo[] = PROVIDER_LIST.map(p => p.staticModels).flat();
 

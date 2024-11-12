@@ -189,7 +189,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
        * manually reset the input and we'd have to manually pass in file attachments. However, those
        * aren't relevant here.
        */
-      append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider}]\n\n${diff}\n\n${_input}` });
+      append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${diff}\n\n${_input}` });
 
       /**
        * After sending a new message we reset all modifications since the model
@@ -197,7 +197,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
        */
       workbenchStore.resetAllFileModifications();
     } else {
-      append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider}]\n\n${_input}` });
+      append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${_input}` });
     }
 
     setInput('');

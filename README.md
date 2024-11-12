@@ -18,7 +18,9 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ✅ Ability to sync files (one way sync) to local folder (@muzafferkadir)
 - ✅ Containerize the application with Docker for easy installation (@aaronbolton)
 - ✅ Publish projects directly to GitHub (@goncaloalves)
-- ⬜ Prevent Bolt from rewriting files as often (Done but need to review PR still)
+- ✅ Ability to enter API keys in the UI (@ali00209)
+- ✅ xAI Grok Beta Integration (@milutinke)
+- ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ **HIGH PRIORITY** Load local projects into the app
 - ⬜ **HIGH PRIORITY** - Attach images to prompts
@@ -34,7 +36,6 @@ This fork of Bolt.new allows you to choose the LLM that you use for each prompt!
 - ⬜ Ability to revert code to earlier version
 - ⬜ Prompt caching
 - ⬜ Better prompt enhancing
-- ⬜ Ability to enter API keys in the UI
 - ⬜ Have LLM plan the project in a MD file for better results/transparency
 - ⬜ VSCode Integration with git-like confirmations
 - ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.
@@ -85,7 +86,7 @@ If you see usr/local/bin in the output then you're good to go.
 git clone https://github.com/coleam00/bolt.new-any-llm.git
 ```
 
-3. Rename .env.example to .env and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example". For Windows and Linux the path will be similar.
+3. Rename .env.example to .env.local and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example". For Windows and Linux the path will be similar.
 
 ![image](https://github.com/user-attachments/assets/7e6a532c-2268-401f-8310-e8d20c731328)
 
@@ -115,7 +116,7 @@ Optionally, you can set the debug level:
 VITE_LOG_LEVEL=debug
 ```
 
-**Important**: Never commit your `.env` file to version control. It's already included in .gitignore.
+**Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 
 ## Run with Docker
 

@@ -13,6 +13,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Octokit } from "@octokit/rest";
 import * as nodePath from 'node:path';
+import type { WebContainerProcess } from '@webcontainer/api';
 
 export interface ArtifactState {
   id: string;
@@ -40,6 +41,7 @@ export class WorkbenchStore {
   unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
+  #boltTerminal: { terminal: ITerminal; process: WebContainerProcess } | undefined;
 
   constructor() {
     if (import.meta.hot) {
@@ -77,6 +79,9 @@ export class WorkbenchStore {
   get showTerminal() {
     return this.#terminalStore.showTerminal;
   }
+  get boltTerminal() {
+    return this.#terminalStore.boltTerminal;
+  }
 
   toggleTerminal(value?: boolean) {
     this.#terminalStore.toggleTerminal(value);
@@ -84,6 +89,10 @@ export class WorkbenchStore {
 
   attachTerminal(terminal: ITerminal) {
     this.#terminalStore.attachTerminal(terminal);
+  }
+  attachBoltTerminal(terminal: ITerminal) {
+
+    this.#terminalStore.attachBoltTerminal(terminal);
   }
 
   onTerminalResize(cols: number, rows: number) {
@@ -233,7 +242,7 @@ export class WorkbenchStore {
       id,
       title,
       closed: false,
-      runner: new ActionRunner(webcontainer),
+      runner: new ActionRunner(webcontainer, () => this.boltTerminal),
     });
   }
 

@@ -12,41 +12,55 @@ export function usePromptEnhancer() {
     setPromptEnhanced(false);
   };
 
-  const enhancePrompt = async (input: string, setInput: (value: string) => void) => {
+  const enhancePrompt = async (
+    input: string, 
+    setInput: (value: string) => void,
+    model: string,
+    provider: string,
+    apiKeys?: Record<string, string>
+  ) => {
     setEnhancingPrompt(true);
     setPromptEnhanced(false);
-
+  
+    const requestBody: any = {
+      message: input,
+      model,
+      provider,
+    };
+  
+    if (apiKeys) {
+      requestBody.apiKeys = apiKeys;
+    }
+  
     const response = await fetch('/api/enhancer', {
       method: 'POST',
-      body: JSON.stringify({
-        message: input,
-      }),
+      body: JSON.stringify(requestBody),
     });
-
+  
     const reader = response.body?.getReader();
-
+  
     const originalInput = input;
-
+  
     if (reader) {
       const decoder = new TextDecoder();
-
+  
       let _input = '';
       let _error;
-
+  
       try {
         setInput('');
-
+  
         while (true) {
           const { value, done } = await reader.read();
-
+  
           if (done) {
             break;
           }
-
+  
           _input += decoder.decode(value);
-
+  
           logger.trace('Set input', _input);
-
+  
           setInput(_input);
         }
       } catch (error) {
@@ -56,10 +70,10 @@ export function usePromptEnhancer() {
         if (_error) {
           logger.error(_error);
         }
-
+  
         setEnhancingPrompt(false);
         setPromptEnhanced(true);
-
+  
         setTimeout(() => {
           setInput(_input);
         });

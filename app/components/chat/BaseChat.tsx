@@ -24,16 +24,16 @@ const EXAMPLE_PROMPTS = [
   { text: 'How do I center a div?' },
 ];
 
-const providerList = [...new Set(MODEL_LIST.map((model) => model.provider))]
+const providerList = [...new Set(MODEL_LIST.map((model) => model.provider))];
 
 const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList }) => {
   return (
     <div className="mb-2 flex gap-2">
-      <select 
+      <select
         value={provider}
         onChange={(e) => {
           setProvider(e.target.value);
-          const firstModel = [...modelList].find(m => m.provider == e.target.value);
+          const firstModel = [...modelList].find((m) => m.provider == e.target.value);
           setModel(firstModel ? firstModel.name : '');
         }}
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
@@ -58,11 +58,13 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
         onChange={(e) => setModel(e.target.value)}
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
-        {[...modelList].filter(e => e.provider == provider && e.name).map((modelOption) => (
-          <option key={modelOption.name} value={modelOption.name}>
-            {modelOption.label}
-          </option>
-        ))}
+        {[...modelList]
+          .filter((e) => e.provider == provider && e.name)
+          .map((modelOption) => (
+            <option key={modelOption.name} value={modelOption.name}>
+              {modelOption.label}
+            </option>
+          ))}
       </select>
     </div>
   );
@@ -81,10 +83,10 @@ interface BaseChatProps {
   enhancingPrompt?: boolean;
   promptEnhanced?: boolean;
   input?: string;
-  model: string;
-  setModel: (model: string) => void;
+  model?: string;
+  setModel?: (model: string) => void;
   provider: string;
-  setProvider: (provider: string) => void;
+  setProvider?: (provider: string) => void;
   handleStop?: () => void;
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -144,7 +146,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           expires: 30, // 30 days
           secure: true, // Only send over HTTPS
           sameSite: 'strict', // Protect against CSRF
-          path: '/' // Accessible across the site
+          path: '/', // Accessible across the site
         });
       } catch (error) {
         console.error('Error saving API keys to cookies:', error);
@@ -281,7 +283,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     </div>
                     {input.length > 3 ? (
                       <div className="text-xs text-bolt-elements-textTertiary">
-                        Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> + <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for a new line
+                        Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> +{' '}
+                        <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for
+                        a new line
                       </div>
                     ) : null}
                   </div>

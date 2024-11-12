@@ -11,7 +11,8 @@ import { PreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { Octokit } from "@octokit/rest";
+import { Octokit, type RestEndpointMethodTypes } from "@octokit/rest";
+import * as nodePath from 'node:path';
 import type { WebContainerProcess } from '@webcontainer/api';
 
 export interface ArtifactState {
@@ -267,7 +268,7 @@ export class WorkbenchStore {
     artifact.runner.addAction(data);
   }
 
-  async runAction(data: ActionCallbackData) {
+  async runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     const { messageId } = data;
 
     const artifact = this.#getArtifact(messageId);
@@ -275,8 +276,29 @@ export class WorkbenchStore {
     if (!artifact) {
       unreachable('Artifact not found');
     }
+    if (data.action.type === 'file') {
+      let wc = await webcontainer
+      const fullPath = nodePath.join(wc.workdir, data.action.filePath);
+      if (this.selectedFile.value !== fullPath) {
+        this.setSelectedFile(fullPath);
+      }
+      if (this.currentView.value !== 'code') {
+        this.currentView.set('code');
+      }
+      const doc = this.#editorStore.documents.get()[fullPath];
+      if (!doc) {
+        await artifact.runner.runAction(data, isStreaming);
+      }
 
-    artifact.runner.runAction(data);
+      this.#editorStore.updateFile(fullPath, data.action.content);
+
+      if (!isStreaming) {
+        this.resetCurrentDocument();
+        await artifact.runner.runAction(data);
+      }
+    } else {
+      artifact.runner.runAction(data);
+    }
   }
 
   #getArtifact(id: string) {
@@ -360,9 +382,10 @@ export class WorkbenchStore {
       const octokit = new Octokit({ auth: githubToken });
 
       // Check if the repository already exists before creating it
-      let repo
+      let repo: RestEndpointMethodTypes["repos"]["get"]["response"]['data']
       try {
-        repo = await octokit.repos.get({ owner: owner, repo: repoName });
+        let resp = await octokit.repos.get({ owner: owner, repo: repoName });
+        repo = resp.data
       } catch (error) {
         if (error instanceof Error && 'status' in error && error.status === 404) {
           // Repository doesn't exist, so create a new one

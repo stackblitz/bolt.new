@@ -36,6 +36,10 @@ const messageParser = new StreamingMessageParser({
 
       workbenchStore.runAction(data);
     },
+    onActionStream: (data) => {
+      logger.trace('onActionStream', data.action);
+      workbenchStore.runAction(data, true);
+    },
   },
 });
 

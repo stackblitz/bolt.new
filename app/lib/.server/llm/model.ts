@@ -41,9 +41,9 @@ export function getMistralModel(apiKey: string, model: string) {
 }
 
 export function getGoogleModel(apiKey: string, model: string) {
-  const google = createGoogleGenerativeAI(
+  const google = createGoogleGenerativeAI({
     apiKey,
-  );
+  });
 
   return google(model);
 }

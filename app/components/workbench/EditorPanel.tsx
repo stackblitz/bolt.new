@@ -18,7 +18,7 @@ import { themeStore } from '~/lib/stores/theme';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { WORK_DIR } from '~/utils/constants';
-import { renderLogger } from '~/utils/logger';
+import { logger, renderLogger } from '~/utils/logger';
 import { isMobile } from '~/utils/mobile';
 import { FileBreadcrumb } from './FileBreadcrumb';
 import { FileTree } from './FileTree';
@@ -199,25 +199,48 @@ export const EditorPanel = memo(
           <div className="h-full">
             <div className="bg-bolt-elements-terminals-background h-full flex flex-col">
               <div className="flex items-center bg-bolt-elements-background-depth-2 border-y border-bolt-elements-borderColor gap-1.5 min-h-[34px] p-2">
-                {Array.from({ length: terminalCount }, (_, index) => {
+                {Array.from({ length: terminalCount + 1 }, (_, index) => {
                   const isActive = activeTerminal === index;
 
                   return (
-                    <button
-                      key={index}
-                      className={classNames(
-                        'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
-                        {
-                          'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
-                          'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
-                            !isActive,
-                        },
+                    <>
+                      {index == 0 ? (
+                        <button
+                          key={index}
+                          className={classNames(
+                            'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
+                            {
+                              'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary':
+                                isActive,
+                              'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
+                                !isActive,
+                            },
+                          )}
+                          onClick={() => setActiveTerminal(index)}
+                        >
+                          <div className="i-ph:terminal-window-duotone text-lg" />
+                          Bolt Terminal
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            key={index}
+                            className={classNames(
+                              'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
+                              {
+                                'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
+                                'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
+                                  !isActive,
+                              },
+                            )}
+                            onClick={() => setActiveTerminal(index)}
+                          >
+                            <div className="i-ph:terminal-window-duotone text-lg" />
+                            Terminal {terminalCount > 1 && index}
+                          </button>
+                        </>
                       )}
-                      onClick={() => setActiveTerminal(index)}
-                    >
-                      <div className="i-ph:terminal-window-duotone text-lg" />
-                      Terminal {terminalCount > 1 && index + 1}
-                    </button>
+                    </>
                   );
                 })}
                 {terminalCount < MAX_TERMINALS && <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} />}
@@ -229,9 +252,26 @@ export const EditorPanel = memo(
                   onClick={() => workbenchStore.toggleTerminal(false)}
                 />
               </div>
-              {Array.from({ length: terminalCount }, (_, index) => {
+              {Array.from({ length: terminalCount + 1 }, (_, index) => {
                 const isActive = activeTerminal === index;
+                if (index == 0) {
+                  logger.info('Starting bolt terminal');
 
+                  return (
+                    <Terminal
+                      key={index}
+                      className={classNames('h-full overflow-hidden', {
+                        hidden: !isActive,
+                      })}
+                      ref={(ref) => {
+                        terminalRefs.current.push(ref);
+                      }}
+                      onTerminalReady={(terminal) => workbenchStore.attachBoltTerminal(terminal)}
+                      onTerminalResize={(cols, rows) => workbenchStore.onTerminalResize(cols, rows)}
+                      theme={theme}
+                    />
+                  );
+                }
                 return (
                   <Terminal
                     key={index}

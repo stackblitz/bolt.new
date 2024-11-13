@@ -11,7 +11,7 @@ import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { fileModificationsToHTML } from '~/utils/diff';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER } from '~/utils/constants';
+import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST, ProviderInfo } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
@@ -80,7 +80,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   });
   const [provider, setProvider] = useState(() => {
     const savedProvider = Cookies.get('selectedProvider');
-    return savedProvider || DEFAULT_PROVIDER;
+    return PROVIDER_LIST.find(p => p.name === savedProvider) || DEFAULT_PROVIDER;
   });
 
   const { showChat } = useStore(chatStore);
@@ -96,7 +96,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     },
     onError: (error) => {
       logger.error('Request failed\n\n', error);
-      toast.error('There was an error processing your request');
+      toast.error('There was an error processing your request: ' + (error.message ? error.message : "No details were returned"));
     },
     onFinish: () => {
       logger.debug('Finished streaming');
@@ -227,9 +227,9 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     Cookies.set('selectedModel', newModel, { expires: 30 });
   };
 
-  const handleProviderChange = (newProvider: string) => {
+  const handleProviderChange = (newProvider: ProviderInfo) => {
     setProvider(newProvider);
-    Cookies.set('selectedProvider', newProvider, { expires: 30 });
+    Cookies.set('selectedProvider', newProvider.name, { expires: 30 });
   };
 
   return (
@@ -263,7 +263,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       })}
       enhancePrompt={() => {
         enhancePrompt(
-          input, 
+          input,
           (input) => {
             setInput(input);
             scrollTextArea();

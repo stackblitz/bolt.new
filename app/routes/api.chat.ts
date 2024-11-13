@@ -10,11 +10,34 @@ export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
 }
 
+function parseCookies(cookieHeader) {
+  const cookies = {};
+
+  // Split the cookie string by semicolons and spaces
+  const items = cookieHeader.split(";").map(cookie => cookie.trim());
+
+  items.forEach(item => {
+    const [name, ...rest] = item.split("=");
+    if (name && rest) {
+      // Decode the name and value, and join value parts in case it contains '='
+      const decodedName = decodeURIComponent(name.trim());
+      const decodedValue = decodeURIComponent(rest.join("=").trim());
+      cookies[decodedName] = decodedValue;
+    }
+  });
+
+  return cookies;
+}
+
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages, apiKeys } = await request.json<{ 
-    messages: Messages,
-    apiKeys: Record<string, string>
+  const { messages } = await request.json<{
+    messages: Messages
   }>();
+
+  const cookieHeader = request.headers.get("Cookie");
+
+  // Parse the cookie's value (returns an object or null if no cookie exists)
+  const apiKeys = JSON.parse(parseCookies(cookieHeader).apiKeys || "{}");
 
   const stream = new SwitchableStream();
 
@@ -56,7 +79,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     });
   } catch (error) {
     console.log(error);
-    
+
     if (error.message?.includes('API key')) {
       throw new Response('Invalid or missing API key', {
         status: 401,

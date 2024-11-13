@@ -74,8 +74,14 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
-  const [model, setModel] = useState(DEFAULT_MODEL);
-  const [provider, setProvider] = useState(DEFAULT_PROVIDER);
+  const [model, setModel] = useState(() => {
+    const savedModel = Cookies.get('selectedModel');
+    return savedModel || DEFAULT_MODEL;
+  });
+  const [provider, setProvider] = useState(() => {
+    const savedProvider = Cookies.get('selectedProvider');
+    return savedProvider || DEFAULT_PROVIDER;
+  });
 
   const { showChat } = useStore(chatStore);
 
@@ -216,6 +222,16 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     }
   }, []);
 
+  const handleModelChange = (newModel: string) => {
+    setModel(newModel);
+    Cookies.set('selectedModel', newModel, { expires: 30 });
+  };
+
+  const handleProviderChange = (newProvider: string) => {
+    setProvider(newProvider);
+    Cookies.set('selectedProvider', newProvider, { expires: 30 });
+  };
+
   return (
     <BaseChat
       ref={animationScope}
@@ -228,9 +244,9 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       promptEnhanced={promptEnhanced}
       sendMessage={sendMessage}
       model={model}
-      setModel={setModel}
+      setModel={handleModelChange}
       provider={provider}
-      setProvider={setProvider}
+      setProvider={handleProviderChange}
       messageRef={messageRef}
       scrollRef={scrollRef}
       handleInputChange={handleInputChange}
@@ -246,10 +262,16 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
         };
       })}
       enhancePrompt={() => {
-        enhancePrompt(input, (input) => {
-          setInput(input);
-          scrollTextArea();
-        });
+        enhancePrompt(
+          input, 
+          (input) => {
+            setInput(input);
+            scrollTextArea();
+          },
+          model,
+          provider,
+          apiKeys
+        );
       }}
     />
   );

@@ -1,4 +1,4 @@
-import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
+import type { ModelInfo, OllamaApiResponse, OllamaModel, ProviderInfo } from './types';
 
 export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
@@ -6,16 +6,6 @@ export const MODIFICATIONS_TAG_NAME = 'bolt_file_modifications';
 export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
 export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
 export const DEFAULT_MODEL = 'claude-3-5-sonnet-latest';
-
-
-export type ProviderInfo = {
-  staticModels: ModelInfo[],
-  name: string,
-  getDynamicModels?: () => Promise<ModelInfo[]>,
-  getApiKeyLink?: string,
-  labelForGetApiKey?: string,
-  icon?:string,
-};
 
 const PROVIDER_LIST: ProviderInfo[] = [
   {

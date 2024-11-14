@@ -11,11 +11,12 @@ import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { fileModificationsToHTML } from '~/utils/diff';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST, ProviderInfo } from '~/utils/constants';
+import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
 import Cookies from 'js-cookie';
+import type { ProviderInfo } from '~/utils/types';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',

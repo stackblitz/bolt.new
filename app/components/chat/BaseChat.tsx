@@ -7,7 +7,7 @@ import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import { MODEL_LIST, DEFAULT_PROVIDER, PROVIDER_LIST, ProviderInfo, initializeModelList } from '~/utils/constants';
+import { MODEL_LIST, DEFAULT_PROVIDER, PROVIDER_LIST, initializeModelList } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { useState } from 'react';
@@ -15,6 +15,7 @@ import { APIKeyManager } from './APIKeyManager';
 import Cookies from 'js-cookie';
 
 import styles from './BaseChat.module.scss';
+import type { ProviderInfo } from '~/utils/types';
 
 const EXAMPLE_PROMPTS = [
   { text: 'Build a todo app in React using Tailwind' },

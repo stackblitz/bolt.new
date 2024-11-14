@@ -87,6 +87,35 @@ interface BaseChatProps {
   enhancePrompt?: () => void;
 }
 
+const SpeechRecognitionButton = ({
+  isListening,
+  onStart,
+  onStop,
+  disabled
+}: {
+  isListening: boolean;
+  onStart: () => void;
+  onStop: () => void;
+  disabled: boolean;
+}) => {
+  return (
+    <IconButton
+      title={isListening ? "Stop listening" : "Start speech recognition"}
+      disabled={disabled}
+      className={classNames('transition-all', {
+        'text-bolt-elements-item-contentAccent': isListening,
+      })}
+      onClick={isListening ? onStop : onStart}
+    >
+      {isListening ? (
+        <div className="i-ph:microphone-slash text-xl" />
+      ) : (
+        <div className="i-ph:microphone text-xl" />
+      )}
+    </IconButton>
+  );
+};
+
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
   (
     {
@@ -114,6 +143,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState(MODEL_LIST);
+    const [isListening, setIsListening] = useState(false);
+    const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
     useEffect(() => {
       // Load API keys from cookies on component mount
@@ -134,7 +165,48 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       initializeModelList().then((modelList) => {
         setModelList(modelList);
       });
+      if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0])
+            .map(result => result.transcript)
+            .join('');
+
+          if (handleInputChange) {
+            const syntheticEvent = {
+              target: { value: transcript },
+            } as React.ChangeEvent<HTMLTextAreaElement>;
+            handleInputChange(syntheticEvent);
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+        };
+
+        setRecognition(recognition);
+      }
     }, []);
+
+    const startListening = () => {
+      if (recognition) {
+        recognition.start();
+        setIsListening(true);
+      }
+    };
+
+    const stopListening = () => {
+      if (recognition) {
+        recognition.stop();
+        setIsListening(false);
+      }
+    };
 
     const updateApiKey = (provider: string, key: string) => {
       try {
@@ -284,6 +356,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           </>
                         )}
                       </IconButton>
+
+                      <SpeechRecognitionButton
+                        isListening={isListening}
+                        onStart={startListening}
+                        onStop={stopListening}
+                        disabled={isStreaming}
+                      />
                     </div>
                     {input.length > 3 ? (
                       <div className="text-xs text-bolt-elements-textTertiary">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
-import type { ProviderInfo } from '~/utils/constants';
+import type { ProviderInfo } from '~/types/model';
 
 interface APIKeyManagerProps {
   provider: ProviderInfo;

@@ -7,7 +7,7 @@ import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import { MODEL_LIST, DEFAULT_PROVIDER } from '~/utils/constants';
+import { MODEL_LIST, DEFAULT_PROVIDER, PROVIDER_LIST, initializeModelList } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { useState } from 'react';
@@ -15,6 +15,7 @@ import { APIKeyManager } from './APIKeyManager';
 import Cookies from 'js-cookie';
 
 import styles from './BaseChat.module.scss';
+import type { ProviderInfo } from '~/utils/types';
 
 const EXAMPLE_PROMPTS = [
   { text: 'Build a todo app in React using Tailwind' },
@@ -24,42 +25,35 @@ const EXAMPLE_PROMPTS = [
   { text: 'How do I center a div?' },
 ];
 
-const providerList = [...new Set(MODEL_LIST.map((model) => model.provider))];
+const providerList = PROVIDER_LIST;
 
 const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList }) => {
   return (
     <div className="mb-2 flex gap-2">
       <select
-        value={provider}
+        value={provider?.name}
         onChange={(e) => {
-          setProvider(e.target.value);
+          setProvider(providerList.find(p => p.name === e.target.value));
           const firstModel = [...modelList].find((m) => m.provider == e.target.value);
           setModel(firstModel ? firstModel.name : '');
         }}
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
         {providerList.map((provider) => (
-          <option key={provider} value={provider}>
-            {provider}
+          <option key={provider.name} value={provider.name}>
+            {provider.name}
           </option>
         ))}
-        <option key="Ollama" value="Ollama">
-          Ollama
-        </option>
-        <option key="OpenAILike" value="OpenAILike">
-          OpenAILike
-        </option>
-        <option key="LMStudio" value="LMStudio">
-          LMStudio
-        </option>
       </select>
       <select
+        key={provider?.name}
         value={model}
         onChange={(e) => setModel(e.target.value)}
+        style={{maxWidth: "70%"}}
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
         {[...modelList]
-          .filter((e) => e.provider == provider && e.name)
+          .filter((e) => e.provider == provider?.name && e.name)
           .map((modelOption) => (
             <option key={modelOption.name} value={modelOption.name}>
               {modelOption.label}
@@ -85,8 +79,8 @@ interface BaseChatProps {
   input?: string;
   model?: string;
   setModel?: (model: string) => void;
-  provider?: string;
-  setProvider?: (provider: string) => void;
+  provider?: ProviderInfo;
+  setProvider?: (provider: ProviderInfo) => void;
   handleStop?: () => void;
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -117,8 +111,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     },
     ref,
   ) => {
+    console.log(provider);
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+    const [modelList, setModelList] = useState(MODEL_LIST);
+
 
     useEffect(() => {
       // Load API keys from cookies on component mount
@@ -135,6 +132,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         // Clear invalid cookie data
         Cookies.remove('apiKeys');
       }
+
+      initializeModelList().then(modelList => {
+        setModelList(modelList);
+      });
     }, []);
 
     const updateApiKey = (provider: string, key: string) => {
@@ -198,18 +199,20 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 })}
               >
                 <ModelSelector
+                  key={provider?.name + ':' + modelList.length}
                   model={model}
                   setModel={setModel}
-                  modelList={MODEL_LIST}
+                  modelList={modelList}
                   provider={provider}
                   setProvider={setProvider}
-                  providerList={providerList}
+                  providerList={PROVIDER_LIST}
                 />
-                <APIKeyManager
-                  provider={provider}
-                  apiKey={apiKeys[provider] || ''}
-                  setApiKey={(key) => updateApiKey(provider, key)}
-                />
+                {provider &&
+                  <APIKeyManager
+                    provider={provider}
+                    apiKey={apiKeys[provider.name] || ''}
+                    setApiKey={(key) => updateApiKey(provider.name, key)}
+                  />}
                 <div
                   className={classNames(
                     'shadow-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden transition-all',

@@ -26,3 +26,12 @@ export interface ModelInfo {
   label: string;
   provider: string;
 }
+
+export interface ProviderInfo {
+  staticModels: ModelInfo[],
+  name: string,
+  getDynamicModels?: () => Promise<ModelInfo[]>,
+  getApiKeyLink?: string,
+  labelForGetApiKey?: string,
+  icon?:string,
+};

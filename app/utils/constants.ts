@@ -234,7 +234,10 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
 
 async function initializeModelList(): Promise<ModelInfo[]> {
   MODEL_LIST = [...(await Promise.all(
-    PROVIDER_LIST.filter(p => !!p.getDynamicModels).map(p => p.getDynamicModels()))).flat(), ...staticModels];
+    PROVIDER_LIST
+      .filter((p): p is ProviderInfo & { getDynamicModels: () => Promise<ModelInfo[]> } => !!p.getDynamicModels)
+      .map(p => p.getDynamicModels())))
+    .flat(), ...staticModels];
   return MODEL_LIST;
 }
 

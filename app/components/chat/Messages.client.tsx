@@ -3,6 +3,7 @@ import React from 'react';
 import { classNames } from '~/utils/classNames';
 import { AssistantMessage } from './AssistantMessage';
 import { UserMessage } from './UserMessage';
+import { useLocation, useNavigate } from '@remix-run/react';
 
 interface MessagesProps {
   id?: string;
@@ -13,12 +14,21 @@ interface MessagesProps {
 
 export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: MessagesProps, ref) => {
   const { id, isStreaming = false, messages = [] } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleRewind = (messageId: string) => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('rewindId', messageId);
+    window.location.search = searchParams.toString();
+    //navigate(`${location.pathname}?${searchParams.toString()}`);
+  };
 
   return (
     <div id={id} ref={ref} className={props.className}>
       {messages.length > 0
         ? messages.map((message, index) => {
-            const { role, content } = message;
+            const { role, content, id: messageId } = message;
             const isUserMessage = role === 'user';
             const isFirst = index === 0;
             const isLast = index === messages.length - 1;
@@ -41,6 +51,15 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                 <div className="grid grid-col-1 w-full">
                   {isUserMessage ? <UserMessage content={content} /> : <AssistantMessage content={content} />}
                 </div>
+                {messageId && (
+                  <button
+                    onClick={() => handleRewind(messageId)}
+                    className="self-start p-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary"
+                    title="Rewind to this message"
+                  >
+                    <div className="i-ph:arrow-counter-clockwise text-xl"></div>
+                  </button>
+                )}
               </div>
             );
           })

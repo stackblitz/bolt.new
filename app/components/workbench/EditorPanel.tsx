@@ -23,6 +23,7 @@ import { isMobile } from '~/utils/mobile';
 import { FileBreadcrumb } from './FileBreadcrumb';
 import { FileTree } from './FileTree';
 import { Terminal, type TerminalRef } from './terminal/Terminal';
+import React from 'react';
 
 interface EditorPanelProps {
   files?: FileMap;
@@ -203,7 +204,7 @@ export const EditorPanel = memo(
                   const isActive = activeTerminal === index;
 
                   return (
-                    <>
+                    <React.Fragment key={index}>
                       {index == 0 ? (
                         <button
                           key={index}
@@ -222,7 +223,7 @@ export const EditorPanel = memo(
                           Bolt Terminal
                         </button>
                       ) : (
-                        <>
+                        <React.Fragment>
                           <button
                             key={index}
                             className={classNames(
@@ -238,9 +239,9 @@ export const EditorPanel = memo(
                             <div className="i-ph:terminal-window-duotone text-lg" />
                             Terminal {terminalCount > 1 && index}
                           </button>
-                        </>
+                        </React.Fragment>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })}
                 {terminalCount < MAX_TERMINALS && <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} />}

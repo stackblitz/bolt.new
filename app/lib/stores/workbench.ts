@@ -42,7 +42,7 @@ export class WorkbenchStore {
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
   #boltTerminal: { terminal: ITerminal; process: WebContainerProcess } | undefined;
-
+  #globalExecutionQueue=Promise.resolve();
   constructor() {
     if (import.meta.hot) {
       import.meta.hot.data.artifacts = this.artifacts;
@@ -50,6 +50,10 @@ export class WorkbenchStore {
       import.meta.hot.data.showWorkbench = this.showWorkbench;
       import.meta.hot.data.currentView = this.currentView;
     }
+  }
+
+  addToExecutionQueue(callback: () => Promise<void>) {
+    this.#globalExecutionQueue=this.#globalExecutionQueue.then(()=>callback())
   }
 
   get previews() {
@@ -255,8 +259,10 @@ export class WorkbenchStore {
 
     this.artifacts.setKey(messageId, { ...artifact, ...state });
   }
-
-  async addAction(data: ActionCallbackData) {
+  addAction(data: ActionCallbackData) {
+    this.addToExecutionQueue(()=>this._addAction(data))
+  }
+  async _addAction(data: ActionCallbackData) {
     const { messageId } = data;
 
     const artifact = this.#getArtifact(messageId);
@@ -265,10 +271,18 @@ export class WorkbenchStore {
       unreachable('Artifact not found');
     }
 
-    artifact.runner.addAction(data);
+    return artifact.runner.addAction(data);
   }
 
-  async runAction(data: ActionCallbackData, isStreaming: boolean = false) {
+  runAction(data: ActionCallbackData, isStreaming: boolean = false) {
+    if(isStreaming) {
+      this._runAction(data, isStreaming)
+    }
+    else{
+      this.addToExecutionQueue(()=>this._runAction(data, isStreaming))
+    }
+  }
+  async _runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     const { messageId } = data;
 
     const artifact = this.#getArtifact(messageId);
@@ -293,11 +307,11 @@ export class WorkbenchStore {
       this.#editorStore.updateFile(fullPath, data.action.content);
 
       if (!isStreaming) {
-        this.resetCurrentDocument();
         await artifact.runner.runAction(data);
+        this.resetCurrentDocument();
       }
     } else {
-      artifact.runner.runAction(data);
+      await artifact.runner.runAction(data);
     }
   }
 

@@ -158,3 +158,23 @@ async function getUrlIds(db: IDBDatabase): Promise<string[]> {
     };
   });
 }
+
+export async function duplicateChat(db: IDBDatabase, id: string): Promise<string> {
+  const chat = await getMessages(db, id);
+  if (!chat) {
+    throw new Error('Chat not found');
+  }
+
+  const newId = await getNextId(db);
+  const newUrlId = await getUrlId(db, newId); // Get a new urlId for the duplicated chat
+
+  await setMessages(
+    db,
+    newId,
+    chat.messages,
+    newUrlId, // Use the new urlId
+    `${chat.description || 'Chat'} (copy)`
+  );
+
+  return newUrlId; // Return the urlId instead of id for navigation
+}

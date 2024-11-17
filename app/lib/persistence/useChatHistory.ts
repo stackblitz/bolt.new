@@ -4,7 +4,7 @@ import { atom } from 'nanostores';
 import type { Message } from 'ai';
 import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { getMessages, getNextId, getUrlId, openDatabase, setMessages } from './db';
+import { getMessages, getNextId, getUrlId, openDatabase, setMessages, duplicateChat } from './db';
 
 export interface ChatHistoryItem {
   id: string;
@@ -46,11 +46,11 @@ export function useChatHistory() {
         .then((storedMessages) => {
           if (storedMessages && storedMessages.messages.length > 0) {
             const rewindId = searchParams.get('rewindId');
-            const filteredMessages = rewindId 
-              ? storedMessages.messages.slice(0, 
+            const filteredMessages = rewindId
+              ? storedMessages.messages.slice(0,
                   storedMessages.messages.findIndex(m => m.id === rewindId) + 1)
               : storedMessages.messages;
-            
+
             setInitialMessages(filteredMessages);
             setUrlId(storedMessages.urlId);
             description.set(storedMessages.description);
@@ -100,6 +100,19 @@ export function useChatHistory() {
 
       await setMessages(db, chatId.get() as string, messages, urlId, description.get());
     },
+    duplicateCurrentChat: async (listItemId:string) => {
+      if (!db || (!mixedId && !listItemId)) {
+        return;
+      }
+
+      try {
+        const newId = await duplicateChat(db, mixedId || listItemId);
+        navigate(`/chat/${newId}`);
+        toast.success('Chat duplicated successfully');
+      } catch (error) {
+        toast.error('Failed to duplicate chat');
+      }
+    }
   };
 }
 

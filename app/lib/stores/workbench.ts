@@ -260,7 +260,8 @@ export class WorkbenchStore {
     this.artifacts.setKey(messageId, { ...artifact, ...state });
   }
   addAction(data: ActionCallbackData) {
-    this.addToExecutionQueue(()=>this._addAction(data))
+    this._addAction(data)
+    // this.addToExecutionQueue(()=>this._addAction(data))
   }
   async _addAction(data: ActionCallbackData) {
     const { messageId } = data;

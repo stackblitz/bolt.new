@@ -15,6 +15,7 @@ import { Octokit, type RestEndpointMethodTypes } from "@octokit/rest";
 import * as nodePath from 'node:path';
 import type { WebContainerProcess } from '@webcontainer/api';
 import { extractRelativePath } from '~/utils/diff';
+import { description } from '../persistence';
 
 export interface ArtifactState {
   id: string;
@@ -171,6 +172,7 @@ export class WorkbenchStore {
     this.#editorStore.setSelectedFile(filePath);
   }
 
+
   async saveFile(filePath: string) {
     const documents = this.#editorStore.documents.get();
     const document = documents[filePath];
@@ -325,6 +327,15 @@ export class WorkbenchStore {
   async downloadZip() {
     const zip = new JSZip();
     const files = this.files.get();
+    // Get the project name (assuming it's stored in this.projectName)
+    const projectName = (description.value ?? 'project').toLocaleLowerCase().split(' ').join('_');
+  
+    // Generate a simple 6-character hash based on the current timestamp
+    const timestampHash = Date.now().toString(36).slice(-6);
+    const uniqueProjectName = `${projectName}_${timestampHash}`;
+
+    // Prompt the user for a file name, prefilled with the project name
+    const fileName = prompt('Enter the file name', `${uniqueProjectName}.zip`);
 
     for (const [filePath, dirent] of Object.entries(files)) {
       if (dirent?.type === 'file' && !dirent.isBinary) {
@@ -348,8 +359,14 @@ export class WorkbenchStore {
       }
     }
 
+
+
+
+  if (fileName) {
+    // Generate the zip file and save it
     const content = await zip.generateAsync({ type: 'blob' });
-    saveAs(content, 'project.zip');
+    saveAs(content, fileName);
+  }
   }
 
   async syncFiles(targetHandle: FileSystemDirectoryHandle) {

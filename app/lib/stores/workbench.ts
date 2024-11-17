@@ -309,7 +309,7 @@ export class WorkbenchStore {
 
       if (!isStreaming) {
         await artifact.runner.runAction(data);
-        this.resetCurrentDocument();
+        this.resetAllFileModifications();
       }
     } else {
       await artifact.runner.runAction(data);

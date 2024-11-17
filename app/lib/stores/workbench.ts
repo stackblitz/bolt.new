@@ -327,7 +327,7 @@ export class WorkbenchStore {
   async downloadZip() {
     const zip = new JSZip();
     const files = this.files.get();
-    // Get the project name (assuming it's stored in this.projectName)
+    // Get the project name from the description input, or use a default name
     const projectName = (description.value ?? 'project').toLocaleLowerCase().split(' ').join('_');
   
     // Generate a simple 6-character hash based on the current timestamp

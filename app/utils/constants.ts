@@ -71,7 +71,19 @@ const PROVIDER_LIST: ProviderInfo[] = [
       { name: 'llama-3.2-1b-preview', label: 'Llama 3.2 1b (Groq)', provider: 'Groq' }
     ],
     getApiKeyLink: 'https://console.groq.com/keys'
-  }, {
+  },
+  {
+    name: 'HuggingFace',
+    staticModels: [
+      { name: 'Qwen/Qwen2.5-Coder-32B-Instruct', label: 'Qwen2.5-Coder-32B-Instruct (HuggingFace)', provider: 'HuggingFace' },
+      { name: '01-ai/Yi-1.5-34B-Chat', label: 'Yi-1.5-34B-Chat (HuggingFace)', provider: 'HuggingFace' },
+      { name: 'codellama/CodeLlama-34b-Instruct-hf', label: 'CodeLlama-34b-Instruct (HuggingFace)', provider: 'HuggingFace' },
+      { name: 'NousResearch/Hermes-3-Llama-3.1-8B', label: 'Hermes-3-Llama-3.1-8B (HuggingFace)', provider: 'HuggingFace' }
+    ],
+    getApiKeyLink: 'https://huggingface.co/settings/tokens'
+  },
+  
+  {
     name: 'OpenAI',
     staticModels: [
       { name: 'gpt-4o-mini', label: 'GPT-4o Mini', provider: 'OpenAI' },

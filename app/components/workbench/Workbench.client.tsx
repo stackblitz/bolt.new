@@ -180,8 +180,8 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                           alert("GitHub token is required. Push to GitHub cancelled.");
                           return;
                         }
-                        
-                      workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);  
+
+                        workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);  
                       }}
                     >
                       <div className="i-ph:github-logo" />

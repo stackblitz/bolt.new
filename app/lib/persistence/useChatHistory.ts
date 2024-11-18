@@ -45,10 +45,9 @@ export function useChatHistory() {
       getMessages(db, mixedId)
         .then((storedMessages) => {
           if (storedMessages && storedMessages.messages.length > 0) {
-            const rewindId = searchParams.get('rewindId');
+            const rewindId = searchParams.get('rewindTo');
             const filteredMessages = rewindId
-              ? storedMessages.messages.slice(0,
-                  storedMessages.messages.findIndex(m => m.id === rewindId) + 1)
+              ? storedMessages.messages.slice(0, storedMessages.messages.findIndex((m) => m.id === rewindId) + 1)
               : storedMessages.messages;
 
             setInitialMessages(filteredMessages);

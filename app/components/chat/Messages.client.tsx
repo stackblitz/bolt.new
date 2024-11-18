@@ -69,7 +69,7 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                   <div className="grid grid-col-1 w-full">
                     {isUserMessage ? <UserMessage content={content} /> : <AssistantMessage content={content} />}
                   </div>
-              <div className="flex gap-2">
+                  {!isUserMessage && (<div className="flex gap-2">
                     <Tooltip.Root>
                       <Tooltip.Trigger asChild>
                         {messageId && (<button
@@ -115,7 +115,7 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                         </Tooltip.Content>
                       </Tooltip.Portal>
                     </Tooltip.Root>
-                  </div>
+                  </div>)}
                 </div>
               );
             })

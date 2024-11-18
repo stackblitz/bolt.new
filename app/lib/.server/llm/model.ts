@@ -8,6 +8,10 @@ import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createMistral } from '@ai-sdk/mistral';
 
+export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ? 
+  parseInt(process.env.DEFAULT_NUM_CTX, 10) : 
+  32768;
+
 export function getAnthropicModel(apiKey: string, model: string) {
   const anthropic = createAnthropic({
     apiKey,
@@ -58,7 +62,7 @@ export function getGroqModel(apiKey: string, model: string) {
 
 export function getOllamaModel(baseURL: string, model: string) {
   let Ollama = ollama(model, {
-    numCtx: 32768,
+    numCtx: DEFAULT_NUM_CTX,
   });
 
   Ollama.config.baseURL = `${baseURL}/api`;

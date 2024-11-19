@@ -40,7 +40,7 @@ Take a look at how [Bolt uses the AI SDK](https://github.com/stackblitz/bolt.new
 Before you begin, ensure you have the following installed:
 
 - Node.js (v20.15.1)
-- pnpm (v9.4.0)
+- npm (v9.4.0)
 
 ## Setup
 

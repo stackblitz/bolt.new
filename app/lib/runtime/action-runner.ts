@@ -94,7 +94,7 @@ export class ActionRunner {
 
     this.#updateAction(actionId, { ...action, ...data.action, executed: !isStreaming });
 
-    this.#currentExecutionPromise = this.#currentExecutionPromise
+    return this.#currentExecutionPromise = this.#currentExecutionPromise 
       .then(() => {
         return this.#executeAction(actionId, isStreaming);
       })
@@ -119,7 +119,14 @@ export class ActionRunner {
           break;
         }
         case 'start': {
-          await this.#runStartAction(action)
+          // making the start app non blocking
+
+          this.#runStartAction(action).then(()=>this.#updateAction(actionId, { status: 'complete' }))
+          .catch(()=>this.#updateAction(actionId, { status: 'failed', error: 'Action failed' }))
+          // adding a delay to avoid any race condition between 2 start actions
+          // i am up for a better approch 
+          await new Promise(resolve=>setTimeout(resolve,2000))
+          return
           break;
         }
       }

@@ -14,6 +14,7 @@ import { saveAs } from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from "@octokit/rest";
 import * as nodePath from 'node:path';
 import type { WebContainerProcess } from '@webcontainer/api';
+import { extractRelativePath } from '~/utils/diff';
 
 export interface ArtifactState {
   id: string;
@@ -327,8 +328,7 @@ export class WorkbenchStore {
 
     for (const [filePath, dirent] of Object.entries(files)) {
       if (dirent?.type === 'file' && !dirent.isBinary) {
-        // remove '/home/project/' from the beginning of the path
-        const relativePath = filePath.replace(/^\/home\/project\//, '');
+        const relativePath = extractRelativePath(filePath);
 
         // split the path into segments
         const pathSegments = relativePath.split('/');
@@ -358,7 +358,7 @@ export class WorkbenchStore {
 
     for (const [filePath, dirent] of Object.entries(files)) {
       if (dirent?.type === 'file' && !dirent.isBinary) {
-        const relativePath = filePath.replace(/^\/home\/project\//, '');
+        const relativePath = extractRelativePath(filePath);
         const pathSegments = relativePath.split('/');
         let currentHandle = targetHandle;
 
@@ -432,7 +432,7 @@ export class WorkbenchStore {
               content: Buffer.from(dirent.content).toString('base64'),
               encoding: 'base64',
             });
-            return { path: filePath.replace(/^\/home\/project\//, ''), sha: blob.sha };
+            return { path: extractRelativePath(filePath), sha: blob.sha };
           }
         })
       );

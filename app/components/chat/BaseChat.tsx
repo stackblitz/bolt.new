@@ -17,6 +17,8 @@ import Cookies from 'js-cookie';
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
 
+import FilePreview from './FilePreview';
+
 const EXAMPLE_PROMPTS = [
   { text: 'Build a todo app in React using Tailwind' },
   { text: 'Build a simple blog using Astro' },
@@ -33,7 +35,7 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
       <select
         value={provider?.name}
         onChange={(e) => {
-          setProvider(providerList.find((p) => p.name === e.target.value));
+          setProvider(providerList.find(p => p.name === e.target.value));
           const firstModel = [...modelList].find((m) => m.provider == e.target.value);
           setModel(firstModel ? firstModel.name : '');
         }}
@@ -49,7 +51,7 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
         key={provider?.name}
         value={model}
         onChange={(e) => setModel(e.target.value)}
-        style={{ maxWidth: '70%' }}
+        style={{ maxWidth: "70%" }}
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
         {[...modelList]
@@ -85,32 +87,38 @@ interface BaseChatProps {
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
+  uploadedFiles?: File[];
+  setUploadedFiles?: (files: File[]) => void;
+  imageDataList?: string[];
+  setImageDataList?: (dataList: string[]) => void;
 }
-
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
-  (
-    {
-      textareaRef,
-      messageRef,
-      scrollRef,
-      showChat = true,
-      chatStarted = false,
-      isStreaming = false,
-      enhancingPrompt = false,
-      promptEnhanced = false,
-      messages,
-      input = '',
-      model,
-      setModel,
-      provider,
-      setProvider,
-      sendMessage,
-      handleInputChange,
-      enhancePrompt,
-      handleStop,
-    },
-    ref,
-  ) => {
+  ({
+    textareaRef,
+    messageRef,
+    scrollRef,
+    showChat,
+    chatStarted = false,
+    isStreaming = false,
+    model,
+    setModel,
+    provider,
+    setProvider,
+    input = '',
+    enhancingPrompt,
+    handleInputChange,
+    promptEnhanced,
+    enhancePrompt,
+    sendMessage,
+    handleStop,
+    uploadedFiles,
+    setUploadedFiles,
+    imageDataList,
+    setImageDataList,
+    messages,
+    children,  // Add this
+  }, ref) => {
+    console.log(provider);
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState(MODEL_LIST);
@@ -131,7 +139,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         Cookies.remove('apiKeys');
       }
 
-      initializeModelList().then((modelList) => {
+      initializeModelList().then(modelList => {
         setModelList(modelList);
       });
     }, []);
@@ -150,6 +158,32 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       } catch (error) {
         console.error('Error saving API keys to cookies:', error);
       }
+    };
+
+    const handleRemoveFile = () => {
+      setUploadedFiles([]);
+      setImageDataList([]);
+    };
+
+    const handleFileUpload = () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+
+      input.onchange = async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64Image = e.target?.result as string;
+            setUploadedFiles?.([...uploadedFiles, file]);
+            setImageDataList?.([...imageDataList, base64Image]);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      input.click();
     };
 
     return (
@@ -205,13 +239,22 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   setProvider={setProvider}
                   providerList={PROVIDER_LIST}
                 />
-                {provider && (
+                {provider &&
                   <APIKeyManager
                     provider={provider}
                     apiKey={apiKeys[provider.name] || ''}
                     setApiKey={(key) => updateApiKey(provider.name, key)}
-                  />
-                )}
+                  />}
+
+                <FilePreview
+                  files={uploadedFiles}
+                  imageDataList={imageDataList}
+                  onRemove={(index) => {
+                    setUploadedFiles?.(uploadedFiles.filter((_, i) => i !== index));
+                    setImageDataList?.(imageDataList.filter((_, i) => i !== index));
+                  }}
+                />
+
                 <div
                   className={classNames(
                     'shadow-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden transition-all',
@@ -245,21 +288,30 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <ClientOnly>
                     {() => (
                       <SendButton
-                        show={input.length > 0 || isStreaming}
+                        show={input.length > 0 || isStreaming || uploadedFiles.length > 0}
                         isStreaming={isStreaming}
                         onClick={(event) => {
                           if (isStreaming) {
                             handleStop?.();
                             return;
                           }
-
-                          sendMessage?.(event);
+                          if (input.length > 0 || uploadedFiles.length > 0) {
+                            sendMessage?.(event);
+                          }
                         }}
                       />
                     )}
                   </ClientOnly>
                   <div className="flex justify-between items-center text-sm p-4 pt-2">
                     <div className="flex gap-1 items-center">
+                      <IconButton
+                        title="Upload file"
+                        className="transition-all"
+                        onClick={() => handleFileUpload()}
+                      >
+                        <div className="i-ph:upload text-xl"></div>
+                      </IconButton>
+
                       <IconButton
                         title="Enhance prompt"
                         disabled={input.length === 0 || enhancingPrompt}
@@ -322,3 +374,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     );
   },
 );
+
+
+

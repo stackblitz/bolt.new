@@ -33,7 +33,7 @@ const menuVariants = {
 
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
-export function Menu() {
+export const Menu = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);

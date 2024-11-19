@@ -25,26 +25,39 @@ export type Messages = Message[];
 export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
 
 function extractPropertiesFromMessage(message: Message): { model: string; provider: string; content: string } {
+  const textContent = Array.isArray(message.content)
+    ? message.content.find(item => item.type === 'text')?.text || ''
+    : message.content;
+
+  const modelMatch = textContent.match(MODEL_REGEX);
+  const providerMatch = textContent.match(PROVIDER_REGEX);
+
   // Extract model
-  const modelMatch = message.content.match(MODEL_REGEX);
+  // const modelMatch = message.content.match(MODEL_REGEX);
   const model = modelMatch ? modelMatch[1] : DEFAULT_MODEL;
 
   // Extract provider
-  const providerMatch = message.content.match(PROVIDER_REGEX);
+  // const providerMatch = message.content.match(PROVIDER_REGEX);
   const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER;
 
-  // Remove model and provider lines from content
-  const cleanedContent = message.content
-    .replace(MODEL_REGEX, '')
-    .replace(PROVIDER_REGEX, '')
-    .trim();
+  const cleanedContent = Array.isArray(message.content)
+    ? message.content.map(item => {
+      if (item.type === 'text') {
+        return {
+          type: 'text',
+          text: item.text?.replace(/\[Model:.*?\]\n\n/, '').replace(/\[Provider:.*?\]\n\n/, '')
+        };
+      }
+      return item; // Preserve image_url and other types as is
+    })
+    : textContent.replace(/\[Model:.*?\]\n\n/, '').replace(/\[Provider:.*?\]\n\n/, '');
 
   return { model, provider, content: cleanedContent };
 }
 
 export function streamText(
-  messages: Messages, 
-  env: Env, 
+  messages: Messages,
+  env: Env,
   options?: StreamingOptions,
   apiKeys?: Record<string, string>
 ) {
@@ -66,6 +79,16 @@ export function streamText(
 
     return message; // No changes for non-user messages
   });
+
+  // const modelConfig = getModel(currentProvider, currentModel, env, apiKeys);
+  // const coreMessages = convertToCoreMessages(processedMessages);
+  
+  // console.log('Debug streamText:', JSON.stringify({
+  //   model: modelConfig,
+  //   messages: processedMessages,
+  //   coreMessages: coreMessages,
+  //   system: getSystemPrompt()
+  // }, null, 2));
 
   return _streamText({
     model: getModel(currentProvider, currentModel, env, apiKeys),

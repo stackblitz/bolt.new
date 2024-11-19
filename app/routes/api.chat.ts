@@ -30,13 +30,15 @@ function parseCookies(cookieHeader) {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{
-    messages: Messages
+  // console.log('=== API CHAT LOGGING START ===');
+  // console.log('Request received:', request.url);
+  
+  const { messages, imageData } = await request.json<{
+    messages: Messages,
+    imageData?: string[]
   }>();
 
   const cookieHeader = request.headers.get("Cookie");
-
-  // Parse the cookie's value (returns an object or null if no cookie exists)
   const apiKeys = JSON.parse(parseCookies(cookieHeader).apiKeys || "{}");
 
   const stream = new SwitchableStream();
@@ -68,6 +70,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     };
 
     const result = await streamText(messages, context.cloudflare.env, options, apiKeys);
+
+    // console.log('=== API CHAT LOGGING START ===');
+    // console.log('StreamText:', JSON.stringify({
+    //   messages,
+    //   result,
+    // }, null, 2));
+    // console.log('=== API CHAT LOGGING END ===');
 
     stream.switchSource(result.toAIStream());
 

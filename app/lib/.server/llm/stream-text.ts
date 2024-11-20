@@ -45,12 +45,12 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
       if (item.type === 'text') {
         return {
           type: 'text',
-          text: item.text?.replace(/\[Model:.*?\]\n\n/, '').replace(/\[Provider:.*?\]\n\n/, '')
+          text: item.text?.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '')
         };
       }
       return item; // Preserve image_url and other types as is
     })
-    : textContent.replace(/\[Model:.*?\]\n\n/, '').replace(/\[Provider:.*?\]\n\n/, '');
+    : textContent.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '');
 
   return { model, provider, content: cleanedContent };
 }
@@ -79,16 +79,6 @@ export function streamText(
 
     return message; // No changes for non-user messages
   });
-
-  // const modelConfig = getModel(currentProvider, currentModel, env, apiKeys);
-  // const coreMessages = convertToCoreMessages(processedMessages);
-  
-  // console.log('Debug streamText:', JSON.stringify({
-  //   model: modelConfig,
-  //   messages: processedMessages,
-  //   coreMessages: coreMessages,
-  //   system: getSystemPrompt()
-  // }, null, 2));
 
   return _streamText({
     model: getModel(currentProvider, currentModel, env, apiKeys),

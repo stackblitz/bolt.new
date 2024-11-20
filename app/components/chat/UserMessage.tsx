@@ -21,9 +21,6 @@ export function UserMessage({ content }: UserMessageProps) {
   );
 }
 
-// function sanitizeUserMessage(content: string) {
-//   return content.replace(modificationsRegex, '').replace(MODEL_REGEX, 'Using: $1').replace(PROVIDER_REGEX, ' ($1)\n\n').trim();
-// }
 function sanitizeUserMessage(content: string | Array<{type: string, text?: string, image_url?: {url: string}}>) {
   if (Array.isArray(content)) {
     return content.map(item => {

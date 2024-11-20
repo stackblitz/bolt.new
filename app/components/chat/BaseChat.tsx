@@ -35,7 +35,7 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
       <select
         value={provider?.name}
         onChange={(e) => {
-          setProvider(providerList.find(p => p.name === e.target.value));
+          setProvider(providerList.find((p) => p.name === e.target.value));
           const firstModel = [...modelList].find((m) => m.provider == e.target.value);
           setModel(firstModel ? firstModel.name : '');
         }}
@@ -51,7 +51,7 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
         key={provider?.name}
         value={model}
         onChange={(e) => setModel(e.target.value)}
-        style={{ maxWidth: "70%" }}
+        style={{ maxWidth: '70%' }}
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
         {[...modelList]
@@ -93,32 +93,34 @@ interface BaseChatProps {
   setImageDataList?: (dataList: string[]) => void;
 }
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
-  ({
-    textareaRef,
-    messageRef,
-    scrollRef,
-    showChat,
-    chatStarted = false,
-    isStreaming = false,
-    model,
-    setModel,
-    provider,
-    setProvider,
-    input = '',
-    enhancingPrompt,
-    handleInputChange,
-    promptEnhanced,
-    enhancePrompt,
-    sendMessage,
-    handleStop,
-    uploadedFiles,
-    setUploadedFiles,
-    imageDataList,
-    setImageDataList,
-    messages,
-    children,  // Add this
-  }, ref) => {
-    console.log(provider);
+  (
+    {
+      textareaRef,
+      messageRef,
+      scrollRef,
+      showChat = true,
+      chatStarted = false,
+      isStreaming = false,
+      model,
+      setModel,
+      provider,
+      setProvider,
+      input = '',
+      enhancingPrompt,
+      handleInputChange,
+      promptEnhanced,
+      enhancePrompt,
+      sendMessage,
+      handleStop,
+      uploadedFiles,
+      setUploadedFiles,
+      imageDataList,
+      setImageDataList,
+      messages,
+      children,  // Add this
+    },
+    ref,
+  ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState(MODEL_LIST);
@@ -139,7 +141,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         Cookies.remove('apiKeys');
       }
 
-      initializeModelList().then(modelList => {
+      initializeModelList().then((modelList) => {
         setModelList(modelList);
       });
     }, []);
@@ -239,12 +241,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   setProvider={setProvider}
                   providerList={PROVIDER_LIST}
                 />
-                {provider &&
+                {provider && (
                   <APIKeyManager
                     provider={provider}
                     apiKey={apiKeys[provider.name] || ''}
                     setApiKey={(key) => updateApiKey(provider.name, key)}
-                  />}
+                  />
+                )}
 
                 <FilePreview
                   files={uploadedFiles}
@@ -309,7 +312,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         className="transition-all"
                         onClick={() => handleFileUpload()}
                       >
-                        <div className="i-ph:upload text-xl"></div>
+                        <div className="i-ph:paperclip text-xl"></div>
                       </IconButton>
 
                       <IconButton
@@ -374,6 +377,3 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     );
   },
 );
-
-
-

@@ -1,23 +1,22 @@
-// FilePreview.tsx
+// Remove the lucide-react import
 import React from 'react';
-import { X } from 'lucide-react';
 
+// Rest of the interface remains the same
 interface FilePreviewProps {
     files: File[];
-    imageDataList: string[]; // or imagePreviews: string[]
+    imageDataList: string[];
     onRemove: (index: number) => void;
 }
 
 const FilePreview: React.FC<FilePreviewProps> = ({ files, imageDataList, onRemove }) => {
     if (!files || files.length === 0) {
-        return null; // Or render a placeholder if desired
+        return null;
     }
 
     return (
-        <div className="flex flex-row overflow-x-auto"> {/* Add horizontal scrolling if needed */}
+        <div className="flex flex-row overflow-x-auto">
             {files.map((file, index) => (
                 <div key={file.name + file.size} className="mr-2 relative">
-                    {/* Display image preview or file icon */}
                     {imageDataList[index] && (
                         <div className="relative">
                             <img src={imageDataList[index]} alt={file.name} className="max-h-20" />
@@ -26,7 +25,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ files, imageDataList, onRemov
                                 className="absolute -top-2 -right-2 z-10 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
                             >
                                 <div className="bg-black rounded-full p-1">
-                                    <X className="w-3 h-3 text-gray-400" strokeWidth={2.5} />
+                                    <div className="i-ph:x w-3 h-3 text-gray-400" />
                                 </div>
                             </button>
                         </div>

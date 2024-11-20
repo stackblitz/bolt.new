@@ -34,6 +34,22 @@ const PROVIDER_LIST: ProviderInfo[] = [
     getDynamicModels: getOpenAILikeModels
   },
   {
+    name: 'Cohere',
+    staticModels: [
+      { name: 'command-r-plus-08-2024', label: 'Command R plus Latest', provider: 'Cohere' },
+      { name: 'command-r-08-2024', label: 'Command R Latest', provider: 'Cohere' },
+      { name: 'command-r-plus', label: 'Command R plus', provider: 'Cohere' },
+      { name: 'command-r', label: 'Command R', provider: 'Cohere' },
+      { name: 'command', label: 'Command', provider: 'Cohere' },
+      { name: 'command-nightly', label: 'Command Nightly', provider: 'Cohere' },
+      { name: 'command-light', label: 'Command Light', provider: 'Cohere' },
+      { name: 'command-light-nightly', label: 'Command Light Nightly', provider: 'Cohere' },
+      { name: 'c4ai-aya-expanse-8b', label: 'c4AI Aya Expanse 8b', provider: 'Cohere' },
+      { name: 'c4ai-aya-expanse-32b', label: 'c4AI Aya Expanse 32b', provider: 'Cohere' },
+    ],
+    getApiKeyLink: 'https://dashboard.cohere.com/api-keys'
+  },
+  {
     name: 'OpenRouter',
     staticModels: [
       { name: 'gpt-4o', label: 'GPT-4o', provider: 'OpenAI' },

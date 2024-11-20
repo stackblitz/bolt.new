@@ -28,7 +28,7 @@ const BackgroundRays = () => {
     return () => observer.disconnect();
   }, []);
   return (
-    <div className={`${styles.rayContainer} bg-bolt-elements-background-depth-1`}>
+    <div className={`${styles.rayContainer} `}>
       <div className={`${styles.lightRay} ${styles.ray1}`}></div>
       <div className={`${styles.lightRay} ${styles.ray2}`}></div>
       <div className={`${styles.lightRay} ${styles.ray3}`}></div>

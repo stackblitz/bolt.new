@@ -72,7 +72,6 @@ export function streamText(
     modelDetails && modelDetails.maxTokenAllowed
       ? Math.min(MAX_TOKENS, modelDetails.maxTokenAllowed)
       : MAX_TOKENS;
-  console.log(dynamicMaxTokens)
 
   return _streamText({
     model: getModel(currentProvider, currentModel, env, apiKeys),

@@ -334,9 +334,6 @@ export class WorkbenchStore {
     const timestampHash = Date.now().toString(36).slice(-6);
     const uniqueProjectName = `${projectName}_${timestampHash}`;
 
-    // Prompt the user for a file name, prefilled with the project name
-    const fileName = prompt('Enter the file name', `${uniqueProjectName}.zip`);
-
     for (const [filePath, dirent] of Object.entries(files)) {
       if (dirent?.type === 'file' && !dirent.isBinary) {
         const relativePath = extractRelativePath(filePath);
@@ -358,15 +355,10 @@ export class WorkbenchStore {
         }
       }
     }
-
-
-
-
-  if (fileName) {
     // Generate the zip file and save it
     const content = await zip.generateAsync({ type: 'blob' });
-    saveAs(content, fileName);
-  }
+    saveAs(content, `${uniqueProjectName}.zip`);
+  
   }
 
   async syncFiles(targetHandle: FileSystemDirectoryHandle) {

@@ -23,6 +23,8 @@ export function getAPIKey(cloudflareEnv: Env, provider: string, userApiKeys?: Re
       return env.GOOGLE_GENERATIVE_AI_API_KEY || cloudflareEnv.GOOGLE_GENERATIVE_AI_API_KEY;
     case 'Groq':
       return env.GROQ_API_KEY || cloudflareEnv.GROQ_API_KEY;
+    case 'HuggingFace':
+      return env.HuggingFace_API_KEY || cloudflareEnv.HuggingFace_API_KEY;
     case 'OpenRouter':
       return env.OPEN_ROUTER_API_KEY || cloudflareEnv.OPEN_ROUTER_API_KEY;
     case 'Deepseek':

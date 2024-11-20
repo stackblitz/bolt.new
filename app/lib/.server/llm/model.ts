@@ -56,6 +56,15 @@ export function getGroqModel(apiKey: string, model: string) {
   return openai(model);
 }
 
+export function getHuggingFaceModel(apiKey: string, model: string) {
+  const openai = createOpenAI({
+    baseURL: 'https://api-inference.huggingface.co/v1/',
+    apiKey,
+  });
+
+  return openai(model);
+}
+
 export function getOllamaModel(baseURL: string, model: string) {
   let Ollama = ollama(model, {
     numCtx: 32768,
@@ -110,6 +119,8 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
       return getOpenAIModel(apiKey, model);
     case 'Groq':
       return getGroqModel(apiKey, model);
+    case 'HuggingFace':
+      return getHuggingFaceModel(apiKey, model);
     case 'OpenRouter':
       return getOpenRouterModel(apiKey, model);
     case 'Google':

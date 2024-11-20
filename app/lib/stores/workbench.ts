@@ -14,6 +14,7 @@ import { saveAs } from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from "@octokit/rest";
 import * as nodePath from 'node:path';
 import type { WebContainerProcess } from '@webcontainer/api';
+import { extractRelativePath } from '~/utils/diff';
 
 export interface ArtifactState {
   id: string;
@@ -42,7 +43,7 @@ export class WorkbenchStore {
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
   #boltTerminal: { terminal: ITerminal; process: WebContainerProcess } | undefined;
-
+  #globalExecutionQueue=Promise.resolve();
   constructor() {
     if (import.meta.hot) {
       import.meta.hot.data.artifacts = this.artifacts;
@@ -50,6 +51,10 @@ export class WorkbenchStore {
       import.meta.hot.data.showWorkbench = this.showWorkbench;
       import.meta.hot.data.currentView = this.currentView;
     }
+  }
+
+  addToExecutionQueue(callback: () => Promise<void>) {
+    this.#globalExecutionQueue=this.#globalExecutionQueue.then(()=>callback())
   }
 
   get previews() {
@@ -255,8 +260,11 @@ export class WorkbenchStore {
 
     this.artifacts.setKey(messageId, { ...artifact, ...state });
   }
-
-  async addAction(data: ActionCallbackData) {
+  addAction(data: ActionCallbackData) {
+    this._addAction(data)
+    // this.addToExecutionQueue(()=>this._addAction(data))
+  }
+  async _addAction(data: ActionCallbackData) {
     const { messageId } = data;
 
     const artifact = this.#getArtifact(messageId);
@@ -265,10 +273,18 @@ export class WorkbenchStore {
       unreachable('Artifact not found');
     }
 
-    artifact.runner.addAction(data);
+    return artifact.runner.addAction(data);
   }
 
-  async runAction(data: ActionCallbackData, isStreaming: boolean = false) {
+  runAction(data: ActionCallbackData, isStreaming: boolean = false) {
+    if(isStreaming) {
+      this._runAction(data, isStreaming)
+    }
+    else{
+      this.addToExecutionQueue(()=>this._runAction(data, isStreaming))
+    }
+  }
+  async _runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     const { messageId } = data;
 
     const artifact = this.#getArtifact(messageId);
@@ -293,11 +309,11 @@ export class WorkbenchStore {
       this.#editorStore.updateFile(fullPath, data.action.content);
 
       if (!isStreaming) {
-        this.resetCurrentDocument();
         await artifact.runner.runAction(data);
+        this.resetAllFileModifications();
       }
     } else {
-      artifact.runner.runAction(data);
+      await artifact.runner.runAction(data);
     }
   }
 
@@ -312,8 +328,7 @@ export class WorkbenchStore {
 
     for (const [filePath, dirent] of Object.entries(files)) {
       if (dirent?.type === 'file' && !dirent.isBinary) {
-        // remove '/home/project/' from the beginning of the path
-        const relativePath = filePath.replace(/^\/home\/project\//, '');
+        const relativePath = extractRelativePath(filePath);
 
         // split the path into segments
         const pathSegments = relativePath.split('/');
@@ -343,7 +358,7 @@ export class WorkbenchStore {
 
     for (const [filePath, dirent] of Object.entries(files)) {
       if (dirent?.type === 'file' && !dirent.isBinary) {
-        const relativePath = filePath.replace(/^\/home\/project\//, '');
+        const relativePath = extractRelativePath(filePath);
         const pathSegments = relativePath.split('/');
         let currentHandle = targetHandle;
 
@@ -417,7 +432,7 @@ export class WorkbenchStore {
               content: Buffer.from(dirent.content).toString('base64'),
               encoding: 'base64',
             });
-            return { path: filePath.replace(/^\/home\/project\//, ''), sha: blob.sha };
+            return { path: extractRelativePath(filePath), sha: blob.sha };
           }
         })
       );

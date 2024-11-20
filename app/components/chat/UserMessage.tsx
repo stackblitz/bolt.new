@@ -9,10 +9,7 @@ interface UserMessageProps {
 }
 
 export function UserMessage({ content }: UserMessageProps) {
-  const sanitizedContent = sanitizeUserMessage(content);
-  const textContent = Array.isArray(sanitizedContent) 
-    ? sanitizedContent.find(item => item.type === 'text')?.text || ''
-    : sanitizedContent;
+  const textContent = sanitizeUserMessage(content);
 
   return (
     <div className="overflow-hidden pt-[4px]">
@@ -23,17 +20,9 @@ export function UserMessage({ content }: UserMessageProps) {
 
 function sanitizeUserMessage(content: string | Array<{type: string, text?: string, image_url?: {url: string}}>) {
   if (Array.isArray(content)) {
-    return content.map(item => {
-      if (item.type === 'text') {
-        return {
-          type: 'text',
-          text: item.text?.replace(/\[Model:.*?\]\n\n/, '').replace(/\[Provider:.*?\]\n\n/, '')
-        };
-      }
-      return item; // Keep image_url items unchanged
-    });
+    const textItem = content.find(item => item.type === 'text');
+    return textItem?.text?.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '') || '';
   }
   
-  // Handle legacy string content
-  return content.replace(/\[Model:.*?\]\n\n/, '').replace(/\[Provider:.*?\]\n\n/, '');
+  return content.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '');
 }

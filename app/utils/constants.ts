@@ -58,7 +58,11 @@ const PROVIDER_LIST: ProviderInfo[] = [
     name: 'Google',
     staticModels: [
       { name: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', provider: 'Google' },
-      { name: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', provider: 'Google' }
+      { name: 'gemini-1.5-flash-002', label: 'Gemini 1.5 Flash-002', provider: 'Google' },
+      { name: 'gemini-1.5-flash-8b', label: 'Gemini 1.5 Flash-8b', provider: 'Google' },
+      { name: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', provider: 'Google' },
+      { name: 'gemini-1.5-pro-002', label: 'Gemini 1.5 Pro-002', provider: 'Google' },
+      { name: 'gemini-exp-1114', label: 'Gemini exp-1114', provider: 'Google' }
     ],
     getApiKeyLink: 'https://aistudio.google.com/app/apikey'
   }, {

@@ -192,9 +192,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 }}
               </ClientOnly>
               <div
-                className={classNames('relative w-full max-w-chat mx-auto z-prompt', {
-                  'sticky bottom-0': chatStarted,
-                })}
+                className={classNames(
+                  'bg-bolt-elements-background-depth-2 border-y border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
+                  {
+                    'sticky bottom-0': chatStarted
+                  })}
               >
                 <ModelSelector
                   key={provider?.name + ':' + modelList.length}

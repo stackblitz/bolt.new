@@ -160,6 +160,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         )}
         data-chat-visible={showChat}
       >
+        <div className={classNames(styles.RayContainer)}>
+          <div className={classNames(styles.LightRayOne)}></div>
+          <div className={classNames(styles.LightRayTwo)}></div>
+          <div className={classNames(styles.LightRayThree)}></div>
+          <div className={classNames(styles.LightRayFour)}></div>
+          <div className={classNames(styles.LightRayFive)}></div>
+        </div>
         <ClientOnly>{() => <Menu />}</ClientOnly>
         <div ref={scrollRef} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
@@ -192,12 +199,38 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </ClientOnly>
               <div
                 className={classNames(
-                  ' bg-bolt-elements-background-depth-2 p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt mb-6',
+                  'bg-bolt-elements-background-depth-2 p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt mb-6',
                   {
                     'sticky bottom-2': chatStarted,
                   },
                 )}
               >
+                <svg className={classNames(styles.PromptEffectContainer)}>
+                  <defs>
+                    <linearGradient
+                      id="line-gradient"
+                      x1="20%"
+                      y1="0%"
+                      x2="-14%"
+                      y2="10%"
+                      gradientUnits="userSpaceOnUse"
+                      gradientTransform="rotate(-45)"
+                    >
+                      <stop offset="0%" stop-color="#1488fc" stop-opacity="0%"></stop>
+                      <stop offset="40%" stop-color="#1488fc" stop-opacity="80%"></stop>
+                      <stop offset="50%" stop-color="#1488fc" stop-opacity="80%"></stop>
+                      <stop offset="100%" stop-color="#1488fc" stop-opacity="0%"></stop>
+                    </linearGradient>
+                    <linearGradient id="shine-gradient">
+                      <stop offset="0%" stop-color="white" stop-opacity="0%"></stop>
+                      <stop offset="40%" stop-color="#8adaff" stop-opacity="80%"></stop>
+                      <stop offset="50%" stop-color="#8adaff" stop-opacity="80%"></stop>
+                      <stop offset="100%" stop-color="white" stop-opacity="0%"></stop>
+                    </linearGradient>
+                  </defs>
+                  <rect className={classNames(styles.PromptEffectLine)} pathLength="100" stroke-linecap="round"></rect>
+                  <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
+                </svg>
                 <ModelSelector
                   key={provider?.name + ':' + modelList.length}
                   model={model}
@@ -219,12 +252,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                 <div
                   className={classNames(
-                    'shadow-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden transition-all',
+                    'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
                   )}
                 >
                   <textarea
                     ref={textareaRef}
-                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none focus:ring-0 focus:border-none focus:shadow-none resize-none text-md text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent transition-all`}
+                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm`}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {
@@ -300,8 +333,16 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </div>
             </div>
             {!chatStarted && (
-              <div id="examples" className="relative w-full max-w-xl mx-auto mt-8 flex justify-center">
-                <div className="flex flex-col space-y-2 [mask-image:linear-gradient(to_bottom,black_0%,transparent_180%)] hover:[mask-image:none]">
+              <div
+                id="examples"
+                className="relative flex flex-col gap-9 w-full max-w-3xl mx-auto flex justify-center mt-6"
+              >
+                <div
+                  className="flex flex-wrap justify-center gap-2"
+                  style={{
+                    animation: '.25s ease-out 0s 1 _fade-and-move-in_g2ptj_1 forwards',
+                  }}
+                >
                   {EXAMPLE_PROMPTS.map((examplePrompt, index) => {
                     return (
                       <button
@@ -309,10 +350,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         onClick={(event) => {
                           sendMessage?.(event, examplePrompt.text);
                         }}
-                        className="group flex items-center w-full gap-2 justify-center bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary transition-theme"
+                        className="border border-bolt-elements-borderColor rounded-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-950 dark:hover:bg-gray-900 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary px-3 py-1 text-xs transition-theme"
                       >
                         {examplePrompt.text}
-                        <div className="i-ph:arrow-bend-down-left" />
+                        {/* <div className="i-ph:arrow-bend-down-left" /> */}
                       </button>
                     );
                   })}

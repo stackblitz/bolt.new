@@ -19,7 +19,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden">
         <Button
           active={showChat}
-          disabled={!canHideChat || isSmallViewport} // expand button is disabled on mobile as it's needed
+          disabled={!canHideChat || isSmallViewport} // expand button is disabled on mobile as it's not needed
           onClick={() => {
             if (canHideChat) {
               chatStore.setKey('showChat', !showChat);

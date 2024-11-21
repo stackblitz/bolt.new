@@ -32,6 +32,7 @@ const PROVIDER_LIST: ProviderInfo[] = [
     name: 'OpenAILike',
     staticModels: [
       { name: 'o1-mini', label: 'o1-mini', provider: 'OpenAILike' },      
+      { name: 'gpt-4o-mini', label: 'GPT-4o Mini', provider: 'OpenAI' },
     ],
     getDynamicModels: getOpenAILikeModels
   },
@@ -58,7 +59,9 @@ const PROVIDER_LIST: ProviderInfo[] = [
 
   }, {
     name: 'Google',
-    staticModels: [
+    staticModels: [ 
+      { name: 'gemini-exp-1121', label: 'Gemini Experimental 1121', provider: 'Google' },
+      { name: 'gemini-1.5-pro-002', label: 'Gemini 1.5 Pro 002', provider: 'Google' },
       { name: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', provider: 'Google' },
       { name: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', provider: 'Google' }
     ],

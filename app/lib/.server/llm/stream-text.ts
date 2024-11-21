@@ -52,6 +52,10 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
     })
     : textContent.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '');
 
+  // console.log('Model from message:', model);
+  // console.log('Found in MODEL_LIST:', MODEL_LIST.find((m) => m.name === model));
+  // console.log('Current MODEL_LIST:', MODEL_LIST);
+
   return { model, provider, content: cleanedContent };
 }
 
@@ -64,7 +68,7 @@ export function streamText(
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER;
 
-  console.log('StreamText:', JSON.stringify(messages));
+  // console.log('StreamText:', JSON.stringify(messages));
 
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
@@ -82,11 +86,22 @@ export function streamText(
     return message; // No changes for non-user messages
   });
 
-  return _streamText({
-    model: getModel(currentProvider, currentModel, env, apiKeys),
+  // console.log('Message content:', messages[0].content);
+  // console.log('Extracted properties:', extractPropertiesFromMessage(messages[0]));
+
+  const llmClient = getModel(currentProvider, currentModel, env, apiKeys);
+  // console.log('LLM Client:', llmClient);
+
+  const llmConfig = {
+    ...options,
+    model: llmClient, //getModel(currentProvider, currentModel, env, apiKeys),
+    provider: currentProvider,
     system: getSystemPrompt(),
     maxTokens: MAX_TOKENS,
     messages: convertToCoreMessages(processedMessages),
-    ...options,
-  });
+  };
+
+  // console.log('LLM Config:', llmConfig);
+
+  return _streamText(llmConfig);
 }

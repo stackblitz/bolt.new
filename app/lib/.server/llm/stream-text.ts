@@ -80,11 +80,6 @@ export function streamText(
     return message; // No changes for non-user messages
   });
 
-  console.log('Stream Text:', JSON.stringify({
-    model: getModel(currentProvider, currentModel, env, apiKeys),
-    messages: convertToCoreMessages(processedMessages),    
-  }));
-
   return _streamText({
     model: getModel(currentProvider, currentModel, env, apiKeys),
     system: getSystemPrompt(),

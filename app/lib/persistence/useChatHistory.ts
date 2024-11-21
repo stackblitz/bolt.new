@@ -110,6 +110,7 @@ export function useChatHistory() {
         toast.success('Chat duplicated successfully');
       } catch (error) {
         toast.error('Failed to duplicate chat');
+        console.log(error);
       }
     },
   };

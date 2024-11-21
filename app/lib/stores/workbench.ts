@@ -13,7 +13,6 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import * as nodePath from 'node:path';
-import type { WebContainerProcess } from '@webcontainer/api';
 import { extractRelativePath } from '~/utils/diff';
 
 export interface ArtifactState {
@@ -42,7 +41,6 @@ export class WorkbenchStore {
   unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
-  #boltTerminal: { terminal: ITerminal; process: WebContainerProcess } | undefined;
   #globalExecutionQueue = Promise.resolve();
   constructor() {
     if (import.meta.hot) {
@@ -439,6 +437,8 @@ export class WorkbenchStore {
             });
             return { path: extractRelativePath(filePath), sha: blob.sha };
           }
+
+          return null;
         }),
       );
 

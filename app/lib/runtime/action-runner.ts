@@ -1,11 +1,10 @@
-import { WebContainer, type WebContainerProcess } from '@webcontainer/api';
+import { WebContainer } from '@webcontainer/api';
 import { atom, map, type MapStore } from 'nanostores';
 import * as nodePath from 'node:path';
 import type { BoltAction } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
 import type { ActionCallbackData } from './message-parser';
-import type { ITerminal } from '~/types/terminal';
 import type { BoltShell } from '~/utils/shell';
 
 const logger = createScopedLogger('ActionRunner');
@@ -94,9 +93,10 @@ export class ActionRunner {
 
     this.#updateAction(actionId, { ...action, ...data.action, executed: !isStreaming });
 
+    // eslint-disable-next-line consistent-return
     return (this.#currentExecutionPromise = this.#currentExecutionPromise
       .then(() => {
-        return this.#executeAction(actionId, isStreaming);
+        this.#executeAction(actionId, isStreaming);
       })
       .catch((error) => {
         console.error('Action failed:', error);
@@ -127,12 +127,11 @@ export class ActionRunner {
 
           /*
            * adding a delay to avoid any race condition between 2 start actions
-           * i am up for a better approch
+           * i am up for a better approach
            */
           await new Promise((resolve) => setTimeout(resolve, 2000));
 
           return;
-          break;
         }
       }
 

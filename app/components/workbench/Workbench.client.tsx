@@ -144,7 +144,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                 <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
                 <div className="ml-auto" />
                 {selectedView === 'code' && (
-                  <>
+                  <div className="flex overflow-y-auto">
                     <PanelHeaderButton
                       className="mr-1 text-sm"
                       onClick={() => {
@@ -170,29 +170,32 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                     <PanelHeaderButton
                       className="mr-1 text-sm"
                       onClick={() => {
-                        const repoName = prompt("Please enter a name for your new GitHub repository:", "bolt-generated-project");
+                        const repoName = prompt(
+                          'Please enter a name for your new GitHub repository:',
+                          'bolt-generated-project',
+                        );
                         if (!repoName) {
-                          alert("Repository name is required. Push to GitHub cancelled.");
+                          alert('Repository name is required. Push to GitHub cancelled.');
                           return;
                         }
-                        const githubUsername = prompt("Please enter your GitHub username:");
+                        const githubUsername = prompt('Please enter your GitHub username:');
                         if (!githubUsername) {
-                          alert("GitHub username is required. Push to GitHub cancelled.");
+                          alert('GitHub username is required. Push to GitHub cancelled.');
                           return;
                         }
-                        const githubToken = prompt("Please enter your GitHub personal access token:");
+                        const githubToken = prompt('Please enter your GitHub personal access token:');
                         if (!githubToken) {
-                          alert("GitHub token is required. Push to GitHub cancelled.");
+                          alert('GitHub token is required. Push to GitHub cancelled.');
                           return;
                         }
-                        
-                      workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);  
+
+                        workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);
                       }}
                     >
                       <div className="i-ph:github-logo" />
                       Push to GitHub
                     </PanelHeaderButton>
-                  </>
+                  </div>
                 )}
                 <IconButton
                   icon="i-ph:x-circle"

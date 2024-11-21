@@ -45,7 +45,6 @@ export class ActionRunner {
   constructor(webcontainerPromise: Promise<WebContainer>, getShellTerminal: () => BoltShell) {
     this.#webcontainer = webcontainerPromise;
     this.#shellTerminal = getShellTerminal;
-
   }
 
   addAction(data: ActionCallbackData) {
@@ -88,19 +87,20 @@ export class ActionRunner {
     if (action.executed) {
       return;
     }
+
     if (isStreaming && action.type !== 'file') {
       return;
     }
 
     this.#updateAction(actionId, { ...action, ...data.action, executed: !isStreaming });
 
-    return this.#currentExecutionPromise = this.#currentExecutionPromise 
+    return (this.#currentExecutionPromise = this.#currentExecutionPromise
       .then(() => {
         return this.#executeAction(actionId, isStreaming);
       })
       .catch((error) => {
         console.error('Action failed:', error);
-      });
+      }));
   }
 
   async #executeAction(actionId: string, isStreaming: boolean = false) {
@@ -121,17 +121,24 @@ export class ActionRunner {
         case 'start': {
           // making the start app non blocking
 
-          this.#runStartAction(action).then(()=>this.#updateAction(actionId, { status: 'complete' }))
-          .catch(()=>this.#updateAction(actionId, { status: 'failed', error: 'Action failed' }))
-          // adding a delay to avoid any race condition between 2 start actions
-          // i am up for a better approch 
-          await new Promise(resolve=>setTimeout(resolve,2000))
-          return
+          this.#runStartAction(action)
+            .then(() => this.#updateAction(actionId, { status: 'complete' }))
+            .catch(() => this.#updateAction(actionId, { status: 'failed', error: 'Action failed' }));
+
+          /*
+           * adding a delay to avoid any race condition between 2 start actions
+           * i am up for a better approch
+           */
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+
+          return;
           break;
         }
       }
 
-      this.#updateAction(actionId, { status: isStreaming ? 'running' : action.abortSignal.aborted ? 'aborted' : 'complete' });
+      this.#updateAction(actionId, {
+        status: isStreaming ? 'running' : action.abortSignal.aborted ? 'aborted' : 'complete',
+      });
     } catch (error) {
       this.#updateAction(actionId, { status: 'failed', error: 'Action failed' });
       logger.error(`[${action.type}]:Action failed\n\n`, error);
@@ -145,16 +152,19 @@ export class ActionRunner {
     if (action.type !== 'shell') {
       unreachable('Expected shell action');
     }
-    const shell = this.#shellTerminal()
-    await shell.ready()
+
+    const shell = this.#shellTerminal();
+    await shell.ready();
+
     if (!shell || !shell.terminal || !shell.process) {
       unreachable('Shell terminal not found');
     }
-    const resp = await shell.executeCommand(this.runnerId.get(), action.content)
-    logger.debug(`${action.type} Shell Response: [exit code:${resp?.exitCode}]`)
-    if (resp?.exitCode != 0) {
-      throw new Error("Failed To Execute Shell Command");
 
+    const resp = await shell.executeCommand(this.runnerId.get(), action.content);
+    logger.debug(`${action.type} Shell Response: [exit code:${resp?.exitCode}]`);
+
+    if (resp?.exitCode != 0) {
+      throw new Error('Failed To Execute Shell Command');
     }
   }
 
@@ -162,21 +172,26 @@ export class ActionRunner {
     if (action.type !== 'start') {
       unreachable('Expected shell action');
     }
+
     if (!this.#shellTerminal) {
       unreachable('Shell terminal not found');
     }
-    const shell = this.#shellTerminal()
-    await shell.ready()
+
+    const shell = this.#shellTerminal();
+    await shell.ready();
+
     if (!shell || !shell.terminal || !shell.process) {
       unreachable('Shell terminal not found');
     }
-    const resp = await shell.executeCommand(this.runnerId.get(), action.content)
-    logger.debug(`${action.type} Shell Response: [exit code:${resp?.exitCode}]`)
+
+    const resp = await shell.executeCommand(this.runnerId.get(), action.content);
+    logger.debug(`${action.type} Shell Response: [exit code:${resp?.exitCode}]`);
 
     if (resp?.exitCode != 0) {
-      throw new Error("Failed To Start Application");
+      throw new Error('Failed To Start Application');
     }
-    return resp
+
+    return resp;
   }
 
   async #runFileAction(action: ActionState) {

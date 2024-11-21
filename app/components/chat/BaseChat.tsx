@@ -1,5 +1,7 @@
-// @ts-nocheck
-// Preventing TS checks with files presented in the video for a better presentation.
+/*
+ * @ts-nocheck
+ * Preventing TS checks with files presented in the video for a better presentation.
+ */
 import type { Message } from 'ai';
 import React, { type RefCallback, useEffect } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
@@ -34,6 +36,7 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
         value={provider?.name}
         onChange={(e) => {
           setProvider(providerList.find((p) => p.name === e.target.value));
+
           const firstModel = [...modelList].find((m) => m.provider == e.target.value);
           setModel(firstModel ? firstModel.name : '');
         }}
@@ -118,14 +121,17 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       // Load API keys from cookies on component mount
       try {
         const storedApiKeys = Cookies.get('apiKeys');
+
         if (storedApiKeys) {
           const parsedKeys = JSON.parse(storedApiKeys);
+
           if (typeof parsedKeys === 'object' && parsedKeys !== null) {
             setApiKeys(parsedKeys);
           }
         }
       } catch (error) {
         console.error('Error loading API keys from cookies:', error);
+
         // Clear invalid cookie data
         Cookies.remove('apiKeys');
       }
@@ -139,6 +145,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       try {
         const updatedApiKeys = { ...apiKeys, [provider]: key };
         setApiKeys(updatedApiKeys);
+
         // Save updated API keys to cookies with 30 day expiry and secure settings
         Cookies.set('apiKeys', JSON.stringify(updatedApiKeys), {
           expires: 30, // 30 days

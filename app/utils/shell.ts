@@ -52,66 +52,70 @@ export async function newShellProcess(webcontainer: WebContainer, terminal: ITer
   return process;
 }
 
-
-
 export class BoltShell {
-  #initialized: (() => void) | undefined
-  #readyPromise: Promise<void>
-  #webcontainer: WebContainer | undefined
-  #terminal: ITerminal | undefined
-  #process: WebContainerProcess | undefined
-  executionState = atom<{ sessionId: string, active: boolean, executionPrms?: Promise<any> } | undefined>()
-  #outputStream: ReadableStreamDefaultReader<string> | undefined
-  #shellInputStream: WritableStreamDefaultWriter<string> | undefined
+  #initialized: (() => void) | undefined;
+  #readyPromise: Promise<void>;
+  #webcontainer: WebContainer | undefined;
+  #terminal: ITerminal | undefined;
+  #process: WebContainerProcess | undefined;
+  executionState = atom<{ sessionId: string; active: boolean; executionPrms?: Promise<any> } | undefined>();
+  #outputStream: ReadableStreamDefaultReader<string> | undefined;
+  #shellInputStream: WritableStreamDefaultWriter<string> | undefined;
   constructor() {
     this.#readyPromise = new Promise((resolve) => {
-      this.#initialized = resolve
-    })
+      this.#initialized = resolve;
+    });
   }
   ready() {
     return this.#readyPromise;
   }
   async init(webcontainer: WebContainer, terminal: ITerminal) {
-    this.#webcontainer = webcontainer
-    this.#terminal = terminal
-    let callback = (data: string) => {
-      console.log(data)
-    }
-    let { process, output } = await this.newBoltShellProcess(webcontainer, terminal)
-    this.#process = process
-    this.#outputStream = output.getReader()
-    await this.waitTillOscCode('interactive')
-    this.#initialized?.()
+    this.#webcontainer = webcontainer;
+    this.#terminal = terminal;
+
+    const callback = (data: string) => {
+      console.log(data);
+    };
+    const { process, output } = await this.newBoltShellProcess(webcontainer, terminal);
+    this.#process = process;
+    this.#outputStream = output.getReader();
+    await this.waitTillOscCode('interactive');
+    this.#initialized?.();
   }
   get terminal() {
-    return this.#terminal
+    return this.#terminal;
   }
   get process() {
-    return this.#process
+    return this.#process;
   }
   async executeCommand(sessionId: string, command: string) {
     if (!this.process || !this.terminal) {
-      return
+      return;
     }
-    let state = this.executionState.get()
 
-    //interrupt the current execution
-    // this.#shellInputStream?.write('\x03');
+    const state = this.executionState.get();
+
+    /*
+     * interrupt the current execution
+     *  this.#shellInputStream?.write('\x03');
+     */
     this.terminal.input('\x03');
+
     if (state && state.executionPrms) {
-      await state.executionPrms
+      await state.executionPrms;
     }
+
     //start a new execution
     this.terminal.input(command.trim() + '\n');
 
     //wait for the execution to finish
-    let executionPrms = this.getCurrentExecutionResult()
-    this.executionState.set({ sessionId, active: true, executionPrms })
+    const executionPrms = this.getCurrentExecutionResult();
+    this.executionState.set({ sessionId, active: true, executionPrms });
 
-    let resp = await executionPrms
-    this.executionState.set({ sessionId, active: false })
-    return resp
+    const resp = await executionPrms;
+    this.executionState.set({ sessionId, active: false });
 
+    return resp;
   }
   async newBoltShellProcess(webcontainer: WebContainer, terminal: ITerminal) {
     const args: string[] = [];
@@ -126,6 +130,7 @@ export class BoltShell {
 
     const input = process.input.getWriter();
     this.#shellInputStream = input;
+
     const [internalOutput, terminalOutput] = process.output.tee();
 
     const jshReady = withResolvers<void>();
@@ -163,30 +168,41 @@ export class BoltShell {
     return { process, output: internalOutput };
   }
   async getCurrentExecutionResult() {
-    let { output, exitCode } = await this.waitTillOscCode('exit')
+    const { output, exitCode } = await this.waitTillOscCode('exit');
     return { output, exitCode };
   }
   async waitTillOscCode(waitCode: string) {
     let fullOutput = '';
     let exitCode: number = 0;
-    if (!this.#outputStream) return { output: fullOutput, exitCode };
-    let tappedStream = this.#outputStream
+
+    if (!this.#outputStream) {
+      return { output: fullOutput, exitCode };
+    }
+
+    const tappedStream = this.#outputStream;
 
     while (true) {
       const { value, done } = await tappedStream.read();
-      if (done) break;
+
+      if (done) {
+        break;
+      }
+
       const text = value || '';
       fullOutput += text;
 
       // Check if command completion signal with exit code
       const [, osc, , pid, code] = text.match(/\x1b\]654;([^\x07=]+)=?((-?\d+):(\d+))?\x07/) || [];
+
       if (osc === 'exit') {
         exitCode = parseInt(code, 10);
       }
+
       if (osc === waitCode) {
         break;
       }
     }
+
     return { output: fullOutput, exitCode };
   }
 }

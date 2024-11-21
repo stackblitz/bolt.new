@@ -39,7 +39,8 @@ https://thinktank.ottomator.ai
 - ⬜ Azure Open AI API Integration
 - ⬜ Perplexity Integration
 - ⬜ Vertex AI Integration
-- ⬜ Cohere Integration
+- ✅ Cohere Integration (@hasanraiyan)
+- ✅ Dynamic model max token length (@hasanraiyan)
 - ⬜ Deploy directly to Vercel/Netlify/other similar platforms
 - ⬜ Prompt caching
 - ⬜ Better prompt enhancing

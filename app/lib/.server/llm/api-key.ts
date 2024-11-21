@@ -35,6 +35,8 @@ export function getAPIKey(cloudflareEnv: Env, provider: string, userApiKeys?: Re
       return env.OPENAI_LIKE_API_KEY || cloudflareEnv.OPENAI_LIKE_API_KEY;
     case "xAI":
       return env.XAI_API_KEY || cloudflareEnv.XAI_API_KEY;
+    case "Cohere":
+      return env.COHERE_API_KEY;
     default:
       return "";
   }

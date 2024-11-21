@@ -145,6 +145,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [modelList, setModelList] = useState(MODEL_LIST);
     const [isListening, setIsListening] = useState(false);
     const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+    const [transcript, setTranscript] = useState('');
 
     useEffect(() => {
       // Load API keys from cookies on component mount
@@ -177,6 +178,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             .map(result => result.transcript)
             .join('');
 
+          setTranscript(transcript);
+
+
           if (handleInputChange) {
             const syntheticEvent = {
               target: { value: transcript },
@@ -205,6 +209,25 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       if (recognition) {
         recognition.stop();
         setIsListening(false);
+      }
+    };
+
+    const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
+      if (sendMessage) {
+        sendMessage(event, messageInput);
+        if (recognition) {
+          recognition.abort(); // Stop current recognition
+          setTranscript(''); // Clear transcript
+          setIsListening(false);
+
+          // Clear the input by triggering handleInputChange with empty value
+          if (handleInputChange) {
+            const syntheticEvent = {
+              target: { value: '' },
+            } as React.ChangeEvent<HTMLTextAreaElement>;
+            handleInputChange(syntheticEvent);
+          }
+        }
       }
     };
 
@@ -301,8 +324,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         }
 
                         event.preventDefault();
-
-                        sendMessage?.(event);
+                        if (isStreaming) {
+                          handleStop?.();
+                          return;
+                        }
+                        handleSendMessage?.(event);
                       }
                     }}
                     value={input}
@@ -327,7 +353,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                             return;
                           }
 
-                          sendMessage?.(event);
+                          handleSendMessage?.(event);
                         }}
                       />
                     )}
@@ -384,7 +410,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       <button
                         key={index}
                         onClick={(event) => {
-                          sendMessage?.(event, examplePrompt.text);
+                          if (isStreaming) {
+                            handleStop?.();
+                            return;
+                          }
+                          handleSendMessage?.(event, examplePrompt.text);
                         }}
                         className="group flex items-center w-full gap-2 justify-center bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary transition-theme"
                       >

@@ -64,6 +64,8 @@ export function streamText(
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER;
 
+  console.log('StreamText:', JSON.stringify(messages));
+
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
       const { model, provider, content } = extractPropertiesFromMessage(message);

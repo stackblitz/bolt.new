@@ -30,13 +30,15 @@ const PROVIDER_LIST: ProviderInfo[] = [
     icon: "i-ph:cloud-arrow-down",
   }, {
     name: 'OpenAILike',
-    staticModels: [],
+    staticModels: [
+      { name: 'o1-mini', label: 'o1-mini', provider: 'OpenAILike' },      
+    ],
     getDynamicModels: getOpenAILikeModels
   },
   {
     name: 'OpenRouter',
     staticModels: [
-      { name: 'gpt-4o', label: 'GPT-4o', provider: 'OpenAI' },
+      { name: 'gpt-4o', label: 'GPT-4o', provider: 'OpenRouter' },
       {
         name: 'anthropic/claude-3.5-sonnet',
         label: 'Anthropic: Claude 3.5 Sonnet (OpenRouter)',

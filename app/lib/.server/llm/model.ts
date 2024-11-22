@@ -11,7 +11,11 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { createMistral } from '@ai-sdk/mistral';
 import { createCohere } from '@ai-sdk/cohere';
 
-export function getAnthropicModel(apiKey: string | undefined, model: string) {
+export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ?
+  parseInt(process.env.DEFAULT_NUM_CTX, 10) :
+  32768;
+
+export function getAnthropicModel(apiKey: string, model: string) {
   const anthropic = createAnthropic({
     apiKey,
   });
@@ -68,7 +72,7 @@ export function getGroqModel(apiKey: string | undefined, model: string) {
   return openai(model);
 }
 
-export function getHuggingFaceModel(apiKey: string | undefined, model: string) {
+export function getHuggingFaceModel(apiKey: string, model: string) {
   const openai = createOpenAI({
     baseURL: 'https://api-inference.huggingface.co/v1/',
     apiKey,
@@ -78,8 +82,8 @@ export function getHuggingFaceModel(apiKey: string | undefined, model: string) {
 }
 
 export function getOllamaModel(baseURL: string, model: string) {
-  const ollamaInstance = ollama(model, {
-    numCtx: 32768,
+  let Ollama = ollama(model, {
+    numCtx: DEFAULT_NUM_CTX,
   });
 
   ollamaInstance.config.baseURL = `${baseURL}/api`;

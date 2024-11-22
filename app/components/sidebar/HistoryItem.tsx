@@ -54,6 +54,7 @@ export function HistoryItem({ item, onDelete, onDuplicate, exportChat }: History
                   onClick={(event) => {
                     event.preventDefault();
                     exportChat(item.id);
+
                     //exportChat(item.messages, item.description);
                   }}
                   title="Export chat"
@@ -70,14 +71,14 @@ export function HistoryItem({ item, onDelete, onDuplicate, exportChat }: History
               )}
               <Dialog.Trigger asChild>
                 <WithTooltip tooltip="Delete chat">
-                <button
-                  className="i-ph:trash scale-110"
-                  onClick={(event) => {
-                    // we prevent the default so we don't trigger the anchor above
-                    event.preventDefault();
-                    onDelete?.(event);
-                  }}
-                />
+                  <button
+                    className="i-ph:trash scale-110"
+                    onClick={(event) => {
+                      // we prevent the default so we don't trigger the anchor above
+                      event.preventDefault();
+                      onDelete?.(event);
+                    }}
+                  />
                 </WithTooltip>
               </Dialog.Trigger>
             </div>

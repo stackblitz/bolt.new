@@ -11,7 +11,7 @@ import {
   openDatabase,
   setMessages,
   duplicateChat,
-  createChatFromMessages
+  createChatFromMessages,
 } from './db';
 
 export interface ChatHistoryItem {
@@ -121,7 +121,7 @@ export function useChatHistory() {
         console.log(error);
       }
     },
-    importChat: async (description: string, messages:Message[]) => {
+    importChat: async (description: string, messages: Message[]) => {
       if (!db) {
         return;
       }
@@ -131,7 +131,7 @@ export function useChatHistory() {
         window.location.href = `/chat/${newId}`;
         toast.success('Chat imported successfully');
       } catch (error) {
-        toast.error('Failed to import chat');
+        toast.error('Failed to import chat: ' + error.message);
       }
     },
     exportChat: async (id = urlId) => {
@@ -155,7 +155,7 @@ export function useChatHistory() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    }
+    },
   };
 }
 

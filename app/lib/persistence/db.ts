@@ -179,18 +179,21 @@ export async function forkChat(db: IDBDatabase, chatId: string, messageId: strin
   return createChatFromMessages(db, chat.description ? `${chat.description} (fork)` : 'Forked chat', messages);
 }
 
-
-
 export async function duplicateChat(db: IDBDatabase, id: string): Promise<string> {
   const chat = await getMessages(db, id);
 
   if (!chat) {
     throw new Error('Chat not found');
   }
+
   return createChatFromMessages(db, `${chat.description || 'Chat'} (copy)`, chat.messages);
 }
 
-export async function createChatFromMessages(db: IDBDatabase, description: string, messages: Message[]) : Promise<string> {
+export async function createChatFromMessages(
+  db: IDBDatabase,
+  description: string,
+  messages: Message[],
+): Promise<string> {
   const newId = await getNextId(db);
   const newUrlId = await getUrlId(db, newId); // Get a new urlId for the duplicated chat
 
@@ -199,7 +202,7 @@ export async function createChatFromMessages(db: IDBDatabase, description: strin
     newId,
     messages,
     newUrlId, // Use the new urlId
-    description
+    description,
   );
 
   return newUrlId; // Return the urlId instead of id for navigation

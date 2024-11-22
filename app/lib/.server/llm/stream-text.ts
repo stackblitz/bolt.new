@@ -58,7 +58,6 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
 
   return { model, provider, content: cleanedContent };
 }
-
 export function streamText(
   messages: Messages,
   env: Env,
@@ -67,8 +66,6 @@ export function streamText(
 ) {
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER;
-
-  // console.log('StreamText:', JSON.stringify(messages));
 
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
@@ -83,25 +80,19 @@ export function streamText(
       return { ...message, content };
     }
 
-    return message; // No changes for non-user messages
-  });
+    const modelDetails = MODEL_LIST.find((m) => m.name === currentModel);
 
-  // console.log('Message content:', messages[0].content);
-  // console.log('Extracted properties:', extractPropertiesFromMessage(messages[0]));
+    const dynamicMaxTokens =
+      modelDetails && modelDetails.maxTokenAllowed
+        ? modelDetails.maxTokenAllowed
+        : MAX_TOKENS;
 
-  const llmClient = getModel(currentProvider, currentModel, env, apiKeys);
-  // console.log('LLM Client:', llmClient);
-
-  const llmConfig = {
-    ...options,
-    model: llmClient, //getModel(currentProvider, currentModel, env, apiKeys),
-    provider: currentProvider,
-    system: getSystemPrompt(),
-    maxTokens: MAX_TOKENS,
-    messages: convertToCoreMessages(processedMessages),
-  };
-
-  // console.log('LLM Config:', llmConfig);
-
-  return _streamText(llmConfig);
-}
+    return _streamText({
+      model: getModel(currentProvider, currentModel, env, apiKeys),
+      system: getSystemPrompt(),
+      maxTokens: dynamicMaxTokens,
+      messages: convertToCoreMessages(processedMessages),
+      ...options,
+    });
+  }
+)}

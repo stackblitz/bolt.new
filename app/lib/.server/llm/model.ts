@@ -7,6 +7,11 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createMistral } from '@ai-sdk/mistral';
+import { createCohere } from '@ai-sdk/cohere'
+
+export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ? 
+  parseInt(process.env.DEFAULT_NUM_CTX, 10) : 
+  32768;
 
 export function getAnthropicModel(apiKey: string, model: string) {
   const anthropic = createAnthropic({
@@ -22,14 +27,16 @@ export function getOpenAILikeModel(baseURL: string, apiKey: string, model: strin
     baseURL,
     apiKey,
   });
-  // console.log('OpenAI client created:', !!openai);
-  const client = openai(model);
-  // console.log('OpenAI model client:', !!client);
-  return client;
-  // return {
-  //   model: client,
-  //   provider: 'OpenAILike'  // Correctly identifying the actual provider
-  // };
+
+  return openai(model);
+}
+
+export function getCohereAIModel(apiKey:string, model: string){
+  const cohere = createCohere({
+    apiKey,
+  });
+
+  return cohere(model);
 }
 
 export function getOpenAIModel(apiKey: string, model: string) {
@@ -76,7 +83,7 @@ export function getHuggingFaceModel(apiKey: string, model: string) {
 
 export function getOllamaModel(baseURL: string, model: string) {
   let Ollama = ollama(model, {
-    numCtx: 32768,
+    numCtx: DEFAULT_NUM_CTX,
   });
 
   Ollama.config.baseURL = `${baseURL}/api`;
@@ -150,6 +157,8 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
       return getLMStudioModel(baseURL, model);
     case 'xAI':
       return getXAIModel(apiKey, model);
+    case 'Cohere':
+      return getCohereAIModel(apiKey, model);
     default:
       return getOllamaModel(baseURL, model);
   }

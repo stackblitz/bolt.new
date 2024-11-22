@@ -10,8 +10,11 @@ import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { createMistral } from '@ai-sdk/mistral';
 import { createCohere } from '@ai-sdk/cohere';
+import type { LanguageModelV1 } from 'ai';
 
 export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ? parseInt(process.env.DEFAULT_NUM_CTX, 10) : 32768;
+
+type OptionalApiKey = string | undefined;
 
 export function getAnthropicModel(apiKey: OptionalApiKey, model: string) {
   const anthropic = createAnthropic({
@@ -20,9 +23,6 @@ export function getAnthropicModel(apiKey: OptionalApiKey, model: string) {
 
   return anthropic(model);
 }
-
-type OptionalApiKey = string | undefined;
-
 export function getOpenAILikeModel(baseURL: string, apiKey: OptionalApiKey, model: string) {
   const openai = createOpenAI({
     baseURL,
@@ -85,7 +85,7 @@ export function getHuggingFaceModel(apiKey: OptionalApiKey, model: string) {
 export function getOllamaModel(baseURL: string, model: string) {
   const ollamaInstance = ollama(model, {
     numCtx: DEFAULT_NUM_CTX,
-  });
+  }) as LanguageModelV1 & { config: any };
 
   ollamaInstance.config.baseURL = `${baseURL}/api`;
 

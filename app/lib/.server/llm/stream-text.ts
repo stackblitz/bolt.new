@@ -1,7 +1,6 @@
-/*
- * @ts-nocheck
- * Preventing TS checks with files presented in the video for a better presentation.
- */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck – TODO: Provider proper types
+
 import { streamText as _streamText, convertToCoreMessages } from 'ai';
 import { getModel } from '~/lib/.server/llm/model';
 import { MAX_TOKENS } from './constants';

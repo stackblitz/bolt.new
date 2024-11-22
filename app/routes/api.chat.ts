@@ -1,7 +1,6 @@
-/*
- * @ts-nocheck
- * Preventing TS checks with files presented in the video for a better presentation.
- */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck – TODO: Provider proper types
+
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';

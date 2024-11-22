@@ -33,7 +33,6 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
         toast.error('Chat persistence is not available');
         return;
       }
-
       const urlId = await forkChat(db, chatId.get()!, messageId);
       window.location.href = `/chat/${urlId}`;
     } catch (error) {

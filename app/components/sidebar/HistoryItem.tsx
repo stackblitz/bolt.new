@@ -1,16 +1,16 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useRef, useState } from 'react';
 import { type ChatHistoryItem } from '~/lib/persistence';
-import { exportChat } from '~/utils/chatExport';
 import WithTooltip from '~/components/ui/Tooltip';
 
 interface HistoryItemProps {
   item: ChatHistoryItem;
   onDelete?: (event: React.UIEvent) => void;
   onDuplicate?: (id: string) => void;
+  exportChat: (id?: string) => void;
 }
 
-export function HistoryItem({ item, onDelete, onDuplicate }: HistoryItemProps) {
+export function HistoryItem({ item, onDelete, onDuplicate, exportChat }: HistoryItemProps) {
   const [hovering, setHovering] = useState(false);
   const hoverRef = useRef<HTMLDivElement>(null);
 
@@ -53,7 +53,8 @@ export function HistoryItem({ item, onDelete, onDuplicate }: HistoryItemProps) {
                   className="i-ph:download-simple scale-110 mr-2"
                   onClick={(event) => {
                     event.preventDefault();
-                    exportChat(item.messages, item.description);
+                    exportChat(item.id);
+                    //exportChat(item.messages, item.description);
                   }}
                   title="Export chat"
                 />

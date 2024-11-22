@@ -28,12 +28,12 @@ const logger = createScopedLogger('Chat');
 export function Chat() {
   renderLogger.trace('Chat');
 
-  const { ready, initialMessages, storeMessageHistory } = useChatHistory();
+  const { ready, initialMessages, storeMessageHistory, importChat, exportChat } = useChatHistory();
   const title = useStore(description);
 
   return (
     <>
-      {ready && <ChatImpl description={title} initialMessages={initialMessages} storeMessageHistory={storeMessageHistory} />}
+      {ready && <ChatImpl description={title} initialMessages={initialMessages} exportChat={exportChat} storeMessageHistory={storeMessageHistory} importChat={importChat} />}
       <ToastContainer
         closeButton={({ closeToast }) => {
           return (
@@ -68,9 +68,11 @@ export function Chat() {
 interface ChatProps {
   initialMessages: Message[];
   storeMessageHistory: (messages: Message[]) => Promise<void>;
+  importChat: (description: string, messages: Message[]) => Promise<void>;
+  exportChat: () => void;
 }
 
-export const ChatImpl = memo(({ description, initialMessages, storeMessageHistory }: ChatProps) => {
+export const ChatImpl = memo(({ description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
   useShortcuts();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -254,6 +256,8 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
       handleInputChange={handleInputChange}
       handleStop={abort}
       description={description}
+      importChat={importChat}
+      exportChat={exportChat}
       messages={messages.map((message, i) => {
         if (message.role === 'user') {
           return message;

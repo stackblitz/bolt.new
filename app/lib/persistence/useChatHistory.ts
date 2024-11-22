@@ -4,7 +4,15 @@ import { atom } from 'nanostores';
 import type { Message } from 'ai';
 import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { getMessages, getNextId, getUrlId, openDatabase, setMessages, duplicateChat } from './db';
+import {
+  getMessages,
+  getNextId,
+  getUrlId,
+  openDatabase,
+  setMessages,
+  duplicateChat,
+  createChatFromMessages
+} from './db';
 
 export interface ChatHistoryItem {
   id: string;
@@ -111,6 +119,41 @@ export function useChatHistory() {
       } catch (error) {
         toast.error('Failed to duplicate chat');
       }
+    },
+    importChat: async (description: string, messages:Message[]) => {
+      if (!db) {
+        return;
+      }
+
+      try {
+        const newId = await createChatFromMessages(db, description, messages);
+        window.location.href = `/chat/${newId}`;
+        toast.success('Chat imported successfully');
+      } catch (error) {
+        toast.error('Failed to import chat');
+      }
+    },
+    exportChat: async (id = urlId) => {
+      if (!db || !id) {
+        return;
+      }
+
+      const chat = await getMessages(db, id);
+      const chatData = {
+        messages: chat.messages,
+        description: chat.description,
+        exportDate: new Date().toISOString(),
+      };
+
+      const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `chat-${new Date().toISOString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   };
 }

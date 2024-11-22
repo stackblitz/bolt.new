@@ -99,7 +99,7 @@ export function useChatHistory() {
 
       await setMessages(db, chatId.get() as string, messages, urlId, description.get());
     },
-    duplicateCurrentChat: async (listItemId:string) => {
+    duplicateCurrentChat: async (listItemId: string) => {
       if (!db || (!mixedId && !listItemId)) {
         return;
       }
@@ -110,8 +110,9 @@ export function useChatHistory() {
         toast.success('Chat duplicated successfully');
       } catch (error) {
         toast.error('Failed to duplicate chat');
+        console.log(error);
       }
-    }
+    },
   };
 }
 

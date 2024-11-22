@@ -22,7 +22,6 @@ export function getAnthropicModel(apiKey: string, model: string) {
 }
 
 export function getOpenAILikeModel(baseURL: string, apiKey: string, model: string) {
-  // console.log('OpenAILike config:', { baseURL, hasApiKey: !!apiKey, model });
   const openai = createOpenAI({
     baseURL,
     apiKey,
@@ -131,8 +130,6 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
 
   apiKey = getAPIKey(env, provider, apiKeys);  // Then assign
   baseURL = getBaseURL(env, provider);
-
-  // console.log('getModel inputs:', { provider, model, baseURL, hasApiKey: !!apiKey });
 
   switch (provider) {
     case 'Anthropic':

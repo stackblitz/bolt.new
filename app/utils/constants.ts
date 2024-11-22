@@ -32,7 +32,7 @@ const PROVIDER_LIST: ProviderInfo[] = [
     name: 'OpenAILike',
     staticModels: [
       { name: 'o1-mini', label: 'o1-mini', provider: 'OpenAILike' },      
-      { name: 'gpt-4o-mini', label: 'GPT-4o Mini', provider: 'OpenAI' },
+      { name: 'gpt-4o-mini', label: 'GPT-4o Mini', provider: 'OpenAILike' },
     ],
     getDynamicModels: getOpenAILikeModels
   },

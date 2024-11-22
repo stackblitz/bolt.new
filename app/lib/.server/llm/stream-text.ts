@@ -52,12 +52,9 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
     })
     : textContent.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '');
 
-  // console.log('Model from message:', model);
-  // console.log('Found in MODEL_LIST:', MODEL_LIST.find((m) => m.name === model));
-  // console.log('Current MODEL_LIST:', MODEL_LIST);
-
   return { model, provider, content: cleanedContent };
 }
+
 export function streamText(
   messages: Messages,
   env: Env,
@@ -79,20 +76,21 @@ export function streamText(
 
       return { ...message, content };
     }
+    return message;
+  });
 
-    const modelDetails = MODEL_LIST.find((m) => m.name === currentModel);
+  const modelDetails = MODEL_LIST.find((m) => m.name === currentModel);
 
-    const dynamicMaxTokens =
-      modelDetails && modelDetails.maxTokenAllowed
-        ? modelDetails.maxTokenAllowed
-        : MAX_TOKENS;
+  const dynamicMaxTokens =
+    modelDetails && modelDetails.maxTokenAllowed
+      ? modelDetails.maxTokenAllowed
+      : MAX_TOKENS;
 
-    return _streamText({
-      model: getModel(currentProvider, currentModel, env, apiKeys),
-      system: getSystemPrompt(),
-      maxTokens: dynamicMaxTokens,
-      messages: convertToCoreMessages(processedMessages),
-      ...options,
-    });
-  }
-)}
+  return _streamText({
+    ...options,
+    model: getModel(currentProvider, currentModel, env, apiKeys),
+    system: getSystemPrompt(),
+    maxTokens: dynamicMaxTokens,
+    messages: convertToCoreMessages(processedMessages),
+  });
+}

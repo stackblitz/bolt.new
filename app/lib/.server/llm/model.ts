@@ -11,18 +11,19 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { createMistral } from '@ai-sdk/mistral';
 import { createCohere } from '@ai-sdk/cohere';
 
-export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ?
-  parseInt(process.env.DEFAULT_NUM_CTX, 10) :
-  32768;
+export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ? parseInt(process.env.DEFAULT_NUM_CTX, 10) : 32768;
 
-export function getAnthropicModel(apiKey: string, model: string) {
+export function getAnthropicModel(apiKey: OptionalApiKey, model: string) {
   const anthropic = createAnthropic({
     apiKey,
   });
 
   return anthropic(model);
 }
-export function getOpenAILikeModel(baseURL: string, apiKey: string | undefined, model: string) {
+
+type OptionalApiKey = string | undefined;
+
+export function getOpenAILikeModel(baseURL: string, apiKey: OptionalApiKey, model: string) {
   const openai = createOpenAI({
     baseURL,
     apiKey,
@@ -31,7 +32,7 @@ export function getOpenAILikeModel(baseURL: string, apiKey: string | undefined, 
   return openai(model);
 }
 
-export function getCohereAIModel(apiKey: string | undefined, model: string) {
+export function getCohereAIModel(apiKey: OptionalApiKey, model: string) {
   const cohere = createCohere({
     apiKey,
   });
@@ -39,7 +40,7 @@ export function getCohereAIModel(apiKey: string | undefined, model: string) {
   return cohere(model);
 }
 
-export function getOpenAIModel(apiKey: string | undefined, model: string) {
+export function getOpenAIModel(apiKey: OptionalApiKey, model: string) {
   const openai = createOpenAI({
     apiKey,
   });
@@ -47,7 +48,7 @@ export function getOpenAIModel(apiKey: string | undefined, model: string) {
   return openai(model);
 }
 
-export function getMistralModel(apiKey: string | undefined, model: string) {
+export function getMistralModel(apiKey: OptionalApiKey, model: string) {
   const mistral = createMistral({
     apiKey,
   });
@@ -55,7 +56,7 @@ export function getMistralModel(apiKey: string | undefined, model: string) {
   return mistral(model);
 }
 
-export function getGoogleModel(apiKey: string | undefined, model: string) {
+export function getGoogleModel(apiKey: OptionalApiKey, model: string) {
   const google = createGoogleGenerativeAI({
     apiKey,
   });
@@ -63,7 +64,7 @@ export function getGoogleModel(apiKey: string | undefined, model: string) {
   return google(model);
 }
 
-export function getGroqModel(apiKey: string | undefined, model: string) {
+export function getGroqModel(apiKey: OptionalApiKey, model: string) {
   const openai = createOpenAI({
     baseURL: 'https://api.groq.com/openai/v1',
     apiKey,
@@ -72,7 +73,7 @@ export function getGroqModel(apiKey: string | undefined, model: string) {
   return openai(model);
 }
 
-export function getHuggingFaceModel(apiKey: string, model: string) {
+export function getHuggingFaceModel(apiKey: OptionalApiKey, model: string) {
   const openai = createOpenAI({
     baseURL: 'https://api-inference.huggingface.co/v1/',
     apiKey,
@@ -82,7 +83,7 @@ export function getHuggingFaceModel(apiKey: string, model: string) {
 }
 
 export function getOllamaModel(baseURL: string, model: string) {
-  let Ollama = ollama(model, {
+  const ollamaInstance = ollama(model, {
     numCtx: DEFAULT_NUM_CTX,
   });
 
@@ -91,7 +92,7 @@ export function getOllamaModel(baseURL: string, model: string) {
   return ollamaInstance;
 }
 
-export function getDeepseekModel(apiKey: string | undefined, model: string) {
+export function getDeepseekModel(apiKey: OptionalApiKey, model: string) {
   const openai = createOpenAI({
     baseURL: 'https://api.deepseek.com/beta',
     apiKey,
@@ -100,7 +101,7 @@ export function getDeepseekModel(apiKey: string | undefined, model: string) {
   return openai(model);
 }
 
-export function getOpenRouterModel(apiKey: string | undefined, model: string) {
+export function getOpenRouterModel(apiKey: OptionalApiKey, model: string) {
   const openRouter = createOpenRouter({
     apiKey,
   });
@@ -117,7 +118,7 @@ export function getLMStudioModel(baseURL: string, model: string) {
   return lmstudio(model);
 }
 
-export function getXAIModel(apiKey: string | undefined, model: string) {
+export function getXAIModel(apiKey: OptionalApiKey, model: string) {
   const openai = createOpenAI({
     baseURL: 'https://api.x.ai/v1',
     apiKey,

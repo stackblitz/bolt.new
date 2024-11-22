@@ -1,7 +1,17 @@
 import React from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import type {ReactNode} from 'react';
 
-const WithTooltip = ({ tooltip, children, sideOffset = 5, className = '', arrowClassName = '', tooltipStyle = {} }) => {
+interface ToolTipProps {
+  tooltip: string,
+  children: ReactNode | ReactNode[];
+  sideOffset?: number,
+  className?: string,
+  arrowClassName?: string,
+  tooltipStyle?: any, //TODO better type
+}
+
+const WithTooltip = ({ tooltip, children, sideOffset = 5, className = '', arrowClassName = '', tooltipStyle = {} }: ToolTipProps) => {
   return (
     <Tooltip.Root>
       <Tooltip.Trigger asChild>

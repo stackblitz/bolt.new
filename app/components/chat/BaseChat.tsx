@@ -12,12 +12,14 @@ import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { APIKeyManager } from './APIKeyManager';
 import Cookies from 'js-cookie';
-import { importChat } from '~/utils/chatExport';
+import { exportChat, importChat } from '~/utils/chatExport';
 import { toast } from 'react-toastify';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
+import WithTooltip from '~/components/ui/Tooltip';
+import { ExportChatButton } from '~/components/chat/ExportChatButton';
 
 const EXAMPLE_PROMPTS = [
   { text: 'Build a todo app in React using Tailwind' },
@@ -76,6 +78,7 @@ interface BaseChatProps {
   chatStarted?: boolean;
   isStreaming?: boolean;
   messages?: Message[];
+  description?: string;
   enhancingPrompt?: boolean;
   promptEnhanced?: boolean;
   input?: string;
@@ -101,6 +104,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       enhancingPrompt = false,
       promptEnhanced = false,
       messages,
+      description,
       input = '',
       model,
       setModel,
@@ -288,6 +292,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                             </>
                           )}
                         </IconButton>
+                        <ClientOnly>{() => <ExportChatButton description={description} messages={messages}/>}</ClientOnly>
                       </div>
                       {input.length > 3 ? (
                         <div className="text-xs text-bolt-elements-textTertiary">

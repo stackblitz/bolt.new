@@ -3,11 +3,11 @@ import React from 'react';
 import { classNames } from '~/utils/classNames';
 import { AssistantMessage } from './AssistantMessage';
 import { UserMessage } from './UserMessage';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import { useLocation, useNavigate } from '@remix-run/react';
 import { db, chatId } from '~/lib/persistence/useChatHistory';
 import { forkChat } from '~/lib/persistence/db';
 import { toast } from 'react-toastify';
+import WithTooltip from '~/components/ui/Tooltip';
 
 interface MessagesProps {
   id?: string;
@@ -42,7 +42,6 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
   };
 
   return (
-    <Tooltip.Provider delayDuration={200}>
       <div id={id} ref={ref} className={props.className}>
         {messages.length > 0
           ? messages.map((message, index) => {
@@ -70,51 +69,27 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                     {isUserMessage ? <UserMessage content={content} /> : <AssistantMessage content={content} />}
                   </div>
                   {!isUserMessage && (<div className="flex gap-2">
-                    <Tooltip.Root>
-                      <Tooltip.Trigger asChild>
-                        {messageId && (<button
-                          onClick={() => handleRewind(messageId)}
-                          key='i-ph:arrow-u-up-left'
-                          className={classNames(
-                            'i-ph:arrow-u-up-left',
-                            'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors'
-                          )}
-                        />)}
-                      </Tooltip.Trigger>
-                      <Tooltip.Portal>
-                        <Tooltip.Content
-                          className="bg-bolt-elements-tooltip-background text-bolt-elements-textPrimary px-3 py-2 rounded-lg text-sm shadow-lg"
-                          sideOffset={5}
-                          style={{zIndex: 1000}}
-                        >
-                          Revert to this message
-                          <Tooltip.Arrow className="fill-bolt-elements-tooltip-background" />
-                        </Tooltip.Content>
-                      </Tooltip.Portal>
-                    </Tooltip.Root>
+                    <WithTooltip tooltip="Revert to this message">
+                      {messageId && (<button
+                        onClick={() => handleRewind(messageId)}
+                        key='i-ph:arrow-u-up-left'
+                        className={classNames(
+                          'i-ph:arrow-u-up-left',
+                          'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors'
+                        )}
+                      />)}
+                    </WithTooltip>
 
-                    <Tooltip.Root>
-                      <Tooltip.Trigger asChild>
-                        <button
-                          onClick={() => handleFork(messageId)}
-                          key='i-ph:git-fork'
-                          className={classNames(
-                            'i-ph:git-fork',
-                            'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors'
-                          )}
-                        />
-                      </Tooltip.Trigger>
-                      <Tooltip.Portal>
-                        <Tooltip.Content
-                          className="bg-bolt-elements-tooltip-background text-bolt-elements-textPrimary px-3 py-2 rounded-lg text-sm shadow-lg"
-                          sideOffset={5}
-                          style={{zIndex: 1000}}
-                        >
-                          Fork chat from this message
-                          <Tooltip.Arrow className="fill-bolt-elements-tooltip-background" />
-                        </Tooltip.Content>
-                      </Tooltip.Portal>
-                    </Tooltip.Root>
+                    <WithTooltip tooltip="Fork chat from this message">
+                      <button
+                        onClick={() => handleFork(messageId)}
+                        key="i-ph:git-fork"
+                        className={classNames(
+                          'i-ph:git-fork',
+                          'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors'
+                        )}
+                      />
+                    </WithTooltip>
                   </div>)}
                 </div>
               );
@@ -124,6 +99,5 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
           <div className="text-center w-full text-bolt-elements-textSecondary i-svg-spinners:3-dots-fade text-4xl mt-4"></div>
         )}
       </div>
-    </Tooltip.Provider>
   );
 });

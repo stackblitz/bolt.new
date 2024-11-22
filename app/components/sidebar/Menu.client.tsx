@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { IconButton } from '~/components/ui/IconButton';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
-import { db, deleteById, getAll, chatId, type ChatHistoryItem } from '~/lib/persistence';
+import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
 import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
@@ -34,6 +34,7 @@ const menuVariants = {
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
 export function Menu() {
+  const { duplicateCurrentChat } = useChatHistory();
   const menuRef = useRef<HTMLDivElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);
@@ -99,6 +100,17 @@ export function Menu() {
     };
   }, []);
 
+  const handleDeleteClick = (event: React.UIEvent, item: ChatHistoryItem) => {
+    event.preventDefault();
+
+    setDialogContent({ type: 'delete', item });
+  };
+
+  const handleDuplicate = async (id: string) => {
+    await duplicateCurrentChat(id);
+    loadEntries(); // Reload the list after duplication
+  };
+
   return (
     <motion.div
       ref={menuRef}
@@ -128,7 +140,12 @@ export function Menu() {
                   {category}
                 </div>
                 {items.map((item) => (
-                  <HistoryItem key={item.id} item={item} onDelete={() => setDialogContent({ type: 'delete', item })} />
+                  <HistoryItem
+                    key={item.id}
+                    item={item}
+                    onDelete={(event) => handleDeleteClick(event, item)}
+                    onDuplicate={() => handleDuplicate(item.id)}
+                  />
                 ))}
               </div>
             ))}

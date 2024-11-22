@@ -41,10 +41,9 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
 
   return { model, provider, content: cleanedContent };
 }
-
 export function streamText(
-  messages: Messages, 
-  env: Env, 
+  messages: Messages,
+  env: Env,
   options?: StreamingOptions,
   apiKeys?: Record<string, string>
 ) {
@@ -64,13 +63,22 @@ export function streamText(
       return { ...message, content };
     }
 
-    return message; // No changes for non-user messages
+    return message; 
   });
+
+  const modelDetails = MODEL_LIST.find((m) => m.name === currentModel);
+
+  
+
+    const dynamicMaxTokens =
+modelDetails && modelDetails.maxTokenAllowed
+  ? modelDetails.maxTokenAllowed
+  : MAX_TOKENS;
 
   return _streamText({
     model: getModel(currentProvider, currentModel, env, apiKeys),
     system: getSystemPrompt(),
-    maxTokens: MAX_TOKENS,
+    maxTokens: dynamicMaxTokens,
     messages: convertToCoreMessages(processedMessages),
     ...options,
   });

@@ -5,9 +5,10 @@ import { type ChatHistoryItem } from '~/lib/persistence';
 interface HistoryItemProps {
   item: ChatHistoryItem;
   onDelete?: (event: React.UIEvent) => void;
+  onDuplicate?: (id: string) => void;
 }
 
-export function HistoryItem({ item, onDelete }: HistoryItemProps) {
+export function HistoryItem({ item, onDelete, onDuplicate }: HistoryItemProps) {
   const [hovering, setHovering] = useState(false);
   const hoverRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +45,14 @@ export function HistoryItem({ item, onDelete }: HistoryItemProps) {
         {item.description}
         <div className="absolute right-0 z-1 top-0 bottom-0 bg-gradient-to-l from-bolt-elements-background-depth-2 group-hover:from-bolt-elements-background-depth-3 to-transparent w-10 flex justify-end group-hover:w-15 group-hover:from-45%">
           {hovering && (
-            <div className="flex items-center p-1 text-bolt-elements-textSecondary hover:text-bolt-elements-item-contentDanger">
+            <div className="flex items-center p-1 text-bolt-elements-textSecondary">
+              {onDuplicate && (
+                <button
+                  className="i-ph:copy scale-110 mr-2"
+                  onClick={() => onDuplicate?.(item.id)}
+                  title="Duplicate chat"
+                />
+              )}
               <Dialog.Trigger asChild>
                 <button
                   className="i-ph:trash scale-110"

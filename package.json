@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.39",
+    "@ai-sdk/cohere": "^1.0.1",
     "@ai-sdk/google": "^0.0.52",
     "@ai-sdk/mistral": "^0.0.43",
     "@ai-sdk/openai": "^0.0.66",
@@ -54,6 +55,7 @@
     "@openrouter/ai-sdk-provider": "^0.0.5",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-tooltip": "^1.1.4",
     "@remix-run/cloudflare": "^2.10.2",
     "@remix-run/cloudflare-pages": "^2.10.2",
     "@remix-run/react": "^2.10.2",

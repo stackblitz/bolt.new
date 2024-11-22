@@ -7,6 +7,7 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createMistral } from '@ai-sdk/mistral';
+import { createCohere } from '@ai-sdk/cohere'
 
 export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ? 
   parseInt(process.env.DEFAULT_NUM_CTX, 10) : 
@@ -27,6 +28,15 @@ export function getOpenAILikeModel(baseURL:string,apiKey: string, model: string)
 
   return openai(model);
 }
+
+export function getCohereAIModel(apiKey:string, model: string){
+  const cohere = createCohere({
+    apiKey,
+  });
+
+  return cohere(model);
+}
+
 export function getOpenAIModel(apiKey: string, model: string) {
   const openai = createOpenAI({
     apiKey,
@@ -54,6 +64,15 @@ export function getGoogleModel(apiKey: string, model: string) {
 export function getGroqModel(apiKey: string, model: string) {
   const openai = createOpenAI({
     baseURL: 'https://api.groq.com/openai/v1',
+    apiKey,
+  });
+
+  return openai(model);
+}
+
+export function getHuggingFaceModel(apiKey: string, model: string) {
+  const openai = createOpenAI({
+    baseURL: 'https://api-inference.huggingface.co/v1/',
     apiKey,
   });
 
@@ -103,6 +122,8 @@ export function getXAIModel(apiKey: string, model: string) {
 
   return openai(model);
 }
+
+
 export function getModel(provider: string, model: string, env: Env, apiKeys?: Record<string, string>) {
   const apiKey = getAPIKey(env, provider, apiKeys);
   const baseURL = getBaseURL(env, provider);
@@ -114,6 +135,8 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
       return getOpenAIModel(apiKey, model);
     case 'Groq':
       return getGroqModel(apiKey, model);
+    case 'HuggingFace':
+      return getHuggingFaceModel(apiKey, model);
     case 'OpenRouter':
       return getOpenRouterModel(apiKey, model);
     case 'Google':
@@ -128,6 +151,8 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
       return getLMStudioModel(baseURL, model);
     case 'xAI':
       return getXAIModel(apiKey, model);
+    case 'Cohere':
+      return getCohereAIModel(apiKey, model);
     default:
       return getOllamaModel(baseURL, model);
   }

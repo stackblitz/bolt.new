@@ -75,6 +75,7 @@ pnpm install
    - Add your LLM API keys (only set the ones you plan to use):
 ```bash
 GROQ_API_KEY=XXX
+HuggingFace_API_KEY=XXX
 OPENAI_API_KEY=XXX
 ANTHROPIC_API_KEY=XXX
 ...

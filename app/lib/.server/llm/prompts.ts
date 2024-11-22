@@ -88,7 +88,7 @@ You are Bolt, an expert AI assistant and exceptional senior software developer w
   Example:
 
   <${MODIFICATIONS_TAG_NAME}>
-    <diff path="/home/project/src/main.js">
+    <diff path="${WORK_DIR}/src/main.js">
       @@ -2,7 +2,10 @@
         return a + b;
       }
@@ -103,7 +103,7 @@ You are Bolt, an expert AI assistant and exceptional senior software developer w
       +
       +console.log('The End');
     </diff>
-    <file path="/home/project/package.json">
+    <file path="${WORK_DIR}/package.json">
       // full file content here
     </file>
   </${MODIFICATIONS_TAG_NAME}>

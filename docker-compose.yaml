@@ -14,6 +14,7 @@ services:
       # No strictly neded but serving as hints for Coolify
       - PORT=5173
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - HuggingFace_API_KEY=${HuggingFace_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPEN_ROUTER_API_KEY=${OPEN_ROUTER_API_KEY}
@@ -41,6 +42,7 @@ services:
       - WATCHPACK_POLLING=true  
       - PORT=5173
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - HuggingFace_API_KEY=${HuggingFace_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPEN_ROUTER_API_KEY=${OPEN_ROUTER_API_KEY}

@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useRef, useState } from 'react';
 import { type ChatHistoryItem } from '~/lib/persistence';
+import { exportChat } from '~/utils/chatExport';
 
 interface HistoryItemProps {
   item: ChatHistoryItem;
@@ -43,9 +44,17 @@ export function HistoryItem({ item, onDelete, onDuplicate }: HistoryItemProps) {
     >
       <a href={`/chat/${item.urlId}`} className="flex w-full relative truncate block">
         {item.description}
-        <div className="absolute right-0 z-1 top-0 bottom-0 bg-gradient-to-l from-bolt-elements-background-depth-2 group-hover:from-bolt-elements-background-depth-3 to-transparent w-10 flex justify-end group-hover:w-15 group-hover:from-45%">
+        <div className="absolute right-0 z-1 top-0 bottom-0 bg-gradient-to-l from-bolt-elements-background-depth-2 group-hover:from-bolt-elements-background-depth-3 box-content pl-3 to-transparent w-10 flex justify-end group-hover:w-15 group-hover:from-99%">
           {hovering && (
             <div className="flex items-center p-1 text-bolt-elements-textSecondary">
+              <button
+                className="i-ph:download-simple scale-110 mr-2"
+                onClick={(event) => {
+                  event.preventDefault();
+                  exportChat(item.messages, item.description);
+                }}
+                title="Export chat"
+              />
               {onDuplicate && (
                 <button
                   className="i-ph:copy scale-110 mr-2"

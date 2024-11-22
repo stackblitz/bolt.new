@@ -161,11 +161,17 @@ async function getUrlIds(db: IDBDatabase): Promise<string[]> {
 
 export async function forkChat(db: IDBDatabase, chatId: string, messageId: string): Promise<string> {
   const chat = await getMessages(db, chatId);
-  if (!chat) throw new Error('Chat not found');
+
+  if (!chat) {
+    throw new Error('Chat not found');
+  }
 
   // Find the index of the message to fork at
-  const messageIndex = chat.messages.findIndex(msg => msg.id === messageId);
-  if (messageIndex === -1) throw new Error('Message not found');
+  const messageIndex = chat.messages.findIndex((msg) => msg.id === messageId);
+
+  if (messageIndex === -1) {
+    throw new Error('Message not found');
+  }
 
   // Get messages up to and including the selected message
   const messages = chat.messages.slice(0, messageIndex + 1);
@@ -177,6 +183,7 @@ export async function forkChat(db: IDBDatabase, chatId: string, messageId: strin
 
 export async function duplicateChat(db: IDBDatabase, id: string): Promise<string> {
   const chat = await getMessages(db, id);
+
   if (!chat) {
     throw new Error('Chat not found');
   }

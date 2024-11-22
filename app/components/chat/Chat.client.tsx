@@ -1,5 +1,7 @@
-// @ts-nocheck
-// Preventing TS checks with files presented in the video for a better presentation.
+/*
+ * @ts-nocheck
+ * Preventing TS checks with files presented in the video for a better presentation.
+ */
 import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
@@ -84,7 +86,7 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
   });
   const [provider, setProvider] = useState(() => {
     const savedProvider = Cookies.get('selectedProvider');
-    return PROVIDER_LIST.find(p => p.name === savedProvider) || DEFAULT_PROVIDER;
+    return PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER;
   });
 
   const { showChat } = useStore(chatStore);
@@ -96,11 +98,13 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
   const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
     body: {
-      apiKeys
+      apiKeys,
     },
     onError: (error) => {
       logger.error('Request failed\n\n', error);
-      toast.error('There was an error processing your request: ' + (error.message ? error.message : "No details were returned"));
+      toast.error(
+        'There was an error processing your request: ' + (error.message ? error.message : 'No details were returned'),
+      );
     },
     onFinish: () => {
       logger.debug('Finished streaming');
@@ -221,6 +225,7 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
 
   useEffect(() => {
     const storedApiKeys = Cookies.get('apiKeys');
+
     if (storedApiKeys) {
       setApiKeys(JSON.parse(storedApiKeys));
     }
@@ -277,7 +282,7 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
           },
           model,
           provider,
-          apiKeys
+          apiKeys,
         );
       }}
     />

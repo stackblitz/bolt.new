@@ -39,7 +39,7 @@ interface EditorPanelProps {
 
 const MAX_TERMINALS = 3;
 const DEFAULT_TERMINAL_SIZE = 25;
-const DEFAULT_EDITOR_SIZE = 100 - DEFAULT_TERMINAL_SIZE;
+const COLLAPSED_TERMINAL_SIZE = 35;
 
 const editorSettings: EditorSettings = { tabSize: 2 };
 
@@ -59,7 +59,7 @@ export const EditorPanel = memo(
     renderLogger.trace('EditorPanel');
 
     const theme = useStore(themeStore);
-    const showTerminal = useStore(workbenchStore.showTerminal);
+    const { showTerminal } = useStore(workbenchStore.store);
 
     const terminalRefs = useRef<Array<TerminalRef | null>>([]);
     const terminalPanelRef = useRef<ImperativePanelHandle>(null);
@@ -104,14 +104,7 @@ export const EditorPanel = memo(
         return;
       }
 
-      const isCollapsed = terminal.isCollapsed();
-
-      if (!showTerminal && !isCollapsed) {
-        terminal.collapse();
-      } else if (showTerminal && isCollapsed) {
-        terminal.resize(DEFAULT_TERMINAL_SIZE);
-      }
-
+      terminal.resize(showTerminal ? DEFAULT_TERMINAL_SIZE : COLLAPSED_TERMINAL_SIZE);
       terminalToggledByShortcut.current = false;
     }, [showTerminal]);
 
@@ -123,8 +116,13 @@ export const EditorPanel = memo(
     };
 
     return (
-      <PanelGroup direction="vertical">
-        <Panel defaultSize={showTerminal ? DEFAULT_EDITOR_SIZE : 100} minSize={20}>
+      <div className="h-full flex flex-col relative">
+        <div
+          className={classNames('flex-1 overflow-hidden', {
+            'h-[calc(100%-35px)]': !showTerminal,
+            'h-[75%]': showTerminal,
+          })}
+        >
           <PanelGroup direction="horizontal">
             <Panel defaultSize={20} minSize={10} collapsible>
               <div className="flex flex-col border-r border-bolt-elements-borderColor h-full">
@@ -178,27 +176,20 @@ export const EditorPanel = memo(
               </div>
             </Panel>
           </PanelGroup>
-        </Panel>
-        <PanelResizeHandle />
-        <Panel
-          ref={terminalPanelRef}
-          defaultSize={showTerminal ? DEFAULT_TERMINAL_SIZE : 0}
-          minSize={10}
-          collapsible
-          onExpand={() => {
-            if (!terminalToggledByShortcut.current) {
-              workbenchStore.toggleTerminal(true);
-            }
-          }}
-          onCollapse={() => {
-            if (!terminalToggledByShortcut.current) {
-              workbenchStore.toggleTerminal(false);
-            }
-          }}
+        </div>
+
+        <div
+          className={classNames(
+            'absolute bottom-0 left-0 right-0 bg-bolt-elements-terminals-background border-t border-[#2D2D2D]',
+            {
+              'h-[34px]': !showTerminal,
+              'h-[25%]': showTerminal,
+            },
+          )}
         >
-          <div className="h-full">
+          <div className="h-full overflow-hidden">
             <div className="bg-bolt-elements-terminals-background h-full flex flex-col">
-              <div className="flex items-center bg-bolt-elements-background-depth-2 border-y border-bolt-elements-borderColor gap-1.5 min-h-[34px] p-2">
+              <div className="flex items-center bg-bolt-elements-background-depth-2 border-b border-bolt-elements-borderColor gap-1.5 h-[34px] px-2">
                 {Array.from({ length: terminalCount }, (_, index) => {
                   const isActive = activeTerminal === index;
 
@@ -206,7 +197,7 @@ export const EditorPanel = memo(
                     <button
                       key={index}
                       className={classNames(
-                        'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
+                        'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 whitespace-nowrap rounded-full',
                         {
                           'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
                           'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
@@ -223,10 +214,10 @@ export const EditorPanel = memo(
                 {terminalCount < MAX_TERMINALS && <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} />}
                 <IconButton
                   className="ml-auto"
-                  icon="i-ph:caret-down"
-                  title="Close"
+                  icon={showTerminal ? 'i-ph:caret-down' : 'i-ph:caret-up'}
+                  title={showTerminal ? 'Collapse Terminal' : 'Expand Terminal'}
                   size="md"
-                  onClick={() => workbenchStore.toggleTerminal(false)}
+                  onClick={() => workbenchStore.toggleTerminal(!showTerminal)}
                 />
               </div>
               {Array.from({ length: terminalCount }, (_, index) => {
@@ -249,8 +240,8 @@ export const EditorPanel = memo(
               })}
             </div>
           </div>
-        </Panel>
-      </PanelGroup>
+        </div>
+      </div>
     );
   },
 );

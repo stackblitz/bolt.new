@@ -131,7 +131,11 @@ export function useChatHistory() {
         window.location.href = `/chat/${newId}`;
         toast.success('Chat imported successfully');
       } catch (error) {
-        toast.error('Failed to import chat: ' + error.message);
+        if (error instanceof Error) {
+          toast.error('Failed to import chat: ' + error.message);
+        } else {
+          toast.error('Failed to import chat');
+        }
       }
     },
     exportChat: async (id = urlId) => {

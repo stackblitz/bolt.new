@@ -80,6 +80,7 @@ interface ChatProps {
   storeMessageHistory: (messages: Message[]) => Promise<void>;
   importChat: (description: string, messages: Message[]) => Promise<void>;
   exportChat: () => void;
+  description?: string;
 }
 
 export const ChatImpl = memo(

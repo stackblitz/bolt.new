@@ -343,8 +343,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                               await importChat(data.description, data.messages);
                               toast.success('Chat imported successfully');
-                            } catch (error) {
-                              toast.error('Failed to parse chat file: ' + error.message);
+                            } catch (error: unknown) {
+                              if(error instanceof Error) {
+                                toast.error('Failed to parse chat file: ' + error.message);
+                              } else {
+                                toast.error('Failed to parse chat file');
+                              }
                             }
                           };
                           reader.onerror = () => toast.error('Failed to read chat file');

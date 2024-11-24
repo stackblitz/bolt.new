@@ -116,19 +116,19 @@ export const EditorPanel = memo(
     };
 
     return (
-      <div className="h-full flex flex-col relative">
-        <div
-          className={classNames('flex-1 overflow-hidden', {
-            'h-[calc(100%-35px)]': !showTerminal,
-            'h-[75%]': showTerminal,
-          })}
-        >
+      <div
+        className={classNames('flex flex-col h-full overflow-hidden', {
+          'h-[calc(100%-35px)]': !showTerminal,
+          'h-[75%]': showTerminal,
+        })}
+      >
+        <div style={{ height: 'calc(100% - var(--panel-header-height))' }} className="flex-1 overflow-hidden">
           <PanelGroup direction="horizontal">
             <Panel defaultSize={20} minSize={10} collapsible>
               <div className="flex flex-col border-r border-bolt-elements-borderColor h-full">
                 <PanelHeader>
-                  <div className="i-ph:tree-structure-duotone shrink-0" />
-                  Files
+                  <div className="i-ph:tree-structure-duotone shrink-0 text-bolt-elements-textSecondary" />
+                  <span className="text-bolt-elements-textSecondary">Files</span>
                 </PanelHeader>
                 <FileTree
                   className="h-full"
@@ -182,14 +182,21 @@ export const EditorPanel = memo(
           className={classNames(
             'absolute bottom-0 left-0 right-0 bg-bolt-elements-terminals-background border-t border-[#2D2D2D]',
             {
-              'h-[34px]': !showTerminal,
+              'h-[50px]': !showTerminal,
               'h-[25%]': showTerminal,
             },
           )}
         >
           <div className="h-full overflow-hidden">
             <div className="bg-bolt-elements-terminals-background h-full flex flex-col">
-              <div className="flex items-center bg-bolt-elements-background-depth-2 border-b border-bolt-elements-borderColor gap-1.5 h-[34px] px-2">
+              <div
+                className="flex items-center bg-bolt-elements-background-depth-2 border-b border-bolt-elements-borderColor gap-1.5 px-2"
+                style={{
+                  height: 'var(--panel-header-height)',
+                  minHeight: 'var(--panel-header-height)',
+                  maxHeight: 'var(--panel-header-height)',
+                }}
+              >
                 {Array.from({ length: terminalCount }, (_, index) => {
                   const isActive = activeTerminal === index;
 

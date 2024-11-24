@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { classNames } from '~/utils/classNames';
 
 interface PanelHeaderProps {
@@ -6,15 +5,15 @@ interface PanelHeaderProps {
   children: React.ReactNode;
 }
 
-export const PanelHeader = memo(({ className, children }: PanelHeaderProps) => {
+export const PanelHeader = ({ children, className }: PanelHeaderProps) => {
   return (
     <div
       className={classNames(
-        'flex items-center gap-2 bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary border-b border-bolt-elements-borderColor px-4 py-1 min-h-[34px] text-sm',
+        'flex items-center bg-bolt-elements-background-depth-2 border-y border-bolt-elements-borderColor gap-1.5 h-[var(--panel-header-height)] p-2',
         className,
       )}
     >
       {children}
     </div>
   );
-});
+};

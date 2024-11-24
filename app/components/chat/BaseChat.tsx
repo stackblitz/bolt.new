@@ -3,7 +3,7 @@
  * Preventing TS checks with files presented in the video for a better presentation.
  */
 import type { Message } from 'ai';
-import React, { type RefCallback, useEffect } from 'react';
+import React, { type RefCallback, useEffect, useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
@@ -12,12 +12,14 @@ import { classNames } from '~/utils/classNames';
 import { MODEL_LIST, PROVIDER_LIST, initializeModelList } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
-import { useState } from 'react';
 import { APIKeyManager } from './APIKeyManager';
 import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
+import * as Tooltip from '@radix-ui/react-tooltip';
 
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
+import { ExportChatButton } from '~/components/chat/ExportChatButton';
 
 const EXAMPLE_PROMPTS = [
   { text: 'Build a todo app in React using Tailwind' },
@@ -79,6 +81,7 @@ interface BaseChatProps {
   chatStarted?: boolean;
   isStreaming?: boolean;
   messages?: Message[];
+  description?: string;
   enhancingPrompt?: boolean;
   promptEnhanced?: boolean;
   input?: string;
@@ -90,6 +93,8 @@ interface BaseChatProps {
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
+  importChat?: (description: string, messages: Message[]) => Promise<void>;
+  exportChat?: () => void;
 }
 
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
@@ -113,6 +118,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       handleInputChange,
       enhancePrompt,
       handleStop,
+      importChat,
+      exportChat,
     },
     ref,
   ) => {
@@ -161,7 +168,68 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       }
     };
 
-    return (
+    const chatImportButton = !chatStarted && (
+      <div className="flex flex-col items-center justify-center flex-1 p-4">
+        <input
+          type="file"
+          id="chat-import"
+          className="hidden"
+          accept=".json"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+
+            if (file && importChat) {
+              try {
+                const reader = new FileReader();
+
+                reader.onload = async (e) => {
+                  try {
+                    const content = e.target?.result as string;
+                    const data = JSON.parse(content);
+
+                    if (!Array.isArray(data.messages)) {
+                      toast.error('Invalid chat file format');
+                    }
+
+                    await importChat(data.description, data.messages);
+                    toast.success('Chat imported successfully');
+                  } catch (error: unknown) {
+                    if (error instanceof Error) {
+                      toast.error('Failed to parse chat file: ' + error.message);
+                    } else {
+                      toast.error('Failed to parse chat file');
+                    }
+                  }
+                };
+                reader.onerror = () => toast.error('Failed to read chat file');
+                reader.readAsText(file);
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : 'Failed to import chat');
+              }
+              e.target.value = ''; // Reset file input
+            } else {
+              toast.error('Something went wrong');
+            }
+          }}
+        />
+        <div className="flex flex-col items-center gap-4 max-w-2xl text-center">
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const input = document.getElementById('chat-import');
+                input?.click();
+              }}
+              className="px-4 py-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-all flex items-center gap-2"
+            >
+              <div className="i-ph:upload-simple" />
+              Import Chat
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+
+    const baseChat = (
       <div
         ref={ref}
         className={classNames(
@@ -297,6 +365,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           </>
                         )}
                       </IconButton>
+                      {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
                     </div>
                     {input.length > 3 ? (
                       <div className="text-xs text-bolt-elements-textTertiary">
@@ -309,6 +378,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 </div>
               </div>
             </div>
+            {chatImportButton}
             {!chatStarted && (
               <div id="examples" className="relative w-full max-w-xl mx-auto mt-8 flex justify-center">
                 <div className="flex flex-col space-y-2 [mask-image:linear-gradient(to_bottom,black_0%,transparent_180%)] hover:[mask-image:none]">
@@ -334,5 +404,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         </div>
       </div>
     );
+
+    return <Tooltip.Provider delayDuration={200}>{baseChat}</Tooltip.Provider>;
   },
 );

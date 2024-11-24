@@ -1,4 +1,5 @@
 site_name: OttoDev Docs
+site_dir: ../site
 theme:
   name: material
   palette:

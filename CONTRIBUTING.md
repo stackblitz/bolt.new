@@ -53,6 +53,8 @@ We're looking for dedicated contributors to help maintain and grow this project.
 - Comment complex logic
 - Keep functions focused and small
 - Use meaningful variable names
+- Lint your code. This repo contains a pre-commit-hook that will verify your code is linted properly, 
+so set up your IDE to do that for you!
 
 ## Development Setup
 

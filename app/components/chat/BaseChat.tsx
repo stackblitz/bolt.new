@@ -20,6 +20,7 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
 import { ExportChatButton } from '~/components/chat/ExportChatButton';
+import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 
 const EXAMPLE_PROMPTS = [
   { text: 'Build a todo app in React using Tailwind' },
@@ -184,31 +185,21 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                 reader.onload = async (e) => {
                   try {
-                    const content = e.target?.result as string;
-                    const data = JSON.parse(content);
-
-                    if (!Array.isArray(data.messages)) {
-                      toast.error('Invalid chat file format');
-                    }
-
-                    await importChat(data.description, data.messages);
-                    toast.success('Chat imported successfully');
-                  } catch (error: unknown) {
-                    if (error instanceof Error) {
-                      toast.error('Failed to parse chat file: ' + error.message);
-                    } else {
-                      toast.error('Failed to parse chat file');
-                    }
+                    const content = JSON.parse(e.target?.result as string);
+                    await importChat(content.description || '', content.messages || []);
+                  } catch (error) {
+                    toast.error(`Invalid chat file format: ${error instanceof Error ? ': ' + error.message : ''}`);
                   }
                 };
-                reader.onerror = () => toast.error('Failed to read chat file');
+
+                reader.onerror = () => {
+                  toast.error('Something went wrong');
+                };
                 reader.readAsText(file);
               } catch (error) {
                 toast.error(error instanceof Error ? error.message : 'Failed to import chat');
               }
               e.target.value = ''; // Reset file input
-            } else {
-              toast.error('Something went wrong');
             }
           }}
         />
@@ -224,6 +215,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               <div className="i-ph:upload-simple" />
               Import Chat
             </button>
+            <ImportFolderButton
+              importChat={importChat}
+              className="px-4 py-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-all flex items-center gap-2"
+            />
           </div>
         </div>
       </div>

@@ -70,6 +70,7 @@
     "diff": "^5.2.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.2.12",
+    "ignore": "^6.0.2",
     "isbot": "^4.1.0",
     "istextorbinary": "^9.5.0",
     "jose": "^5.6.3",

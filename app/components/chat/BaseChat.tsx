@@ -18,6 +18,8 @@ import Cookies from 'js-cookie';
 
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
+import GitCloneButton from './GitCloneButton';
+import * as Separator  from '@radix-ui/react-separator';
 
 const EXAMPLE_PROMPTS = [
   { text: 'Build a todo app in React using Tailwind' },
@@ -208,6 +210,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   },
                 )}
               >
+                <GitCloneButton />
+                <Separator.Root className="my-[15px] bg-gray6 data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px"/>
+                <div className="flex items-center gap-3"></div>
                 <ModelSelector
                   key={provider?.name + ':' + modelList.length}
                   model={model}

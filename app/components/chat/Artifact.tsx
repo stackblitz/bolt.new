@@ -26,7 +26,7 @@ interface ArtifactProps {
 
 export const Artifact = memo(({ messageId }: ArtifactProps) => {
   const userToggledActions = useRef(false);
-  const [showActions, setShowActions] = useState(false);
+  const [showActions, setShowActions] = useState<boolean>(false);
 
   const artifacts = useStore(workbenchStore.artifacts);
   const artifact = artifacts[messageId];
@@ -43,10 +43,10 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
   };
 
   useEffect(() => {
-    if (actions.length && !showActions && !userToggledActions.current) {
+    if (actions.length > 0 && !showActions && !userToggledActions.current) {
       setShowActions(true);
     }
-  }, [actions]);
+  }, [actions, showActions]);
 
   return (
     <div className="artifact border border-bolt-elements-borderColor flex flex-col overflow-hidden rounded-lg w-full transition-border duration-150">
@@ -60,7 +60,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
         >
           <div className="px-5 p-3.5 w-full text-left">
             <div className="w-full text-bolt-elements-textPrimary font-medium leading-5 text-sm">{artifact?.title}</div>
-            <div className="w-full w-full text-bolt-elements-textSecondary text-xs mt-0.5">Click to open Workbench</div>
+            <div className=" w-full text-bolt-elements-textSecondary text-xs mt-0.5">Click to open Workbench</div>
           </div>
         </button>
         <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />
@@ -102,14 +102,14 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
 });
 
 interface ShellCodeBlockProps {
-  classsName?: string;
+  className?: string;
   code: string;
 }
 
-function ShellCodeBlock({ classsName, code }: ShellCodeBlockProps) {
+function ShellCodeBlock({ className, code }: ShellCodeBlockProps) {
   return (
     <div
-      className={classNames('text-xs', classsName)}
+      className={classNames('text-xs', className)}
       dangerouslySetInnerHTML={{
         __html: shellHighlighter.codeToHtml(code, {
           lang: 'shell',
@@ -175,7 +175,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
               </div>
               {type === 'shell' && (
                 <ShellCodeBlock
-                  classsName={classNames('mt-1', {
+                  className={classNames('mt-1', {
                     'mb-3.5': !isLast,
                   })}
                   code={content}

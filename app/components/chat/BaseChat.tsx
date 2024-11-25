@@ -22,9 +22,6 @@ import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportCh
 import { ImportButton } from '~/components/chat/chatExportAndImport/ImportButton';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const providerList = PROVIDER_LIST;
-
 // @ts-ignore TODO: Introduce proper types
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList, apiKeys }) => {

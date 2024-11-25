@@ -29,9 +29,6 @@ const EXAMPLE_PROMPTS = [
   { text: 'How do I center a div?' },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const providerList = PROVIDER_LIST;
-
 // @ts-ignore TODO: Introduce proper types
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList, apiKeys }) => {

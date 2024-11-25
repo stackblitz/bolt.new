@@ -266,6 +266,12 @@ This will start the Remix Vite development server. You will need Google Chrome C
 
 More news coming on this coming early next month - stay tuned!
 
+### What are the future plans for oTToDev?
+
+[Check out our Roadmap here!](https://roadmap.sh/r/ottodev-roadmap-2ovzo)
+
+Lot more updates to this roadmap coming soon!
+
 ### Why are there so many open issues/pull requests?
 
 oTToDev was started simply to showcase how to edit an open source project and to do something cool with local LLMs on my (@ColeMedin) YouTube channel! However, it quickly

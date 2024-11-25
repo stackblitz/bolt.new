@@ -283,6 +283,10 @@ const getOllamaBaseUrl = () => {
 };
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
   try {
     const baseUrl = getOllamaBaseUrl();
     const response = await fetch(`${baseUrl}/api/tags`);
@@ -361,6 +365,10 @@ async function getOpenRouterModels(): Promise<ModelInfo[]> {
 }
 
 async function getLMStudioModels(): Promise<ModelInfo[]> {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
   try {
     const baseUrl = import.meta.env.LMSTUDIO_API_BASE_URL || 'http://localhost:1234';
     const response = await fetch(`${baseUrl}/v1/models`);

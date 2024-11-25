@@ -19,9 +19,8 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
 import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportChatButton';
-import { ImportButton } from '~/components/chat/chatExportAndImport/ImportButton';
+import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
-import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const providerList = PROVIDER_LIST;
@@ -311,7 +310,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 </div>
               </div>
             </div>
-            {!chatStarted && ImportButton(importChat)}
+            {!chatStarted && ImportButtons(importChat)}
             {!chatStarted && ExamplePrompts(sendMessage)}
           </div>
           <ClientOnly>{() => <Workbench chatStarted={chatStarted} isStreaming={isStreaming} />}</ClientOnly>

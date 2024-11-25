@@ -1,8 +1,9 @@
 import type { Message } from 'ai';
 import { toast } from 'react-toastify';
 import React from 'react';
+import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 
-export function ImportButton(importChat: ((description: string, messages: Message[]) => Promise<void>) | undefined) {
+export function ImportButtons(importChat: ((description: string, messages: Message[]) => Promise<void>) | undefined) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 p-4">
       <input
@@ -59,6 +60,10 @@ export function ImportButton(importChat: ((description: string, messages: Messag
             <div className="i-ph:upload-simple" />
             Import Chat
           </button>
+          <ImportFolderButton
+            importChat={importChat}
+            className="px-4 py-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-all flex items-center gap-2"
+          />
         </div>
       </div>
     </div>

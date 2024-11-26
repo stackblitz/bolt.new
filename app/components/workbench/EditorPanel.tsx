@@ -23,6 +23,7 @@ import { isMobile } from '~/utils/mobile';
 import { FileBreadcrumb } from './FileBreadcrumb';
 import { FileTree } from './FileTree';
 import { Terminal, type TerminalRef } from './terminal/Terminal';
+import React from 'react';
 
 interface EditorPanelProps {
   files?: FileMap;
@@ -198,26 +199,48 @@ export const EditorPanel = memo(
         >
           <div className="h-full">
             <div className="bg-bolt-elements-terminals-background h-full flex flex-col">
-              <div className="flex items-center bg-bolt-elements-background-depth-2 border-y border-bolt-elements-borderColor gap-1.5 min-h-[34px] p-2">
-                {Array.from({ length: terminalCount }, (_, index) => {
+              <div className="flex items-center bg-bolt-elements-background-depth-2 border-y border-bolt-elements-borderColor gap-1.5 min-h-[var(--panel-header-height)] p-2">
+              {Array.from({ length: terminalCount + 1 }, (_, index) => {
                   const isActive = activeTerminal === index;
 
                   return (
-                    <button
-                      key={index}
-                      className={classNames(
-                        'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
-                        {
-                          'bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
-                          'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
-                            !isActive,
-                        },
+                    <React.Fragment key={index}>
+                      {index == 0 ? (
+                        <button
+                          key={index}
+                          className={classNames(
+                            'flex items-center bg-bolt-elements-background-depth-2 gap-1.5 min-h-[var(--panel-header-height)] p-2',
+                            {
+                              'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
+                              'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
+                                !isActive,
+                            },
+                          )}
+                          onClick={() => setActiveTerminal(index)}
+                        >
+                          <div className="i-ph:lightning-duotone text-lg" />
+                          Bolt
+                        </button>
+                      ) : (
+                        <React.Fragment>
+                          <button
+                            key={index}
+                            className={classNames(
+                              'flex items-center bg-bolt-elements-background-depth-2 gap-1.5 min-h-[var(--panel-header-height)] p-2',
+                              {
+                                'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full bg-bolt-elements-terminals-buttonBackground text-bolt-elements-textPrimary': isActive,
+                                'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
+                                  !isActive,
+                              },
+                            )}
+                            onClick={() => setActiveTerminal(index)}
+                          >
+                            <div className="i-ph:terminal-window-duotone text-lg" />
+                            Terminal {terminalCount > 1 && index}
+                          </button>
+                        </React.Fragment>
                       )}
-                      onClick={() => setActiveTerminal(index)}
-                    >
-                      <div className="i-ph:terminal-window-duotone text-lg" />
-                      Terminal {terminalCount > 1 && index + 1}
-                    </button>
+                    </React.Fragment>
                   );
                 })}
                 {terminalCount < MAX_TERMINALS && <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} />}
@@ -229,7 +252,7 @@ export const EditorPanel = memo(
                   onClick={() => workbenchStore.toggleTerminal(false)}
                 />
               </div>
-              {Array.from({ length: terminalCount }, (_, index) => {
+              {Array.from({ length: terminalCount + 1 }, (_, index) => {
                 const isActive = activeTerminal === index;
 
                 return (
@@ -239,9 +262,15 @@ export const EditorPanel = memo(
                       hidden: !isActive,
                     })}
                     ref={(ref) => {
-                      terminalRefs.current.push(ref);
+                      terminalRefs.current[index] = ref;
                     }}
-                    onTerminalReady={(terminal) => workbenchStore.attachTerminal(terminal)}
+                    onTerminalReady={(terminal) => {
+                      if (index === 0) {
+                        workbenchStore.attachBoltTerminal(terminal);
+                      } else {
+                        workbenchStore.attachTerminal(terminal);
+                      }
+                    }}
                     onTerminalResize={(cols, rows) => workbenchStore.onTerminalResize(cols, rows)}
                     theme={theme}
                   />

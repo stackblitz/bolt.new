@@ -79,15 +79,23 @@ export default function AuthComponent({ onClose }: AuthComponentProps = { onClos
   const handleOAuthSignIn = async (provider: 'github' | 'google' | 'apple') => {
     if (!supabase) return
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+    setLoading(true)
+    setError(null)
 
-    if (error) {
-      setError(error.message)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) {
+        setError(error.message)
+      }
+    } catch (err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -95,12 +103,21 @@ export default function AuthComponent({ onClose }: AuthComponentProps = { onClos
     return <div className="text-center text-gray-300">Loading...</div>
   }
 
+  if (loading) {
+    return (
+      <div className="w-full min-w-md max-w-md p-8 bg-bolt-elements-background-depth-2 rounded-lg shadow-lg flex flex-col items-center justify-center gap-4">
+        <div className="i-svg-spinners:90-ring-with-bg w-8 h-8 text-bolt-elements-button-primary-background" />
+        <p className="text-bolt-elements-textPrimary text-lg">Signing in...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-md p-8 bg-[#0E1117] rounded-lg shadow-lg">
+    <div className="w-full min-w-md max-w-md p-8 bg-bolt-elements-background-depth-2 rounded-lg shadow-lg">
       <div className="flex mb-6">
         <button
           className={`flex-1 py-2 text-lg font-semibold transition-colors duration-300 bg-transparent ${
-            activeTab === 'signin' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400'
+            activeTab === 'signin' ? 'text-bolt-elements-button-primary-background border-b-2 border-bolt-elements-button-primary-background' : 'text-gray-400'
           }`}
           onClick={() => setActiveTab('signin')}
         >
@@ -108,7 +125,7 @@ export default function AuthComponent({ onClose }: AuthComponentProps = { onClos
         </button>
         <button
           className={`flex-1 py-2 text-lg font-semibold transition-colors duration-300 bg-transparent ${
-            activeTab === 'signup' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400'
+            activeTab === 'signup' ? 'text-bolt-elements-button-primary-background border-b-2 border-bolt-elements-button-primary-background' : 'text-gray-400'
           }`}
           onClick={() => setActiveTab('signup')}
         >
@@ -135,7 +152,7 @@ export default function AuthComponent({ onClose }: AuthComponentProps = { onClos
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-[#1C2128] text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-3 py-2 bg-bolt-elements-background-depth-3 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-bolt-elements-button-primary-background"
               required
             />
           </div>
@@ -148,13 +165,13 @@ export default function AuthComponent({ onClose }: AuthComponentProps = { onClos
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-[#1C2128] text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-3 py-2 bg-bolt-elements-background-depth-3 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-bolt-elements-button-primary-background"
               required
             />
           </div>
           <motion.button
             type="submit"
-            className="w-full bg-blue-400 text-white py-2 rounded-md hover:bg-blue-500 transition-colors duration-300"
+            className="w-full bg-bolt-elements-button-primary-background text-white py-2 rounded-md hover:bg-bolt-elements-button-primary-hover transition-colors duration-300"
             disabled={loading}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -179,7 +196,7 @@ export default function AuthComponent({ onClose }: AuthComponentProps = { onClos
         <div className="flex justify-center space-x-4">
           <motion.button
             onClick={() => handleOAuthSignIn('github')}
-            className="p-2 bg-[#1C2128] rounded-full hover:bg-[#2D3748] transition-colors duration-300"
+            className="p-2 bg-bolt-elements-background-depth-3 rounded-full hover:bg-bolt-elements-button-primary-hover transition-colors duration-300"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
@@ -187,7 +204,7 @@ export default function AuthComponent({ onClose }: AuthComponentProps = { onClos
           </motion.button>
           <motion.button
             onClick={() => handleOAuthSignIn('google')}
-            className="p-2 bg-[#1C2128] rounded-full hover:bg-[#2D3748] transition-colors duration-300"
+            className="p-2 bg-bolt-elements-background-depth-3 rounded-full hover:bg-bolt-elements-button-primary-hover transition-colors duration-300"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
@@ -195,7 +212,7 @@ export default function AuthComponent({ onClose }: AuthComponentProps = { onClos
           </motion.button>
           <motion.button
             onClick={() => handleOAuthSignIn('apple')}
-            className="p-2 bg-[#1C2128] rounded-full hover:bg-[#2D3748] transition-colors duration-300"
+            className="p-2 bg-bolt-elements-background-depth-3 rounded-full hover:bg-bolt-elements-button-primary-hover transition-colors duration-300"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >

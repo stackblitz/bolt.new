@@ -1,7 +1,7 @@
 import { useStore } from '@nanostores/react';
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import {
   type OnChangeCallback as OnEditorChange,
@@ -19,6 +19,7 @@ import { Preview } from './Preview';
 import { chatId } from '~/lib/persistence/useChatHistory';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { chatStore } from '~/lib/stores/chat';
+import { Drawer, DrawerContent } from '~/components/ui/drawer';
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -55,9 +56,30 @@ const workbenchVariants = {
   },
 } satisfies Variants;
 
+// Add a hook for responsive detection
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    // Check initial
+    checkMobile();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
 export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => {
   renderLogger.trace('Workbench');
 
+  const isMobile = useIsMobile();
   const hasPreview = useStore(computed(workbenchStore.previews, (previews) => previews.length > 0));
   const showWorkbench = useStore(workbenchStore.showWorkbench);
   const selectedFile = useStore(workbenchStore.selectedFile);
@@ -109,25 +131,28 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     workbenchStore.resetCurrentDocument();
   }, []);
 
-  return (
-    chatStarted && (
-      <motion.div
-        initial="closed"
-        animate={showWorkbench ? 'open' : 'closed'}
-        variants={workbenchVariants}
-        className="z-workbench w-full"
-      >
-        <div
-          className={classNames(
-            'fixed top-[calc(var(--header-height)+1.5rem)] bottom-6 w-[var(--workbench-inner-width)] mr-4 z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier',
-            {
-              'left-[var(--workbench-left)]': showWorkbench,
-              'left-[100%]': !showWorkbench,
-            },
-          )}
+  const innerWorkbench = (
+    <div
+          className={
+            !isMobile 
+              ? classNames(
+                  `fixed top-[calc(var(--header-height)+1.5rem)] bottom-6 w-[var(--workbench-inner-width)] mr-4 z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier`,
+                  {
+                    'left-[var(--workbench-left)]': showWorkbench,
+                    'left-[100%]': !showWorkbench,
+                  }
+                )
+              : 'w-full h-full' // Mobile styles here
+          }
         >
-          <div className={`absolute flex inset-0 px-6 ${showChat ? 'ml-0' : 'ml-0'}`}>
-          <div className="h-full flex">
+          <div className={classNames(
+            'absolute flex inset-0',
+            {
+              'mr-5': showChat && !isMobile,
+              'ml-10 mr-5': !showChat && !isMobile,
+            }
+          )}>
+          {!isMobile && <div className="h-full flex">
             <button 
               className='w-8 h-20 my-auto bg-transparent text-bolt-elements-textTertiary z-50'
               onClick={() => {
@@ -138,62 +163,93 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
             >
               {showChat ? <div className="size-6 i-ph:caret-left" /> : <div className="size-6 i-ph:caret-right" />}
             </button>
-          </div>
-            <div className="w-full h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
-              <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor">
-                <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
-                <div className="ml-auto" />
-                {selectedView === 'code' && (
-                  <PanelHeaderButton
-                    className="mr-1 text-sm"
-                    onClick={() => {
-                      workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
-                    }}
-                  >
-                    <div className="i-ph:terminal" />
-                    Toggle Terminal
-                  </PanelHeaderButton>
-                )}
-                <IconButton
-                  icon="i-ph:x-circle"
-                  className="-mr-1"
-                  size="xl"
-                  onClick={() => {
-                    workbenchStore.showWorkbench.set(false);
-                  }}
-                />
-              </div>
-              <div className="relative flex-1 overflow-hidden">
-                <View
-                  initial={{ x: selectedView === 'code' ? 0 : '-100%' }}
-                  animate={{ x: selectedView === 'code' ? 0 : '-100%' }}
-                >
-                  <EditorPanel
-                    editorDocument={currentDocument}
-                    isStreaming={isStreaming}
-                    selectedFile={selectedFile}
-                    files={files}
-                    unsavedFiles={unsavedFiles}
-                    onFileSelect={onFileSelect}
-                    onEditorScroll={onEditorScroll}
-                    onEditorChange={onEditorChange}
-                    onFileSave={onFileSave}
-                    onFileReset={onFileReset}
-                  />
-                </View>
-                <View
-                  initial={{ x: selectedView === 'preview' ? 0 : '100%' }}
-                  animate={{ x: selectedView === 'preview' ? 0 : '100%' }}
-                >
-                  <Preview />
-                </View>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    )
+          </div>}
+    <div className={`w-full h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-${isMobile ? 'none rounded-t-lg' : 'lg'} overflow-hidden`}>
+      <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor">
+        <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
+        <div className="ml-auto" />
+        {selectedView === 'code' && (
+          <PanelHeaderButton
+            className="mr-1 text-sm"
+            onClick={() => {
+              workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
+            }}
+          >
+            <div className="i-ph:terminal" />
+            Toggle Terminal
+          </PanelHeaderButton>
+        )}
+        <IconButton
+          icon="i-ph:x-circle"
+          className="-mr-1"
+          size="xl"
+          onClick={() => {
+            workbenchStore.showWorkbench.set(false);
+          }}
+        />
+      </div>
+      <div className="relative flex-1 overflow-hidden">
+        <View
+          initial={{ x: selectedView === 'code' ? 0 : '-100%' }}
+          animate={{ x: selectedView === 'code' ? 0 : '-100%' }}
+        >
+          <EditorPanel
+            editorDocument={currentDocument}
+            isStreaming={isStreaming}
+            selectedFile={selectedFile}
+            files={files}
+            unsavedFiles={unsavedFiles}
+            onFileSelect={onFileSelect}
+            onEditorScroll={onEditorScroll}
+            onEditorChange={onEditorChange}
+            onFileSave={onFileSave}
+            onFileReset={onFileReset}
+          />
+        </View>
+        <View
+          initial={{ x: selectedView === 'preview' ? 0 : '100%' }}
+          animate={{ x: selectedView === 'preview' ? 0 : '100%' }}
+        >
+          <Preview />
+        </View>
+      </div>
+      </div>
+      </div>
+    </div>
   );
+
+  // Create a single workbench instance that's shared between mobile/desktop
+  const workbenchInstance = useMemo(() => (
+    <motion.div
+      initial="closed"
+      animate={showWorkbench ? 'open' : 'closed'}
+      variants={isMobile ? undefined : workbenchVariants}
+      className="z-workbench w-full h-full"
+    >
+          {innerWorkbench}
+    </motion.div>
+  ), [showWorkbench, isMobile, innerWorkbench]);
+
+  if (!chatStarted) {
+    return null;
+  }
+
+  // For mobile, wrap the same instance in a Drawer
+  if (isMobile) {
+    return (
+      <Drawer
+        open={showWorkbench}
+        onOpenChange={(open) => workbenchStore.showWorkbench.set(open)}
+      >
+        <DrawerContent className="h-[90vh] p-4">
+          {workbenchInstance}
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  // Desktop view uses the same instance
+  return workbenchInstance;
 });
 
 interface ViewProps extends HTMLMotionProps<'div'> {

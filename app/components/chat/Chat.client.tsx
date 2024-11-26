@@ -14,6 +14,8 @@ import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
 import { ProviderSelector } from './ProviderSelector';
 import { providerStore } from '~/lib/stores/provider';
+import { useAuth } from '~/lib/hooks/useAuth';
+import { CornerRightUp } from 'lucide-react';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -25,7 +27,41 @@ const logger = createScopedLogger('Chat');
 export function Chat() {
   renderLogger.trace('Chat');
 
+  const { user, isLoading } = useAuth();
   const { ready, initialMessages, storeMessageHistory } = useChatHistory();
+
+  if (!user) {
+    return <div className="relative h-screen flex flex-col items-center justify-center bg-bolt-elements-background-depth-1">
+      <div className="absolute top-0 right-5 p-4 animate-bounce">
+        <CornerRightUp className="w-10 h-10 text-white" />
+      </div>
+    <div className=" flex flex-col items-center justify-center my-auto max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+    <div className="p-6">
+      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg
+          className="w-8 h-8 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          />
+        </svg>
+      </div>
+      <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Chat Access Restricted</h2>
+      <p className="text-center text-gray-600 mb-6">
+        Please log in to access the chat feature. Our chat is exclusive to registered users to ensure a safe and
+        engaging environment for all participants.
+      </p>
+    </div>
+  </div>
+  </div>;
+  }
 
   return (
     <>

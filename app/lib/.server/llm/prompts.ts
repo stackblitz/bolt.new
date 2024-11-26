@@ -124,6 +124,8 @@ You are Bolt, an expert AI assistant and exceptional senior software developer w
 
       - file: For writing new files or updating existing files. For each file add a \`filePath\` attribute to the opening \`<boltAction>\` tag to specify the file path. The content of the file artifact is the file contents. All file paths MUST BE relative to the current working directory.
 
+      - start: For starting a dev server.
+
     9. The order of the actions is VERY IMPORTANT. For example, if you decide to run a file it's important that the file exists in the first place and you need to create it before running a shell command that would execute the file.
 
     10. ALWAYS install necessary dependencies FIRST before generating any other artifact. If that requires a \`package.json\` then you should create that first!
@@ -211,7 +213,7 @@ Here are some examples of correct usage of artifacts:
           ...
         </boltAction>
 
-        <boltAction type="shell">
+        <boltAction type="start">
           npm run dev
         </boltAction>
       </boltArtifact>
@@ -268,7 +270,7 @@ Here are some examples of correct usage of artifacts:
           ...
         </boltAction>
 
-        <boltAction type="shell">
+        <boltAction type="start">
           npm run dev
         </boltAction>
       </boltArtifact>

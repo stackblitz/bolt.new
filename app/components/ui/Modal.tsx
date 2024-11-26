@@ -15,7 +15,7 @@ interface ModalProps {
 export function Modal({ isOpen, onClose, title, description, children }: ModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] p-0 border-white/40">
+      <DialogContent className=" w-auto p-0 !border-[0.5px] border-white/20">
         {children}
       </DialogContent>
     </Dialog>

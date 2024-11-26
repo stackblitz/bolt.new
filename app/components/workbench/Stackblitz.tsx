@@ -18,17 +18,13 @@ export function Stackblitz() {
   const { firstArtifact } = workbenchStore;
 
   function OpenInStackblitz() {
-    // Convert FileMap to ProjectFiles format
     const projectFiles = Object.entries(files).reduce((acc, [path, fileData]) => {
-      // Skip if fileData is undefined or it's a folder
       if (!fileData || fileData.type === 'folder') {
         return acc;
       }
 
-      // Remove /home/project/ prefix to make paths relative
       const relativePath = path.replace('/home/project/', '');
       
-      // Add the file content if it exists
       if (fileData.content) {
         acc[relativePath] = fileData.content;
       }
@@ -52,7 +48,7 @@ export function Stackblitz() {
 
   return (
     <button
-      className="flex items-center gap-1 px-2 py-1 bg-bolt-elements-code-background hover:bg-gray-700 text-bolt-elements-button-secondary-text text-sm rounded-md"
+      className="flex items-center gap-1 px-3 py-1.5 bg-bolt-elements-code-background hover:bg-gray-700 text-bolt-elements-button-secondary-text text-xs rounded-md"
       onClick={OpenInStackblitz}
     >
       <LightningBoltIcon className="w-4 h-4" /> Open in Stackblitz

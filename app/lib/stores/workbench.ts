@@ -9,6 +9,7 @@ import { EditorStore } from './editor';
 import { FilesStore, type FileMap } from './files';
 import { PreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
+import type { WebContainer } from '@webcontainer/api';
 
 export interface ArtifactState {
   id: string;
@@ -23,11 +24,14 @@ type Artifacts = MapStore<Record<string, ArtifactState>>;
 
 export type WorkbenchViewType = 'code' | 'preview';
 
+export const $workbenchOpen = atom(false);
+
 export class WorkbenchStore {
   #previewsStore = new PreviewsStore(webcontainer);
   #filesStore = new FilesStore(webcontainer);
   #editorStore = new EditorStore(this.#filesStore);
   #terminalStore = new TerminalStore(webcontainer);
+  #webcontainer: Promise<WebContainer>;
 
   artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
 
@@ -37,7 +41,9 @@ export class WorkbenchStore {
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
 
-  constructor() {
+  constructor(webcontainerPromise: Promise<WebContainer>) {
+    this.#webcontainer = webcontainerPromise;
+
     if (import.meta.hot) {
       import.meta.hot.data.artifacts = this.artifacts;
       import.meta.hot.data.unsavedFiles = this.unsavedFiles;
@@ -74,12 +80,20 @@ export class WorkbenchStore {
     return this.#terminalStore.showTerminal;
   }
 
+  get boltTerminal() {
+    return this.#terminalStore.boltTerminal;
+  }
+
   toggleTerminal(value?: boolean) {
     this.#terminalStore.toggleTerminal(value);
   }
 
   attachTerminal(terminal: ITerminal) {
     this.#terminalStore.attachTerminal(terminal);
+  }
+
+  attachBoltTerminal(terminal: ITerminal) {
+    this.#terminalStore.attachBoltTerminal(terminal);
   }
 
   onTerminalResize(cols: number, rows: number) {
@@ -229,7 +243,7 @@ export class WorkbenchStore {
       id,
       title,
       closed: false,
-      runner: new ActionRunner(webcontainer),
+      runner: new ActionRunner(webcontainer, () => this.boltTerminal),
     });
   }
 
@@ -271,6 +285,10 @@ export class WorkbenchStore {
     const artifacts = this.artifacts.get();
     return artifacts[id];
   }
+
+  async getWebContainer() {
+    return await this.#webcontainer;
+  }
 }
 
-export const workbenchStore = new WorkbenchStore();
+export const workbenchStore = new WorkbenchStore(webcontainer);

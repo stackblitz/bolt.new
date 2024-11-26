@@ -10,7 +10,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { Button } from '~/components/ui/button';
 import '~/styles/index.scss';
-import { ChevronDownIcon } from '@radix-ui/react-icons';
+import { ChevronUpIcon } from 'lucide-react';
 
 export function ProviderSelector() {
   const currentProvider = useStore(providerStore);
@@ -43,10 +43,10 @@ export function ProviderSelector() {
             ? 'Sonnet 3.5' 
             : `Together AI (${currentProvider.model})`
           }
-            <ChevronDownIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronUpIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[250px] bg-[#141414] text-white border border-bolt-elements-borderColor">
+      <DropdownMenuContent className="w-[250px] max-h-[50vh] overflow-y-auto bg-[#141414] text-white border border-bolt-elements-borderColor">
         <DropdownMenuRadioGroup 
           value={currentProvider === 'anthropic' ? 'anthropic' : currentProvider.model} 
           onValueChange={handleProviderChange}

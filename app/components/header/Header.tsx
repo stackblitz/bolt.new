@@ -22,7 +22,7 @@ export function Header() {
   return (
     <header
       className={classNames(
-        'flex items-center justify-between gap-2 p-5 border-b h-[var(--header-height)] z-20',
+        'flex items-center justify-between gap-2 px-3 sm:px-5 py-3 sm:py-5 border-b h-[var(--header-height)] z-20',
         {
           'border-transparent': !chat.started,
           'border-bolt-elements-borderColor': chat.started,
@@ -30,39 +30,39 @@ export function Header() {
       )}
     >
       <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer">
-        <a href="/" className="text-2xl font-semibold text-accent flex items-center">
-          <span className="i-bolt:logo-text?mask w-[46px] inline-block" />
+        <a href="/" className="text-xl sm:text-2xl font-semibold text-accent flex items-center">
+          <span className="i-bolt:logo-text?mask w-[38px] sm:w-[46px] inline-block" />
         </a>
       </div>
-      <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
+      <span className="hidden sm:block flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
         <ClientOnly>{() => <ChatDescription />}</ClientOnly>
       </span>
-      <div className="flex items-center gap-4">
-        {/* <ClientOnly>{() => <ProviderSelector />}</ClientOnly> */}
+      <div className="flex items-center gap-2 sm:gap-4">
         {chat.started && (
           <ClientOnly>
             {() => (
-              <div className="mr-1 flex">
+              <div className="flex">
                 <HeaderActionButtons />
               </div>
             )}
           </ClientOnly>
         )}
+        <ClientOnly>
+          {() => (
+            <>
+              {!user && (
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="bg-transparent hover:scale text-bolt-elements-textPrimary 
+                           text-sm sm:text-base font-bold py-1.5 sm:py-2 px-2 sm:px-4 rounded"
+                >
+                  Log In
+                </button>
+              )}
+            </>
+          )}
+        </ClientOnly>
       </div>
-      <ClientOnly>
-        {() => (
-          <>
-            {!user && (
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="bg-transparent hover:scale text-bolt-elements-textPrimary font-bold py-2 px-4 rounded"
-              >
-                Log In
-              </button>
-            )}
-          </>
-        )}
-      </ClientOnly>
       <ClientOnly>
         {() => (
           <Modal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)}>

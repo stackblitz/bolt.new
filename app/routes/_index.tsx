@@ -15,7 +15,7 @@ export default function Index() {
     <div className="relative flex flex-col h-full w-full bg-bolt-elements-background-depth-1">
       <Header />
       <ClientOnly fallback={<BaseChat />}>{() => <Chat />}</ClientOnly>
-      <div className="absolute top-[-50vh] left-1/2 transform -translate-x-1/2 w-[200vw] h-[100vh] rounded-[50%]"
+      <div className="absolute top-[-50vh] left-1/2 transform -translate-x-1/2 w-full h-[100vh] rounded-[50%]"
            style={{
              background: `radial-gradient(
                50% 50% at 50% 50%,
@@ -27,7 +27,7 @@ export default function Index() {
       />
       
       {/* Secondary glow effect */}
-      <div className="absolute top-[-20vh] left-1/2 transform -translate-x-1/2 w-[150vw] h-[70vh] rounded-[50%]"
+      <div className="absolute top-[-20vh] left-1/2 transform -translate-x-1/2 w-full h-[70vh] rounded-[50%]"
            style={{
              background: `radial-gradient(
                50% 50% at 50% 50%,

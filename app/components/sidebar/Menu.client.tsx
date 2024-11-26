@@ -13,11 +13,12 @@ import type { User } from '@supabase/supabase-js';
 import { createClient } from '~/utils/supabase.client';
 import { useAuth } from '~/lib/hooks/useAuth';
 import { Button } from '../ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, SettingsIcon } from 'lucide-react';
 import { useStore } from '@nanostores/react';
 import { chatStore } from '~/lib/stores/chat';
+import Settings from './settings/Settings';
 
-const menuVariants = {
+const menuVariants: Variants = {
   closed: {
     opacity: 0,
     visibility: 'hidden',
@@ -36,7 +37,7 @@ const menuVariants = {
       ease: cubicEasingFn,
     },
   },
-} satisfies Variants;
+};
 
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
@@ -47,6 +48,7 @@ export function Menu() {
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
   const { user, isLoading } = useAuth();
   const { showChat } = useStore(chatStore);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const loadEntries = useCallback(() => {
     if (db) {
@@ -120,11 +122,21 @@ export function Menu() {
       initial="closed"
       animate={(open && showChat) ? 'open' : 'closed'}
       variants={menuVariants}
-      className="flex flex-col side-menu fixed top-0 w-[350px] h-full z-10"
+      className="flex flex-col side-menu fixed top-0 w-full sm:w-[280px] md:w-[320px] lg:w-[350px] h-full z-20"
     >
       <div className="p-[0.7px] h-full rounded-r-3xl bg-[linear-gradient(155deg,#2767B1_5%,#00BEF9_10%,transparent_20%)]">
         <div className="flex flex-col h-full bg-bolt-elements-background-depth-2 border-r rounded-r-3xl border-bolt-elements-borderColor shadow-xl shadow-bolt-elements-sidebar-dropdownShadow text-sm">
-          <div className="flex items-center h-[var(--header-height)]">{/* Placeholder */}</div>
+          <div className="flex items-center justify-between h-[var(--header-height)] px-4 border-b border-bolt-elements-borderColor">
+            <a href="/" className="text-xl sm:text-2xl font-semibold text-accent flex items-center text-bolt-elements-textPrimary">
+              <span className="i-bolt:logo-text?mask w-[38px] sm:w-[46px] inline-block" />
+            </a>
+            <button 
+              onClick={() => setOpen(false)}
+              className="sm:hidden flex items-center justify-center p-2 bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary rounded-md hover:bg-bolt-elements-item-backgroundActive"
+            >
+              <span className="i-ph:x-bold text-xl" />
+            </button>
+          </div>
           <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
             <div className="p-4">
               <a
@@ -186,26 +198,31 @@ export function Menu() {
                   <img 
                     src={user.user_metadata.avatar_url} 
                     alt="User Avatar" 
-                    className="p-1 w-10 h-10 rounded-full" 
+                    className="p-1 w-8 h-8 sm:w-10 sm:h-10 rounded-full" 
                   />
                 )}
-                <div className="flex flex-col pl-2 max-w-[225px]">
-                  <div className="text-bolt-elements-textPrimary">
+                <div className="flex flex-col pl-2 max-w-[160px] sm:max-w-[225px]">
+                  <div className="text-bolt-elements-textPrimary truncate">
                     {user?.user_metadata?.full_name || user?.email}
                   </div>
-                  <div className="text-bolt-elements-textTertiary truncate">
+                  <div className="text-bolt-elements-textTertiary text-sm truncate hidden sm:block">
                     {user?.user_metadata?.email}
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-0">
-                <form action="/logout" method="post" className="rounded-md text-bolt-elements-textTertiary hover:bg-bolt-elements-item-backgroundActive">
-                  <Button type="submit" className="h-auto w-auto flex items-center justify-center p-0.5 m-0 bg-transparent hover:text-bolt-elements-textPrimary">
-                    <LogOut className="p-1 rounded-md hover:text-bolt-elements-textPrimary" />
-                  </Button>
-                </form>
-                <ThemeSwitch className="ml-auto" />
-              </div>
+              {user && (
+                <div className="flex items-center gap-0">
+                  <Settings 
+                    isOpen={isSettingsOpen}
+                    onOpenChange={setIsSettingsOpen}
+                  />
+                  <form action="/logout" method="post" className="rounded-md text-bolt-elements-textTertiary hover:bg-bolt-elements-item-backgroundActive">
+                    <Button type="submit" className="h-auto w-auto flex items-center justify-center p-0.5 m-0 bg-transparent hover:text-bolt-elements-textPrimary">
+                      <LogOut className="p-1 rounded-md hover:text-bolt-elements-textPrimary" />
+                    </Button>
+                  </form>
+                </div>
+              )}
             </div>
           </div>
         </div>

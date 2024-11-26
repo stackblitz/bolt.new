@@ -1,14 +1,15 @@
-import React from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import type { ReactNode } from 'react';
 
-interface ToolTipProps {
-  tooltip: string;
-  children: ReactNode | ReactNode[];
+interface TooltipProps {
+  tooltip: React.ReactNode;
+  children: React.ReactNode;
   sideOffset?: number;
   className?: string;
   arrowClassName?: string;
-  tooltipStyle?: any; //TODO better type
+  tooltipStyle?: React.CSSProperties;
+  position?: 'top' | 'bottom' | 'left' | 'right';
+  maxWidth?: number;
+  delay?: number;
 }
 
 const WithTooltip = ({
@@ -18,18 +19,51 @@ const WithTooltip = ({
   className = '',
   arrowClassName = '',
   tooltipStyle = {},
-}: ToolTipProps) => {
+  position = 'top',
+  maxWidth = 250,
+  delay = 0,
+}: TooltipProps) => {
   return (
-    <Tooltip.Root>
+    <Tooltip.Root delayDuration={delay}>
       <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
       <Tooltip.Portal>
         <Tooltip.Content
-          className={`bg-bolt-elements-tooltip-background text-bolt-elements-textPrimary px-3 py-2 rounded-lg text-sm shadow-lg ${className}`}
+          side={position}
+          className={`
+            z-[2000]
+            px-2.5
+            py-1.5
+            max-h-[300px]
+            select-none
+            rounded-md
+            bg-bolt-elements-background-depth-3
+            text-bolt-elements-textPrimary
+            text-sm
+            leading-tight
+            shadow-lg
+            animate-in
+            fade-in-0
+            zoom-in-95
+            data-[state=closed]:animate-out
+            data-[state=closed]:fade-out-0
+            data-[state=closed]:zoom-out-95
+            ${className}
+          `}
           sideOffset={sideOffset}
-          style={{ zIndex: 2000, backgroundColor: 'white', ...tooltipStyle }}
+          style={{
+            maxWidth,
+            ...tooltipStyle,
+          }}
         >
-          {tooltip}
-          <Tooltip.Arrow className={`fill-bolt-elements-tooltip-background ${arrowClassName}`} />
+          <div className="break-words">{tooltip}</div>
+          <Tooltip.Arrow
+            className={`
+              fill-bolt-elements-background-depth-3
+              ${arrowClassName}
+            `}
+            width={12}
+            height={6}
+          />
         </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>

@@ -238,7 +238,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
         open={showWorkbench}
         onOpenChange={(open) => workbenchStore.showWorkbench.set(open)}
       >
-        <DrawerContent className="h-[90vh] p-4">
+        <DrawerContent className="h-[90vh] p-4 ring-transparent border-transparent bg-transparent">
           {workbenchInstance}
         </DrawerContent>
       </Drawer>

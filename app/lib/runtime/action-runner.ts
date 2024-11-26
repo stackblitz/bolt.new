@@ -95,7 +95,7 @@ export class ActionRunner {
 
     this.#currentExecutionPromise = this.#currentExecutionPromise
       .then(() => {
-        this.#executeAction(actionId, isStreaming);
+        return this.#executeAction(actionId, isStreaming);
       })
       .catch((error) => {
         console.error('Action failed:', error);

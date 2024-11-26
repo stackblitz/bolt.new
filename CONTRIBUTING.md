@@ -66,18 +66,24 @@ pnpm install
 4. Create a `.env.local` file in the root directory and add your Anthropic API key:
 
 ```
-ANTHROPIC_API_KEY=XXX
+ANTHROPIC_API_KEY=your_api_key
+TOGETHER_API_KEY=your_api_key
 ```
 
 ```
-TOGETHER_API_KEY=XXX
+# SUPABASE
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_anon_key
+# Client Supabase
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
 ```
 
 ```
-SUPABASE_URL=XXX
-```
-```
-SUPABASE_ANON_KEY=XXX
+# NETLIFY
+NETLIFY_AUTH_TOKEN=your_auth_token
+NETLIFY_CLIENT_SECRET=your_client_secret
+VITE_NETLIFY_CLIENT_ID=your_client_id
 ```
 
 Optionally, you can set the debug level:

@@ -179,7 +179,7 @@ export function Deploy() {
       {deployUrl ? (
         <button
           onClick={() => window.open(deployUrl, '_blank')}
-          className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-bolt-elements-button-secondary-text text-xs border border-bolt-elements-borderColor rounded-md"
+          className="w-full flex items-center justify-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-bolt-elements-button-secondary-text text-xs border border-bolt-elements-borderColor rounded-md"
         >
           <Rocket className="w-4 h-4" />
           View Deployment
@@ -188,7 +188,7 @@ export function Deploy() {
         <button
           onClick={handleDeploy}
           disabled={isDeploying || buildStatus === 'building'}
-          className={`flex items-center gap-1 px-3 py-1.5 ${
+          className={`w-full flex items-center justify-center gap-1 px-3 py-1.5 ${
             isDeploying || buildStatus === 'building'
               ? 'bg-[#0E6EE8]/70 cursor-not-allowed' 
               : 'bg-[#0E6EE8] hover:bg-[#1477f9]'

@@ -56,7 +56,6 @@ const workbenchVariants = {
   },
 } satisfies Variants;
 
-// Add a hook for responsive detection
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -65,10 +64,8 @@ function useIsMobile() {
       setIsMobile(window.innerWidth < 1024);
     };
     
-    // Check initial
     checkMobile();
     
-    // Add resize listener
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
@@ -142,7 +139,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                     'left-[100%]': !showWorkbench,
                   }
                 )
-              : 'w-full h-full' // Mobile styles here
+              : 'w-full h-full'
           }
         >
           <div className={classNames(
@@ -248,7 +245,6 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     );
   }
 
-  // Desktop view uses the same instance
   return workbenchInstance;
 });
 

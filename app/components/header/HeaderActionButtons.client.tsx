@@ -10,12 +10,9 @@ import React, { useState, useRef, useEffect } from 'react';
 interface HeaderActionButtonsProps {}
 
 export function HeaderActionButtons({}: HeaderActionButtonsProps) {
-  const showWorkbench = useStore(workbenchStore.showWorkbench);
-  const { showChat } = useStore(chatStore);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -29,7 +26,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
   return (
     <div className="flex gap-1 sm:gap-2">
-      {/* Desktop: Show full buttons */}
       <div className="hidden sm:block">
         <Download />
       </div>
@@ -40,7 +36,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         <Deploy />
       </div>
 
-      {/* Mobile Dropdown Menu */}
       <div className="relative block sm:hidden" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -50,7 +45,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
           <div className="i-ph:caret-down text-bolt-elements-textTertiary" />
         </button>
 
-        {/* Dropdown Menu */}
         {isDropdownOpen && (
           <div className="absolute right-0 top-full mt-1 w-48 py-2
                         bg-bolt-elements-background-depth-2 

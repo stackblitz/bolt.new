@@ -59,7 +59,7 @@ export default function Download() {
     <button
       onClick={handleDownload}
       disabled={isLoading}
-      className="flex items-center gap-1 px-3 py-1.5 bg-bolt-elements-code-background hover:bg-gray-700 text-bolt-elements-button-secondary-text text-sm rounded-md"
+      className="w-full flex items-center justify-center gap-1 px-3 py-1.5 bg-bolt-elements-code-background hover:bg-gray-700 text-bolt-elements-button-secondary-text text-sm rounded-md"
     >
       {isLoading ? (
         <div className="i-ph:spinner animate-spin" />

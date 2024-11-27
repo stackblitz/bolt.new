@@ -105,7 +105,7 @@
     "vite-plugin-optimize-css-modules": "^1.1.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.0.1",
-    "wrangler": "^3.63.2",
+    "wrangler": "^3.64.0",
     "zod": "^3.23.8"
   },
   "resolutions": {

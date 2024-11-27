@@ -35,5 +35,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }} 
+            ghcr.io/ghcr.io/bolt-ce/bolt:latest
+            ghcr.io/ghcr.io/bolt-ce/bolt:${{ github.sha }} 

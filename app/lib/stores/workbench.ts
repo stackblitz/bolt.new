@@ -23,14 +23,18 @@ type Artifacts = MapStore<Record<string, ArtifactState>>;
 
 export type WorkbenchViewType = 'code' | 'preview';
 
+interface WorkbenchState {
+  showTerminal: boolean;
+}
+
 export class WorkbenchStore {
+  #store = atom<WorkbenchState>({ showTerminal: true });
   #previewsStore = new PreviewsStore(webcontainer);
   #filesStore = new FilesStore(webcontainer);
   #editorStore = new EditorStore(this.#filesStore);
   #terminalStore = new TerminalStore(webcontainer);
 
   artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
-
   showWorkbench: WritableAtom<boolean> = import.meta.hot?.data.showWorkbench ?? atom(false);
   currentView: WritableAtom<WorkbenchViewType> = import.meta.hot?.data.currentView ?? atom('code');
   unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
@@ -38,12 +42,18 @@ export class WorkbenchStore {
   artifactIdList: string[] = [];
 
   constructor() {
+    this.#terminalStore.showTerminal.set(true);
+
     if (import.meta.hot) {
       import.meta.hot.data.artifacts = this.artifacts;
       import.meta.hot.data.unsavedFiles = this.unsavedFiles;
       import.meta.hot.data.showWorkbench = this.showWorkbench;
       import.meta.hot.data.currentView = this.currentView;
     }
+  }
+
+  get store() {
+    return this.#store;
   }
 
   get previews() {
@@ -75,7 +85,9 @@ export class WorkbenchStore {
   }
 
   toggleTerminal(value?: boolean) {
-    this.#terminalStore.toggleTerminal(value);
+    const newValue = value !== undefined ? value : !this.#store.get().showTerminal;
+    this.#store.set({ showTerminal: newValue });
+    this.#terminalStore.toggleTerminal(newValue);
   }
 
   attachTerminal(terminal: ITerminal) {

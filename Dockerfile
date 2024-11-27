@@ -1,4 +1,4 @@
-ARG BASE=node:20.18.0
+ARG BASE=node:20.18.1-bookworm-slim
 FROM ${BASE} AS base
 
 WORKDIR /app

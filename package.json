@@ -22,6 +22,7 @@
     "typecheck": "tsc",
     "typegen": "wrangler types",
     "preview": "pnpm run build && pnpm run start"
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=18.18.0"

@@ -50,7 +50,7 @@
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
     "@remix-run/cloudflare": "^2.10.2",
-    "@remix-run/cloudflare-pages": "^2.10.2",
+    "@remix-run/cloudflare-pages": "^2.15.0",
     "@remix-run/react": "^2.10.2",
     "@types/file-saver": "^2.0.7",
     "@uiw/codemirror-theme-vscode": "^4.23.0",

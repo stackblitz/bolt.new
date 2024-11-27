@@ -21,7 +21,7 @@ Many of you are new users to installing software from Github. Here are a few lin
 git clone https://github.com/Bolt-CE/bolt.git
 ```
 
-2. Rename .env.example to .env.local and add your LLM API key. 
+2. Rename env.example to .env.local and add your LLM API key. 
 
 3. Run Bolt using one of the 3 following ways:
 

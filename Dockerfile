@@ -16,8 +16,14 @@ RUN pnpm install
 # Copy the rest of the application code
 COPY . .
 
-# Expose the port
+# Build the application
+RUN pnpm run build
+
+# Make sure bindings.sh is executable
+RUN chmod +x bindings.sh
+
+# Expose the port the app runs on (adjust if you specified a different port)
 EXPOSE 5173
 
 # Start the application
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "run", "start"]

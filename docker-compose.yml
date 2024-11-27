@@ -8,4 +8,12 @@ services:
     environment:
       - NODE_ENV=production
     volumes:
+      # This volume is for development purposes, allowing live code updates
+      # Comment out or remove for production
       - .:/app
+      # This volume is to prevent node_modules from being overwritten by the above volume
+      - /app/node_modules
+    command: pnpm run start
+
+volumes:
+  node_modules:

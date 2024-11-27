@@ -61,7 +61,7 @@
     "@xterm/xterm": "^5.5.0",
     "ai": "^3.3.4",
     "classnames": "^2.5.1",
-    "date-fns": "^3.6.0",
+    "date-fns": "^4.1.0",
     "diff": "^5.2.0",
     "fflate": "^0.8.2",
     "file-saver": "^2.0.5",

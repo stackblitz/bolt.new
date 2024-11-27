@@ -6,6 +6,8 @@ What makes this differnt and why did we create this fork.
 We creaded this fork, since the orginal bolt repo was not being activly devloped due to them working on there commerical edition. This edition will more closely follow the orginal repo, but allow for more frequent updates and community involvment.
 This will allow for the project to continue to grow and improve.
 
+## Community
+Discord - https://discord.gg/t9b6Npje
 
 ## Getting Started
 To get started with Bolt Community Edition, just fork this and use npm or docker compose. More information comming soon.
@@ -42,6 +44,3 @@ Here are some tips to get the most out of Bolt:
 - **Scaffold the basics first, then add features**: Make sure the basic structure of your application is in place before diving into more advanced functionality. This helps Bolt understand the foundation of your project and ensure everything is wired up right before building out more advanced functionality.
 
 - **Batch simple instructions**: Save time by combining simple instructions into one message. For example, you can ask Bolt to change the color scheme, add mobile responsiveness, and restart the dev server, all in one go saving you time and reducing API credit consumption significantly.
-
-## Community
-Discord - https://discord.gg/t9b6Npje

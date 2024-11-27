@@ -78,6 +78,7 @@
     "remark-gfm": "^4.0.0",
     "remix-island": "^0.2.0",
     "remix-utils": "^7.6.0",
+    "sass-embedded": "^1.81.0",
     "shiki": "^1.9.1",
     "unist-util-visit": "^5.0.0"
   },

@@ -80,6 +80,10 @@ export class FilesStore {
     this.#modifiedFiles.clear();
   }
 
+  markFileAsNew(filePath: string) {
+    this.#modifiedFiles.set(filePath, '');
+  }
+
   async saveFile(filePath: string, content: string) {
     const webcontainer = await this.#webcontainer;
 

@@ -99,7 +99,7 @@
     "prettier": "^3.3.2",
     "typescript": "^5.5.2",
     "unified": "^11.0.5",
-    "unocss": "^0.61.3",
+    "unocss": "^0.64.1",
     "vite": "^5.3.6",
     "vite-plugin-node-polyfills": "^0.22.0",
     "vite-plugin-optimize-css-modules": "^1.1.0",

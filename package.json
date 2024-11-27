@@ -84,7 +84,8 @@
     "remix-utils": "^7.6.0",
     "sass-embedded": "^1.81.0",
     "shiki": "^1.9.1",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.0.0",
+    "dompurify": "^3.2.1"
   },
   "devDependencies": {
     "@blitz/eslint-plugin": "0.1.0",

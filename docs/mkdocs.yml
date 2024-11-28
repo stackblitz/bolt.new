@@ -1,4 +1,4 @@
-site_name: OttoDev Docs
+site_name: Bolt.Local Docs
 site_dir: ../site
 theme:
   name: material
@@ -31,7 +31,7 @@ theme:
     repo: fontawesome/brands/github
   # logo: assets/logo.png
   # favicon: assets/logo.png
-repo_name: OttoDev
+repo_name: Bolt.Local
 repo_url: https://github.com/coleam00/bolt.new-any-llm
 edit_uri: ""
 
@@ -40,10 +40,10 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/coleam00/bolt.new-any-llm
-      name: OttoDev
+      name: Bolt.Local
     - icon: fontawesome/brands/discourse
       link: https://thinktank.ottomator.ai/
-      name: OttoDev Discourse
+      name: Bolt.Local Discourse
 
 
 markdown_extensions:

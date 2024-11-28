@@ -256,7 +256,7 @@ export class StreamingMessageParser {
       }
 
       (actionAttributes as FileAction).filePath = filePath;
-    } else if (actionType !== 'shell') {
+    } else if (actionType !== 'shell' && actionType !== 'start') {
       logger.warn(`Unknown action type '${actionType}'`);
     }
 

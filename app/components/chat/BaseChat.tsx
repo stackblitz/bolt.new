@@ -28,6 +28,8 @@ interface BaseChatProps {
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
+  onVoiceInput?: () => void;
+  isListening?: boolean;
 }
 
 const EXAMPLE_PROMPTS = [
@@ -58,6 +60,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       handleInputChange,
       enhancePrompt,
       handleStop,
+      onVoiceInput,
+      isListening,
     },
     ref,
   ) => {
@@ -188,6 +192,23 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                               </>
                             )}
                           </IconButton>
+                          <div className="flex items-center gap-2">
+                          <IconButton
+                            title="Voice input"
+                            className="flex items-center gap-1.5  text-sm
+                                      text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive"
+                            onClick={() => onVoiceInput?.()}
+                          >
+                            {isListening ? (
+                              <>
+                                <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl"></div>
+                                <span>Listening...</span>
+                              </>
+                            ) : (
+                              <div className="i-ph:microphone-duotone text-xl"></div>
+                            )}
+                          </IconButton>
+                        </div>
                           <ClientOnly>
                             {() => <ProviderSelector />}
                           </ClientOnly>

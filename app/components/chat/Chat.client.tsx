@@ -2,7 +2,7 @@ import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { useChatHistory } from '~/lib/persistence';
@@ -12,10 +12,10 @@ import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
-import { ProviderSelector } from './ProviderSelector';
 import { providerStore } from '~/lib/stores/provider';
 import { useAuth } from '~/lib/hooks/useAuth';
 import { CornerRightUp } from 'lucide-react';
+import { useSpeechRecognition } from '~/lib/hooks/useSpeechRecognition';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -119,7 +119,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     api: '/api/chat',
     onError: (error) => {
       logger.error('Request failed\n\n', error);
-      toast.error('There was an error processing your request');
+      console.log('There was an error processing your request'); // @todo: Handle this better
     },
     onFinish: () => {
       logger.debug('Finished streaming');
@@ -229,6 +229,18 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const [messageRef, scrollRef] = useSnapScroll();
 
+  const { isListening, startListening, stopListening } = useSpeechRecognition();
+
+  const handleVoiceInput = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening((transcript) => {
+        setInput(transcript);
+      });
+    }
+  }, [isListening, startListening, stopListening, setInput]);
+
   return (
       <BaseChat
         ref={animationScope}
@@ -260,6 +272,8 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
             scrollTextArea();
           });
         }}
+        isListening={isListening}
+        onVoiceInput={handleVoiceInput}
       />
   );
 });

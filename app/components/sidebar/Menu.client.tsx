@@ -33,7 +33,7 @@ const menuVariants = {
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
 export function Menu() {
-  const { duplicateCurrentChat } = useChatHistory();
+  const { duplicateCurrentChat, exportChat } = useChatHistory();
   const menuRef = useRef<HTMLDivElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);
@@ -101,7 +101,6 @@ export function Menu() {
 
   const handleDeleteClick = (event: React.UIEvent, item: ChatHistoryItem) => {
     event.preventDefault();
-
     setDialogContent({ type: 'delete', item });
   };
 
@@ -130,7 +129,7 @@ export function Menu() {
           </a>
         </div>
         <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">Your Chats</div>
-        <div className="flex-1 overflow-scroll pl-4 pr-5 pb-5">
+        <div className="flex-1 overflow-auto pl-4 pr-5 pb-5">
           {list.length === 0 && <div className="pl-2 text-bolt-elements-textTertiary">No previous conversations</div>}
           <DialogRoot open={dialogContent !== null}>
             {binDates(list).map(({ category, items }) => (
@@ -142,6 +141,7 @@ export function Menu() {
                   <HistoryItem
                     key={item.id}
                     item={item}
+                    exportChat={exportChat}
                     onDelete={(event) => handleDeleteClick(event, item)}
                     onDuplicate={() => handleDuplicate(item.id)}
                   />

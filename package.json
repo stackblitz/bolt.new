@@ -20,7 +20,8 @@
     "dockerbuild": "docker build -t bolt-ai:development -t bolt-ai:latest --target bolt-ai-development .",
     "typecheck": "tsc",
     "typegen": "wrangler types",
-    "preview": "pnpm run build && pnpm run start"
+    "preview": "pnpm run build && pnpm run start",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=18.18.0"
@@ -70,6 +71,7 @@
     "diff": "^5.2.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.2.12",
+    "ignore": "^6.0.2",
     "isbot": "^4.1.0",
     "istextorbinary": "^9.5.0",
     "jose": "^5.6.3",
@@ -101,6 +103,7 @@
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "fast-glob": "^3.3.2",
+    "husky": "9.1.7",
     "is-ci": "^3.0.1",
     "node-fetch": "^3.3.2",
     "prettier": "^3.3.2",

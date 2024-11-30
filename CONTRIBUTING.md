@@ -1,9 +1,6 @@
-# Contributing to Bolt.new Fork
-## DEFAULT_NUM_CTX
+# Contributing to oTToDev
 
-The `DEFAULT_NUM_CTX` environment variable can be used to limit the maximum number of context values used by the qwen2.5-coder model. For example, to limit the context to 24576 values (which uses 32GB of VRAM), set `DEFAULT_NUM_CTX=24576` in your `.env.local` file.
-
-First off, thank you for considering contributing to Bolt.new! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make Bolt.new a better tool for developers worldwide.
+First off, thank you for considering contributing to oTToDev! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make oTToDev a better tool for developers worldwide.
 
 ## 📋 Table of Contents
 - [Code of Conduct](#code-of-conduct)
@@ -56,6 +53,8 @@ We're looking for dedicated contributors to help maintain and grow this project.
 - Comment complex logic
 - Keep functions focused and small
 - Use meaningful variable names
+- Lint your code. This repo contains a pre-commit-hook that will verify your code is linted properly, 
+so set up your IDE to do that for you!
 
 ## Development Setup
 

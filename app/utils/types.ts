@@ -1,4 +1,3 @@
-
 interface OllamaModelDetails {
   parent_model: string;
   format: string;
@@ -29,10 +28,10 @@ export interface ModelInfo {
 }
 
 export interface ProviderInfo {
-  staticModels: ModelInfo[],
-  name: string,
-  getDynamicModels?: () => Promise<ModelInfo[]>,
-  getApiKeyLink?: string,
-  labelForGetApiKey?: string,
-  icon?:string,
-};
+  staticModels: ModelInfo[];
+  name: string;
+  getDynamicModels?: () => Promise<ModelInfo[]>;
+  getApiKeyLink?: string;
+  labelForGetApiKey?: string;
+  icon?: string;
+}

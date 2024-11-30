@@ -239,7 +239,7 @@ export const EditorPanel = memo(
                             <div className="i-ph:terminal-window-duotone text-lg" />
                             Terminal {terminalCount > 1 && index}
                           </button>
-                          </React.Fragment>
+                        </React.Fragment>
                       )}
                     </React.Fragment>
                   );
@@ -255,6 +255,7 @@ export const EditorPanel = memo(
               </div>
               {Array.from({ length: terminalCount + 1 }, (_, index) => {
                 const isActive = activeTerminal === index;
+
                 if (index == 0) {
                   logger.info('Starting bolt terminal');
 
@@ -273,6 +274,7 @@ export const EditorPanel = memo(
                     />
                   );
                 }
+
                 return (
                   <Terminal
                     key={index}

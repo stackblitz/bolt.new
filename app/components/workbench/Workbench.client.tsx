@@ -57,7 +57,6 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
   renderLogger.trace('Workbench');
 
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
   const hasPreview = useStore(computed(workbenchStore.previews, (previews) => previews.length > 0));
   const showWorkbench = useStore(workbenchStore.showWorkbench);
@@ -120,60 +119,6 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
     }
   }, []);
 
-  const handleUploadFiles = useCallback(async () => {
-    setIsUploading(true);
-
-    try {
-      //   const directoryHandle = await window.showDirectoryPicker();
-
-      //   // First upload new files
-      //   await workbenchStore.uploadFilesFromDisk(directoryHandle);
-
-      //   // Get current files state
-      //   const currentFiles = workbenchStore.files.get();
-
-      //   // Create new modifications map with all files as "new"
-      //   const newModifications = new Map();
-      //   Object.entries(currentFiles).forEach(([path, file]) => {
-      //     if (file.type === 'file') {
-      //       newModifications.set(path, file.content);
-      //     }
-      //   });
-
-      //   // Update workbench state
-      //   await workbenchStore.refreshFiles();
-      //   workbenchStore.resetAllFileModifications();
-
-      //   toast.success('Files uploaded successfully');
-      // } catch (error) {
-      //   toast.error('Failed to upload files');
-      // }
-      await handleUploadFilesFunc();
-    }
-
-    finally {
-      setIsUploading(false);
-    }
-  }, []);
-
-  async function handleUploadFilesFunc() {
-    try {
-      // First clean all statuses
-      await workbenchStore.saveAllFiles();
-      await workbenchStore.resetAllFileModifications();
-      await workbenchStore.refreshFiles();
-
-      // Now upload new files
-      const directoryHandle = await window.showDirectoryPicker();
-      await workbenchStore.uploadFilesFromDisk(directoryHandle);
-
-      toast.success('Files uploaded successfully');
-    } catch (error) {
-      console.error('Upload files error:', error);
-      toast.error('Failed to upload files');
-    }
-  }
-
   return (
     chatStarted && (
       <motion.div
@@ -213,10 +158,6 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                       {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
                       {isSyncing ? 'Syncing...' : 'Sync Files'}
                     </PanelHeaderButton>
-                    <PanelHeaderButton className="mr-1 text-sm" onClick={handleUploadFiles} disabled={isSyncing}>
-                      {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-up" />}
-                      {isSyncing ? 'Uploading...' : 'Upload Files'}
-                    </PanelHeaderButton>
                     <PanelHeaderButton
                       className="mr-1 text-sm"
                       onClick={() => {
@@ -233,16 +174,21 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                           'Please enter a name for your new GitHub repository:',
                           'bolt-generated-project',
                         );
+
                         if (!repoName) {
                           alert('Repository name is required. Push to GitHub cancelled.');
                           return;
                         }
+
                         const githubUsername = prompt('Please enter your GitHub username:');
+
                         if (!githubUsername) {
                           alert('GitHub username is required. Push to GitHub cancelled.');
                           return;
                         }
+
                         const githubToken = prompt('Please enter your GitHub personal access token:');
+
                         if (!githubToken) {
                           alert('GitHub token is required. Push to GitHub cancelled.');
                           return;

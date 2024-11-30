@@ -80,10 +80,6 @@ export class FilesStore {
     this.#modifiedFiles.clear();
   }
 
-  markFileAsNew(filePath: string) {
-    this.#modifiedFiles.set(filePath, '');
-  }
-
   async saveFile(filePath: string, content: string) {
     const webcontainer = await this.#webcontainer;
 
@@ -216,9 +212,5 @@ function isBinaryFile(buffer: Uint8Array | undefined) {
  * array buffer.
  */
 function convertToBuffer(view: Uint8Array): Buffer {
-  const buffer = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
-
-  Object.setPrototypeOf(buffer, Buffer.prototype);
-
-  return buffer as Buffer;
+  return Buffer.from(view.buffer, view.byteOffset, view.byteLength);
 }

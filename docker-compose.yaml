@@ -11,7 +11,7 @@ services:
     environment:
       - NODE_ENV=production
       - COMPOSE_PROFILES=production
-      # No strictly neded but serving as hints for Coolify
+      # No strictly needed but serving as hints for Coolify
       - PORT=5173
       - GROQ_API_KEY=${GROQ_API_KEY}
       - HuggingFace_API_KEY=${HuggingFace_API_KEY}

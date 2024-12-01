@@ -224,19 +224,19 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       gradientUnits="userSpaceOnUse"
                       gradientTransform="rotate(-45)"
                     >
-                      <stop offset="0%" stop-color="#1488fc" stop-opacity="0%"></stop>
-                      <stop offset="40%" stop-color="#1488fc" stop-opacity="80%"></stop>
-                      <stop offset="50%" stop-color="#1488fc" stop-opacity="80%"></stop>
-                      <stop offset="100%" stop-color="#1488fc" stop-opacity="0%"></stop>
+                      <stop offset="0%" stopColor="#1488fc" stopOpacity="0%"></stop>
+                      <stop offset="40%" stopColor="#1488fc" stopOpacity="80%"></stop>
+                      <stop offset="50%" stopColor="#1488fc" stopOpacity="80%"></stop>
+                      <stop offset="100%" stopColor="#1488fc" stopOpacity="0%"></stop>
                     </linearGradient>
                     <linearGradient id="shine-gradient">
-                      <stop offset="0%" stop-color="white" stop-opacity="0%"></stop>
-                      <stop offset="40%" stop-color="#8adaff" stop-opacity="80%"></stop>
-                      <stop offset="50%" stop-color="#8adaff" stop-opacity="80%"></stop>
-                      <stop offset="100%" stop-color="white" stop-opacity="0%"></stop>
+                      <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
+                      <stop offset="40%" stopColor="#8adaff" stopOpacity="80%"></stop>
+                      <stop offset="50%" stopColor="#8adaff" stopOpacity="80%"></stop>
+                      <stop offset="100%" stopColor="white" stopOpacity="0%"></stop>
                     </linearGradient>
                   </defs>
-                  <rect className={classNames(styles.PromptEffectLine)} pathLength="100" stroke-linecap="round"></rect>
+                  <rect className={classNames(styles.PromptEffectLine)} pathLength="100" strokeLinecap="round"></rect>
                   <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
                 </svg>
                 <div>

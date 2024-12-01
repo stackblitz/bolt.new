@@ -97,9 +97,7 @@
   "devDependencies": {
     "@blitz/eslint-plugin": "0.1.0",
     "@cloudflare/workers-types": "^4.20241127.0",
-    "@jridgewell/sourcemap-codec": "^1.5.0",
     "@remix-run/dev": "^2.15.0",
-    "@rollup/plugin-inject": "^5.0.5",
     "@types/diff": "^5.2.3",
     "@types/file-saver": "^2.0.7",
     "@types/js-cookie": "^3.0.6",

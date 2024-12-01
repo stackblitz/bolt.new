@@ -8,7 +8,7 @@ This fork of Bolt.new (oTToDev) allows you to choose the LLM that you use for ea
 
 https://thinktank.ottomator.ai
 
-## Requested Additions to this Fork - Feel Free to Contribute!!
+## Requested Additions - Feel Free to Contribute!
 
 - ✅ OpenRouter Integration (@coleam00)
 - ✅ Gemini Integration (@jonathands)

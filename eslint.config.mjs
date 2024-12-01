@@ -4,7 +4,13 @@ import { getNamingConventionRule, tsFileExtensions } from '@blitz/eslint-plugin/
 
 export default [
   {
-    ignores: ['**/dist', '**/node_modules', '**/.wrangler', '**/bolt/build', '**/.history'],
+    ignores: [
+      '**/dist',
+      '**/node_modules',
+      '**/.wrangler',
+      '**/bolt/build',
+      '**/.history',
+    ],
   },
   ...blitzPlugin.configs.recommended(),
   {
@@ -38,7 +44,7 @@ export default [
           patterns: [
             {
               group: ['../'],
-              message: `Relative imports are not allowed. Please use '~/' instead.`,
+              message: 'Relative imports are not allowed. Please use \'~/\' instead.',
             },
           ],
         },

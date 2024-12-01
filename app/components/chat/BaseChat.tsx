@@ -168,6 +168,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         )}
         data-chat-visible={showChat}
       >
+        <div className={classNames(styles.RayContainer)}>
+          <div className={classNames(styles.LightRayOne)}></div>
+          <div className={classNames(styles.LightRayTwo)}></div>
+          <div className={classNames(styles.LightRayThree)}></div>
+          <div className={classNames(styles.LightRayFour)}></div>
+          <div className={classNames(styles.LightRayFive)}></div>
+        </div>
         <ClientOnly>{() => <Menu />}</ClientOnly>
         <div ref={scrollRef} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
@@ -206,6 +213,32 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   },
                 )}
               >
+                <svg className={classNames(styles.PromptEffectContainer)}>
+                  <defs>
+                    <linearGradient
+                      id="line-gradient"
+                      x1="20%"
+                      y1="0%"
+                      x2="-14%"
+                      y2="10%"
+                      gradientUnits="userSpaceOnUse"
+                      gradientTransform="rotate(-45)"
+                    >
+                      <stop offset="0%" stop-color="#1488fc" stop-opacity="0%"></stop>
+                      <stop offset="40%" stop-color="#1488fc" stop-opacity="80%"></stop>
+                      <stop offset="50%" stop-color="#1488fc" stop-opacity="80%"></stop>
+                      <stop offset="100%" stop-color="#1488fc" stop-opacity="0%"></stop>
+                    </linearGradient>
+                    <linearGradient id="shine-gradient">
+                      <stop offset="0%" stop-color="white" stop-opacity="0%"></stop>
+                      <stop offset="40%" stop-color="#8adaff" stop-opacity="80%"></stop>
+                      <stop offset="50%" stop-color="#8adaff" stop-opacity="80%"></stop>
+                      <stop offset="100%" stop-color="white" stop-opacity="0%"></stop>
+                    </linearGradient>
+                  </defs>
+                  <rect className={classNames(styles.PromptEffectLine)} pathLength="100" stroke-linecap="round"></rect>
+                  <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
+                </svg>
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <button
@@ -221,6 +254,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       <span>Model Settings</span>
                     </button>
                   </div>
+
 
                   <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
                     <ModelSelector
@@ -245,12 +279,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                 <div
                   className={classNames(
-                    'shadow-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background backdrop-filter backdrop-blur-[8px] rounded-lg overflow-hidden transition-all',
+                    'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
                   )}
                 >
                   <textarea
                     ref={textareaRef}
-                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none focus:ring-0 focus:border-none focus:shadow-none resize-none text-md text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent transition-all`}
+                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm`}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {

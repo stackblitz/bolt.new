@@ -198,15 +198,6 @@ sudo npm install -g pnpm
 ```bash
 pnpm run dev
 ```
-
-## Adding New LLMs:
-
-To make new LLMs available to use in this version of Bolt.new, head on over to `app/utils/constants.ts` and find the constant MODEL_LIST. Each element in this array is an object that has the model ID for the name (get this from the provider's API documentation), a label for the frontend model dropdown, and the provider. 
-
-By default, Anthropic, OpenAI, Groq, and Ollama are implemented as providers, but the YouTube video for this repo covers how to extend this to work with more providers if you wish!
-
-When you add a new model to the MODEL_LIST array, it will immediately be available to use when you run the app locally or reload it. For Ollama models, make sure you have the model installed already before trying to use it here!
-
 ## Available Scripts
 
 - `pnpm run dev`: Starts the development server.

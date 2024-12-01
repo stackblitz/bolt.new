@@ -4,11 +4,11 @@
 
 This fork of Bolt.new (oTToDev) allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
 
-Join the community for oTToDev!
+## Join the community for oTToDev!
 
 https://thinktank.ottomator.ai
 
-# Requested Additions to this Fork - Feel Free to Contribute!!
+## Requested Additions to this Fork - Feel Free to Contribute!!
 
 - ✅ OpenRouter Integration (@coleam00)
 - ✅ Gemini Integration (@jonathands)
@@ -31,6 +31,7 @@ https://thinktank.ottomator.ai
 - ✅ Ability to revert code to earlier version (@wonderwhy-er)
 - ✅ Cohere Integration (@hasanraiyan)
 - ✅ Dynamic model max token length (@hasanraiyan)
+- ✅ Prompt caching (@SujalXplores)
 - ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ **HIGH PRIORITY** - Load local projects into the app
@@ -42,14 +43,13 @@ https://thinktank.ottomator.ai
 - ⬜ Perplexity Integration
 - ⬜ Vertex AI Integration
 - ⬜ Deploy directly to Vercel/Netlify/other similar platforms
-- ⬜ Prompt caching
 - ⬜ Better prompt enhancing
 - ⬜ Have LLM plan the project in a MD file for better results/transparency
 - ⬜ VSCode Integration with git-like confirmations
 - ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.
 - ⬜ Voice prompting
 
-# Bolt.new: AI-Powered Full-Stack Web Development in the Browser
+## Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
 Bolt.new is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. If you're here to build your own AI-powered web dev agent using the Bolt open source codebase, [click here to get started!](./CONTRIBUTING.md)
 
@@ -124,6 +124,13 @@ Optionally, you can set the debug level:
 VITE_LOG_LEVEL=debug
 ```
 
+And if using Ollama set the DEFAULT_NUM_CTX, the example below uses 8K context and ollama running on localhost port 11434:
+
+```
+OLLAMA_API_BASE_URL=http://localhost:11434
+DEFAULT_NUM_CTX=8192
+```
+
 **Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 
 ## Run with Docker
@@ -191,31 +198,6 @@ sudo npm install -g pnpm
 ```bash
 pnpm run dev
 ```
-
-## Super Important Note on Running Ollama Models
-
-Ollama models by default only have 2048 tokens for their context window. Even for large models that can easily handle way more.
-This is not a large enough window to handle the Bolt.new/oTToDev prompt! You have to create a version of any model you want
-to use where you specify a larger context window. Luckily it's super easy to do that.
-
-All you have to do is:
-
-- Create a file called "Modelfile" (no file extension) anywhere on your computer
-- Put in the two lines:
-
-```
-FROM [Ollama model ID such as qwen2.5-coder:7b]
-PARAMETER num_ctx 32768
-```
-
-- Run the command: 
-
-```
-ollama create -f Modelfile [your new model ID, can be whatever you want (example: qwen2.5-coder-extra-ctx:7b)]
-```
-
-Now you have a new Ollama model that isn't heavily limited in the context length like Ollama models are by default for some reason.
-You'll see this new model in the list of Ollama models along with all the others you pulled!
 
 ## Adding New LLMs:
 

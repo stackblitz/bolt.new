@@ -5,7 +5,7 @@ const EXAMPLE_PROMPTS = [
   { text: 'Build a simple blog using Astro' },
   { text: 'Create a cookie consent form using Material UI' },
   { text: 'Make a space invaders game' },
-  { text: 'How do I center a div?' },
+  { text: 'Make a Tic Tac Toe game in html, css and js only' },
 ];
 
 export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInput?: string): void | undefined }) {

@@ -47,7 +47,7 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
         key={provider?.name}
         value={model}
         onChange={(e) => setModel(e.target.value)}
-        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[70%] "
+        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[70%]"
       >
         {[...modelList]
           .filter((e) => e.provider == provider?.name && e.name)
@@ -116,6 +116,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState(MODEL_LIST);
+    const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
 
     useEffect(() => {
       // Load API keys from cookies on component mount
@@ -206,7 +207,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </ClientOnly>
               <div
                 className={classNames(
-                  ' bg-bolt-elements-background-depth-2 p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt mb-6',
+                  'bg-bolt-elements-background-depth-2 p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt mb-6',
                   {
                     'sticky bottom-2': chatStarted,
                   },
@@ -238,24 +239,43 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <rect className={classNames(styles.PromptEffectLine)} pathLength="100" stroke-linecap="round"></rect>
                   <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
                 </svg>
-                <ModelSelector
-                  key={provider?.name + ':' + modelList.length}
-                  model={model}
-                  setModel={setModel}
-                  modelList={modelList}
-                  provider={provider}
-                  setProvider={setProvider}
-                  providerList={PROVIDER_LIST}
-                  apiKeys={apiKeys}
-                />
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <button
+                      onClick={() => setIsModelSettingsCollapsed(!isModelSettingsCollapsed)}
+                      className={classNames('flex items-center gap-2 p-2 rounded-lg transition-all', {
+                        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
+                          isModelSettingsCollapsed,
+                        'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
+                          !isModelSettingsCollapsed,
+                      })}
+                    >
+                      <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
+                      <span>Model Settings</span>
+                    </button>
+                  </div>
 
-                {provider && (
-                  <APIKeyManager
-                    provider={provider}
-                    apiKey={apiKeys[provider.name] || ''}
-                    setApiKey={(key) => updateApiKey(provider.name, key)}
-                  />
-                )}
+
+                  <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
+                    <ModelSelector
+                      key={provider?.name + ':' + modelList.length}
+                      model={model}
+                      setModel={setModel}
+                      modelList={modelList}
+                      provider={provider}
+                      setProvider={setProvider}
+                      providerList={PROVIDER_LIST}
+                      apiKeys={apiKeys}
+                    />
+                    {provider && (
+                      <APIKeyManager
+                        provider={provider}
+                        apiKey={apiKeys[provider.name] || ''}
+                        setApiKey={(key) => updateApiKey(provider.name, key)}
+                      />
+                    )}
+                  </div>
+                </div>
 
                 <div
                   className={classNames(

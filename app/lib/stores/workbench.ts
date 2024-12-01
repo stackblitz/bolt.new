@@ -14,7 +14,7 @@ import { saveAs } from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import * as nodePath from 'node:path';
 import { extractRelativePath } from '~/utils/diff';
-import { description } from '../persistence';
+import { description } from '~/persistence';
 
 export interface ArtifactState {
   id: string;
@@ -168,7 +168,6 @@ export class WorkbenchStore {
   setSelectedFile(filePath: string | undefined) {
     this.#editorStore.setSelectedFile(filePath);
   }
-
 
   async saveFile(filePath: string) {
     const documents = this.#editorStore.documents.get();
@@ -329,9 +328,10 @@ export class WorkbenchStore {
   async downloadZip() {
     const zip = new JSZip();
     const files = this.files.get();
+
     // Get the project name from the description input, or use a default name
     const projectName = (description.value ?? 'project').toLocaleLowerCase().split(' ').join('_');
-  
+
     // Generate a simple 6-character hash based on the current timestamp
     const timestampHash = Date.now().toString(36).slice(-6);
     const uniqueProjectName = `${projectName}_${timestampHash}`;
@@ -357,10 +357,10 @@ export class WorkbenchStore {
         }
       }
     }
+
     // Generate the zip file and save it
     const content = await zip.generateAsync({ type: 'blob' });
     saveAs(content, `${uniqueProjectName}.zip`);
-  
   }
 
   async syncFiles(targetHandle: FileSystemDirectoryHandle) {

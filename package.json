@@ -97,6 +97,8 @@
     "@blitz/eslint-plugin": "0.1.0",
     "@cloudflare/workers-types": "^4.20240620.0",
     "@remix-run/dev": "^2.10.0",
+	"@rollup/plugin-inject": "^5.0.5",
+    "@jridgewell/sourcemap-codec": "^1.4.15",
     "@types/diff": "^5.2.1",
     "@types/file-saver": "^2.0.7",
     "@types/js-cookie": "^3.0.6",

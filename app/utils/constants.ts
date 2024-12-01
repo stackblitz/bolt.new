@@ -283,7 +283,7 @@ const getOllamaBaseUrl = () => {
 };
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
-  /*
+   /*
    * if (typeof window === 'undefined') {
    * return [];
    * }

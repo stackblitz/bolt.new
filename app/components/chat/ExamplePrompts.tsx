@@ -10,8 +10,13 @@ const EXAMPLE_PROMPTS = [
 
 export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInput?: string): void | undefined }) {
   return (
-    <div id="examples" className="relative w-full max-w-xl mx-auto mt-8 flex justify-center">
-      <div className="flex flex-col space-y-2 [mask-image:linear-gradient(to_bottom,black_0%,transparent_180%)] hover:[mask-image:none]">
+    <div id="examples" className="relative flex flex-col gap-9 w-full max-w-3xl mx-auto flex justify-center mt-6">
+      <div
+        className="flex flex-wrap justify-center gap-2"
+        style={{
+          animation: '.25s ease-out 0s 1 _fade-and-move-in_g2ptj_1 forwards',
+        }}
+      >
         {EXAMPLE_PROMPTS.map((examplePrompt, index: number) => {
           return (
             <button
@@ -19,10 +24,9 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
               onClick={(event) => {
                 sendMessage?.(event, examplePrompt.text);
               }}
-              className="group flex items-center w-full gap-2 justify-center bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary transition-theme"
+              className="border border-bolt-elements-borderColor rounded-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-950 dark:hover:bg-gray-900 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary px-3 py-1 text-xs transition-theme"
             >
               {examplePrompt.text}
-              <div className="i-ph:arrow-bend-down-left" />
             </button>
           );
         })}

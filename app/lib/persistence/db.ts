@@ -10,7 +10,7 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
     console.error('indexedDB is not available in this environment.');
     return undefined;
   }
-  
+
   return new Promise((resolve) => {
     const request = indexedDB.open('boltHistory', 1);
 

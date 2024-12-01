@@ -14,7 +14,7 @@ import { saveAs } from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import * as nodePath from 'node:path';
 import { extractRelativePath } from '~/utils/diff';
-import { description } from '~/persistence';
+import { description } from '~/lib/persistence';
 
 export interface ArtifactState {
   id: string;

@@ -32,13 +32,13 @@ https://thinktank.ottomator.ai
 - ✅ Cohere Integration (@hasanraiyan)
 - ✅ Dynamic model max token length (@hasanraiyan)
 - ✅ Prompt caching (@SujalXplores)
-- ✅ **HIGH PRIORITY** - Load local projects into the app (@wonderwhy-er)
+- ✅ Load local projects into the app (@wonderwhy-er)
+- ✅ Together Integration (@mouimet-infinisoft)
+- ✅ Mobile friendly (@qwikode)
 - ⬜ **HIGH PRIORITY** - ALMOST DONE - Attach images to prompts (@atrokhym)
 - ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
-- ⬜ Mobile friendly
-- ⬜ Together Integration
 - ⬜ Azure Open AI API Integration
 - ⬜ Perplexity Integration
 - ⬜ Vertex AI Integration

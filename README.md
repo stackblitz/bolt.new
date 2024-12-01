@@ -31,6 +31,7 @@ https://thinktank.ottomator.ai
 - ✅ Ability to revert code to earlier version (@wonderwhy-er)
 - ✅ Cohere Integration (@hasanraiyan)
 - ✅ Dynamic model max token length (@hasanraiyan)
+- ✅ Prompt caching (@SujalXplores)
 - ✅ **HIGH PRIORITY** - Load local projects into the app (@wonderwhy-er)
 - ⬜ **HIGH PRIORITY** - ALMOST DONE - Attach images to prompts (@atrokhym)
 - ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
@@ -42,7 +43,6 @@ https://thinktank.ottomator.ai
 - ⬜ Perplexity Integration
 - ⬜ Vertex AI Integration
 - ⬜ Deploy directly to Vercel/Netlify/other similar platforms
-- ⬜ Prompt caching
 - ⬜ Better prompt enhancing
 - ⬜ Have LLM plan the project in a MD file for better results/transparency
 - ⬜ VSCode Integration with git-like confirmations

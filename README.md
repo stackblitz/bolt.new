@@ -208,6 +208,7 @@ pnpm run dev
 - `pnpm run typecheck`: Runs TypeScript type checking.
 - `pnpm run typegen`: Generates TypeScript types using Wrangler.
 - `pnpm run deploy`: Builds the project and deploys it to Cloudflare Pages.
+- `pnpm run lint:fix`: Runs the linter and automatically fixes issues according to your ESLint configuration. 
 
 ## Development
 

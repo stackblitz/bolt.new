@@ -25,6 +25,9 @@ export default [
       'keyword-spacing': ["error", { "before": true, "after": true }],
       'consistent-return': "error",
       'semi': ["error", "always"],
+      'curly': ["error"],
+      'no-eval': ["error"],
+      'linebreak-style': ["error", "unix"],
       'arrow-spacing': ["error", { "before": true, "after": true }]
     },
   },

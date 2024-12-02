@@ -35,6 +35,7 @@ https://thinktank.ottomator.ai
 - ✅ Load local projects into the app (@wonderwhy-er)
 - ✅ Together Integration (@mouimet-infinisoft)
 - ✅ Mobile friendly (@qwikode)
+- ✅ Better prompt enhancing (@SujalXplores)
 - ⬜ **HIGH PRIORITY** - ALMOST DONE - Attach images to prompts (@atrokhym)
 - ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
@@ -43,7 +44,6 @@ https://thinktank.ottomator.ai
 - ⬜ Perplexity Integration
 - ⬜ Vertex AI Integration
 - ⬜ Deploy directly to Vercel/Netlify/other similar platforms
-- ⬜ Better prompt enhancing
 - ⬜ Have LLM plan the project in a MD file for better results/transparency
 - ⬜ VSCode Integration with git-like confirmations
 - ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.

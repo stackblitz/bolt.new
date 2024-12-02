@@ -216,15 +216,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20241127.0
         version: 4.20241127.0
-      '@jridgewell/sourcemap-codec':
-        specifier: ^1.5.0
-        version: 1.5.0
       '@remix-run/dev':
         specifier: ^2.15.0
         version: 2.15.0(@remix-run/react@2.15.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.7.2))(@types/node@22.10.1)(sass-embedded@1.81.0)(sass@1.77.6)(typescript@5.7.2)(vite@5.4.11(@types/node@22.10.1)(sass-embedded@1.81.0)(sass@1.77.6))(wrangler@3.91.0(@cloudflare/workers-types@4.20241127.0))
-      '@rollup/plugin-inject':
-        specifier: ^5.0.5
-        version: 5.0.5(rollup@4.28.0)
       '@types/diff':
         specifier: ^5.2.3
         version: 5.2.3

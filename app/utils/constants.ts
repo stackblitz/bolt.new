@@ -1,5 +1,4 @@
 import Cookies from 'js-cookie';
-import { parseCookies } from './parseCookies';
 import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
 import type { ProviderInfo } from '~/types/model';
 

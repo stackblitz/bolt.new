@@ -6,6 +6,11 @@ const logger = createScopedLogger('ChatHistory');
 
 // this is used at the top level and never rejects
 export async function openDatabase(): Promise<IDBDatabase | undefined> {
+  if (typeof indexedDB === 'undefined') {
+    console.error('indexedDB is not available in this environment.');
+    return undefined;
+  }
+
   return new Promise((resolve) => {
     const request = indexedDB.open('boltHistory', 1);
 
@@ -176,14 +181,7 @@ export async function forkChat(db: IDBDatabase, chatId: string, messageId: strin
   // Get messages up to and including the selected message
   const messages = chat.messages.slice(0, messageIndex + 1);
 
-  // Generate new IDs
-  const newId = await getNextId(db);
-  const urlId = await getUrlId(db, newId);
-
-  // Create the forked chat
-  await setMessages(db, newId, messages, urlId, chat.description ? `${chat.description} (fork)` : 'Forked chat');
-
-  return urlId;
+  return createChatFromMessages(db, chat.description ? `${chat.description} (fork)` : 'Forked chat', messages);
 }
 
 export async function duplicateChat(db: IDBDatabase, id: string): Promise<string> {
@@ -193,15 +191,23 @@ export async function duplicateChat(db: IDBDatabase, id: string): Promise<string
     throw new Error('Chat not found');
   }
 
+  return createChatFromMessages(db, `${chat.description || 'Chat'} (copy)`, chat.messages);
+}
+
+export async function createChatFromMessages(
+  db: IDBDatabase,
+  description: string,
+  messages: Message[],
+): Promise<string> {
   const newId = await getNextId(db);
   const newUrlId = await getUrlId(db, newId); // Get a new urlId for the duplicated chat
 
   await setMessages(
     db,
     newId,
-    chat.messages,
+    messages,
     newUrlId, // Use the new urlId
-    `${chat.description || 'Chat'} (copy)`,
+    description,
   );
 
   return newUrlId; // Return the urlId instead of id for navigation

@@ -27,9 +27,13 @@ dist-ssr
 /build
 .env.local
 .env
+.dev.vars
 *.vars
 .wrangler
 _worker.bundle
 
 Modelfile
 modelfiles
+
+# docs ignore
+site

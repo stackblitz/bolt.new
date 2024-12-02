@@ -84,23 +84,22 @@ export class ActionRunner {
     }
 
     if (action.executed) {
-      return;
+      return; // No return value here
     }
 
     if (isStreaming && action.type !== 'file') {
-      return;
+      return; // No return value here
     }
 
     this.#updateAction(actionId, { ...action, ...data.action, executed: !isStreaming });
 
-    // eslint-disable-next-line consistent-return
-    return (this.#currentExecutionPromise = this.#currentExecutionPromise
+    this.#currentExecutionPromise = this.#currentExecutionPromise
       .then(() => {
-        this.#executeAction(actionId, isStreaming);
+        return this.#executeAction(actionId, isStreaming);
       })
       .catch((error) => {
         console.error('Action failed:', error);
-      }));
+      });
   }
 
   async #executeAction(actionId: string, isStreaming: boolean = false) {

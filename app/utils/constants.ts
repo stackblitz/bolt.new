@@ -7,6 +7,7 @@ export const MODIFICATIONS_TAG_NAME = 'bolt_file_modifications';
 export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
 export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
 export const DEFAULT_MODEL = 'claude-3-5-sonnet-latest';
+export const PROMPT_COOKIE_KEY = 'cachedPrompt';
 
 const PROVIDER_LIST: ProviderInfo[] = [
   {
@@ -259,6 +260,31 @@ const PROVIDER_LIST: ProviderInfo[] = [
     labelForGetApiKey: 'Get LMStudio',
     icon: 'i-ph:cloud-arrow-down',
   },
+  {
+    name: 'Together',
+    staticModels: [
+      {
+        name: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+        label: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+        provider: 'Together',
+        maxTokenAllowed: 8000,
+      },
+      {
+        name: 'meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo',
+        label: 'meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo',
+        provider: 'Together',
+        maxTokenAllowed: 8000,
+      },
+
+      {
+        name: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+        label: 'Mixtral 8x7B Instruct',
+        provider: 'Together',
+        maxTokenAllowed: 8192,
+      },
+    ],
+    getApiKeyLink: 'https://api.together.xyz/settings/api-keys',
+  },
 ];
 
 export const DEFAULT_PROVIDER = PROVIDER_LIST[0];
@@ -283,6 +309,12 @@ const getOllamaBaseUrl = () => {
 };
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
+  /*
+   * if (typeof window === 'undefined') {
+   * return [];
+   * }
+   */
+
   try {
     const baseUrl = getOllamaBaseUrl();
     const response = await fetch(`${baseUrl}/api/tags`);
@@ -294,8 +326,8 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
       provider: 'Ollama',
       maxTokenAllowed: 8000,
     }));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
+    console.error('Error getting Ollama models:', e);
     return [];
   }
 }
@@ -321,8 +353,8 @@ async function getOpenAILikeModels(): Promise<ModelInfo[]> {
       label: model.id,
       provider: 'OpenAILike',
     }));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
+    console.error('Error getting OpenAILike models:', e);
     return [];
   }
 }
@@ -361,6 +393,10 @@ async function getOpenRouterModels(): Promise<ModelInfo[]> {
 }
 
 async function getLMStudioModels(): Promise<ModelInfo[]> {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
   try {
     const baseUrl = import.meta.env.LMSTUDIO_API_BASE_URL || 'http://localhost:1234';
     const response = await fetch(`${baseUrl}/v1/models`);
@@ -371,8 +407,8 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
       label: model.id,
       provider: 'LMStudio',
     }));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
+    console.error('Error getting LMStudio models:', e);
     return [];
   }
 }

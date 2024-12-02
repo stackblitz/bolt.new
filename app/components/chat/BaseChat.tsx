@@ -190,6 +190,35 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       input.click();
     };
 
+    const handlePaste = async (e: React.ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+
+      if (!items) {
+        return;
+      }
+
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+
+          const file = item.getAsFile();
+
+          if (file) {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+              const base64Image = e.target?.result as string;
+              setUploadedFiles?.([...uploadedFiles, file]);
+              setImageDataList?.([...imageDataList, base64Image]);
+            };
+            reader.readAsDataURL(file);
+          }
+
+          break;
+        }
+      }
+    };
+
     const baseChat = (
       <div
         ref={ref}
@@ -286,6 +315,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     onChange={(event) => {
                       handleInputChange?.(event);
                     }}
+                    onPaste={handlePaste}
                     style={{
                       minHeight: TEXTAREA_MIN_HEIGHT,
                       maxHeight: TEXTAREA_MAX_HEIGHT,

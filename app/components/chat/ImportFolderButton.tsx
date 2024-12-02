@@ -56,11 +56,11 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
       }
 
       const { userMessage, assistantMessage } = await createChatFromFolder(textFiles, binaryFilePaths, folderName);
-      
+
       if (importChat) {
         await importChat(folderName, [userMessage, assistantMessage]);
       }
-      
+
       toast.success('Folder imported successfully');
     } catch (error) {
       console.error('Failed to import folder:', error);
@@ -91,7 +91,7 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
         className={className}
         disabled={isLoading}
       >
-        <div className="i-ph:folder-simple-upload" />
+        <div className="i-ph:upload-simple" />
         {isLoading ? 'Importing...' : 'Import Folder'}
       </button>
     </>

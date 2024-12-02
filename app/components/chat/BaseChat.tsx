@@ -283,7 +283,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 >
                   <textarea
                     ref={textareaRef}
-                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm`}
+                    className={
+                      'w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm'
+                    }
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {
@@ -351,8 +353,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     {input.length > 3 ? (
                       <div className="text-xs text-bolt-elements-textTertiary">
                         Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> +{' '}
-                        <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for
-                        a new line
+                        <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> a
+                        new line
                       </div>
                     ) : null}
                   </div>

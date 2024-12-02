@@ -20,6 +20,12 @@ export default [
       '@typescript-eslint/no-empty-object-type': 'off',
       '@blitz/comment-syntax': 'off',
       '@blitz/block-scope-case': 'off',
+      'array-bracket-spacing': ["error", "never"],
+      'object-curly-newline': ["error", { "consistent": true }],
+      'keyword-spacing': ["error", { "before": true, "after": true }],
+      'consistent-return': "error",
+      'semi': ["error", "always"],
+      'arrow-spacing': ["error", { "before": true, "after": true }]
     },
   },
   {

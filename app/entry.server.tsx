@@ -43,7 +43,7 @@ export default async function handleRequest(
           .read()
           .then(({ done, value }) => {
             if (done) {
-              controller.enqueue(new Uint8Array(new TextEncoder().encode(`</div></body></html>`)));
+              controller.enqueue(new Uint8Array(new TextEncoder().encode('</div></body></html>')));
               controller.close();
 
               return;

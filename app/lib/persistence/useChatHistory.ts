@@ -43,7 +43,7 @@ export function useChatHistory() {
       setReady(true);
 
       if (persistenceEnabled) {
-        toast.error(`Chat persistence is unavailable`);
+        toast.error('Chat persistence is unavailable');
       }
 
       return;
@@ -63,7 +63,7 @@ export function useChatHistory() {
             description.set(storedMessages.description);
             chatId.set(storedMessages.id);
           } else {
-            navigate(`/`, { replace: true });
+            navigate('/', { replace: true });
           }
 
           setReady(true);

@@ -16,71 +16,74 @@ export interface TerminalProps {
   className?: string;
   theme: Theme;
   readonly?: boolean;
+  id: string;
   onTerminalReady?: (terminal: XTerm) => void;
   onTerminalResize?: (cols: number, rows: number) => void;
 }
 
 export const Terminal = memo(
-  forwardRef<TerminalRef, TerminalProps>(({ className, theme, readonly, onTerminalReady, onTerminalResize }, ref) => {
-    const terminalElementRef = useRef<HTMLDivElement>(null);
-    const terminalRef = useRef<XTerm>();
+  forwardRef<TerminalRef, TerminalProps>(
+    ({ className, theme, readonly, id, onTerminalReady, onTerminalResize }, ref) => {
+      const terminalElementRef = useRef<HTMLDivElement>(null);
+      const terminalRef = useRef<XTerm>();
 
-    useEffect(() => {
-      const element = terminalElementRef.current!;
+      useEffect(() => {
+        const element = terminalElementRef.current!;
 
-      const fitAddon = new FitAddon();
-      const webLinksAddon = new WebLinksAddon();
+        const fitAddon = new FitAddon();
+        const webLinksAddon = new WebLinksAddon();
 
-      const terminal = new XTerm({
-        cursorBlink: true,
-        convertEol: true,
-        disableStdin: readonly,
-        theme: getTerminalTheme(readonly ? { cursor: '#00000000' } : {}),
-        fontSize: 12,
-        fontFamily: 'Menlo, courier-new, courier, monospace',
-      });
+        const terminal = new XTerm({
+          cursorBlink: true,
+          convertEol: true,
+          disableStdin: readonly,
+          theme: getTerminalTheme(readonly ? { cursor: '#00000000' } : {}),
+          fontSize: 12,
+          fontFamily: 'Menlo, courier-new, courier, monospace',
+        });
 
-      terminalRef.current = terminal;
+        terminalRef.current = terminal;
 
-      terminal.loadAddon(fitAddon);
-      terminal.loadAddon(webLinksAddon);
-      terminal.open(element);
+        terminal.loadAddon(fitAddon);
+        terminal.loadAddon(webLinksAddon);
+        terminal.open(element);
 
-      const resizeObserver = new ResizeObserver(() => {
-        fitAddon.fit();
-        onTerminalResize?.(terminal.cols, terminal.rows);
-      });
+        const resizeObserver = new ResizeObserver(() => {
+          fitAddon.fit();
+          onTerminalResize?.(terminal.cols, terminal.rows);
+        });
 
-      resizeObserver.observe(element);
+        resizeObserver.observe(element);
 
-      logger.info('Attach terminal');
+        logger.debug(`Attach [${id}]`);
 
-      onTerminalReady?.(terminal);
+        onTerminalReady?.(terminal);
 
-      return () => {
-        resizeObserver.disconnect();
-        terminal.dispose();
-      };
-    }, []);
+        return () => {
+          resizeObserver.disconnect();
+          terminal.dispose();
+        };
+      }, []);
 
-    useEffect(() => {
-      const terminal = terminalRef.current!;
+      useEffect(() => {
+        const terminal = terminalRef.current!;
 
-      // we render a transparent cursor in case the terminal is readonly
-      terminal.options.theme = getTerminalTheme(readonly ? { cursor: '#00000000' } : {});
+        // we render a transparent cursor in case the terminal is readonly
+        terminal.options.theme = getTerminalTheme(readonly ? { cursor: '#00000000' } : {});
 
-      terminal.options.disableStdin = readonly;
-    }, [theme, readonly]);
+        terminal.options.disableStdin = readonly;
+      }, [theme, readonly]);
 
-    useImperativeHandle(ref, () => {
-      return {
-        reloadStyles: () => {
-          const terminal = terminalRef.current!;
-          terminal.options.theme = getTerminalTheme(readonly ? { cursor: '#00000000' } : {});
-        },
-      };
-    }, []);
+      useImperativeHandle(ref, () => {
+        return {
+          reloadStyles: () => {
+            const terminal = terminalRef.current!;
+            terminal.options.theme = getTerminalTheme(readonly ? { cursor: '#00000000' } : {});
+          },
+        };
+      }, []);
 
-    return <div className={className} ref={terminalElementRef} />;
-  }),
+      return <div className={className} ref={terminalElementRef} />;
+    },
+  ),
 );

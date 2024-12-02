@@ -1,11 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck – TODO: Provider proper types
-
 import { convertToCoreMessages, streamText as _streamText } from 'ai';
 import { getModel } from '~/lib/.server/llm/model';
 import { MAX_TOKENS } from './constants';
 import { getSystemPrompt } from './prompts';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, MODEL_LIST, MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
+import { DEFAULT_MODEL, DEFAULT_PROVIDER, getModelList, MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
 
 interface ToolResult<Name extends string, Args, Result> {
   toolCallId: string;
@@ -32,7 +29,7 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
 
   // Extract provider
   const providerMatch = message.content.match(PROVIDER_REGEX);
-  const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER;
+  const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER.name;
 
   // Remove model and provider lines from content
   const cleanedContent = message.content.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '').trim();
@@ -40,10 +37,10 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
   return { model, provider, content: cleanedContent };
 }
 
-export function streamText(messages: Messages, env: Env, options?: StreamingOptions, apiKeys?: Record<string, string>) {
+export async function streamText(messages: Messages, env: Env, options?: StreamingOptions,apiKeys?: Record<string, string>) {
   let currentModel = DEFAULT_MODEL;
-  let currentProvider = DEFAULT_PROVIDER;
-
+  let currentProvider = DEFAULT_PROVIDER.name;
+  const MODEL_LIST = await getModelList(apiKeys||{});   
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
       const { model, provider, content } = extractPropertiesFromMessage(message);
@@ -51,7 +48,6 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
       if (MODEL_LIST.find((m) => m.name === model)) {
         currentModel = model;
       }
-
       currentProvider = provider;
 
       return { ...message, content };
@@ -65,10 +61,10 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
   const dynamicMaxTokens = modelDetails && modelDetails.maxTokenAllowed ? modelDetails.maxTokenAllowed : MAX_TOKENS;
 
   return _streamText({
-    model: getModel(currentProvider, currentModel, env, apiKeys),
+    model: getModel(currentProvider, currentModel, env, apiKeys) as any,
     system: getSystemPrompt(),
     maxTokens: dynamicMaxTokens,
-    messages: convertToCoreMessages(processedMessages),
+    messages: convertToCoreMessages(processedMessages as any),
     ...options,
   });
 }

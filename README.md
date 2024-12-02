@@ -8,6 +8,8 @@ Join the community for oTToDev!
 
 https://thinktank.ottomator.ai
 
+Check the [oTToDev Docs](https://coleam00.github.io/bolt.new-any-llm/) for more information.
+
 # Requested Additions to this Fork - Feel Free to Contribute!!
 
 - ✅ OpenRouter Integration (@coleam00)

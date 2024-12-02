@@ -59,6 +59,14 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
             workbenchStore.showWorkbench.set(!showWorkbench);
           }}
         >
+          {artifact.type == 'bundled' && (
+            <>
+              <div className="p-4">
+                <div className={'i-ph:files-light'} style={{ fontSize: '2rem' }}></div>
+              </div>
+              <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />
+            </>
+          )}
           <div className="px-5 p-3.5 w-full text-left">
             <div className="w-full text-bolt-elements-textPrimary font-medium leading-5 text-sm">{artifact?.title}</div>
             <div className="w-full w-full text-bolt-elements-textSecondary text-xs mt-0.5">Click to open Workbench</div>
@@ -66,7 +74,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
         </button>
         <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />
         <AnimatePresence>
-          {actions.length && (
+          {actions.length && artifact.type !== 'bundled' && (
             <motion.button
               initial={{ width: 0 }}
               animate={{ width: 'auto' }}
@@ -83,7 +91,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
         </AnimatePresence>
       </div>
       <AnimatePresence>
-        {showActions && actions.length > 0 && (
+        {artifact.type !== 'bundled' && showActions && actions.length > 0 && (
           <motion.div
             className="actions"
             initial={{ height: 0 }}
@@ -92,6 +100,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
             transition={{ duration: 0.15 }}
           >
             <div className="bg-bolt-elements-artifacts-borderColor h-[1px]" />
+
             <div className="p-5 text-left bg-bolt-elements-actions-background">
               <ActionList actions={actions} />
             </div>

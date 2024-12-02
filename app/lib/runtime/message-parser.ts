@@ -192,6 +192,7 @@ export class StreamingMessageParser {
               const artifactTag = input.slice(i, openTagEnd + 1);
 
               const artifactTitle = this.#extractAttribute(artifactTag, 'title') as string;
+              const type = this.#extractAttribute(artifactTag, 'type') as string;
               const artifactId = this.#extractAttribute(artifactTag, 'id') as string;
 
               if (!artifactTitle) {
@@ -207,6 +208,7 @@ export class StreamingMessageParser {
               const currentArtifact = {
                 id: artifactId,
                 title: artifactTitle,
+                type,
               } satisfies BoltArtifactData;
 
               state.currentArtifact = currentArtifact;

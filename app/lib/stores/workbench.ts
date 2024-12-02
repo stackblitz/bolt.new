@@ -18,6 +18,7 @@ import { extractRelativePath } from '~/utils/diff';
 export interface ArtifactState {
   id: string;
   title: string;
+  type?: string;
   closed: boolean;
   runner: ActionRunner;
 }
@@ -229,7 +230,7 @@ export class WorkbenchStore {
     // TODO: what do we wanna do and how do we wanna recover from this?
   }
 
-  addArtifact({ messageId, title, id }: ArtifactCallbackData) {
+  addArtifact({ messageId, title, id,type }: ArtifactCallbackData) {
     const artifact = this.#getArtifact(messageId);
 
     if (artifact) {
@@ -244,6 +245,7 @@ export class WorkbenchStore {
       id,
       title,
       closed: false,
+      type,
       runner: new ActionRunner(webcontainer, () => this.boltTerminal),
     });
   }

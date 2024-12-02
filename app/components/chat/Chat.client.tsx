@@ -6,18 +6,19 @@ import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
+import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
 import Cookies from 'js-cookie';
 import type { ProviderInfo } from '~/utils/types';
+import { debounce } from '~/utils/debounce';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -121,6 +122,7 @@ export const ChatImpl = memo(
         logger.debug('Finished streaming');
       },
       initialMessages,
+      initialInput: Cookies.get(PROMPT_COOKIE_KEY) || '',
     });
 
     const { enhancingPrompt, promptEnhanced, enhancePrompt, resetEnhancer } = usePromptEnhancer();
@@ -248,6 +250,7 @@ export const ChatImpl = memo(
       }
 
       setInput('');
+      Cookies.remove(PROMPT_COOKIE_KEY);
 
       // Add file cleanup here
       setUploadedFiles([]);
@@ -257,6 +260,27 @@ export const ChatImpl = memo(
 
       textareaRef.current?.blur();
     };
+
+    /**
+     * Handles the change event for the textarea and updates the input state.
+     * @param event - The change event from the textarea.
+     */
+    const onTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      handleInputChange(event);
+    };
+
+    /**
+     * Debounced function to cache the prompt in cookies.
+     * Caches the trimmed value of the textarea input after a delay to optimize performance.
+     */
+    const debouncedCachePrompt = useCallback(
+      debounce((event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const trimmedValue = event.target.value.trim();
+        Cookies.set(PROMPT_COOKIE_KEY, trimmedValue, { expires: 30 });
+      }, 1000),
+      [],
+    );
+
     const [messageRef, scrollRef] = useSnapScroll();
 
     useEffect(() => {
@@ -294,7 +318,10 @@ export const ChatImpl = memo(
         setProvider={handleProviderChange}
         messageRef={messageRef}
         scrollRef={scrollRef}
-        handleInputChange={handleInputChange}
+        handleInputChange={(e) => {
+          onTextareaChange(e);
+          debouncedCachePrompt(e);
+        }}
         handleStop={abort}
         description={description}
         importChat={importChat}

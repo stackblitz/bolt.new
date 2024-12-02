@@ -151,6 +151,8 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
       return getGoogleModel(apiKey, model);
     case 'OpenAILike':
       return getOpenAILikeModel(baseURL, apiKey, model);
+    case 'Together':
+      return getOpenAILikeModel(baseURL, apiKey, model);
     case 'Deepseek':
       return getDeepseekModel(apiKey, model);
     case 'Mistral':

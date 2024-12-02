@@ -35,6 +35,8 @@ export function getAPIKey(cloudflareEnv: Env, provider: string, userApiKeys?: Re
       return env.MISTRAL_API_KEY || cloudflareEnv.MISTRAL_API_KEY;
     case 'OpenAILike':
       return env.OPENAI_LIKE_API_KEY || cloudflareEnv.OPENAI_LIKE_API_KEY;
+    case 'Together':
+      return env.TOGETHER_API_KEY || cloudflareEnv.TOGETHER_API_KEY;
     case 'xAI':
       return env.XAI_API_KEY || cloudflareEnv.XAI_API_KEY;
     case 'Cohere':
@@ -48,6 +50,8 @@ export function getAPIKey(cloudflareEnv: Env, provider: string, userApiKeys?: Re
 
 export function getBaseURL(cloudflareEnv: Env, provider: string) {
   switch (provider) {
+    case 'Together':
+      return env.TOGETHER_API_BASE_URL || cloudflareEnv.TOGETHER_API_BASE_URL;
     case 'OpenAILike':
       return env.OPENAI_LIKE_API_BASE_URL || cloudflareEnv.OPENAI_LIKE_API_BASE_URL;
     case 'LMStudio':

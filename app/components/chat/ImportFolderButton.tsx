@@ -156,7 +156,7 @@ ${fileArtifacts.join('\n\n')}
         }}
         className={className}
       >
-        <div className="i-ph:folder-simple-upload" />
+        <div className="i-ph:upload-simple" />
         Import Folder
       </button>
     </>

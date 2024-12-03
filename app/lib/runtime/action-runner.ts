@@ -101,8 +101,9 @@ export class ActionRunner {
         console.error('Action failed:', error);
       });
 
-    // eslint-disable-next-line consistent-return -- TODO: fix this consistent-return error
-    return this.#currentExecutionPromise;
+    await this.#currentExecutionPromise;
+
+    return;
   }
 
   async #executeAction(actionId: string, isStreaming: boolean = false) {

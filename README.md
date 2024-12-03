@@ -34,6 +34,7 @@ https://thinktank.ottomator.ai
 - ✅ Ability to revert code to earlier version (@wonderwhy-er)
 - ✅ Cohere Integration (@hasanraiyan)
 - ✅ Dynamic model max token length (@hasanraiyan)
+- ✅ Better prompt enhancing (@SujalXplores)
 - ✅ Prompt caching (@SujalXplores)
 - ✅ Load local projects into the app (@wonderwhy-er)
 - ✅ Together Integration (@mouimet-infinisoft)

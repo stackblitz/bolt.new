@@ -34,7 +34,7 @@ export function ChatDescription() {
           />
           <TooltipProvider>
             <WithTooltip tooltip="Save title">
-              <div className="flex justify-between items-center p-2 rounded-md bg-bolt-elements-background-depth-3">
+              <div className="flex justify-between items-center p-2 rounded-md bg-bolt-elements-item-backgroundAccent">
                 <button
                   type="submit"
                   className="i-ph:check-bold scale-110 hover:text-bolt-elements-item-contentAccent"
@@ -49,7 +49,7 @@ export function ChatDescription() {
           {currentDescription}
           <TooltipProvider>
             <WithTooltip tooltip="Rename chat">
-              <div className="flex justify-between items-center p-2 rounded-md bg-bolt-elements-background-depth-3 ml-2">
+              <div className="flex justify-between items-center p-2 rounded-md bg-bolt-elements-item-backgroundAccent ml-2">
                 <button
                   type="button"
                   className="i-ph:pencil-fill scale-110 hover:text-bolt-elements-item-contentAccent"

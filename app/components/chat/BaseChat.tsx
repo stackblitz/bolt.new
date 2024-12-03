@@ -351,9 +351,41 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 >
                   <textarea
                     ref={textareaRef}
-                    className={
-                      'w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm'
-                    }
+                    className={classNames(
+                      'w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
+                      'transition-all duration-200',
+                      'hover:border-bolt-elements-focus',
+                    )}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.border = '2px solid #1488fc';
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.border = '2px solid #1488fc';
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+
+                      const files = Array.from(e.dataTransfer.files);
+                      files.forEach((file) => {
+                        if (file.type.startsWith('image/')) {
+                          const reader = new FileReader();
+
+                          reader.onload = (e) => {
+                            const base64Image = e.target?.result as string;
+                            setUploadedFiles?.([...uploadedFiles, file]);
+                            setImageDataList?.([...imageDataList, base64Image]);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      });
+                    }}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {

@@ -1,14 +1,16 @@
 import type { WebContainer } from '@webcontainer/api';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { webcontainer as webcontainerPromise } from '~/lib/webcontainer';
 import git, { type PromiseFsClient } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web';
 import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
 
 export function useGit() {
   const [ready, setReady] = useState(false);
   const [webcontainer, setWebcontainer] = useState<WebContainer>();
   const [fs, setFs] = useState<PromiseFsClient>();
+  const fileData = useRef<Record<string, { data: any; encoding?: string }>>({});
   const lookupSavedPassword: (url: string) => any | null = (url: string) => {
     try {
       // Save updated API keys to cookies with 30 day expiry and secure settings
@@ -30,8 +32,9 @@ export function useGit() {
   };
   useEffect(() => {
     webcontainerPromise.then((container) => {
+      fileData.current = {};
       setWebcontainer(container);
-      setFs(getFs(container));
+      setFs(getFs(container, fileData));
       setReady(true);
     });
   }, []);
@@ -39,10 +42,11 @@ export function useGit() {
   const gitClone = useCallback(
     async (url: string) => {
       if (!webcontainer || !fs || !ready) {
-        return;
+        throw 'Webcontainer not initialized';
       }
 
-      const repo = await git.clone({
+      fileData.current = {};
+      await git.clone({
         fs,
         http,
         dir: webcontainer.workdir,
@@ -51,6 +55,8 @@ export function useGit() {
         singleBranch: true,
         corsProxy: 'https://cors.isomorphic-git.org',
         onAuth: (url) => {
+          // let domain=url.split("/")[2]
+
           let auth = lookupSavedPassword(url);
 
           if (auth) {
@@ -67,8 +73,18 @@ export function useGit() {
             return { cancel: true };
           }
         },
+        onAuthFailure: (url, _auth) => {
+          toast.error(`Error Authenticating with ${url.split('/')[2]}`);
+        },
       });
-      console.log(repo);
+
+      const data: Record<string, { data: any; encoding?: string }> = {};
+
+      for (const [key, value] of Object.entries(fileData.current)) {
+        data[key] = value;
+      }
+
+      return { workdir: webcontainer.workdir, data };
     },
     [webcontainer],
   );
@@ -76,7 +92,10 @@ export function useGit() {
   return { ready, gitClone };
 }
 
-const getFs: (c: WebContainer) => PromiseFsClient = (webcontainer: WebContainer) => ({
+const getFs = (
+  webcontainer: WebContainer,
+  record: MutableRefObject<Record<string, { data: any; encoding?: string }>>,
+) => ({
   promises: {
     readFile: async (path: string, options: any) => {
       const encoding = options.encoding;
@@ -89,6 +108,10 @@ const getFs: (c: WebContainer) => PromiseFsClient = (webcontainer: WebContainer)
       const encoding = options.encoding;
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
       console.log('writeFile', { relativePath, data, encoding });
+
+      if (record.current) {
+        record.current[relativePath] = { data, encoding };
+      }
 
       return await webcontainer.fs.writeFile(relativePath, data, { ...options, encoding });
     },
@@ -162,7 +185,7 @@ const getFs: (c: WebContainer) => PromiseFsClient = (webcontainer: WebContainer)
        * For basic usage, lstat can return the same as stat
        * since we're not handling symbolic links
        */
-      return await getFs(webcontainer).promises.stat(path);
+      return await getFs(webcontainer, record).promises.stat(path);
     },
 
     readlink: async (path: string) => {

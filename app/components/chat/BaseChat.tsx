@@ -22,7 +22,6 @@ import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportCh
 import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import GitCloneButton from './GitCloneButton';
-import * as Separator from '@radix-ui/react-separator';
 
 // @ts-ignore TODO: Introduce proper types
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -256,11 +255,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       <span>Model Settings</span>
                     </button>
                   </div>
-
-                  <GitCloneButton />
-                  <Separator.Root className="my-[15px] bg-gray6 data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px" />
-                  <div className="flex items-center gap-3"></div>
-
                   <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
                     <ModelSelector
                       key={provider?.name + ':' + modelList.length}
@@ -367,7 +361,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 </div>
               </div>
             </div>
-            {!chatStarted && ImportButtons(importChat)}
+            {!chatStarted && (
+              <div className="flex justify-center gap-2">
+                {ImportButtons(importChat)}
+                <GitCloneButton importChat={importChat} />
+              </div>
+            )}
             {!chatStarted && ExamplePrompts(sendMessage)}
           </div>
           <ClientOnly>{() => <Workbench chatStarted={chatStarted} isStreaming={isStreaming} />}</ClientOnly>

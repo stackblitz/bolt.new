@@ -100,6 +100,10 @@ export class ActionRunner {
       .catch((error) => {
         console.error('Action failed:', error);
       });
+
+    await this.#currentExecutionPromise;
+
+    return;
   }
 
   async #executeAction(actionId: string, isStreaming: boolean = false) {

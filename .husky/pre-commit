@@ -2,6 +2,9 @@
 
 echo "🔍 Running pre-commit hook to check the code looks good... 🔍"
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # Load nvm if you're using i
+
 if ! pnpm typecheck; then
     echo "❌ Type checking failed! Please review TypeScript types."
     echo "Once you're done, don't forget to add your changes to the commit! 🚀"

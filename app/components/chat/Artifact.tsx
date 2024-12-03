@@ -7,6 +7,7 @@ import type { ActionState } from '~/lib/runtime/action-runner';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
+import { WORK_DIR } from '~/utils/constants';
 
 const highlighterOptions = {
   langs: ['shell'],
@@ -129,6 +130,14 @@ const actionVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
+function openArtifactInWorkbench(filePath: any) {
+  if (workbenchStore.currentView.get() !== 'code') {
+    workbenchStore.currentView.set('code');
+  }
+
+  workbenchStore.setSelectedFile(`${WORK_DIR}/${filePath}`);
+}
+
 const ActionList = memo(({ actions }: ActionListProps) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
@@ -169,7 +178,10 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                 {type === 'file' ? (
                   <div>
                     Create{' '}
-                    <code className="bg-bolt-elements-artifacts-inlineCode-background text-bolt-elements-artifacts-inlineCode-text px-1.5 py-1 rounded-md">
+                    <code
+                      className="bg-bolt-elements-artifacts-inlineCode-background text-bolt-elements-artifacts-inlineCode-text px-1.5 py-1 rounded-md text-bolt-elements-item-contentAccent hover:underline cursor-pointer"
+                      onClick={() => openArtifactInWorkbench(action.filePath)}
+                    >
                       {action.filePath}
                     </code>
                   </div>

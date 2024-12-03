@@ -2,13 +2,13 @@ import { motion, type Variants } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
-import { IconButton } from '~/components/ui/IconButton';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
-import { db, deleteById, getAll, chatId, type ChatHistoryItem } from '~/lib/persistence';
+import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
 import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
 import { binDates } from './date-binning';
+import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 
 const menuVariants = {
   closed: {
@@ -34,10 +34,16 @@ const menuVariants = {
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
 export function Menu() {
+  const { duplicateCurrentChat, exportChat } = useChatHistory();
   const menuRef = useRef<HTMLDivElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
+
+  const { filteredItems: filteredList, handleSearchChange } = useSearchFilter({
+    items: list,
+    searchFields: ['description'],
+  });
 
   const loadEntries = useCallback(() => {
     if (db) {
@@ -99,17 +105,27 @@ export function Menu() {
     };
   }, []);
 
+  const handleDeleteClick = (event: React.UIEvent, item: ChatHistoryItem) => {
+    event.preventDefault();
+    setDialogContent({ type: 'delete', item });
+  };
+
+  const handleDuplicate = async (id: string) => {
+    await duplicateCurrentChat(id);
+    loadEntries(); // Reload the list after duplication
+  };
+
   return (
     <motion.div
       ref={menuRef}
       initial="closed"
       animate={open ? 'open' : 'closed'}
       variants={menuVariants}
-      className="flex flex-col side-menu fixed top-0 w-[350px] h-full bg-bolt-elements-background-depth-2 border-r rounded-r-3xl border-bolt-elements-borderColor z-sidebar shadow-xl shadow-bolt-elements-sidebar-dropdownShadow text-sm"
+      className="flex selection-accent flex-col side-menu fixed top-0 w-[350px] h-full bg-bolt-elements-background-depth-2 border-r rounded-r-3xl border-bolt-elements-borderColor z-sidebar shadow-xl shadow-bolt-elements-sidebar-dropdownShadow text-sm"
     >
       <div className="flex items-center h-[var(--header-height)]">{/* Placeholder */}</div>
       <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
-        <div className="p-4">
+        <div className="p-4 select-none">
           <a
             href="/"
             className="flex gap-2 items-center bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme"
@@ -118,17 +134,38 @@ export function Menu() {
             Start new chat
           </a>
         </div>
+        <div className="pl-4 pr-4 my-2">
+          <div className="relative w-full">
+            <input
+              className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1.5 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor"
+              type="search"
+              placeholder="Search"
+              onChange={handleSearchChange}
+              aria-label="Search chats"
+            />
+          </div>
+        </div>
         <div className="text-bolt-elements-textPrimary font-medium pl-6 pr-5 my-2">Your Chats</div>
-        <div className="flex-1 overflow-scroll pl-4 pr-5 pb-5">
-          {list.length === 0 && <div className="pl-2 text-bolt-elements-textTertiary">No previous conversations</div>}
+        <div className="flex-1 overflow-auto pl-4 pr-5 pb-5">
+          {filteredList.length === 0 && (
+            <div className="pl-2 text-bolt-elements-textTertiary">
+              {list.length === 0 ? 'No previous conversations' : 'No matches found'}
+            </div>
+          )}
           <DialogRoot open={dialogContent !== null}>
-            {binDates(list).map(({ category, items }) => (
+            {binDates(filteredList).map(({ category, items }) => (
               <div key={category} className="mt-4 first:mt-0 space-y-1">
                 <div className="text-bolt-elements-textTertiary sticky top-0 z-1 bg-bolt-elements-background-depth-2 pl-2 pt-2 pb-1">
                   {category}
                 </div>
                 {items.map((item) => (
-                  <HistoryItem key={item.id} item={item} onDelete={() => setDialogContent({ type: 'delete', item })} />
+                  <HistoryItem
+                    key={item.id}
+                    item={item}
+                    exportChat={exportChat}
+                    onDelete={(event) => handleDeleteClick(event, item)}
+                    onDuplicate={() => handleDuplicate(item.id)}
+                  />
                 ))}
               </div>
             ))}

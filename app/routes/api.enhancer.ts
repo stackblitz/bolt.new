@@ -2,7 +2,7 @@ import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { StreamingTextResponse, parseStreamPart } from 'ai';
 import { streamText } from '~/lib/.server/llm/stream-text';
 import { stripIndents } from '~/utils/stripIndent';
-import type { StreamingOptions } from '~/lib/.server/llm/stream-text';
+import type { ProviderInfo } from '~/types/model';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -12,25 +12,27 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 async function enhancerAction({ context, request }: ActionFunctionArgs) {
-  const { message, model, provider, apiKeys } = await request.json<{ 
+  const { message, model, provider, apiKeys } = await request.json<{
     message: string;
     model: string;
-    provider: string;
+    provider: ProviderInfo;
     apiKeys?: Record<string, string>;
   }>();
 
-  // Validate 'model' and 'provider' fields
+  const { name: providerName } = provider;
+
+  // validate 'model' and 'provider' fields
   if (!model || typeof model !== 'string') {
     throw new Response('Invalid or missing model', {
       status: 400,
-      statusText: 'Bad Request'
+      statusText: 'Bad Request',
     });
   }
 
-  if (!provider || typeof provider !== 'string') {
+  if (!providerName || typeof providerName !== 'string') {
     throw new Response('Invalid or missing provider', {
       status: 400,
-      statusText: 'Bad Request'
+      statusText: 'Bad Request',
     });
   }
 
@@ -39,10 +41,31 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       [
         {
           role: 'user',
-          content: `[Model: ${model}]\n\n[Provider: ${provider}]\n\n` + stripIndents`
+          content:
+            `[Model: ${model}]\n\n[Provider: ${providerName}]\n\n` +
+            stripIndents`
+            You are a professional prompt engineer specializing in crafting precise, effective prompts.
+          Your task is to enhance prompts by making them more specific, actionable, and effective.
+
           I want you to improve the user prompt that is wrapped in \`<original_prompt>\` tags.
 
-          IMPORTANT: Only respond with the improved prompt and nothing else!
+          For valid prompts:
+          - Make instructions explicit and unambiguous
+          - Add relevant context and constraints
+          - Remove redundant information
+          - Maintain the core intent
+          - Ensure the prompt is self-contained
+          - Use professional language
+
+          For invalid or unclear prompts:
+          - Respond with a clear, professional guidance message
+          - Keep responses concise and actionable
+          - Maintain a helpful, constructive tone
+          - Focus on what the user should provide
+          - Use a standard template for consistency
+
+          IMPORTANT: Your response must ONLY contain the enhanced prompt text.
+          Do not include any explanations, metadata, or wrapper tags.
 
           <original_prompt>
             ${message}
@@ -52,29 +75,30 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       ],
       context.cloudflare.env,
       undefined,
-      apiKeys
+      apiKeys,
     );
 
     const transformStream = new TransformStream({
       transform(chunk, controller) {
         const text = decoder.decode(chunk);
-        const lines = text.split('\n').filter(line => line.trim() !== '');
-        
+        const lines = text.split('\n').filter((line) => line.trim() !== '');
+
         for (const line of lines) {
           try {
             const parsed = parseStreamPart(line);
+
             if (parsed.type === 'text') {
               controller.enqueue(encoder.encode(parsed.value));
             }
           } catch (e) {
-            // Skip invalid JSON lines
-            console.warn('Failed to parse stream part:', line);
+            // skip invalid JSON lines
+            console.warn('Failed to parse stream part:', line, e);
           }
         }
       },
     });
 
-    const transformedStream = result.toAIStream().pipeThrough(transformStream);
+    const transformedStream = result.toDataStream().pipeThrough(transformStream);
 
     return new StreamingTextResponse(transformedStream);
   } catch (error: unknown) {
@@ -83,7 +107,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
     if (error instanceof Error && error.message?.includes('API key')) {
       throw new Response('Invalid or missing API key', {
         status: 401,
-        statusText: 'Unauthorized'
+        statusText: 'Unauthorized',
       });
     }
 

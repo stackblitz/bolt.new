@@ -1,6 +1,6 @@
 import { createTwoFilesPatch } from 'diff';
 import type { FileMap } from '~/lib/stores/files';
-import { MODIFICATIONS_TAG_NAME } from './constants';
+import { MODIFICATIONS_TAG_NAME, WORK_DIR } from './constants';
 
 export const modificationsRegex = new RegExp(
   `^<${MODIFICATIONS_TAG_NAME}>[\\s\\S]*?<\\/${MODIFICATIONS_TAG_NAME}>\\s+`,
@@ -73,6 +73,15 @@ export function diffFiles(fileName: string, oldFileContent: string, newFileConte
   }
 
   return unifiedDiff;
+}
+
+const regex = new RegExp(`^${WORK_DIR}\/`);
+
+/**
+ * Strips out the work directory from the file path.
+ */
+export function extractRelativePath(filePath: string) {
+  return filePath.replace(regex, '');
 }
 
 /**

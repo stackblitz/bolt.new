@@ -50,7 +50,7 @@ export default function GitCloneButton({ importChat }: GitCloneButtonProps) {
         const message: Message = {
           role: 'assistant',
           content: `Cloning the repo ${repoUrl} into ${workdir}
-<boltArtifact id="imported-files" title="Git Cloned Files">          
+<boltArtifact id="imported-files" title="Git Cloned Files" type="bundled" >           
           ${filePaths
             .map((filePath) => {
               const { data: content, encoding } = data[filePath];

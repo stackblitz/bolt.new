@@ -1,3 +1,4 @@
+import { useStore } from '@nanostores/react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import {
@@ -43,10 +44,15 @@ export function useEditChatDescription({
   customChatId,
   syncWithGlobalStore,
 }: EditChatDescriptionOptions): EditChatDescriptionHook {
-  const chatId = (customChatId || chatIdStore.get()) as string;
+  const chatIdFromStore = useStore(chatIdStore);
   const [editing, setEditing] = useState(false);
   const [currentDescription, setCurrentDescription] = useState(initialDescription);
 
+  const [chatId, setChatId] = useState<string>();
+
+  useEffect(() => {
+    setChatId(customChatId || chatIdFromStore);
+  }, [customChatId, chatIdFromStore]);
   useEffect(() => {
     setCurrentDescription(initialDescription);
   }, [initialDescription]);
@@ -112,6 +118,11 @@ export function useEditChatDescription({
       try {
         if (!db) {
           toast.error('Chat persistence is not available');
+          return;
+        }
+
+        if (!chatId) {
+          toast.error('Chat Id is not available');
           return;
         }
 

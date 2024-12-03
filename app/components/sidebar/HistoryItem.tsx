@@ -57,7 +57,7 @@ export function HistoryItem({ item, onDelete, onDuplicate, exportChat }: History
           <div
             className={classNames(
               'absolute right-0 z-1 top-0 bottom-0 bg-gradient-to-l from-bolt-elements-background-depth-2 group-hover:from-bolt-elements-background-depth-3 box-content pl-3 to-transparent w-10 flex justify-end group-hover:w-22 group-hover:from-99%',
-              { 'from-bolt-elements-background-depth-3 w-22 from-99%': isActiveChat },
+              { 'from-bolt-elements-background-depth-3 w-10 ': isActiveChat },
             )}
           >
             <div className="flex items-center p-1 text-bolt-elements-textSecondary opacity-0 group-hover:opacity-100 transition-opacity">

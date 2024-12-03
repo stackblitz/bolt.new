@@ -231,7 +231,7 @@ export class WorkbenchStore {
     // TODO: what do we wanna do and how do we wanna recover from this?
   }
 
-  addArtifact({ messageId, title, id,type }: ArtifactCallbackData) {
+  addArtifact({ messageId, title, id, type }: ArtifactCallbackData) {
     const artifact = this.#getArtifact(messageId);
 
     if (artifact) {

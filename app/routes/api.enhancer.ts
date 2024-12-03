@@ -44,7 +44,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
           content:
             `[Model: ${model}]\n\n[Provider: ${providerName}]\n\n` +
             stripIndents`
-          You are a professional prompt engineer specializing in crafting precise, effective prompts.
+            You are a professional prompt engineer specializing in crafting precise, effective prompts.
           Your task is to enhance prompts by making them more specific, actionable, and effective.
 
           I want you to improve the user prompt that is wrapped in \`<original_prompt>\` tags.

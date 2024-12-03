@@ -9,7 +9,7 @@ if ! pnpm typecheck; then
 fi
 
 if ! pnpm lint; then
-    echo "❌ Linting failed! 'pnpm lint:check' will help you fix the easy ones."
+    echo "❌ Linting failed! 'pnpm lint:fix' will help you fix the easy ones."
     echo "Once you're done, don't forget to add your beautification to the commit! 🤩"
     exit 1
 fi

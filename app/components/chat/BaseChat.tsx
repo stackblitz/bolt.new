@@ -1,45 +1,43 @@
-// @ts-nocheck
-// Preventing TS checks with files presented in the video for a better presentation.
+/*
+ * @ts-nocheck
+ * Preventing TS checks with files presented in the video for a better presentation.
+ */
 import type { Message } from 'ai';
-import React, { type RefCallback, useEffect } from 'react';
+import React, { type RefCallback, useEffect, useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import { MODEL_LIST, DEFAULT_PROVIDER, PROVIDER_LIST, initializeModelList } from '~/utils/constants';
+import { MODEL_LIST, PROVIDER_LIST, initializeModelList } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
-import { useState } from 'react';
 import { APIKeyManager } from './APIKeyManager';
 import Cookies from 'js-cookie';
+import * as Tooltip from '@radix-ui/react-tooltip';
 
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
+import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportChatButton';
+import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
+import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 
-const EXAMPLE_PROMPTS = [
-  { text: 'Build a todo app in React using Tailwind' },
-  { text: 'Build a simple blog using Astro' },
-  { text: 'Create a cookie consent form using Material UI' },
-  { text: 'Make a space invaders game' },
-  { text: 'How do I center a div?' },
-];
-
-const providerList = PROVIDER_LIST;
-
+// @ts-ignore TODO: Introduce proper types
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList, apiKeys }) => {
   return (
     <div className="mb-2 flex gap-2 flex-col sm:flex-row">
       <select
         value={provider?.name}
         onChange={(e) => {
-          setProvider(providerList.find((p) => p.name === e.target.value));
+          setProvider(providerList.find((p: ProviderInfo) => p.name === e.target.value));
+
           const firstModel = [...modelList].find((m) => m.provider == e.target.value);
           setModel(firstModel ? firstModel.name : '');
         }}
         className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
-        {providerList.map((provider) => (
+        {providerList.map((provider: ProviderInfo) => (
           <option key={provider.name} value={provider.name}>
             {provider.name}
           </option>
@@ -49,7 +47,7 @@ const ModelSelector = ({ model, setModel, provider, setProvider, modelList, prov
         key={provider?.name}
         value={model}
         onChange={(e) => setModel(e.target.value)}
-        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[70%] "
+        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[70%]"
       >
         {[...modelList]
           .filter((e) => e.provider == provider?.name && e.name)
@@ -73,6 +71,7 @@ interface BaseChatProps {
   chatStarted?: boolean;
   isStreaming?: boolean;
   messages?: Message[];
+  description?: string;
   enhancingPrompt?: boolean;
   promptEnhanced?: boolean;
   input?: string;
@@ -84,6 +83,8 @@ interface BaseChatProps {
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
+  importChat?: (description: string, messages: Message[]) => Promise<void>;
+  exportChat?: () => void;
 }
 
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
@@ -107,25 +108,31 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       handleInputChange,
       enhancePrompt,
       handleStop,
+      importChat,
+      exportChat,
     },
     ref,
   ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState(MODEL_LIST);
+    const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
 
     useEffect(() => {
       // Load API keys from cookies on component mount
       try {
         const storedApiKeys = Cookies.get('apiKeys');
+
         if (storedApiKeys) {
           const parsedKeys = JSON.parse(storedApiKeys);
+
           if (typeof parsedKeys === 'object' && parsedKeys !== null) {
             setApiKeys(parsedKeys);
           }
         }
       } catch (error) {
         console.error('Error loading API keys from cookies:', error);
+
         // Clear invalid cookie data
         Cookies.remove('apiKeys');
       }
@@ -139,6 +146,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       try {
         const updatedApiKeys = { ...apiKeys, [provider]: key };
         setApiKeys(updatedApiKeys);
+
         // Save updated API keys to cookies with 30 day expiry and secure settings
         Cookies.set('apiKeys', JSON.stringify(updatedApiKeys), {
           expires: 30, // 30 days
@@ -151,7 +159,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       }
     };
 
-    return (
+    const baseChat = (
       <div
         ref={ref}
         className={classNames(
@@ -216,39 +224,58 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       gradientUnits="userSpaceOnUse"
                       gradientTransform="rotate(-45)"
                     >
-                      <stop offset="0%" stop-color="#1488fc" stop-opacity="0%"></stop>
-                      <stop offset="40%" stop-color="#1488fc" stop-opacity="80%"></stop>
-                      <stop offset="50%" stop-color="#1488fc" stop-opacity="80%"></stop>
-                      <stop offset="100%" stop-color="#1488fc" stop-opacity="0%"></stop>
+                      <stop offset="0%" stopColor="#1488fc" stopOpacity="0%"></stop>
+                      <stop offset="40%" stopColor="#1488fc" stopOpacity="80%"></stop>
+                      <stop offset="50%" stopColor="#1488fc" stopOpacity="80%"></stop>
+                      <stop offset="100%" stopColor="#1488fc" stopOpacity="0%"></stop>
                     </linearGradient>
                     <linearGradient id="shine-gradient">
-                      <stop offset="0%" stop-color="white" stop-opacity="0%"></stop>
-                      <stop offset="40%" stop-color="#8adaff" stop-opacity="80%"></stop>
-                      <stop offset="50%" stop-color="#8adaff" stop-opacity="80%"></stop>
-                      <stop offset="100%" stop-color="white" stop-opacity="0%"></stop>
+                      <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
+                      <stop offset="40%" stopColor="#8adaff" stopOpacity="80%"></stop>
+                      <stop offset="50%" stopColor="#8adaff" stopOpacity="80%"></stop>
+                      <stop offset="100%" stopColor="white" stopOpacity="0%"></stop>
                     </linearGradient>
                   </defs>
-                  <rect className={classNames(styles.PromptEffectLine)} pathLength="100" stroke-linecap="round"></rect>
+                  <rect className={classNames(styles.PromptEffectLine)} pathLength="100" strokeLinecap="round"></rect>
                   <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
                 </svg>
-                <ModelSelector
-                  key={provider?.name + ':' + modelList.length}
-                  model={model}
-                  setModel={setModel}
-                  modelList={modelList}
-                  provider={provider}
-                  setProvider={setProvider}
-                  providerList={PROVIDER_LIST}
-                  apiKeys={apiKeys}
-                />
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <button
+                      onClick={() => setIsModelSettingsCollapsed(!isModelSettingsCollapsed)}
+                      className={classNames('flex items-center gap-2 p-2 rounded-lg transition-all', {
+                        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
+                          isModelSettingsCollapsed,
+                        'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
+                          !isModelSettingsCollapsed,
+                      })}
+                    >
+                      <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
+                      <span>Model Settings</span>
+                    </button>
+                  </div>
 
-                {provider && (
-                  <APIKeyManager
-                    provider={provider}
-                    apiKey={apiKeys[provider.name] || ''}
-                    setApiKey={(key) => updateApiKey(provider.name, key)}
-                  />
-                )}
+
+                  <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
+                    <ModelSelector
+                      key={provider?.name + ':' + modelList.length}
+                      model={model}
+                      setModel={setModel}
+                      modelList={modelList}
+                      provider={provider}
+                      setProvider={setProvider}
+                      providerList={PROVIDER_LIST}
+                      apiKeys={apiKeys}
+                    />
+                    {provider && (
+                      <APIKeyManager
+                        provider={provider}
+                        apiKey={apiKeys[provider.name] || ''}
+                        setApiKey={(key) => updateApiKey(provider.name, key)}
+                      />
+                    )}
+                  </div>
+                </div>
 
                 <div
                   className={classNames(
@@ -257,7 +284,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 >
                   <textarea
                     ref={textareaRef}
-                    className={`w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm`}
+                    className={
+                      'w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm'
+                    }
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {
@@ -320,49 +349,27 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           </>
                         )}
                       </IconButton>
+                      {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
                     </div>
                     {input.length > 3 ? (
                       <div className="text-xs text-bolt-elements-textTertiary">
                         Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> +{' '}
-                        <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for
-                        a new line
+                        <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> a
+                        new line
                       </div>
                     ) : null}
                   </div>
                 </div>
               </div>
             </div>
-            {!chatStarted && (
-              <div
-                id="examples"
-                className="relative flex flex-col gap-9 w-full max-w-3xl mx-auto flex justify-center mt-6"
-              >
-                <div
-                  className="flex flex-wrap justify-center gap-2"
-                  style={{
-                    animation: '.25s ease-out 0s 1 _fade-and-move-in_g2ptj_1 forwards',
-                  }}
-                >
-                  {EXAMPLE_PROMPTS.map((examplePrompt, index) => {
-                    return (
-                      <button
-                        key={index}
-                        onClick={(event) => {
-                          sendMessage?.(event, examplePrompt.text);
-                        }}
-                        className="border border-bolt-elements-borderColor rounded-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-950 dark:hover:bg-gray-900 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary px-3 py-1 text-xs transition-theme"
-                      >
-                        {examplePrompt.text}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            {!chatStarted && ImportButtons(importChat)}
+            {!chatStarted && ExamplePrompts(sendMessage)}
           </div>
           <ClientOnly>{() => <Workbench chatStarted={chatStarted} isStreaming={isStreaming} />}</ClientOnly>
         </div>
       </div>
     );
+
+    return <Tooltip.Provider delayDuration={200}>{baseChat}</Tooltip.Provider>;
   },
 );

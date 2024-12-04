@@ -23,45 +23,8 @@ import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButto
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 
 import FilePreview from './FilePreview';
-
-// @ts-ignore TODO: Introduce proper types
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList, apiKeys }) => {
-  return (
-    <div className="mb-2 flex gap-2 flex-col sm:flex-row">
-      <select
-        value={provider?.name}
-        onChange={(e) => {
-          setProvider(providerList.find((p: ProviderInfo) => p.name === e.target.value));
-
-          const firstModel = [...modelList].find((m) => m.provider == e.target.value);
-          setModel(firstModel ? firstModel.name : '');
-        }}
-        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
-      >
-        {providerList.map((provider: ProviderInfo) => (
-          <option key={provider.name} value={provider.name}>
-            {provider.name}
-          </option>
-        ))}
-      </select>
-      <select
-        key={provider?.name}
-        value={model}
-        onChange={(e) => setModel(e.target.value)}
-        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[70%]"
-      >
-        {[...modelList]
-          .filter((e) => e.provider == provider?.name && e.name)
-          .map((modelOption) => (
-            <option key={modelOption.name} value={modelOption.name}>
-              {modelOption.label}
-            </option>
-          ))}
-      </select>
-    </div>
-  );
-};
+import { ModelSelector } from '~/components/chat/ModelSelector';
+import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -92,31 +55,6 @@ interface BaseChatProps {
   imageDataList?: string[];
   setImageDataList?: (dataList: string[]) => void;
 }
-
-const SpeechRecognitionButton = ({
-  isListening,
-  onStart,
-  onStop,
-  disabled,
-}: {
-  isListening: boolean;
-  onStart: () => void;
-  onStop: () => void;
-  disabled: boolean;
-}) => {
-  return (
-    <IconButton
-      title={isListening ? 'Stop listening' : 'Start speech recognition'}
-      disabled={disabled}
-      className={classNames('transition-all', {
-        'text-bolt-elements-item-contentAccent': isListening,
-      })}
-      onClick={isListening ? onStop : onStart}
-    >
-      {isListening ? <div className="i-ph:microphone-slash text-xl" /> : <div className="i-ph:microphone text-xl" />}
-    </IconButton>
-  );
-};
 
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
   (

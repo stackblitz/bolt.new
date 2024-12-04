@@ -32,8 +32,9 @@ function parseCookies(cookieHeader) {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{
+  const { messages, model } = await request.json<{
     messages: Messages;
+    model: string;
   }>();
 
   const cookieHeader = request.headers.get('Cookie');
@@ -47,6 +48,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const options: StreamingOptions = {
       toolChoice: 'none',
       apiKeys,
+      model,
       onFinish: async ({ text: content, finishReason }) => {
         if (finishReason !== 'length') {
           return stream.close();

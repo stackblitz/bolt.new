@@ -12,7 +12,6 @@ import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from
 import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { fileModificationsToHTML } from '~/utils/diff';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
@@ -89,8 +88,10 @@ export const ChatImpl = memo(
     useShortcuts();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-
     const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
+    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]); // Move here
+    const [imageDataList, setImageDataList] = useState<string[]>([]); // Move here
+
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');
       return savedModel || DEFAULT_MODEL;
@@ -206,8 +207,6 @@ export const ChatImpl = memo(
       runAnimation();
 
       if (fileModifications !== undefined) {
-        const diff = fileModificationsToHTML(fileModifications);
-
         /**
          * If we have file modifications we append a new user message manually since we have to prefix
          * the user input with the file modifications and we don't want the new user input to appear
@@ -215,7 +214,19 @@ export const ChatImpl = memo(
          * manually reset the input and we'd have to manually pass in file attachments. However, those
          * aren't relevant here.
          */
-        append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${diff}\n\n${_input}` });
+        append({
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${_input}`,
+            },
+            ...imageDataList.map((imageData) => ({
+              type: 'image',
+              image: imageData,
+            })),
+          ] as any, // Type assertion to bypass compiler check
+        });
 
         /**
          * After sending a new message we reset all modifications since the model
@@ -223,11 +234,27 @@ export const ChatImpl = memo(
          */
         workbenchStore.resetAllFileModifications();
       } else {
-        append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${_input}` });
+        append({
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${_input}`,
+            },
+            ...imageDataList.map((imageData) => ({
+              type: 'image',
+              image: imageData,
+            })),
+          ] as any, // Type assertion to bypass compiler check
+        });
       }
 
       setInput('');
       Cookies.remove(PROMPT_COOKIE_KEY);
+
+      // Add file cleanup here
+      setUploadedFiles([]);
+      setImageDataList([]);
 
       resetEnhancer();
 
@@ -321,6 +348,10 @@ export const ChatImpl = memo(
             apiKeys,
           );
         }}
+        uploadedFiles={uploadedFiles}
+        setUploadedFiles={setUploadedFiles}
+        imageDataList={imageDataList}
+        setImageDataList={setImageDataList}
       />
     );
   },

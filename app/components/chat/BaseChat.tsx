@@ -22,6 +22,8 @@ import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportCh
 import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 
+import FilePreview from './FilePreview';
+
 // @ts-ignore TODO: Introduce proper types
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList, apiKeys }) => {
@@ -85,8 +87,11 @@ interface BaseChatProps {
   enhancePrompt?: () => void;
   importChat?: (description: string, messages: Message[]) => Promise<void>;
   exportChat?: () => void;
+  uploadedFiles?: File[];
+  setUploadedFiles?: (files: File[]) => void;
+  imageDataList?: string[];
+  setImageDataList?: (dataList: string[]) => void;
 }
-
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
   (
     {
@@ -96,20 +101,24 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       showChat = true,
       chatStarted = false,
       isStreaming = false,
-      enhancingPrompt = false,
-      promptEnhanced = false,
-      messages,
-      input = '',
       model,
       setModel,
       provider,
       setProvider,
-      sendMessage,
+      input = '',
+      enhancingPrompt,
       handleInputChange,
+      promptEnhanced,
       enhancePrompt,
+      sendMessage,
       handleStop,
       importChat,
       exportChat,
+      uploadedFiles = [],
+      setUploadedFiles,
+      imageDataList = [],
+      setImageDataList,
+      messages,
     },
     ref,
   ) => {
@@ -156,6 +165,58 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         });
       } catch (error) {
         console.error('Error saving API keys to cookies:', error);
+      }
+    };
+
+    const handleFileUpload = () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+
+      input.onchange = async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+
+        if (file) {
+          const reader = new FileReader();
+
+          reader.onload = (e) => {
+            const base64Image = e.target?.result as string;
+            setUploadedFiles?.([...uploadedFiles, file]);
+            setImageDataList?.([...imageDataList, base64Image]);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      input.click();
+    };
+
+    const handlePaste = async (e: React.ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+
+      if (!items) {
+        return;
+      }
+
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+
+          const file = item.getAsFile();
+
+          if (file) {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+              const base64Image = e.target?.result as string;
+              setUploadedFiles?.([...uploadedFiles, file]);
+              setImageDataList?.([...imageDataList, base64Image]);
+            };
+            reader.readAsDataURL(file);
+          }
+
+          break;
+        }
       }
     };
 
@@ -276,7 +337,14 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     )}
                   </div>
                 </div>
-
+                <FilePreview
+                  files={uploadedFiles}
+                  imageDataList={imageDataList}
+                  onRemove={(index) => {
+                    setUploadedFiles?.(uploadedFiles.filter((_, i) => i !== index));
+                    setImageDataList?.(imageDataList.filter((_, i) => i !== index));
+                  }}
+                />
                 <div
                   className={classNames(
                     'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
@@ -284,9 +352,41 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 >
                   <textarea
                     ref={textareaRef}
-                    className={
-                      'w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm'
-                    }
+                    className={classNames(
+                      'w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
+                      'transition-all duration-200',
+                      'hover:border-bolt-elements-focus',
+                    )}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.border = '2px solid #1488fc';
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.border = '2px solid #1488fc';
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+
+                      const files = Array.from(e.dataTransfer.files);
+                      files.forEach((file) => {
+                        if (file.type.startsWith('image/')) {
+                          const reader = new FileReader();
+
+                          reader.onload = (e) => {
+                            const base64Image = e.target?.result as string;
+                            setUploadedFiles?.([...uploadedFiles, file]);
+                            setImageDataList?.([...imageDataList, base64Image]);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      });
+                    }}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         if (event.shiftKey) {
@@ -302,6 +402,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     onChange={(event) => {
                       handleInputChange?.(event);
                     }}
+                    onPaste={handlePaste}
                     style={{
                       minHeight: TEXTAREA_MIN_HEIGHT,
                       maxHeight: TEXTAREA_MAX_HEIGHT,
@@ -312,7 +413,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <ClientOnly>
                     {() => (
                       <SendButton
-                        show={input.length > 0 || isStreaming}
+                        show={input.length > 0 || isStreaming || uploadedFiles.length > 0}
                         isStreaming={isStreaming}
                         onClick={(event) => {
                           if (isStreaming) {
@@ -320,21 +421,28 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                             return;
                           }
 
-                          sendMessage?.(event);
+                          if (input.length > 0 || uploadedFiles.length > 0) {
+                            sendMessage?.(event);
+                          }
                         }}
                       />
                     )}
                   </ClientOnly>
                   <div className="flex justify-between items-center text-sm p-4 pt-2">
                     <div className="flex gap-1 items-center">
+                      <IconButton title="Upload file" className="transition-all" onClick={() => handleFileUpload()}>
+                        <div className="i-ph:paperclip text-xl"></div>
+                      </IconButton>
                       <IconButton
                         title="Enhance prompt"
                         disabled={input.length === 0 || enhancingPrompt}
-                        className={classNames('transition-all', {
-                          'opacity-100!': enhancingPrompt,
-                          'text-bolt-elements-item-contentAccent! pr-1.5 enabled:hover:bg-bolt-elements-item-backgroundAccent!':
-                            promptEnhanced,
-                        })}
+                        className={classNames(
+                          'transition-all',
+                          enhancingPrompt ? 'opacity-100' : '',
+                          promptEnhanced ? 'text-bolt-elements-item-contentAccent' : '',
+                          promptEnhanced ? 'pr-1.5' : '',
+                          promptEnhanced ? 'enabled:hover:bg-bolt-elements-item-backgroundAccent' : '',
+                        )}
                         onClick={() => enhancePrompt?.()}
                       >
                         {enhancingPrompt ? (

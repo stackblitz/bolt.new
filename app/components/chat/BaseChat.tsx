@@ -23,45 +23,8 @@ import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButto
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 
 import FilePreview from './FilePreview';
-
-// @ts-ignore TODO: Introduce proper types
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ModelSelector = ({ model, setModel, provider, setProvider, modelList, providerList, apiKeys }) => {
-  return (
-    <div className="mb-2 flex gap-2 flex-col sm:flex-row">
-      <select
-        value={provider?.name}
-        onChange={(e) => {
-          setProvider(providerList.find((p: ProviderInfo) => p.name === e.target.value));
-
-          const firstModel = [...modelList].find((m) => m.provider == e.target.value);
-          setModel(firstModel ? firstModel.name : '');
-        }}
-        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
-      >
-        {providerList.map((provider: ProviderInfo) => (
-          <option key={provider.name} value={provider.name}>
-            {provider.name}
-          </option>
-        ))}
-      </select>
-      <select
-        key={provider?.name}
-        value={model}
-        onChange={(e) => setModel(e.target.value)}
-        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[70%]"
-      >
-        {[...modelList]
-          .filter((e) => e.provider == provider?.name && e.name)
-          .map((modelOption) => (
-            <option key={modelOption.name} value={modelOption.name}>
-              {modelOption.label}
-            </option>
-          ))}
-      </select>
-    </div>
-  );
-};
+import { ModelSelector } from '~/components/chat/ModelSelector';
+import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -92,6 +55,7 @@ interface BaseChatProps {
   imageDataList?: string[];
   setImageDataList?: (dataList: string[]) => void;
 }
+
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
   (
     {
@@ -126,7 +90,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState(MODEL_LIST);
     const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+    const [transcript, setTranscript] = useState('');
 
+    console.log(transcript);
     useEffect(() => {
       // Load API keys from cookies on component mount
       try {
@@ -149,7 +117,71 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       initializeModelList().then((modelList) => {
         setModelList(modelList);
       });
+
+      if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map((result) => result[0])
+            .map((result) => result.transcript)
+            .join('');
+
+          setTranscript(transcript);
+
+          if (handleInputChange) {
+            const syntheticEvent = {
+              target: { value: transcript },
+            } as React.ChangeEvent<HTMLTextAreaElement>;
+            handleInputChange(syntheticEvent);
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+        };
+
+        setRecognition(recognition);
+      }
     }, []);
+
+    const startListening = () => {
+      if (recognition) {
+        recognition.start();
+        setIsListening(true);
+      }
+    };
+
+    const stopListening = () => {
+      if (recognition) {
+        recognition.stop();
+        setIsListening(false);
+      }
+    };
+
+    const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
+      if (sendMessage) {
+        sendMessage(event, messageInput);
+
+        if (recognition) {
+          recognition.abort(); // Stop current recognition
+          setTranscript(''); // Clear transcript
+          setIsListening(false);
+
+          // Clear the input by triggering handleInputChange with empty value
+          if (handleInputChange) {
+            const syntheticEvent = {
+              target: { value: '' },
+            } as React.ChangeEvent<HTMLTextAreaElement>;
+            handleInputChange(syntheticEvent);
+          }
+        }
+      }
+    };
 
     const updateApiKey = (provider: string, key: string) => {
       try {
@@ -316,7 +348,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     </button>
                   </div>
 
-
                   <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
                     <ModelSelector
                       key={provider?.name + ':' + modelList.length}
@@ -395,7 +426,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                         event.preventDefault();
 
-                        sendMessage?.(event);
+                        if (isStreaming) {
+                          handleStop?.();
+                          return;
+                        }
+
+                        handleSendMessage?.(event);
                       }
                     }}
                     value={input}
@@ -422,7 +458,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           }
 
                           if (input.length > 0 || uploadedFiles.length > 0) {
-                            sendMessage?.(event);
+                            handleSendMessage?.(event);
                           }
                         }}
                       />
@@ -457,6 +493,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           </>
                         )}
                       </IconButton>
+
+                      <SpeechRecognitionButton
+                        isListening={isListening}
+                        onStart={startListening}
+                        onStop={stopListening}
+                        disabled={isStreaming}
+                      />
                       {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
                     </div>
                     {input.length > 3 ? (
@@ -471,7 +514,15 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </div>
             </div>
             {!chatStarted && ImportButtons(importChat)}
-            {!chatStarted && ExamplePrompts(sendMessage)}
+            {!chatStarted &&
+              ExamplePrompts((event, messageInput) => {
+                if (isStreaming) {
+                  handleStop?.();
+                  return;
+                }
+
+                handleSendMessage?.(event, messageInput);
+              })}
           </div>
           <ClientOnly>{() => <Workbench chatStarted={chatStarted} isStreaming={isStreaming} />}</ClientOnly>
         </div>

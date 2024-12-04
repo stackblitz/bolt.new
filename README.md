@@ -4,11 +4,14 @@
 
 This fork of Bolt.new (oTToDev) allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
 
-Join the community for oTToDev!
+Check the [oTToDev Docs](https://coleam00.github.io/bolt.new-any-llm/) for more information.
+
+## Join the community for oTToDev!
 
 https://thinktank.ottomator.ai
 
-# Requested Additions to this Fork - Feel Free to Contribute!!
+
+## Requested Additions - Feel Free to Contribute!
 
 - ✅ OpenRouter Integration (@coleam00)
 - ✅ Gemini Integration (@jonathands)
@@ -29,27 +32,28 @@ https://thinktank.ottomator.ai
 - ✅ Bolt terminal to see the output of LLM run commands (@thecodacus)
 - ✅ Streaming of code output (@thecodacus)
 - ✅ Ability to revert code to earlier version (@wonderwhy-er)
-- ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
-- ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
-- ⬜ **HIGH PRIORITY** - Load local projects into the app
-- ⬜ **HIGH PRIORITY** - Attach images to prompts
-- ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
-- ⬜ Mobile friendly
-- ⬜ Together Integration
-- ⬜ Azure Open AI API Integration
-- ⬜ Perplexity Integration
-- ⬜ Vertex AI Integration
 - ✅ Cohere Integration (@hasanraiyan)
 - ✅ Dynamic model max token length (@hasanraiyan)
+- ✅ Better prompt enhancing (@SujalXplores)
+- ✅ Prompt caching (@SujalXplores)
+- ✅ Load local projects into the app (@wonderwhy-er)
+- ✅ Together Integration (@mouimet-infinisoft)
+- ✅ Mobile friendly (@qwikode)
+- ✅ Better prompt enhancing (@SujalXplores)
+- ✅ Attach images to prompts (@atrokhym)
+- ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
+- ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
+- ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
 - ⬜ Deploy directly to Vercel/Netlify/other similar platforms
-- ⬜ Prompt caching
-- ⬜ Better prompt enhancing
 - ⬜ Have LLM plan the project in a MD file for better results/transparency
 - ⬜ VSCode Integration with git-like confirmations
 - ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.
 - ⬜ Voice prompting
+- ⬜ Azure Open AI API Integration
+- ⬜ Perplexity Integration
+- ⬜ Vertex AI Integration
 
-# Bolt.new: AI-Powered Full-Stack Web Development in the Browser
+## Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
 Bolt.new is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. If you're here to build your own AI-powered web dev agent using the Bolt open source codebase, [click here to get started!](./CONTRIBUTING.md)
 
@@ -124,6 +128,13 @@ Optionally, you can set the debug level:
 VITE_LOG_LEVEL=debug
 ```
 
+And if using Ollama set the DEFAULT_NUM_CTX, the example below uses 8K context and ollama running on localhost port 11434:
+
+```
+OLLAMA_API_BASE_URL=http://localhost:11434
+DEFAULT_NUM_CTX=8192
+```
+
 **Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 
 ## Run with Docker
@@ -191,40 +202,6 @@ sudo npm install -g pnpm
 ```bash
 pnpm run dev
 ```
-
-## Super Important Note on Running Ollama Models
-
-Ollama models by default only have 2048 tokens for their context window. Even for large models that can easily handle way more.
-This is not a large enough window to handle the Bolt.new/oTToDev prompt! You have to create a version of any model you want
-to use where you specify a larger context window. Luckily it's super easy to do that.
-
-All you have to do is:
-
-- Create a file called "Modelfile" (no file extension) anywhere on your computer
-- Put in the two lines:
-
-```
-FROM [Ollama model ID such as qwen2.5-coder:7b]
-PARAMETER num_ctx 32768
-```
-
-- Run the command: 
-
-```
-ollama create -f Modelfile [your new model ID, can be whatever you want (example: qwen2.5-coder-extra-ctx:7b)]
-```
-
-Now you have a new Ollama model that isn't heavily limited in the context length like Ollama models are by default for some reason.
-You'll see this new model in the list of Ollama models along with all the others you pulled!
-
-## Adding New LLMs:
-
-To make new LLMs available to use in this version of Bolt.new, head on over to `app/utils/constants.ts` and find the constant MODEL_LIST. Each element in this array is an object that has the model ID for the name (get this from the provider's API documentation), a label for the frontend model dropdown, and the provider. 
-
-By default, Anthropic, OpenAI, Groq, and Ollama are implemented as providers, but the YouTube video for this repo covers how to extend this to work with more providers if you wish!
-
-When you add a new model to the MODEL_LIST array, it will immediately be available to use when you run the app locally or reload it. For Ollama models, make sure you have the model installed already before trying to use it here!
-
 ## Available Scripts
 
 - `pnpm run dev`: Starts the development server.
@@ -235,6 +212,7 @@ When you add a new model to the MODEL_LIST array, it will immediately be availab
 - `pnpm run typecheck`: Runs TypeScript type checking.
 - `pnpm run typegen`: Generates TypeScript types using Wrangler.
 - `pnpm run deploy`: Builds the project and deploys it to Cloudflare Pages.
+- `pnpm run lint:fix`: Runs the linter and automatically fixes issues according to your ESLint configuration. 
 
 ## Development
 
@@ -246,14 +224,16 @@ pnpm run dev
 
 This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
 
-## Tips and Tricks
+## How do I contribute to oTToDev?
 
-Here are some tips to get the most out of Bolt.new:
+[Please check out our dedicated page for contributing to oTToDev here!](CONTRIBUTING.md)
 
-- **Be specific about your stack**: If you want to use specific frameworks or libraries (like Astro, Tailwind, ShadCN, or any other popular JavaScript framework), mention them in your initial prompt to ensure Bolt scaffolds the project accordingly.
+## What are the future plans for oTToDev?
 
-- **Use the enhance prompt icon**: Before sending your prompt, try clicking the 'enhance' icon to have the AI model help you refine your prompt, then edit the results before submitting.
+[Check out our Roadmap here!](https://roadmap.sh/r/ottodev-roadmap-2ovzo)
 
-- **Scaffold the basics first, then add features**: Make sure the basic structure of your application is in place before diving into more advanced functionality. This helps Bolt understand the foundation of your project and ensure everything is wired up right before building out more advanced functionality.
+Lot more updates to this roadmap coming soon!
 
-- **Batch simple instructions**: Save time by combining simple instructions into one message. For example, you can ask Bolt to change the color scheme, add mobile responsiveness, and restart the dev server, all in one go saving you time and reducing API credit consumption significantly.
+## FAQ
+
+[Please check out our dedicated page for FAQ's related to oTToDev here!](FAQ.md)

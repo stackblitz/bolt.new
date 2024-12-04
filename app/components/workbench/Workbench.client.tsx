@@ -16,6 +16,7 @@ import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
+import useViewport from '~/lib/hooks';
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -64,6 +65,8 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
   const unsavedFiles = useStore(workbenchStore.unsavedFiles);
   const files = useStore(workbenchStore.files);
   const selectedView = useStore(workbenchStore.currentView);
+
+  const isSmallViewport = useViewport(1024);
 
   const setSelectedView = (view: WorkbenchViewType) => {
     workbenchStore.currentView.set(view);
@@ -128,18 +131,20 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
           className={classNames(
             'fixed top-[calc(var(--header-height)+1.5rem)] bottom-6 w-[var(--workbench-inner-width)] mr-4 z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier',
             {
+              'w-full': isSmallViewport,
+              'left-0': showWorkbench && isSmallViewport,
               'left-[var(--workbench-left)]': showWorkbench,
               'left-[100%]': !showWorkbench,
             },
           )}
         >
-          <div className="absolute inset-0 px-6">
+          <div className="absolute inset-0 px-2 lg:px-6">
             <div className="h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
               <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor">
                 <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
                 <div className="ml-auto" />
                 {selectedView === 'code' && (
-                  <>
+                  <div className="flex overflow-y-auto">
                     <PanelHeaderButton
                       className="mr-1 text-sm"
                       onClick={() => {
@@ -165,29 +170,37 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                     <PanelHeaderButton
                       className="mr-1 text-sm"
                       onClick={() => {
-                        const repoName = prompt("Please enter a name for your new GitHub repository:", "bolt-generated-project");
+                        const repoName = prompt(
+                          'Please enter a name for your new GitHub repository:',
+                          'bolt-generated-project',
+                        );
+
                         if (!repoName) {
-                          alert("Repository name is required. Push to GitHub cancelled.");
+                          alert('Repository name is required. Push to GitHub cancelled.');
                           return;
                         }
-                        const githubUsername = prompt("Please enter your GitHub username:");
+
+                        const githubUsername = prompt('Please enter your GitHub username:');
+
                         if (!githubUsername) {
-                          alert("GitHub username is required. Push to GitHub cancelled.");
+                          alert('GitHub username is required. Push to GitHub cancelled.');
                           return;
                         }
-                        const githubToken = prompt("Please enter your GitHub personal access token:");
+
+                        const githubToken = prompt('Please enter your GitHub personal access token:');
+
                         if (!githubToken) {
-                          alert("GitHub token is required. Push to GitHub cancelled.");
+                          alert('GitHub token is required. Push to GitHub cancelled.');
                           return;
                         }
-                        
-                      workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);  
+
+                        workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);
                       }}
                     >
                       <div className="i-ph:github-logo" />
                       Push to GitHub
                     </PanelHeaderButton>
-                  </>
+                  </div>
                 )}
                 <IconButton
                   icon="i-ph:x-circle"

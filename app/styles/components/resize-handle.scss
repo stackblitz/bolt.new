@@ -1,3 +1,5 @@
+@use '../z-index';
+
 [data-resize-handle] {
   position: relative;
 
@@ -8,7 +10,7 @@
     bottom: 0;
     left: -6px;
     right: -5px;
-    z-index: $zIndexMax;
+    z-index: z-index.$zIndexMax;
   }
 
   &[data-panel-group-direction='vertical']:after {
@@ -18,7 +20,7 @@
     right: 0;
     top: -5px;
     bottom: -6px;
-    z-index: $zIndexMax;
+    z-index: z-index.$zIndexMax;
   }
 
   &[data-resize-handle-state='hover']:after,

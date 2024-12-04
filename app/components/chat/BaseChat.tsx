@@ -255,6 +255,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       <span>Model Settings</span>
                     </button>
                   </div>
+
                   <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
                     <ModelSelector
                       key={provider?.name + ':' + modelList.length}

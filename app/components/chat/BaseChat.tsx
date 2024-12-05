@@ -25,6 +25,7 @@ import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import FilePreview from './FilePreview';
 import { ModelSelector } from '~/components/chat/ModelSelector';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
+import { ScreenshotStateManager } from './ScreenshotStateManager';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -376,6 +377,16 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     setImageDataList?.(imageDataList.filter((_, i) => i !== index));
                   }}
                 />
+                <ClientOnly>
+                  {() => (
+                    <ScreenshotStateManager
+                      setUploadedFiles={setUploadedFiles}
+                      setImageDataList={setImageDataList}
+                      uploadedFiles={uploadedFiles}
+                      imageDataList={imageDataList}
+                    />
+                  )}
+                </ClientOnly>
                 <div
                   className={classNames(
                     'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',

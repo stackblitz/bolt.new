@@ -26,8 +26,6 @@ export const Preview = memo(() => {
 
   // Use percentage for width
   const [widthPercent, setWidthPercent] = useState<number>(37.5); // 375px assuming 1000px window width initially
-  // Height is always 100%
-  const height = '100%';
 
   const resizingState = useRef({
     isResizing: false,
@@ -44,6 +42,7 @@ export const Preview = memo(() => {
     if (!activePreview) {
       setUrl('');
       setIframeUrl(undefined);
+
       return;
     }
 
@@ -54,7 +53,10 @@ export const Preview = memo(() => {
 
   const validateUrl = useCallback(
     (value: string) => {
-      if (!activePreview) return false;
+      if (!activePreview) {
+        return false;
+      }
+
       const { baseUrl } = activePreview;
 
       if (value === baseUrl) {
@@ -103,6 +105,7 @@ export const Preview = memo(() => {
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
@@ -113,7 +116,9 @@ export const Preview = memo(() => {
   };
 
   const startResizing = (e: React.MouseEvent, side: ResizeSide) => {
-    if (!isDeviceModeOn) return;
+    if (!isDeviceModeOn) {
+      return;
+    }
 
     // Prevent text selection
     document.body.style.userSelect = 'none';
@@ -131,12 +136,15 @@ export const Preview = memo(() => {
   };
 
   const onMouseMove = (e: MouseEvent) => {
-    if (!resizingState.current.isResizing) return;
+    if (!resizingState.current.isResizing) {
+      return;
+    }
+
     const dx = e.clientX - resizingState.current.startX;
     const windowWidth = resizingState.current.windowWidth;
 
     // Apply scaling factor to increase sensitivity
-    const dxPercent = ((dx / windowWidth) * 100) * SCALING_FACTOR;
+    const dxPercent = (dx / windowWidth) * 100 * SCALING_FACTOR;
 
     let newWidthPercent = resizingState.current.startWidthPercent;
 
@@ -165,11 +173,14 @@ export const Preview = memo(() => {
   // Handle window resize to ensure widthPercent remains valid
   useEffect(() => {
     const handleWindowResize = () => {
-      // Optional: Adjust widthPercent if necessary
-      // For now, since widthPercent is relative, no action is needed
+      /*
+       * Optional: Adjust widthPercent if necessary
+       * For now, since widthPercent is relative, no action is needed
+       */
     };
 
     window.addEventListener('resize', handleWindowResize);
+
     return () => {
       window.removeEventListener('resize', handleWindowResize);
     };
@@ -195,8 +206,7 @@ export const Preview = memo(() => {
           marginLeft: '1px',
         }}
       >
-        •••
-        •••
+        ••• •••
       </div>
     </div>
   );
@@ -204,10 +214,7 @@ export const Preview = memo(() => {
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col relative">
       {isPortDropdownOpen && (
-        <div
-          className="z-iframe-overlay w-full h-full absolute"
-          onClick={() => setIsPortDropdownOpen(false)}
-        />
+        <div className="z-iframe-overlay w-full h-full absolute" onClick={() => setIsPortDropdownOpen(false)} />
       )}
       <div className="bg-bolt-elements-background-depth-2 p-2 flex items-center gap-1.5">
         <IconButton icon="i-ph:arrow-clockwise" onClick={reloadPreview} />
@@ -274,16 +281,9 @@ export const Preview = memo(() => {
           }}
         >
           {activePreview ? (
-            <iframe
-              ref={iframeRef}
-              className="border-none w-full h-full bg-white"
-              src={iframeUrl}
-              allowFullScreen
-            />
+            <iframe ref={iframeRef} className="border-none w-full h-full bg-white" src={iframeUrl} allowFullScreen />
           ) : (
-            <div className="flex w-full h-full justify-center items-center bg-white">
-              No preview available
-            </div>
+            <div className="flex w-full h-full justify-center items-center bg-white">No preview available</div>
           )}
 
           {isDeviceModeOn && (

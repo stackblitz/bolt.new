@@ -27,7 +27,7 @@ export const Preview = memo(() => {
     }
 
     const { baseUrl } = activePreview;
-    
+
     setUrl(baseUrl);
     setIframeUrl(baseUrl);
   }, [activePreview, iframeUrl]);
@@ -80,19 +80,24 @@ export const Preview = memo(() => {
       )}
       <div className="bg-bolt-elements-background-depth-2 p-2 flex items-center gap-1.5">
         <IconButton icon="i-ph:arrow-clockwise" onClick={reloadPreview} />
-        <IconButton icon="i-ph:selection" onClick={() => setIsSelectionMode(!isSelectionMode)} className={isSelectionMode ? 'bg-bolt-elements-background-depth-3' : ''} />
+        <IconButton
+          icon="i-ph:selection"
+          onClick={() => setIsSelectionMode(!isSelectionMode)}
+          className={isSelectionMode ? 'bg-bolt-elements-background-depth-3' : ''}
+        />
         <div
           className="flex items-center gap-1 flex-grow bg-bolt-elements-preview-addressBar-background border border-bolt-elements-borderColor text-bolt-elements-preview-addressBar-text rounded-full px-3 py-1 text-sm hover:bg-bolt-elements-preview-addressBar-backgroundHover hover:focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within:bg-bolt-elements-preview-addressBar-backgroundActive
         focus-within-border-bolt-elements-borderColorActive focus-within:text-bolt-elements-preview-addressBar-textActive"
         >
-          <input title='URL'
+          <input
+            title="URL"
             ref={inputRef}
             className="w-full bg-transparent outline-none"
             type="text"
             value={url}
             onChange={(event) => {
               setUrl(event.target.value);
-            }}            
+            }}
             onKeyDown={(event) => {
               if (event.key === 'Enter' && validateUrl(url)) {
                 setIframeUrl(url);
@@ -119,7 +124,11 @@ export const Preview = memo(() => {
         {activePreview ? (
           <>
             <iframe ref={iframeRef} title="preview" className="border-none w-full h-full bg-white" src={iframeUrl} />
-            <ScreenshotSelector isSelectionMode={isSelectionMode} setIsSelectionMode={setIsSelectionMode} containerRef={iframeRef} />
+            <ScreenshotSelector
+              isSelectionMode={isSelectionMode}
+              setIsSelectionMode={setIsSelectionMode}
+              containerRef={iframeRef}
+            />
           </>
         ) : (
           <div className="flex w-full h-full justify-center items-center bg-white">No preview available</div>

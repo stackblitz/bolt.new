@@ -28,6 +28,7 @@ interface ArtifactProps {
 export const Artifact = memo(({ messageId }: ArtifactProps) => {
   const userToggledActions = useRef(false);
   const [showActions, setShowActions] = useState(false);
+  const [allActionFinished, setAllActionFinished] = useState(false);
 
   const artifacts = useStore(workbenchStore.artifacts);
   const artifact = artifacts[messageId];
@@ -47,6 +48,11 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
     if (actions.length && !showActions && !userToggledActions.current) {
       setShowActions(true);
     }
+
+    if (actions.length !== 0) {
+      const finished = !actions.find((action) => action.status !== 'complete');
+      setAllActionFinished(finished);
+    }
   }, [actions]);
 
   return (
@@ -62,7 +68,11 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
           {artifact.type == 'bundled' && (
             <>
               <div className="p-4">
-                <div className={'i-ph:files-light'} style={{ fontSize: '2rem' }}></div>
+                {allActionFinished ? (
+                  <div className={'i-ph:files-light'} style={{ fontSize: '2rem' }}></div>
+                ) : (
+                  <div className={'i-svg-spinners:90-ring-with-bg'} style={{ fontSize: '2rem' }}></div>
+                )}
               </div>
               <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />
             </>

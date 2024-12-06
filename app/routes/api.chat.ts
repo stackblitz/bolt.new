@@ -8,8 +8,8 @@ export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
 }
 
-function parseCookies(cookieHeader:string) {
-  const cookies:any = {};
+function parseCookies(cookieHeader: string) {
+  const cookies: any = {};
 
   // Split the cookie string by semicolons and spaces
   const items = cookieHeader.split(';').map((cookie) => cookie.trim());
@@ -29,7 +29,7 @@ function parseCookies(cookieHeader:string) {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages, model } = await request.json<{
+  const { messages } = await request.json<{
     messages: Messages;
     model: string;
   }>();
@@ -37,7 +37,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   const cookieHeader = request.headers.get('Cookie');
 
   // Parse the cookie's value (returns an object or null if no cookie exists)
-  const apiKeys = JSON.parse(parseCookies(cookieHeader||"").apiKeys || '{}'); 
+  const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
 
   const stream = new SwitchableStream();
 
@@ -60,7 +60,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         messages.push({ role: 'assistant', content });
         messages.push({ role: 'user', content: CONTINUE_PROMPT });
 
-        const result = await streamText(messages, context.cloudflare.env, options,apiKeys);
+        const result = await streamText(messages, context.cloudflare.env, options, apiKeys);
 
         return stream.switchSource(result.toAIStream());
       },
@@ -76,7 +76,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         contentType: 'text/plain; charset=utf-8',
       },
     });
-  } catch (error:any) {
+  } catch (error: any) {
     console.log(error);
 
     if (error.message?.includes('API key')) {

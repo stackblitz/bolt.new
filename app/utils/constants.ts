@@ -263,7 +263,7 @@ const PROVIDER_LIST: ProviderInfo[] = [
   },
   {
     name: 'Together',
-    getDynamicModels: getTogetherModels, 
+    getDynamicModels: getTogetherModels,
     staticModels: [
       {
         name: 'Qwen/Qwen2.5-Coder-32B-Instruct',
@@ -295,7 +295,6 @@ const staticModels: ModelInfo[] = PROVIDER_LIST.map((p) => p.staticModels).flat(
 
 export let MODEL_LIST: ModelInfo[] = [...staticModels];
 
-
 export async function getModelList(apiKeys: Record<string, string>) {
   MODEL_LIST = [
     ...(
@@ -312,43 +311,44 @@ export async function getModelList(apiKeys: Record<string, string>) {
 
 async function getTogetherModels(apiKeys?: Record<string, string>): Promise<ModelInfo[]> {
   try {
-    let baseUrl = import.meta.env.TOGETHER_API_BASE_URL || '';
-    let provider='Together'
+    const baseUrl = import.meta.env.TOGETHER_API_BASE_URL || '';
+    const provider = 'Together';
 
-  if (!baseUrl) {
+    if (!baseUrl) {
+      return [];
+    }
+
+    let apiKey = import.meta.env.OPENAI_LIKE_API_KEY ?? '';
+
+    if (apiKeys && apiKeys[provider]) {
+      apiKey = apiKeys[provider];
+    }
+
+    if (!apiKey) {
+      return [];
+    }
+
+    const response = await fetch(`${baseUrl}/models`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+    const res = (await response.json()) as any;
+    const data: any[] = (res || []).filter((model: any) => model.type == 'chat');
+
+    return data.map((m: any) => ({
+      name: m.id,
+      label: `${m.display_name} - in:$${m.pricing.input.toFixed(
+        2,
+      )} out:$${m.pricing.output.toFixed(2)} - context ${Math.floor(m.context_length / 1000)}k`,
+      provider,
+      maxTokenAllowed: 8000,
+    }));
+  } catch (e) {
+    console.error('Error getting OpenAILike models:', e);
     return [];
   }
-  let apiKey = import.meta.env.OPENAI_LIKE_API_KEY ?? ''
-
-  if (apiKeys && apiKeys[provider]) {
-    apiKey = apiKeys[provider];
-  }
-
-  if (!apiKey) {
-    return [];
-  }
-
-  const response = await fetch(`${baseUrl}/models`, {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
-  });
-  const res = (await response.json()) as any;
-    let data: any[] = (res || []).filter((model: any) => model.type=='chat')
-  return data.map((m: any) => ({
-    name: m.id,
-    label: `${m.display_name} - in:$${(m.pricing.input).toFixed(
-      2,
-    )} out:$${(m.pricing.output).toFixed(2)} - context ${Math.floor(m.context_length / 1000)}k`,
-    provider: provider,
-    maxTokenAllowed: 8000, 
-  }));
-} catch (e) {
-  console.error('Error getting OpenAILike models:', e);
-  return [];
 }
-}
-
 
 const getOllamaBaseUrl = () => {
   const defaultBaseUrl = import.meta.env.OLLAMA_API_BASE_URL || 'http://localhost:11434';
@@ -396,11 +396,13 @@ async function getOpenAILikeModels(): Promise<ModelInfo[]> {
     if (!baseUrl) {
       return [];
     }
+
     let apiKey = import.meta.env.OPENAI_LIKE_API_KEY ?? '';
-    
-    let apikeys = JSON.parse(Cookies.get('apiKeys')||'{}')
-    if (apikeys && apikeys['OpenAILike']){
-      apiKey = apikeys['OpenAILike'];
+
+    const apikeys = JSON.parse(Cookies.get('apiKeys') || '{}');
+
+    if (apikeys && apikeys.OpenAILike) {
+      apiKey = apikeys.OpenAILike;
     }
 
     const response = await fetch(`${baseUrl}/models`, {
@@ -458,6 +460,7 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
   if (typeof window === 'undefined') {
     return [];
   }
+
   try {
     const baseUrl = import.meta.env.LMSTUDIO_API_BASE_URL || 'http://localhost:1234';
     const response = await fetch(`${baseUrl}/v1/models`);
@@ -476,6 +479,7 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
 
 async function initializeModelList(): Promise<ModelInfo[]> {
   let apiKeys: Record<string, string> = {};
+
   try {
     const storedApiKeys = Cookies.get('apiKeys');
 
@@ -486,9 +490,8 @@ async function initializeModelList(): Promise<ModelInfo[]> {
         apiKeys = parsedKeys;
       }
     }
-    
-  } catch (error) {
-    
+  } catch (error: any) {
+    console.warn(`Failed to fetch apikeys from cookies:${error?.message}`);
   }
   MODEL_LIST = [
     ...(
@@ -500,6 +503,7 @@ async function initializeModelList(): Promise<ModelInfo[]> {
     ).flat(),
     ...staticModels,
   ];
+
   return MODEL_LIST;
 }
 

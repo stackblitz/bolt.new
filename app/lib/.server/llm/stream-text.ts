@@ -58,10 +58,15 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
   return { model, provider, content: cleanedContent };
 }
 
-export async function streamText(messages: Messages, env: Env, options?: StreamingOptions,apiKeys?: Record<string, string>) {
+export async function streamText(
+  messages: Messages,
+  env: Env,
+  options?: StreamingOptions,
+  apiKeys?: Record<string, string>,
+) {
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
-  const MODEL_LIST = await getModelList(apiKeys||{});   
+  const MODEL_LIST = await getModelList(apiKeys || {});
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
       const { model, provider, content } = extractPropertiesFromMessage(message);
@@ -69,6 +74,7 @@ export async function streamText(messages: Messages, env: Env, options?: Streami
       if (MODEL_LIST.find((m) => m.name === model)) {
         currentModel = model;
       }
+
       currentProvider = provider;
 
       return { ...message, content };

@@ -16,10 +16,10 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           stale-issue-message: "This issue has been marked as stale due to inactivity. If no further activity occurs, it will be closed in 7 days."
           stale-pr-message: "This pull request has been marked as stale due to inactivity. If no further activity occurs, it will be closed in 7 days."
-          days-before-stale: 14            # Number of days before marking an issue or PR as stale
-          days-before-close: 7             # Number of days after being marked stale before closing
+          days-before-stale: 10            # Number of days before marking an issue or PR as stale
+          days-before-close: 4             # Number of days after being marked stale before closing
           stale-issue-label: "stale"       # Label to apply to stale issues
           stale-pr-label: "stale"          # Label to apply to stale pull requests
           exempt-issue-labels: "pinned,important" # Issues with these labels won't be marked stale
           exempt-pr-labels: "pinned,important"    # PRs with these labels won't be marked stale
-          operations-per-run: 90           # Limits the number of actions per run to avoid API rate limits
+          operations-per-run: 75           # Limits the number of actions per run to avoid API rate limits

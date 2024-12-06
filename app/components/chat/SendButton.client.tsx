@@ -4,11 +4,12 @@ interface SendButtonProps {
   show: boolean;
   isStreaming?: boolean;
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  onImagesSelected?: (images: File[]) => void;
 }
 
 const customEasingFn = cubicBezier(0.4, 0, 0.2, 1);
 
-export function SendButton({ show, isStreaming, onClick }: SendButtonProps) {
+export const SendButton = ({ show, isStreaming, onClick }: SendButtonProps) => {
   return (
     <AnimatePresence>
       {show ? (
@@ -30,4 +31,4 @@ export function SendButton({ show, isStreaming, onClick }: SendButtonProps) {
       ) : null}
     </AnimatePresence>
   );
-}
+};

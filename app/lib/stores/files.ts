@@ -212,9 +212,5 @@ function isBinaryFile(buffer: Uint8Array | undefined) {
  * array buffer.
  */
 function convertToBuffer(view: Uint8Array): Buffer {
-  const buffer = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
-
-  Object.setPrototypeOf(buffer, Buffer.prototype);
-
-  return buffer as Buffer;
+  return Buffer.from(view.buffer, view.byteOffset, view.byteLength);
 }

@@ -23,16 +23,37 @@ export type Messages = Message[];
 export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
 
 function extractPropertiesFromMessage(message: Message): { model: string; provider: string; content: string } {
-  // Extract model
-  const modelMatch = message.content.match(MODEL_REGEX);
+  const textContent = Array.isArray(message.content)
+    ? message.content.find((item) => item.type === 'text')?.text || ''
+    : message.content;
+
+  const modelMatch = textContent.match(MODEL_REGEX);
+  const providerMatch = textContent.match(PROVIDER_REGEX);
+
+  /*
+   * Extract model
+   * const modelMatch = message.content.match(MODEL_REGEX);
+   */
   const model = modelMatch ? modelMatch[1] : DEFAULT_MODEL;
 
-  // Extract provider
-  const providerMatch = message.content.match(PROVIDER_REGEX);
+  /*
+   * Extract provider
+   * const providerMatch = message.content.match(PROVIDER_REGEX);
+   */
   const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER.name;
 
-  // Remove model and provider lines from content
-  const cleanedContent = message.content.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '').trim();
+  const cleanedContent = Array.isArray(message.content)
+    ? message.content.map((item) => {
+        if (item.type === 'text') {
+          return {
+            type: 'text',
+            text: item.text?.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, ''),
+          };
+        }
+
+        return item; // Preserve image_url and other types as is
+      })
+    : textContent.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '');
 
   return { model, provider, content: cleanedContent };
 }

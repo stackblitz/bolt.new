@@ -29,8 +29,9 @@ function parseCookies(cookieHeader:string) {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{
+  const { messages, model } = await request.json<{
     messages: Messages;
+    model: string;
   }>();
 
   const cookieHeader = request.headers.get('Cookie');

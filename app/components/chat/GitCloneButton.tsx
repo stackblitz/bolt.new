@@ -24,6 +24,7 @@ const IGNORE_PATTERNS = [
   '**/yarn-debug.log*',
   '**/yarn-error.log*',
   '**/*lock.json',
+  '**/*lock.yaml',
 ];
 
 const ig = ignore().add(IGNORE_PATTERNS);

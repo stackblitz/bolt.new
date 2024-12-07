@@ -54,10 +54,10 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
         toast.info(`Skipping ${binaryFilePaths.length} binary files`);
       }
 
-      const { userMessage, assistantMessage } = await createChatFromFolder(textFiles, binaryFilePaths, folderName);
+      const messages = await createChatFromFolder(textFiles, binaryFilePaths, folderName);
 
       if (importChat) {
-        await importChat(folderName, [userMessage, assistantMessage]);
+        await importChat(folderName, [...messages]);
       }
 
       toast.success('Folder imported successfully');

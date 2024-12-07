@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
 interface ScreenshotSelectorProps {
@@ -12,124 +12,189 @@ export const ScreenshotSelector = memo(
     const [isCapturing, setIsCapturing] = useState(false);
     const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
     const [selectionEnd, setSelectionEnd] = useState<{ x: number; y: number } | null>(null);
+    const mediaStreamRef = useRef<MediaStream | null>(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+
+    useEffect(() => {
+      // Cleanup function to stop all tracks when component unmounts
+      return () => {
+        if (videoRef.current) {
+          videoRef.current.pause();
+          videoRef.current.srcObject = null;
+          videoRef.current.remove();
+          videoRef.current = null;
+        }
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          mediaStreamRef.current = null;
+        }
+      };
+    }, []);
+
+    const initializeStream = async () => {
+      if (!mediaStreamRef.current) {
+        try {
+          const stream = await navigator.mediaDevices.getDisplayMedia({
+            audio: false,
+            video: {
+              displaySurface: 'window',
+              preferCurrentTab: true,
+              surfaceSwitching: 'include',
+              systemAudio: 'exclude',
+            },
+          } as MediaStreamConstraints);
+
+          // Add handler for when sharing stops
+          stream.addEventListener('inactive', () => {
+            if (videoRef.current) {
+              videoRef.current.pause();
+              videoRef.current.srcObject = null;
+              videoRef.current.remove();
+              videoRef.current = null;
+            }
+            if (mediaStreamRef.current) {
+              mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+              mediaStreamRef.current = null;
+            }
+            setIsSelectionMode(false);
+            setSelectionStart(null);
+            setSelectionEnd(null);
+            setIsCapturing(false);
+          });
+
+          mediaStreamRef.current = stream;
+
+          // Initialize video element if needed
+          if (!videoRef.current) {
+            const video = document.createElement('video');
+            video.style.opacity = '0';
+            video.style.position = 'fixed';
+            video.style.pointerEvents = 'none';
+            video.style.zIndex = '-1';
+            document.body.appendChild(video);
+            videoRef.current = video;
+          }
+
+          // Set up video with the stream
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        } catch (error) {
+          console.error('Failed to initialize stream:', error);
+          setIsSelectionMode(false);
+          toast.error('Failed to initialize screen capture');
+        }
+      }
+      return mediaStreamRef.current;
+    };
 
     const handleCopySelection = useCallback(async () => {
       if (!isSelectionMode || !selectionStart || !selectionEnd || !containerRef.current) return;
 
       setIsCapturing(true);
       try {
-        const width = Math.abs(selectionEnd.x - selectionStart.x);
-        const height = Math.abs(selectionEnd.y - selectionStart.y);
+        const stream = await initializeStream();
+        if (!stream || !videoRef.current) return;
 
-        // Create a video element to capture the screen
-        const video = document.createElement('video');
-        video.style.opacity = '0';
-        document.body.appendChild(video);
+        // Wait for video to be ready
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-        try {
-          // Capture the entire screen
-          const stream = await navigator.mediaDevices.getDisplayMedia({
-            audio: false,
-            video: {
-              displaySurface: 'window',
-            },
-          } as MediaStreamConstraints);
+        // Create temporary canvas for full screenshot
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = videoRef.current.videoWidth;
+        tempCanvas.height = videoRef.current.videoHeight;
+        const tempCtx = tempCanvas.getContext('2d');
 
-          // Set up video with the stream
-          video.srcObject = stream;
-          await video.play();
-
-          // Wait for video to be ready
-          await new Promise((resolve) => setTimeout(resolve, 300));
-
-          // Create temporary canvas for full screenshot
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = video.videoWidth;
-          tempCanvas.height = video.videoHeight;
-          const tempCtx = tempCanvas.getContext('2d');
-
-          if (!tempCtx) {
-            throw new Error('Failed to get temporary canvas context');
-          }
-
-          // Draw the full video frame
-          tempCtx.drawImage(video, 0, 0);
-
-          // Get the container's position in the page
-          const containerRect = containerRef.current.getBoundingClientRect();
-
-          // Calculate scale factor between video and screen
-          const scaleX = video.videoWidth / window.innerWidth;
-          const scaleY = video.videoHeight / window.innerHeight;
-
-          // Calculate the scaled coordinates
-          const scaledX = (containerRect.left + Math.min(selectionStart.x, selectionEnd.x)) * scaleX;
-          const scaledY = (containerRect.top + Math.min(selectionStart.y, selectionEnd.y)) * scaleY;
-          const scaledWidth = width * scaleX;
-          const scaledHeight = height * scaleY;
-
-          // Create final canvas for the cropped area
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-
-          if (!ctx) {
-            throw new Error('Failed to get canvas context');
-          }
-
-          // Draw the cropped area
-          ctx.drawImage(tempCanvas, scaledX, scaledY, scaledWidth, scaledHeight, 0, 0, width, height);
-
-          // Convert to blob
-          const blob = await new Promise<Blob>((resolve, reject) => {
-            canvas.toBlob((blob) => {
-              if (blob) resolve(blob);
-              else reject(new Error('Failed to create blob'));
-            }, 'image/png');
-          });
-
-          // Create a FileReader to convert blob to base64
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const base64Image = e.target?.result as string;
-
-            // Find the textarea element
-            const textarea = document.querySelector('textarea');
-            if (textarea) {
-              // Get the setters from the BaseChat component
-              const setUploadedFiles = (window as any).__BOLT_SET_UPLOADED_FILES__;
-              const setImageDataList = (window as any).__BOLT_SET_IMAGE_DATA_LIST__;
-              const uploadedFiles = (window as any).__BOLT_UPLOADED_FILES__ || [];
-              const imageDataList = (window as any).__BOLT_IMAGE_DATA_LIST__ || [];
-
-              if (setUploadedFiles && setImageDataList) {
-                // Update the files and image data
-                const file = new File([blob], 'screenshot.png', { type: 'image/png' });
-                setUploadedFiles([...uploadedFiles, file]);
-                setImageDataList([...imageDataList, base64Image]);
-                toast.success('Screenshot captured and added to chat');
-              } else {
-                toast.error('Could not add screenshot to chat');
-              }
-            }
-          };
-          reader.readAsDataURL(blob);
-
-          // Stop all tracks
-          stream.getTracks().forEach((track) => track.stop());
-        } finally {
-          // Clean up video element
-          document.body.removeChild(video);
+        if (!tempCtx) {
+          throw new Error('Failed to get temporary canvas context');
         }
+
+        // Draw the full video frame
+        tempCtx.drawImage(videoRef.current, 0, 0);
+
+        // Calculate scale factor between video and screen
+        const scaleX = videoRef.current.videoWidth / window.innerWidth;
+        const scaleY = videoRef.current.videoHeight / window.innerHeight;
+
+        // Get window scroll position
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
+
+        // Get the container's position in the page
+        const containerRect = containerRef.current.getBoundingClientRect();
+
+        // Offset adjustments for more accurate clipping
+        const leftOffset = -9; // Adjust left position
+        const bottomOffset = -14; // Adjust bottom position
+
+        // Calculate the scaled coordinates with scroll offset and adjustments
+        const scaledX = Math.round(
+          (containerRect.left + Math.min(selectionStart.x, selectionEnd.x) + scrollX + leftOffset) * scaleX,
+        );
+        const scaledY = Math.round(
+          (containerRect.top + Math.min(selectionStart.y, selectionEnd.y) + scrollY + bottomOffset) * scaleY,
+        );
+        const scaledWidth = Math.round(Math.abs(selectionEnd.x - selectionStart.x) * scaleX);
+        const scaledHeight = Math.round(Math.abs(selectionEnd.y - selectionStart.y) * scaleY);
+
+        // Create final canvas for the cropped area
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(Math.abs(selectionEnd.x - selectionStart.x));
+        canvas.height = Math.round(Math.abs(selectionEnd.y - selectionStart.y));
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          throw new Error('Failed to get canvas context');
+        }
+
+        // Draw the cropped area
+        ctx.drawImage(tempCanvas, scaledX, scaledY, scaledWidth, scaledHeight, 0, 0, canvas.width, canvas.height);
+
+        // Convert to blob
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Failed to create blob'));
+          }, 'image/png');
+        });
+
+        // Create a FileReader to convert blob to base64
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64Image = e.target?.result as string;
+
+          // Find the textarea element
+          const textarea = document.querySelector('textarea');
+          if (textarea) {
+            // Get the setters from the BaseChat component
+            const setUploadedFiles = (window as any).__BOLT_SET_UPLOADED_FILES__;
+            const setImageDataList = (window as any).__BOLT_SET_IMAGE_DATA_LIST__;
+            const uploadedFiles = (window as any).__BOLT_UPLOADED_FILES__ || [];
+            const imageDataList = (window as any).__BOLT_IMAGE_DATA_LIST__ || [];
+
+            if (setUploadedFiles && setImageDataList) {
+              // Update the files and image data
+              const file = new File([blob], 'screenshot.png', { type: 'image/png' });
+              setUploadedFiles([...uploadedFiles, file]);
+              setImageDataList([...imageDataList, base64Image]);
+              toast.success('Screenshot captured and added to chat');
+            } else {
+              toast.error('Could not add screenshot to chat');
+            }
+          }
+        };
+        reader.readAsDataURL(blob);
       } catch (error) {
         console.error('Failed to capture screenshot:', error);
         toast.error('Failed to capture screenshot');
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          mediaStreamRef.current = null;
+        }
       } finally {
         setIsCapturing(false);
         setSelectionStart(null);
         setSelectionEnd(null);
-        setIsSelectionMode(false);
+        setIsSelectionMode(false); // Turn off selection mode after capture
       }
     }, [isSelectionMode, selectionStart, selectionEnd, containerRef, setIsSelectionMode]);
 

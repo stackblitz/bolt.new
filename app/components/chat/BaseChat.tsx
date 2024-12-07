@@ -89,6 +89,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
       const savedKeys = Cookies.get('apiKeys');
+
       if (savedKeys) {
         try {
           return JSON.parse(savedKeys);
@@ -97,6 +98,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           return {};
         }
       }
+
       return {};
     });
     const [modelList, setModelList] = useState(MODEL_LIST);
@@ -108,15 +110,17 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     // Load enabled providers from cookies
     const [enabledProviders, setEnabledProviders] = useState(() => {
       const savedProviders = Cookies.get('providers');
+
       if (savedProviders) {
         try {
           const parsedProviders = JSON.parse(savedProviders);
-          return PROVIDER_LIST.filter(p => parsedProviders[p.name]);
+          return PROVIDER_LIST.filter((p) => parsedProviders[p.name]);
         } catch (error) {
           console.error('Failed to parse providers from cookies:', error);
           return PROVIDER_LIST;
         }
       }
+
       return PROVIDER_LIST;
     });
 
@@ -124,10 +128,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     useEffect(() => {
       const updateProvidersFromCookies = () => {
         const savedProviders = Cookies.get('providers');
+
         if (savedProviders) {
           try {
             const parsedProviders = JSON.parse(savedProviders);
-            setEnabledProviders(PROVIDER_LIST.filter(p => parsedProviders[p.name]));
+            setEnabledProviders(PROVIDER_LIST.filter((p) => parsedProviders[p.name]));
           } catch (error) {
             console.error('Failed to parse providers from cookies:', error);
           }
@@ -135,7 +140,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       };
 
       updateProvidersFromCookies();
+
       const interval = setInterval(updateProvidersFromCookies, 1000);
+
       return () => clearInterval(interval);
     }, [PROVIDER_LIST]);
 
@@ -225,23 +232,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             handleInputChange(syntheticEvent);
           }
         }
-      }
-    };
-
-    const updateApiKey = (provider: string, key: string) => {
-      try {
-        const updatedApiKeys = { ...apiKeys, [provider]: key };
-        setApiKeys(updatedApiKeys);
-
-        // Save updated API keys to cookies with 30 day expiry and secure settings
-        Cookies.set('apiKeys', JSON.stringify(updatedApiKeys), {
-          expires: 30, // 30 days
-          secure: true, // Only send over HTTPS
-          sameSite: 'strict', // Protect against CSRF
-          path: '/', // Accessible across the site
-        });
-      } catch (error) {
-        console.error('Error saving API keys to cookies:', error);
       }
     };
 

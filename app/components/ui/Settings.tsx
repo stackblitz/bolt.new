@@ -1,14 +1,14 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { motion } from 'framer-motion';
-import { useState, useEffect }from 'react';
+import { useState } from 'react';
 import { classNames } from '~/utils/classNames';
-import { Dialog, DialogTitle, dialogVariants, dialogBackdropVariants } from './Dialog';
+import { DialogTitle, dialogVariants, dialogBackdropVariants } from './Dialog';
 import { IconButton } from './IconButton';
 import { providersList } from '~/lib/stores/settings';
 import { db, getAll, deleteById } from '~/lib/persistence';
 import { toast } from 'react-toastify';
 import { useNavigate } from '@remix-run/react';
-import commit from '../../../commit.json';
+import commit from '~/commit.json';
 import Cookies from 'js-cookie';
 
 interface SettingsProps {
@@ -31,6 +31,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
   // Load base URLs from cookies
   const [baseUrls, setBaseUrls] = useState(() => {
     const savedUrls = Cookies.get('providerBaseUrls');
+
     if (savedUrls) {
       try {
         return JSON.parse(savedUrls);
@@ -43,6 +44,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
         };
       }
     }
+
     return {
       Ollama: 'http://localhost:11434',
       LMStudio: 'http://localhost:1234',
@@ -51,9 +53,10 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
   });
 
   const handleBaseUrlChange = (provider: string, url: string) => {
-    setBaseUrls(prev => {
+    setBaseUrls((prev: Record<string, string>) => {
       const newUrls = { ...prev, [provider]: url };
       Cookies.set('providerBaseUrls', JSON.stringify(newUrls));
+
       return newUrls;
     });
   };
@@ -62,46 +65,52 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
     { id: 'chat-history', label: 'Chat History', icon: 'i-ph:book' },
     { id: 'providers', label: 'Providers', icon: 'i-ph:key' },
     { id: 'features', label: 'Features', icon: 'i-ph:star' },
-    ...(isDebugEnabled ? [{ id: 'debug', label: 'Debug Tab', icon: 'i-ph:bug' }] : []),
+    ...(isDebugEnabled ? [{ id: 'debug' as TabType, label: 'Debug Tab', icon: 'i-ph:bug' }] : []),
   ];
 
   // Load providers from cookies on mount
   const [providers, setProviders] = useState(() => {
     const savedProviders = Cookies.get('providers');
+
     if (savedProviders) {
       try {
         const parsedProviders = JSON.parse(savedProviders);
+
         // Merge saved enabled states with the base provider list
-        return providersList.map(provider => ({
+        return providersList.map((provider) => ({
           ...provider,
-          isEnabled: parsedProviders[provider.name] || false
+          isEnabled: parsedProviders[provider.name] || false,
         }));
       } catch (error) {
         console.error('Failed to parse providers from cookies:', error);
       }
     }
+
     return providersList;
   });
 
   const handleToggleProvider = (providerName: string) => {
     setProviders((prevProviders) => {
       const newProviders = prevProviders.map((provider) =>
-        provider.name === providerName ? { ...provider, isEnabled: !provider.isEnabled } : provider
+        provider.name === providerName ? { ...provider, isEnabled: !provider.isEnabled } : provider,
       );
-      
+
       // Save to cookies
-      const enabledStates = newProviders.reduce((acc, provider) => ({
-        ...acc,
-        [provider.name]: provider.isEnabled
-      }), {});
+      const enabledStates = newProviders.reduce(
+        (acc, provider) => ({
+          ...acc,
+          [provider.name]: provider.isEnabled,
+        }),
+        {},
+      );
       Cookies.set('providers', JSON.stringify(enabledStates));
-      
+
       return newProviders;
     });
   };
 
   const filteredProviders = providers
-    .filter(provider => provider.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter((provider) => provider.name.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleCopyToClipboard = () => {
@@ -141,11 +150,12 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
 
     try {
       setIsDeleting(true);
+
       const allChats = await getAll(db);
-      
+
       // Delete all chats one by one
-      await Promise.all(allChats.map(chat => deleteById(db!, chat.id)));
-      
+      await Promise.all(allChats.map((chat) => deleteById(db!, chat.id)));
+
       toast.success('All chats deleted successfully');
       navigate('/', { replace: true });
     } catch (error) {
@@ -168,7 +178,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
         chats: allChats,
         exportDate: new Date().toISOString(),
       };
-      
+
       downloadAsJson(exportData, `all-chats-${new Date().toISOString()}.json`);
       toast.success('Chats exported successfully');
     } catch (error) {
@@ -207,9 +217,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     onClick={() => setActiveTab(tab.id)}
                     className={classNames(
                       'w-full flex items-center gap-2 px-4 py-3 rounded-lg text-left text-sm transition-all mb-2',
-                      activeTab === tab.id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-600 text-gray-200 hover:bg-blue-500'
+                      activeTab === tab.id ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-200 hover:bg-blue-500',
                     )}
                   >
                     <div className={tab.icon} />
@@ -239,7 +247,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
               <div className="flex-1 flex flex-col p-8">
                 <DialogTitle className="flex-shrink-0 text-lg font-semibold text-white">Settings</DialogTitle>
                 <div className="flex-1 overflow-y-auto">
-                 {activeTab === 'chat-history' && (
+                  {activeTab === 'chat-history' && (
                     <div className="p-4">
                       <h3 className="text-lg font-medium text-white mb-4">Chat History</h3>
                       <button
@@ -248,7 +256,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                       >
                         Export All Chats
                       </button>
-                      
+
                       <div className="bg-red-500 text-white rounded-lg p-4 mb-4">
                         <h4 className="font-semibold">Danger Area</h4>
                         <p className="mb-2">This action cannot be undone!</p>
@@ -256,8 +264,8 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                           onClick={handleDeleteAllChats}
                           disabled={isDeleting}
                           className={classNames(
-                            "bg-red-700 text-white rounded-lg px-4 py-2 transition-colors duration-200",
-                            isDeleting ? "opacity-50 cursor-not-allowed" : "hover:bg-red-800"
+                            'bg-red-700 text-white rounded-lg px-4 py-2 transition-colors duration-200',
+                            isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-800',
                           )}
                         >
                           {isDeleting ? 'Deleting...' : 'Delete All Chats'}
@@ -297,7 +305,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                               ></div>
                             </label>
                           </div>
-                          
+
                           {/* Base URL input for configurable providers */}
                           {URL_CONFIGURABLE_PROVIDERS.includes(provider.name) && provider.isEnabled && (
                             <div className="mt-2">
@@ -334,9 +342,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                           ></div>
                         </label>
                       </div>
-                      <div className="feature-row">
-                        {/* Your feature content here */}
-                      </div>
+                      <div className="feature-row">{/* Your feature content here */}</div>
                     </div>
                   )}
                   {activeTab === 'debug' && isDebugEnabled && (
@@ -348,7 +354,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                       >
                         Copy to Clipboard
                       </button>
-                      
+
                       <h4 className="text-md font-medium text-white">System Information</h4>
                       <p className="text-white">OS: {navigator.platform}</p>
                       <p className="text-white">Browser: {navigator.userAgent}</p>
@@ -358,7 +364,9 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                         {providers
                           .filter((provider) => provider.isEnabled)
                           .map((provider) => (
-                            <li key={provider.name} className="text-white">{provider.name}</li>
+                            <li key={provider.name} className="text-white">
+                              {provider.name}
+                            </li>
                           ))}
                       </ul>
 

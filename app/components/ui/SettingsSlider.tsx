@@ -26,24 +26,24 @@ export const SettingsSlider = memo(<T,>({ selected, options, setSelected }: Sett
       <motion.div
         className={classNames(
           'absolute h-full bg-green-500 transition-all duration-300 rounded-lg',
-          isLeftSelected ? 'left-0 w-1/2' : 'right-0 w-1/2'
+          isLeftSelected ? 'left-0 w-1/2' : 'right-0 w-1/2',
         )}
         initial={false}
         animate={{
           x: isLeftSelected ? 0 : '100%',
-          opacity: 0.2
+          opacity: 0.2,
         }}
         transition={{
           type: 'spring',
           stiffness: 300,
-          damping: 30
+          damping: 30,
         }}
       />
       <button
         onClick={() => setSelected?.(options.left.value)}
         className={classNames(
           'relative z-10 flex-1 p-2 rounded-lg text-sm transition-colors duration-200',
-          isLeftSelected ? 'text-white' : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+          isLeftSelected ? 'text-white' : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary',
         )}
       >
         {options.left.text}
@@ -52,11 +52,11 @@ export const SettingsSlider = memo(<T,>({ selected, options, setSelected }: Sett
         onClick={() => setSelected?.(options.right.value)}
         className={classNames(
           'relative z-10 flex-1 p-2 rounded-lg text-sm transition-colors duration-200',
-          !isLeftSelected ? 'text-white' : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+          !isLeftSelected ? 'text-white' : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary',
         )}
       >
         {options.right.text}
       </button>
     </div>
   );
-}); 
+});

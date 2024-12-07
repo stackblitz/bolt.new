@@ -24,15 +24,17 @@ export const ModelSelector = ({
   // Load enabled providers from cookies
   const [enabledProviders, setEnabledProviders] = useState(() => {
     const savedProviders = Cookies.get('providers');
+
     if (savedProviders) {
       try {
         const parsedProviders = JSON.parse(savedProviders);
-        return providerList.filter(p => parsedProviders[p.name]);
+        return providerList.filter((p) => parsedProviders[p.name]);
       } catch (error) {
         console.error('Failed to parse providers from cookies:', error);
         return providerList;
       }
     }
+
     return providerList;
   });
 
@@ -41,19 +43,21 @@ export const ModelSelector = ({
     // Function to update providers from cookies
     const updateProvidersFromCookies = () => {
       const savedProviders = Cookies.get('providers');
+
       if (savedProviders) {
         try {
           const parsedProviders = JSON.parse(savedProviders);
-          const newEnabledProviders = providerList.filter(p => parsedProviders[p.name]);
+          const newEnabledProviders = providerList.filter((p) => parsedProviders[p.name]);
           setEnabledProviders(newEnabledProviders);
 
           // If current provider is disabled, switch to first enabled provider
           if (provider && !parsedProviders[provider.name] && newEnabledProviders.length > 0) {
             const firstEnabledProvider = newEnabledProviders[0];
             setProvider?.(firstEnabledProvider);
-            
+
             // Also update the model to the first available one for the new provider
-            const firstModel = modelList.find(m => m.provider === firstEnabledProvider.name);
+            const firstModel = modelList.find((m) => m.provider === firstEnabledProvider.name);
+
             if (firstModel) {
               setModel?.(firstModel.name);
             }
@@ -77,7 +81,8 @@ export const ModelSelector = ({
     return (
       <div className="mb-2 p-4 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary">
         <p className="text-center">
-          No providers are currently enabled. Please enable at least one provider in the settings to start using the chat.
+          No providers are currently enabled. Please enable at least one provider in the settings to start using the
+          chat.
         </p>
       </div>
     );

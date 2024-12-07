@@ -21,12 +21,12 @@ jobs:
 
     - name: Update commit file
       run: |
-        echo "{ \"commit\": \"$COMMIT_HASH\" }" > commit.json
+        echo "{ \"commit\": \"$COMMIT_HASH\" }" > app/commit.json
 
     - name: Commit and push the update
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add commit.json
+        git add app/commit.json
         git commit -m "chore: update commit hash to $COMMIT_HASH"
         git push

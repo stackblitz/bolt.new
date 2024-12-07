@@ -87,12 +87,57 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     ref,
   ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
-    const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+    const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
+      const savedKeys = Cookies.get('apiKeys');
+      if (savedKeys) {
+        try {
+          return JSON.parse(savedKeys);
+        } catch (error) {
+          console.error('Failed to parse API keys from cookies:', error);
+          return {};
+        }
+      }
+      return {};
+    });
     const [modelList, setModelList] = useState(MODEL_LIST);
     const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
     const [transcript, setTranscript] = useState('');
+
+    // Load enabled providers from cookies
+    const [enabledProviders, setEnabledProviders] = useState(() => {
+      const savedProviders = Cookies.get('providers');
+      if (savedProviders) {
+        try {
+          const parsedProviders = JSON.parse(savedProviders);
+          return PROVIDER_LIST.filter(p => parsedProviders[p.name]);
+        } catch (error) {
+          console.error('Failed to parse providers from cookies:', error);
+          return PROVIDER_LIST;
+        }
+      }
+      return PROVIDER_LIST;
+    });
+
+    // Update enabled providers when cookies change
+    useEffect(() => {
+      const updateProvidersFromCookies = () => {
+        const savedProviders = Cookies.get('providers');
+        if (savedProviders) {
+          try {
+            const parsedProviders = JSON.parse(savedProviders);
+            setEnabledProviders(PROVIDER_LIST.filter(p => parsedProviders[p.name]));
+          } catch (error) {
+            console.error('Failed to parse providers from cookies:', error);
+          }
+        }
+      };
+
+      updateProvidersFromCookies();
+      const interval = setInterval(updateProvidersFromCookies, 1000);
+      return () => clearInterval(interval);
+    }, [PROVIDER_LIST]);
 
     console.log(transcript);
     useEffect(() => {
@@ -359,11 +404,15 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       providerList={PROVIDER_LIST}
                       apiKeys={apiKeys}
                     />
-                    {provider && (
+                    {enabledProviders.length > 0 && provider && (
                       <APIKeyManager
                         provider={provider}
                         apiKey={apiKeys[provider.name] || ''}
-                        setApiKey={(key) => updateApiKey(provider.name, key)}
+                        setApiKey={(key) => {
+                          const newApiKeys = { ...apiKeys, [provider.name]: key };
+                          setApiKeys(newApiKeys);
+                          Cookies.set('apiKeys', JSON.stringify(newApiKeys));
+                        }}
                       />
                     )}
                   </div>

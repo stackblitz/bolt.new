@@ -257,7 +257,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                         Export All Chats
                       </button>
 
-                      <div className="bg-red-500 text-white rounded-lg p-4 mb-4">
+                      <div className="text-white rounded-lg p-4 mb-4">
                         <h4 className="font-semibold">Danger Area</h4>
                         <p className="mb-2">This action cannot be undone!</p>
                         <button
@@ -275,14 +275,16 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                   )}
                   {activeTab === 'providers' && (
                     <div className="p-4">
-                      <h3 className="text-lg font-medium text-white mb-4">Providers</h3>
-                      <input
-                        type="text"
-                        placeholder="Search providers..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="mb-4 p-2 rounded border border-gray-300 w-full"
-                      />
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-medium text-white">Providers</h3>
+                        <input
+                          type="text"
+                          placeholder="Search providers..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="mb-4 p-2 rounded border border-gray-300"
+                        />
+                      </div>
                       {filteredProviders.map((provider) => (
                         <div
                           key={provider.name}
@@ -305,7 +307,6 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                               ></div>
                             </label>
                           </div>
-
                           {/* Base URL input for configurable providers */}
                           {URL_CONFIGURABLE_PROVIDERS.includes(provider.name) && provider.isEnabled && (
                             <div className="mt-2">

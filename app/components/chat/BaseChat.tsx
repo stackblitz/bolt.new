@@ -369,21 +369,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
                 </svg>
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <button
-                      onClick={() => setIsModelSettingsCollapsed(!isModelSettingsCollapsed)}
-                      className={classNames('flex items-center gap-2 p-2 rounded-lg transition-all', {
-                        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
-                          isModelSettingsCollapsed,
-                        'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
-                          !isModelSettingsCollapsed,
-                      })}
-                    >
-                      <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
-                      <span>Model Settings</span>
-                    </button>
-                  </div>
-
                   <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
                     <ModelSelector
                       key={provider?.name + ':' + modelList.length}
@@ -491,6 +476,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       <SendButton
                         show={input.length > 0 || isStreaming || uploadedFiles.length > 0}
                         isStreaming={isStreaming}
+                        disabled={enabledProviders.length === 0}
                         onClick={(event) => {
                           if (isStreaming) {
                             handleStop?.();
@@ -541,6 +527,20 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         disabled={isStreaming}
                       />
                       {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
+                      <IconButton
+                        title="Model Settings"
+                        className={classNames('transition-all flex items-center gap-1', {
+                          'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
+                            isModelSettingsCollapsed,
+                          'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
+                            !isModelSettingsCollapsed,
+                        })}
+                        onClick={() => setIsModelSettingsCollapsed(!isModelSettingsCollapsed)}
+                        disabled={enabledProviders.length === 0}
+                      >
+                        <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
+                        {isModelSettingsCollapsed ? <span className="text-xs">{model}</span> : <span />}
+                      </IconButton>
                     </div>
                     {input.length > 3 ? (
                       <div className="text-xs text-bolt-elements-textTertiary">

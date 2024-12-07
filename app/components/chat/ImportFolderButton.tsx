@@ -21,7 +21,6 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
       );
       return;
     }
-
     const folderName = allFiles[0]?.webkitRelativePath.split('/')[0] || 'Unknown Folder';
     setIsLoading(true);
     const loadingToast = toast.loading(`Importing ${folderName}...`);

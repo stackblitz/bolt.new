@@ -51,7 +51,7 @@ export function getAPIKey(cloudflareEnv: Env, provider: string, userApiKeys?: Re
 export function getBaseURL(cloudflareEnv: Env, provider: string) {
   switch (provider) {
     case 'Together':
-      return env.TOGETHER_API_BASE_URL || cloudflareEnv.TOGETHER_API_BASE_URL;
+      return env.TOGETHER_API_BASE_URL || cloudflareEnv.TOGETHER_API_BASE_URL || 'https://api.together.xyz/v1';
     case 'OpenAILike':
       return env.OPENAI_LIKE_API_BASE_URL || cloudflareEnv.OPENAI_LIKE_API_BASE_URL;
     case 'LMStudio':

@@ -1,9 +1,4 @@
 .rayContainer {
-  --gradient-opacity: 0.8;
-  --primary-color: rgba(147, 112, 219, var(--gradient-opacity));
-  --secondary-color: rgba(138, 43, 226, var(--gradient-opacity));
-  --accent-color: rgba(180, 170, 220, var(--gradient-opacity));
-
   // Theme-specific colors
   --ray-color-primary: color-mix(in srgb, var(--primary-color), transparent 30%);
   --ray-color-secondary: color-mix(in srgb, var(--secondary-color), transparent 30%);

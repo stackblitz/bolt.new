@@ -52,7 +52,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
     if (actions.length !== 0 && artifact.type === 'bundled') {
       const finished = !actions.find((action) => action.status !== 'complete');
 
-      if (finished != allActionFinished) {
+      if (allActionFinished !== finished) {
         setAllActionFinished(finished);
       }
     }

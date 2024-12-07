@@ -55,7 +55,7 @@ interface MessageState {
 export class StreamingMessageParser {
   #messages = new Map<string, MessageState>();
 
-  constructor(private _options: StreamingMessageParserOptions = {}) { }
+  constructor(private _options: StreamingMessageParserOptions = {}) {}
 
   parse(messageId: string, input: string) {
     let state = this.#messages.get(messageId);
@@ -120,20 +120,20 @@ export class StreamingMessageParser {
             i = closeIndex + ARTIFACT_ACTION_TAG_CLOSE.length;
           } else {
             if ('type' in currentAction && currentAction.type === 'file') {
-              let content = input.slice(i);
+              const content = input.slice(i);
 
               this._options.callbacks?.onActionStream?.({
                 artifactId: currentArtifact.id,
                 messageId,
                 actionId: String(state.actionId - 1),
                 action: {
-                  ...currentAction as FileAction,
+                  ...(currentAction as FileAction),
                   content,
                   filePath: currentAction.filePath,
                 },
-
               });
             }
+
             break;
           }
         } else {
@@ -192,6 +192,7 @@ export class StreamingMessageParser {
               const artifactTag = input.slice(i, openTagEnd + 1);
 
               const artifactTitle = this.#extractAttribute(artifactTag, 'title') as string;
+              const type = this.#extractAttribute(artifactTag, 'type') as string;
               const artifactId = this.#extractAttribute(artifactTag, 'id') as string;
 
               if (!artifactTitle) {
@@ -207,6 +208,7 @@ export class StreamingMessageParser {
               const currentArtifact = {
                 id: artifactId,
                 title: artifactTitle,
+                type,
               } satisfies BoltArtifactData;
 
               state.currentArtifact = currentArtifact;
@@ -272,7 +274,7 @@ export class StreamingMessageParser {
       }
 
       (actionAttributes as FileAction).filePath = filePath;
-    } else if (!(['shell', 'start'].includes(actionType))) {
+    } else if (!['shell', 'start'].includes(actionType)) {
       logger.warn(`Unknown action type '${actionType}'`);
     }
 

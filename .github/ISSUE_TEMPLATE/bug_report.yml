@@ -56,6 +56,16 @@ body:
         - OS: [e.g. macOS, Windows, Linux]
         - Browser: [e.g. Chrome, Safari, Firefox]
         - Version: [e.g. 91.1]
+  - type: input
+    id: provider
+    attributes:
+      label: Provider Used
+      description: Tell us the provider you are using.
+  - type: input
+    id: model
+    attributes:
+      label: Model Used
+      description: Tell us the model you are using.
   - type: textarea
     id: additional
     attributes:

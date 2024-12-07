@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from '@remix-run/react';
 import commit from '~/commit.json';
 import Cookies from 'js-cookie';
+import { SettingsSlider } from './SettingsSlider';
 
 interface SettingsProps {
   open: boolean;
@@ -217,7 +218,9 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     onClick={() => setActiveTab(tab.id)}
                     className={classNames(
                       'w-full flex items-center gap-2 px-4 py-3 rounded-lg text-left text-sm transition-all mb-2',
-                      activeTab === tab.id ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-200 hover:bg-blue-500',
+                      activeTab === tab.id 
+                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white' 
+                        : 'bg-gray-600 text-gray-200 hover:bg-gradient-to-r hover:from-purple-400 hover:to-blue-400',
                     )}
                   >
                     <div className={tab.icon} />
@@ -299,10 +302,10 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                                 checked={provider.isEnabled}
                                 onChange={() => handleToggleProvider(provider.name)}
                               />
-                              <div className="w-11 h-6 bg-gray-300 rounded-full shadow-inner"></div>
+                              <div className={`w-11 h-6 rounded-full shadow-inner transition-colors duration-200 ${provider.isEnabled ? 'bg-[#b44aff]' : 'bg-gray-300'}`}></div>
                               <div
-                                className={`absolute left-0 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ease-in-out ${
-                                  provider.isEnabled ? 'transform translate-x-full bg-green-500' : ''
+                                className={`absolute left-0 w-6 h-6 rounded-full shadow transition-transform duration-200 ease-in-out ${
+                                  provider.isEnabled ? 'transform translate-x-full bg-white' : 'bg-white'
                                 }`}
                               ></div>
                             </label>
@@ -325,7 +328,8 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     </div>
                   )}
                   {activeTab === 'features' && (
-                    <div className="p-4">
+                    <div className="p-4 bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor rounded-lg">
+                      <h3 className="text-lg font-medium text-white mb-4">Feature Settings</h3>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-white">Debug Info</span>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -335,10 +339,10 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                             checked={isDebugEnabled}
                             onChange={() => setIsDebugEnabled(!isDebugEnabled)}
                           />
-                          <div className="w-11 h-6 bg-gray-300 rounded-full shadow-inner"></div>
+                          <div className={`w-11 h-6 rounded-full shadow-inner transition-colors duration-200 ${isDebugEnabled ? 'bg-[#b44aff]' : 'bg-gray-300'}`}></div>
                           <div
-                            className={`absolute left-0 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ease-in-out ${
-                              isDebugEnabled ? 'transform translate-x-full bg-green-500' : ''
+                            className={`absolute left-0 w-6 h-6 rounded-full shadow transition-transform duration-200 ease-in-out ${
+                              isDebugEnabled ? 'transform translate-x-full bg-white' : 'bg-white'
                             }`}
                           ></div>
                         </label>

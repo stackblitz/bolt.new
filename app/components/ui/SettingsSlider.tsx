@@ -25,8 +25,8 @@ export const SettingsSlider = memo(<T,>({ selected, options, setSelected }: Sett
     <div className="relative flex items-center bg-bolt-elements-prompt-background rounded-lg">
       <motion.div
         className={classNames(
-          'absolute h-full bg-green-500 transition-all duration-300 rounded-lg',
-          isLeftSelected ? 'left-0 w-1/2' : 'right-0 w-1/2',
+          'absolute h-full transition-all duration-300 rounded-lg',
+          isLeftSelected ? 'left-0 w-1/2 bg-[#b44aff]' : 'right-0 w-1/2 bg-[#b44aff]',
         )}
         initial={false}
         animate={{

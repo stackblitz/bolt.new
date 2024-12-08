@@ -1,23 +1,24 @@
 import type { Message } from 'ai';
-import { generateId, detectProjectType } from './fileUtils';
+import { generateId } from './fileUtils';
+import { detectProjectCommands, createCommandsMessage } from './projectCommands';
 
 export const createChatFromFolder = async (
   files: File[],
   binaryFiles: string[],
-  folderName: string
+  folderName: string,
 ): Promise<Message[]> => {
   const fileArtifacts = await Promise.all(
     files.map(async (file) => {
-      return new Promise<string>((resolve, reject) => {
+      return new Promise<{ content: string; path: string }>((resolve, reject) => {
         const reader = new FileReader();
+
         reader.onload = () => {
           const content = reader.result as string;
           const relativePath = file.webkitRelativePath.split('/').slice(1).join('/');
-          resolve(
-            `<boltAction type="file" filePath="${relativePath}">
-${content}
-</boltAction>`,
-          );
+          resolve({
+            content,
+            path: relativePath,
+          });
         };
         reader.onerror = reject;
         reader.readAsText(file);
@@ -25,32 +26,30 @@ ${content}
     }),
   );
 
-  const project = await detectProjectType(files);
-  const setupCommand = project.setupCommand ? `\n\n<boltAction type="shell">\n${project.setupCommand}\n</boltAction>` : '';
-  const followupMessage = project.followupMessage ? `\n\n${project.followupMessage}` : '';
+  const commands = await detectProjectCommands(fileArtifacts);
+  const commandsMessage = createCommandsMessage(commands);
 
-  const binaryFilesMessage = binaryFiles.length > 0
-    ? `\n\nSkipped ${binaryFiles.length} binary files:\n${binaryFiles.map((f) => `- ${f}`).join('\n')}`
-    : '';
+  const binaryFilesMessage =
+    binaryFiles.length > 0
+      ? `\n\nSkipped ${binaryFiles.length} binary files:\n${binaryFiles.map((f) => `- ${f}`).join('\n')}`
+      : '';
 
-  const assistantMessages: Message[] = [{
+  const filesMessage: Message = {
     role: 'assistant',
     content: `I've imported the contents of the "${folderName}" folder.${binaryFilesMessage}
 
 <boltArtifact id="imported-files" title="Imported Files">
-${fileArtifacts.join('\n\n')}
+${fileArtifacts
+  .map(
+    (file) => `<boltAction type="file" filePath="${file.path}">
+${file.content}
+</boltAction>`,
+  )
+  .join('\n\n')}
 </boltArtifact>`,
     id: generateId(),
     createdAt: new Date(),
-  },{
-    role: 'assistant',
-    content: `
-<boltArtifact id="imported-files" title="Imported Files">
-${setupCommand}
-</boltArtifact>${followupMessage}`,
-    id: generateId(),
-    createdAt: new Date(),
-  }];
+  };
 
   const userMessage: Message = {
     role: 'user',
@@ -59,5 +58,11 @@ ${setupCommand}
     createdAt: new Date(),
   };
 
-  return [ userMessage, ...assistantMessages ];
+  const messages = [userMessage, filesMessage];
+
+  if (commandsMessage) {
+    messages.push(commandsMessage);
+  }
+
+  return messages;
 };

@@ -29,10 +29,12 @@ export const isBinaryFile = async (file: File): Promise<boolean> => {
 
   for (let i = 0; i < buffer.length; i++) {
     const byte = buffer[i];
+
     if (byte === 0 || (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13)) {
       return true;
     }
   }
+
   return false;
 };
 
@@ -41,8 +43,11 @@ export const shouldIncludeFile = (path: string): boolean => {
 };
 
 const readPackageJson = async (files: File[]): Promise<{ scripts?: Record<string, string> } | null> => {
-  const packageJsonFile = files.find(f => f.webkitRelativePath.endsWith('package.json'));
-  if (!packageJsonFile) return null;
+  const packageJsonFile = files.find((f) => f.webkitRelativePath.endsWith('package.json'));
+
+  if (!packageJsonFile) {
+    return null;
+  }
 
   try {
     const content = await new Promise<string>((resolve, reject) => {
@@ -59,29 +64,32 @@ const readPackageJson = async (files: File[]): Promise<{ scripts?: Record<string
   }
 };
 
-export const detectProjectType = async (files: File[]): Promise<{ type: string; setupCommand: string; followupMessage: string }> => {
-  const hasFile = (name: string) => files.some(f => f.webkitRelativePath.endsWith(name));
+export const detectProjectType = async (
+  files: File[],
+): Promise<{ type: string; setupCommand: string; followupMessage: string }> => {
+  const hasFile = (name: string) => files.some((f) => f.webkitRelativePath.endsWith(name));
 
   if (hasFile('package.json')) {
     const packageJson = await readPackageJson(files);
     const scripts = packageJson?.scripts || {};
-    
+
     // Check for preferred commands in priority order
     const preferredCommands = ['dev', 'start', 'preview'];
-    const availableCommand = preferredCommands.find(cmd => scripts[cmd]);
-    
+    const availableCommand = preferredCommands.find((cmd) => scripts[cmd]);
+
     if (availableCommand) {
       return {
         type: 'Node.js',
         setupCommand: `npm install && npm run ${availableCommand}`,
-        followupMessage: `Found "${availableCommand}" script in package.json. Running "npm run ${availableCommand}" after installation.`
+        followupMessage: `Found "${availableCommand}" script in package.json. Running "npm run ${availableCommand}" after installation.`,
       };
     }
 
     return {
       type: 'Node.js',
       setupCommand: 'npm install',
-      followupMessage: 'Would you like me to inspect package.json to determine the available scripts for running this project?'
+      followupMessage:
+        'Would you like me to inspect package.json to determine the available scripts for running this project?',
     };
   }
 
@@ -89,7 +97,7 @@ export const detectProjectType = async (files: File[]): Promise<{ type: string; 
     return {
       type: 'Static',
       setupCommand: 'npx --yes serve',
-      followupMessage: ''
+      followupMessage: '',
     };
   }
 

@@ -23,6 +23,7 @@ export const SendButton = ({ show, isStreaming, disabled, onClick }: SendButtonP
           disabled={disabled}
           onClick={(event) => {
             event.preventDefault();
+
             if (!disabled) {
               onClick?.(event);
             }

@@ -2,6 +2,7 @@ import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { FileMap } from '~/lib/stores/files';
 import { classNames } from '~/utils/classNames';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
+import * as ContextMenu from '@radix-ui/react-context-menu';
 
 const logger = createScopedLogger('FileTree');
 
@@ -159,23 +160,65 @@ interface FolderProps {
   onClick: () => void;
 }
 
-function Folder({ folder: { depth, name }, collapsed, selected = false, onClick }: FolderProps) {
+interface FolderContextMenuProps {
+  children: ReactNode;
+}
+
+function ContextMenuItem({ children }: { children: ReactNode }) {
   return (
-    <NodeButton
-      className={classNames('group', {
-        'bg-transparent text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive':
-          !selected,
-        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': selected,
-      })}
-      depth={depth}
-      iconClasses={classNames({
-        'i-ph:caret-right scale-98': collapsed,
-        'i-ph:caret-down scale-98': !collapsed,
-      })}
-      onClick={onClick}
-    >
-      {name}
-    </NodeButton>
+    <ContextMenu.Item className="flex items-center gap-2 px-2 py-1.5 outline-0 text-sm text-bolt-elements-textPrimary cursor-pointer ws-nowrap text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive rounded-md">
+      <span className="size-4 shrink-0"></span>
+      <span>{children}</span>
+    </ContextMenu.Item>
+  );
+}
+
+function FolderContextMenu({ children }: FolderContextMenuProps) {
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Content
+          style={{ zIndex: 998 }}
+          className="border border-bolt-elements-borderColor rounded-md z-context-menu bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-2 data-[state=open]:animate-in animate-duration-100 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-98 w-56"
+        >
+          <ContextMenu.Group className="p-1 border-b-px border-solid border-bolt-elements-borderColor">
+            <ContextMenuItem>New file...</ContextMenuItem>
+            <ContextMenuItem>New folder...</ContextMenuItem>
+          </ContextMenu.Group>
+          <ContextMenu.Group className="p-1 border-b-px border-solid border-bolt-elements-borderColor">
+            <ContextMenuItem>Copy path</ContextMenuItem>
+            <ContextMenuItem>Copy relative path</ContextMenuItem>
+          </ContextMenu.Group>
+          <ContextMenu.Group className="p-1 border-b-px border-solid border-bolt-elements-borderColor">
+            <ContextMenuItem>Rename...</ContextMenuItem>
+            <ContextMenuItem>Delete</ContextMenuItem>
+          </ContextMenu.Group>
+        </ContextMenu.Content>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
+}
+
+function Folder({ folder, collapsed, selected = false, onClick }: FolderProps) {
+  return (
+    <FolderContextMenu>
+      <NodeButton
+        className={classNames('group', {
+          'bg-transparent text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive':
+            !selected,
+          'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': selected,
+        })}
+        depth={folder.depth}
+        iconClasses={classNames({
+          'i-ph:caret-right scale-98': collapsed,
+          'i-ph:caret-down scale-98': !collapsed,
+        })}
+        onClick={onClick}
+      >
+        {folder.name}
+      </NodeButton>
+    </FolderContextMenu>
   );
 }
 

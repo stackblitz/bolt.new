@@ -2,6 +2,13 @@ import { LanguageDescription } from '@codemirror/language';
 
 export const supportedLanguages = [
   LanguageDescription.of({
+    name: 'VUE',
+    extensions: ['vue'],
+    async load() {
+      return import('@codemirror/lang-vue').then((module) => module.vue());
+    },
+  }),
+  LanguageDescription.of({
     name: 'TS',
     extensions: ['ts'],
     async load() {

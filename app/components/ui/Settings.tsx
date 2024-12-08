@@ -11,6 +11,8 @@ import { useNavigate } from '@remix-run/react';
 import commit from '~/commit.json';
 import Cookies from 'js-cookie';
 import { SettingsSlider } from './SettingsSlider';
+import '~/styles/components/SettingsSlider.scss';
+import '~/styles/components/Settings.scss';
 
 interface SettingsProps {
   open: boolean;
@@ -28,6 +30,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
   const [isDebugEnabled, setIsDebugEnabled] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isJustSayEnabled, setIsJustSayEnabled] = useState(false);
 
   // Load base URLs from cookies
   const [baseUrls, setBaseUrls] = useState(() => {
@@ -211,16 +214,13 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
             variants={dialogVariants}
           >
             <div className="flex h-full">
-              <div className="w-48 border-r border-bolt-elements-borderColor bg-gray-700 p-4 flex flex-col justify-between">
+              <div className="w-48 border-r border-bolt-elements-borderColor bg-gray-700 p-4 flex flex-col justify-between settings-tabs">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={classNames(
-                      'w-full flex items-center gap-2 px-4 py-3 rounded-lg text-left text-sm transition-all mb-2',
-                      activeTab === tab.id 
-                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white' 
-                        : 'bg-gray-600 text-gray-200 hover:bg-gradient-to-r hover:from-purple-400 hover:to-blue-400',
+                      activeTab === tab.id ? 'active' : ''
                     )}
                   >
                     <div className={tab.icon} />
@@ -232,16 +232,18 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     href="https://github.com/coleam00/bolt.new-any-llm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-500 transition-colors duration-200"
+                    className="settings-button flex items-center gap-2"
                   >
+                    <div className="i-ph:github-logo" />
                     GitHub
                   </a>
                   <a
                     href="https://coleam00.github.io/bolt.new-any-llm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-500 transition-colors duration-200"
+                    className="settings-button flex items-center gap-2"
                   >
+                    <div className="i-ph:book" />
                     Docs
                   </a>
                 </div>
@@ -260,7 +262,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                         Export All Chats
                       </button>
 
-                      <div className="text-white rounded-lg p-4 mb-4">
+                      <div className="text-white rounded-lg p-4 mb-4 settings-danger-area">
                         <h4 className="font-semibold">Danger Area</h4>
                         <p className="mb-2">This action cannot be undone!</p>
                         <button
@@ -302,12 +304,14 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                                 checked={provider.isEnabled}
                                 onChange={() => handleToggleProvider(provider.name)}
                               />
-                              <div className={`w-11 h-6 rounded-full shadow-inner transition-colors duration-200 ${provider.isEnabled ? 'bg-[#b44aff]' : 'bg-gray-300'}`}></div>
-                              <div
-                                className={`absolute left-0 w-6 h-6 rounded-full shadow transition-transform duration-200 ease-in-out ${
-                                  provider.isEnabled ? 'transform translate-x-full bg-white' : 'bg-white'
-                                }`}
-                              ></div>
+                              <div className={classNames(
+                                'settings-toggle__track',
+                                provider.isEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
+                              )}></div>
+                              <div className={classNames(
+                                'settings-toggle__thumb',
+                                provider.isEnabled ? 'settings-toggle__thumb--enabled' : ''
+                              )}></div>
                             </label>
                           </div>
                           {/* Base URL input for configurable providers */}
@@ -328,7 +332,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     </div>
                   )}
                   {activeTab === 'features' && (
-                    <div className="p-4 bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor rounded-lg">
+                    <div className="p-4 bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor rounded-lg mb-4">
                       <h3 className="text-lg font-medium text-white mb-4">Feature Settings</h3>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-white">Debug Info</span>
@@ -339,15 +343,40 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                             checked={isDebugEnabled}
                             onChange={() => setIsDebugEnabled(!isDebugEnabled)}
                           />
-                          <div className={`w-11 h-6 rounded-full shadow-inner transition-colors duration-200 ${isDebugEnabled ? 'bg-[#b44aff]' : 'bg-gray-300'}`}></div>
-                          <div
-                            className={`absolute left-0 w-6 h-6 rounded-full shadow transition-transform duration-200 ease-in-out ${
-                              isDebugEnabled ? 'transform translate-x-full bg-white' : 'bg-white'
-                            }`}
-                          ></div>
+                          <div className={classNames(
+                            'settings-toggle__track',
+                            isDebugEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
+                          )}></div>
+                          <div className={classNames(
+                            'settings-toggle__thumb',
+                            isDebugEnabled ? 'settings-toggle__thumb--enabled' : ''
+                          )}></div>
                         </label>
                       </div>
-                      <div className="feature-row">{/* Your feature content here */}</div>
+                    </div>
+                  )}
+                  {activeTab === 'features' && (
+                    <div className="p-4 bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor rounded-lg">
+                      <h3 className="text-lg font-medium text-white mb-4">Experimental Area</h3>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-white">Replace with local models</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={isJustSayEnabled}
+                            onChange={() => setIsJustSayEnabled(!isJustSayEnabled)}
+                          />
+                          <div className={classNames(
+                            'settings-toggle__track',
+                            isJustSayEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
+                          )}></div>
+                          <div className={classNames(
+                            'settings-toggle__thumb',
+                            isJustSayEnabled ? 'settings-toggle__thumb--enabled' : ''
+                          )}></div>
+                        </label>
+                      </div>
                     </div>
                   )}
                   {activeTab === 'debug' && isDebugEnabled && (

@@ -1,0 +1,60 @@
+.settings-tabs {
+  button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    text-align: left;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    margin-bottom: 0.5rem;
+
+    &.active {
+      background: #b44aff;
+      color: white;
+    }
+
+    &:not(.active) {
+      background: #4b5563;
+      color: #e5e7eb;
+
+      &:hover {
+        background: linear-gradient(to right, #6b5bff, #3b82f6);
+      }
+    }
+  }
+}
+
+.settings-button {
+  background-color: #b44aff;
+  color: white;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #2563eb;
+  }
+}
+
+.settings-danger-area {
+  background-color: transparent;
+  color: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  button {
+    background-color: #dc2626;
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #b91c1c;
+    }
+  }
+} 

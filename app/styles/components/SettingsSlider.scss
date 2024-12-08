@@ -3,7 +3,7 @@
 
   &__thumb {
     @apply absolute h-full transition-all duration-300 rounded-lg;
-    background-color: #b44aff;
+    background-color: var(--bolt-elements-button-primary-background);
     
     &--left {
       @apply left-0 w-1/2;
@@ -18,7 +18,7 @@
     @apply relative z-10 flex-1 p-2 rounded-lg text-sm transition-colors duration-200;
 
     &--selected {
-      @apply text-white;
+      @apply text-bolt-elements-textPrimary;
     }
 
     &--unselected {
@@ -32,16 +32,17 @@
     @apply w-11 h-6 rounded-full shadow-inner transition-colors duration-200;
 
     &--enabled {
-      background-color: #b44aff;
+      background-color: var(--bolt-elements-item-contentAccent);
     }
 
     &--disabled {
-      @apply bg-gray-300;
+      background-color: var(--bolt-elements-bg-depth-3);
     }
   }
 
   &__thumb {
-    @apply absolute left-0 w-6 h-6 rounded-full shadow transition-transform duration-200 ease-in-out bg-white;
+    @apply absolute left-0 w-6 h-6 rounded-full shadow transition-transform duration-200 ease-in-out;
+    background-color: var(--bolt-elements-textPrimary);
 
     &--enabled {
       @apply transform translate-x-full;

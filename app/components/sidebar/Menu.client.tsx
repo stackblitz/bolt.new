@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
-import { Settings } from '~/components/ui/Settings';
+import { SettingsWindow } from '~/components/settings/SettingsWindow';
 import { SettingsButton } from '~/components/ui/SettingsButton';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
 import { cubicEasingFn } from '~/utils/easings';
@@ -208,7 +208,7 @@ export const Menu = () => {
           <ThemeSwitch />
         </div>
       </div>
-      <Settings open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsWindow open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </motion.div>
   );
 };

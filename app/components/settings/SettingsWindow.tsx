@@ -254,7 +254,7 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                 </div>
               </div>
 
-              <div className="flex-1 flex flex-col p-8 bg-bolt-elements-background-depth-2">
+              <div className="flex-1 flex flex-col p-8 pt-10 bg-bolt-elements-background-depth-2">
                 <div className="flex-1 overflow-y-auto">
                   {activeTab === 'chat-history' && (
                     <div className="p-4">

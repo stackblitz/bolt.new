@@ -111,6 +111,22 @@ export const FileTree = memo(
       });
     };
 
+    const onCopyPath = (fileOrFolder: FileNode | FolderNode) => {
+      try {
+        navigator.clipboard.writeText(fileOrFolder.fullPath);
+      } catch (error) {
+        logger.error(error);
+      }
+    };
+
+    const onCopyRelativePath = (fileOrFolder: FileNode | FolderNode) => {
+      try {
+        navigator.clipboard.writeText(fileOrFolder.fullPath.substring((rootFolder || '').length));
+      } catch (error) {
+        logger.error(error);
+      }
+    };
+
     return (
       <div className={classNames('text-sm', className, 'overflow-y-auto')}>
         {filteredFileList.map((fileOrFolder) => {
@@ -122,6 +138,12 @@ export const FileTree = memo(
                   selected={selectedFile === fileOrFolder.fullPath}
                   file={fileOrFolder}
                   unsavedChanges={unsavedFiles?.has(fileOrFolder.fullPath)}
+                  onCopyPath={() => {
+                    onCopyPath(fileOrFolder);
+                  }}
+                  onCopyRelativePath={() => {
+                    onCopyRelativePath(fileOrFolder);
+                  }}
                   onClick={() => {
                     onFileSelect?.(fileOrFolder.fullPath);
                   }}
@@ -135,6 +157,12 @@ export const FileTree = memo(
                   folder={fileOrFolder}
                   selected={allowFolderSelection && selectedFile === fileOrFolder.fullPath}
                   collapsed={collapsedFolders.has(fileOrFolder.fullPath)}
+                  onCopyPath={() => {
+                    onCopyPath(fileOrFolder);
+                  }}
+                  onCopyRelativePath={() => {
+                    onCopyRelativePath(fileOrFolder);
+                  }}
                   onClick={() => {
                     toggleCollapseState(fileOrFolder.fullPath);
                   }}
@@ -157,23 +185,30 @@ interface FolderProps {
   folder: FolderNode;
   collapsed: boolean;
   selected?: boolean;
+  onCopyPath: () => void;
+  onCopyRelativePath: () => void;
   onClick: () => void;
 }
 
 interface FolderContextMenuProps {
+  onCopyPath?: () => void;
+  onCopyRelativePath?: () => void;
   children: ReactNode;
 }
 
-function ContextMenuItem({ children }: { children: ReactNode }) {
+function ContextMenuItem({ onSelect, children }: { onSelect?: () => void; children: ReactNode }) {
   return (
-    <ContextMenu.Item className="flex items-center gap-2 px-2 py-1.5 outline-0 text-sm text-bolt-elements-textPrimary cursor-pointer ws-nowrap text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive rounded-md">
+    <ContextMenu.Item
+      onSelect={onSelect}
+      className="flex items-center gap-2 px-2 py-1.5 outline-0 text-sm text-bolt-elements-textPrimary cursor-pointer ws-nowrap text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive rounded-md"
+    >
       <span className="size-4 shrink-0"></span>
       <span>{children}</span>
     </ContextMenu.Item>
   );
 }
 
-function FolderContextMenu({ children }: FolderContextMenuProps) {
+function FileContextMenu({ onCopyPath, onCopyRelativePath, children }: FolderContextMenuProps) {
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
@@ -183,16 +218,8 @@ function FolderContextMenu({ children }: FolderContextMenuProps) {
           className="border border-bolt-elements-borderColor rounded-md z-context-menu bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-2 data-[state=open]:animate-in animate-duration-100 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-98 w-56"
         >
           <ContextMenu.Group className="p-1 border-b-px border-solid border-bolt-elements-borderColor">
-            <ContextMenuItem>New file...</ContextMenuItem>
-            <ContextMenuItem>New folder...</ContextMenuItem>
-          </ContextMenu.Group>
-          <ContextMenu.Group className="p-1 border-b-px border-solid border-bolt-elements-borderColor">
-            <ContextMenuItem>Copy path</ContextMenuItem>
-            <ContextMenuItem>Copy relative path</ContextMenuItem>
-          </ContextMenu.Group>
-          <ContextMenu.Group className="p-1 border-b-px border-solid border-bolt-elements-borderColor">
-            <ContextMenuItem>Rename...</ContextMenuItem>
-            <ContextMenuItem>Delete</ContextMenuItem>
+            <ContextMenuItem onSelect={onCopyPath}>Copy path</ContextMenuItem>
+            <ContextMenuItem onSelect={onCopyRelativePath}>Copy relative path</ContextMenuItem>
           </ContextMenu.Group>
         </ContextMenu.Content>
       </ContextMenu.Portal>
@@ -200,9 +227,9 @@ function FolderContextMenu({ children }: FolderContextMenuProps) {
   );
 }
 
-function Folder({ folder, collapsed, selected = false, onClick }: FolderProps) {
+function Folder({ folder, collapsed, selected = false, onCopyPath, onCopyRelativePath, onClick }: FolderProps) {
   return (
-    <FolderContextMenu>
+    <FileContextMenu onCopyPath={onCopyPath} onCopyRelativePath={onCopyRelativePath}>
       <NodeButton
         className={classNames('group', {
           'bg-transparent text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive':
@@ -218,7 +245,7 @@ function Folder({ folder, collapsed, selected = false, onClick }: FolderProps) {
       >
         {folder.name}
       </NodeButton>
-    </FolderContextMenu>
+    </FileContextMenu>
   );
 }
 
@@ -226,31 +253,43 @@ interface FileProps {
   file: FileNode;
   selected: boolean;
   unsavedChanges?: boolean;
+  onCopyPath: () => void;
+  onCopyRelativePath: () => void;
   onClick: () => void;
 }
 
-function File({ file: { depth, name }, onClick, selected, unsavedChanges = false }: FileProps) {
+function File({
+  file: { depth, name },
+  onClick,
+  onCopyPath,
+  onCopyRelativePath,
+  selected,
+  unsavedChanges = false,
+}: FileProps) {
   return (
-    <NodeButton
-      className={classNames('group', {
-        'bg-transparent hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-item-contentDefault': !selected,
-        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': selected,
-      })}
-      depth={depth}
-      iconClasses={classNames('i-ph:file-duotone scale-98', {
-        'group-hover:text-bolt-elements-item-contentActive': !selected,
-      })}
-      onClick={onClick}
-    >
-      <div
-        className={classNames('flex items-center', {
+    <FileContextMenu onCopyPath={onCopyPath} onCopyRelativePath={onCopyRelativePath}>
+      <NodeButton
+        className={classNames('group', {
+          'bg-transparent hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-item-contentDefault':
+            !selected,
+          'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': selected,
+        })}
+        depth={depth}
+        iconClasses={classNames('i-ph:file-duotone scale-98', {
           'group-hover:text-bolt-elements-item-contentActive': !selected,
         })}
+        onClick={onClick}
       >
-        <div className="flex-1 truncate pr-2">{name}</div>
-        {unsavedChanges && <span className="i-ph:circle-fill scale-68 shrink-0 text-orange-500" />}
-      </div>
-    </NodeButton>
+        <div
+          className={classNames('flex items-center', {
+            'group-hover:text-bolt-elements-item-contentActive': !selected,
+          })}
+        >
+          <div className="flex-1 truncate pr-2">{name}</div>
+          {unsavedChanges && <span className="i-ph:circle-fill scale-68 shrink-0 text-orange-500" />}
+        </div>
+      </NodeButton>
+    </FileContextMenu>
   );
 }
 

@@ -197,7 +197,7 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
       <RadixDialog.Portal>
         <RadixDialog.Overlay asChild onClick={onClose}>
           <motion.div
-            className="bg-black/50 fixed inset-0 z-max"
+            className="bg-black/50 fixed inset-0 z-max backdrop-blur-sm"
             initial="closed"
             animate="open"
             exit="closed"

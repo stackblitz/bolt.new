@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { classNames } from '~/utils/classNames';
+import '~/styles/components/SettingsSlider.scss';
 
 interface SliderOption<T> {
   value: T;
@@ -22,11 +23,11 @@ export const SettingsSlider = memo(<T,>({ selected, options, setSelected }: Sett
   const isLeftSelected = selected === options.left.value;
 
   return (
-    <div className="relative flex items-center bg-bolt-elements-prompt-background rounded-lg">
+    <div className="settings-slider">
       <motion.div
         className={classNames(
-          'absolute h-full bg-green-500 transition-all duration-300 rounded-lg',
-          isLeftSelected ? 'left-0 w-1/2' : 'right-0 w-1/2',
+          'settings-slider__thumb',
+          isLeftSelected ? 'settings-slider__thumb--left' : 'settings-slider__thumb--right'
         )}
         initial={false}
         animate={{
@@ -42,8 +43,8 @@ export const SettingsSlider = memo(<T,>({ selected, options, setSelected }: Sett
       <button
         onClick={() => setSelected?.(options.left.value)}
         className={classNames(
-          'relative z-10 flex-1 p-2 rounded-lg text-sm transition-colors duration-200',
-          isLeftSelected ? 'text-white' : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary',
+          'settings-slider__button',
+          isLeftSelected ? 'settings-slider__button--selected' : 'settings-slider__button--unselected'
         )}
       >
         {options.left.text}
@@ -51,8 +52,8 @@ export const SettingsSlider = memo(<T,>({ selected, options, setSelected }: Sett
       <button
         onClick={() => setSelected?.(options.right.value)}
         className={classNames(
-          'relative z-10 flex-1 p-2 rounded-lg text-sm transition-colors duration-200',
-          !isLeftSelected ? 'text-white' : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary',
+          'settings-slider__button',
+          !isLeftSelected ? 'settings-slider__button--selected' : 'settings-slider__button--unselected'
         )}
       >
         {options.right.text}

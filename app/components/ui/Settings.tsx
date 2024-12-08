@@ -10,6 +10,9 @@ import { toast } from 'react-toastify';
 import { useNavigate } from '@remix-run/react';
 import commit from '~/commit.json';
 import Cookies from 'js-cookie';
+import { SettingsSlider } from './SettingsSlider';
+import '~/styles/components/SettingsSlider.scss';
+import '~/styles/components/Settings.scss';
 
 interface SettingsProps {
   open: boolean;
@@ -27,6 +30,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
   const [isDebugEnabled, setIsDebugEnabled] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isJustSayEnabled, setIsJustSayEnabled] = useState(false);
 
   // Load base URLs from cookies
   const [baseUrls, setBaseUrls] = useState(() => {
@@ -203,21 +207,20 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
         </RadixDialog.Overlay>
         <RadixDialog.Content asChild>
           <motion.div
-            className="fixed top-[50%] left-[50%] z-max h-[85vh] w-[90vw] max-w-[900px] translate-x-[-50%] translate-y-[-50%] border border-bolt-elements-borderColor rounded-lg bg-gray-800 shadow-lg focus:outline-none overflow-hidden"
+            className="fixed top-[50%] left-[50%] z-max h-[85vh] w-[90vw] max-w-[900px] translate-x-[-50%] translate-y-[-50%] border border-bolt-elements-borderColor rounded-lg shadow-lg focus:outline-none overflow-hidden"
             initial="closed"
             animate="open"
             exit="closed"
             variants={dialogVariants}
           >
             <div className="flex h-full">
-              <div className="w-48 border-r border-bolt-elements-borderColor bg-gray-700 p-4 flex flex-col justify-between">
+              <div className="w-48 border-r border-bolt-elements-borderColor bg-white dark:bg-gray-900 p-4 flex flex-col justify-between settings-tabs">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={classNames(
-                      'w-full flex items-center gap-2 px-4 py-3 rounded-lg text-left text-sm transition-all mb-2',
-                      activeTab === tab.id ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-200 hover:bg-blue-500',
+                      activeTab === tab.id ? 'active' : ''
                     )}
                   >
                     <div className={tab.icon} />
@@ -229,27 +232,29 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     href="https://github.com/coleam00/bolt.new-any-llm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-500 transition-colors duration-200"
+                    className="settings-button flex items-center gap-2"
                   >
+                    <div className="i-ph:github-logo" />
                     GitHub
                   </a>
                   <a
                     href="https://coleam00.github.io/bolt.new-any-llm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-500 transition-colors duration-200"
+                    className="settings-button flex items-center gap-2"
                   >
+                    <div className="i-ph:book" />
                     Docs
                   </a>
                 </div>
               </div>
 
-              <div className="flex-1 flex flex-col p-8">
-                <DialogTitle className="flex-shrink-0 text-lg font-semibold text-white">Settings</DialogTitle>
+              <div className="flex-1 flex flex-col p-8 bg-gray-50 dark:bg-gray-800">
+                <DialogTitle className="flex-shrink-0 text-lg font-semibold text-bolt-elements-textPrimary">Settings</DialogTitle>
                 <div className="flex-1 overflow-y-auto">
                   {activeTab === 'chat-history' && (
                     <div className="p-4">
-                      <h3 className="text-lg font-medium text-white mb-4">Chat History</h3>
+                      <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Chat History</h3>
                       <button
                         onClick={handleExportAllChats}
                         className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 mb-4 transition-colors duration-200"
@@ -257,7 +262,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                         Export All Chats
                       </button>
 
-                      <div className="bg-red-500 text-white rounded-lg p-4 mb-4">
+                      <div className="text-bolt-elements-textPrimary rounded-lg p-4 mb-4 settings-danger-area">
                         <h4 className="font-semibold">Danger Area</h4>
                         <p className="mb-2">This action cannot be undone!</p>
                         <button
@@ -275,21 +280,23 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                   )}
                   {activeTab === 'providers' && (
                     <div className="p-4">
-                      <h3 className="text-lg font-medium text-white mb-4">Providers</h3>
-                      <input
-                        type="text"
-                        placeholder="Search providers..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="mb-4 p-2 rounded border border-gray-300 w-full"
-                      />
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-medium text-bolt-elements-textPrimary">Providers</h3>
+                        <input
+                          type="text"
+                          placeholder="Search providers..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="mb-4 p-2 rounded border border-gray-300"
+                        />
+                      </div>
                       {filteredProviders.map((provider) => (
                         <div
                           key={provider.name}
-                          className="flex flex-col mb-6 provider-item hover:bg-gray-600 p-4 rounded-lg"
+                          className="flex flex-col mb-6 provider-item hover:bg-bolt-elements-bg-depth-3 p-4 rounded-lg"
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-white">{provider.name}</span>
+                            <span className="text-bolt-elements-textPrimary">{provider.name}</span>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input
                                 type="checkbox"
@@ -297,25 +304,26 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                                 checked={provider.isEnabled}
                                 onChange={() => handleToggleProvider(provider.name)}
                               />
-                              <div className="w-11 h-6 bg-gray-300 rounded-full shadow-inner"></div>
-                              <div
-                                className={`absolute left-0 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ease-in-out ${
-                                  provider.isEnabled ? 'transform translate-x-full bg-green-500' : ''
-                                }`}
-                              ></div>
+                              <div className={classNames(
+                                'settings-toggle__track',
+                                provider.isEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
+                              )}></div>
+                              <div className={classNames(
+                                'settings-toggle__thumb',
+                                provider.isEnabled ? 'settings-toggle__thumb--enabled' : ''
+                              )}></div>
                             </label>
                           </div>
-
                           {/* Base URL input for configurable providers */}
                           {URL_CONFIGURABLE_PROVIDERS.includes(provider.name) && provider.isEnabled && (
                             <div className="mt-2">
-                              <label className="block text-sm text-gray-300 mb-1">Base URL:</label>
+                              <label className="block text-sm text-bolt-elements-textSecondary mb-1">Base URL:</label>
                               <input
                                 type="text"
                                 value={baseUrls[provider.name]}
                                 onChange={(e) => handleBaseUrlChange(provider.name, e.target.value)}
                                 placeholder={`Enter ${provider.name} base URL`}
-                                className="w-full p-2 rounded border border-gray-600 bg-gray-700 text-white text-sm"
+                                className="w-full p-2 rounded border border-bolt-elements-borderColor bg-bolt-elements-bg-depth-2 text-bolt-elements-textPrimary text-sm"
                               />
                             </div>
                           )}
@@ -324,9 +332,10 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     </div>
                   )}
                   {activeTab === 'features' && (
-                    <div className="p-4">
+                    <div className="p-4 bg-bolt-elements-bg-depth-2 border border-bolt-elements-borderColor rounded-lg mb-4">
+                      <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Feature Settings</h3>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white">Debug Info</span>
+                        <span className="text-bolt-elements-textPrimary">Debug Info</span>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -334,20 +343,45 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                             checked={isDebugEnabled}
                             onChange={() => setIsDebugEnabled(!isDebugEnabled)}
                           />
-                          <div className="w-11 h-6 bg-gray-300 rounded-full shadow-inner"></div>
-                          <div
-                            className={`absolute left-0 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ease-in-out ${
-                              isDebugEnabled ? 'transform translate-x-full bg-green-500' : ''
-                            }`}
-                          ></div>
+                          <div className={classNames(
+                            'settings-toggle__track',
+                            isDebugEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
+                          )}></div>
+                          <div className={classNames(
+                            'settings-toggle__thumb',
+                            isDebugEnabled ? 'settings-toggle__thumb--enabled' : ''
+                          )}></div>
                         </label>
                       </div>
-                      <div className="feature-row">{/* Your feature content here */}</div>
+                    </div>
+                  )}
+                  {activeTab === 'features' && (
+                    <div className="p-4 bg-bolt-elements-bg-depth-2 border border-bolt-elements-borderColor rounded-lg">
+                      <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Experimental Area</h3>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-bolt-elements-textPrimary">Replace with local models</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={isJustSayEnabled}
+                            onChange={() => setIsJustSayEnabled(!isJustSayEnabled)}
+                          />
+                          <div className={classNames(
+                            'settings-toggle__track',
+                            isJustSayEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
+                          )}></div>
+                          <div className={classNames(
+                            'settings-toggle__thumb',
+                            isJustSayEnabled ? 'settings-toggle__thumb--enabled' : ''
+                          )}></div>
+                        </label>
+                      </div>
                     </div>
                   )}
                   {activeTab === 'debug' && isDebugEnabled && (
                     <div className="p-4">
-                      <h3 className="text-lg font-medium text-white mb-4">Debug Tab</h3>
+                      <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Debug Tab</h3>
                       <button
                         onClick={handleCopyToClipboard}
                         className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 mb-4 transition-colors duration-200"
@@ -355,30 +389,30 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                         Copy to Clipboard
                       </button>
 
-                      <h4 className="text-md font-medium text-white">System Information</h4>
-                      <p className="text-white">OS: {navigator.platform}</p>
-                      <p className="text-white">Browser: {navigator.userAgent}</p>
+                      <h4 className="text-md font-medium text-bolt-elements-textPrimary">System Information</h4>
+                      <p className="text-bolt-elements-textSecondary">OS: {navigator.platform}</p>
+                      <p className="text-bolt-elements-textSecondary">Browser: {navigator.userAgent}</p>
 
-                      <h4 className="text-md font-medium text-white mt-4">Active Features</h4>
+                      <h4 className="text-md font-medium text-bolt-elements-textPrimary mt-4">Active Features</h4>
                       <ul>
                         {providers
                           .filter((provider) => provider.isEnabled)
                           .map((provider) => (
-                            <li key={provider.name} className="text-white">
+                            <li key={provider.name} className="text-bolt-elements-textSecondary">
                               {provider.name}
                             </li>
                           ))}
                       </ul>
 
-                      <h4 className="text-md font-medium text-white mt-4">Base URLs</h4>
+                      <h4 className="text-md font-medium text-bolt-elements-textPrimary mt-4">Base URLs</h4>
                       <ul>
-                        <li className="text-white">Ollama: {process.env.REACT_APP_OLLAMA_URL}</li>
-                        <li className="text-white">OpenAI: {process.env.REACT_APP_OPENAI_URL}</li>
-                        <li className="text-white">LM Studio: {process.env.REACT_APP_LM_STUDIO_URL}</li>
+                        <li className="text-bolt-elements-textSecondary">Ollama: {process.env.REACT_APP_OLLAMA_URL}</li>
+                        <li className="text-bolt-elements-textSecondary">OpenAI: {process.env.REACT_APP_OPENAI_URL}</li>
+                        <li className="text-bolt-elements-textSecondary">LM Studio: {process.env.REACT_APP_LM_STUDIO_URL}</li>
                       </ul>
 
-                      <h4 className="text-md font-medium text-white mt-4">Version Information</h4>
-                      <p className="text-white">Version Hash: {versionHash}</p>
+                      <h4 className="text-md font-medium text-bolt-elements-textPrimary mt-4">Version Information</h4>
+                      <p className="text-bolt-elements-textSecondary">Version Hash: {versionHash}</p>
                     </div>
                   )}
                 </div>

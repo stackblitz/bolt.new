@@ -2,17 +2,16 @@ import * as RadixDialog from '@radix-ui/react-dialog';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { classNames } from '~/utils/classNames';
-import { DialogTitle, dialogVariants, dialogBackdropVariants } from './Dialog';
-import { IconButton } from './IconButton';
+import { DialogTitle, dialogVariants, dialogBackdropVariants } from '~/components/ui/Dialog';
+import { IconButton } from '~/components/ui/IconButton';
 import { providersList } from '~/lib/stores/settings';
 import { db, getAll, deleteById } from '~/lib/persistence';
 import { toast } from 'react-toastify';
 import { useNavigate } from '@remix-run/react';
 import commit from '~/commit.json';
 import Cookies from 'js-cookie';
-import { SettingsSlider } from './SettingsSlider';
-import '~/styles/components/SettingsSlider.scss';
-import '~/styles/components/Settings.scss';
+import styles from './Settings.module.scss';
+import { Switch } from '~/components/ui/Switch';
 
 interface SettingsProps {
   open: boolean;
@@ -24,7 +23,7 @@ type TabType = 'chat-history' | 'providers' | 'features' | 'debug';
 // Providers that support base URL configuration
 const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
 
-export const Settings = ({ open, onClose }: SettingsProps) => {
+export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('chat-history');
   const [isDebugEnabled, setIsDebugEnabled] = useState(false);
@@ -93,10 +92,10 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
     return providersList;
   });
 
-  const handleToggleProvider = (providerName: string) => {
+  const handleToggleProvider = (providerName: string, enabled: boolean) => {
     setProviders((prevProviders) => {
       const newProviders = prevProviders.map((provider) =>
-        provider.name === providerName ? { ...provider, isEnabled: !provider.isEnabled } : provider,
+        provider.name === providerName ? { ...provider, isEnabled: enabled } : provider,
       );
 
       // Save to cookies
@@ -196,7 +195,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
   return (
     <RadixDialog.Root open={open}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay asChild>
+        <RadixDialog.Overlay asChild onClick={onClose}>
           <motion.div
             className="bg-black/50 fixed inset-0 z-max"
             initial="closed"
@@ -214,14 +213,20 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
             variants={dialogVariants}
           >
             <div className="flex h-full">
-              <div className="w-48 border-r border-bolt-elements-borderColor bg-white dark:bg-gray-900 p-4 flex flex-col justify-between settings-tabs">
+              <div
+                className={classNames(
+                  'w-48 border-r border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 p-4 flex flex-col justify-between',
+                  styles['settings-tabs'],
+                )}
+              >
+                <DialogTitle className="flex-shrink-0 text-lg font-semibold text-bolt-elements-textPrimary mb-2">
+                  Settings
+                </DialogTitle>
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={classNames(
-                      activeTab === tab.id ? 'active' : ''
-                    )}
+                    className={classNames(activeTab === tab.id ? styles.active : '')}
                   >
                     <div className={tab.icon} />
                     {tab.label}
@@ -232,7 +237,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     href="https://github.com/coleam00/bolt.new-any-llm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="settings-button flex items-center gap-2"
+                    className={classNames(styles['settings-button'], 'flex items-center gap-2')}
                   >
                     <div className="i-ph:github-logo" />
                     GitHub
@@ -241,7 +246,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                     href="https://coleam00.github.io/bolt.new-any-llm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="settings-button flex items-center gap-2"
+                    className={classNames(styles['settings-button'], 'flex items-center gap-2')}
                   >
                     <div className="i-ph:book" />
                     Docs
@@ -249,28 +254,41 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                 </div>
               </div>
 
-              <div className="flex-1 flex flex-col p-8 bg-gray-50 dark:bg-gray-800">
-                <DialogTitle className="flex-shrink-0 text-lg font-semibold text-bolt-elements-textPrimary">Settings</DialogTitle>
+              <div className="flex-1 flex flex-col p-8 bg-bolt-elements-background-depth-2">
                 <div className="flex-1 overflow-y-auto">
                   {activeTab === 'chat-history' && (
                     <div className="p-4">
                       <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Chat History</h3>
                       <button
                         onClick={handleExportAllChats}
-                        className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 mb-4 transition-colors duration-200"
+                        className={classNames(
+                          'bg-bolt-elements-button-primary-background',
+                          'rounded-lg px-4 py-2 mb-4 transition-colors duration-200',
+                          'hover:bg-bolt-elements-button-primary-backgroundHover',
+                          'text-bolt-elements-button-primary-text',
+                        )}
                       >
                         Export All Chats
                       </button>
 
-                      <div className="text-bolt-elements-textPrimary rounded-lg p-4 mb-4 settings-danger-area">
+                      <div
+                        className={classNames(
+                          'text-bolt-elements-textPrimary rounded-lg py-4 mb-4',
+                          styles['settings-danger-area'],
+                        )}
+                      >
                         <h4 className="font-semibold">Danger Area</h4>
                         <p className="mb-2">This action cannot be undone!</p>
                         <button
                           onClick={handleDeleteAllChats}
                           disabled={isDeleting}
                           className={classNames(
-                            'bg-red-700 text-white rounded-lg px-4 py-2 transition-colors duration-200',
-                            isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-800',
+                            'bg-bolt-elements-button-danger-background',
+                            'rounded-lg px-4 py-2 transition-colors duration-200',
+                            isDeleting
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'hover:bg-bolt-elements-button-danger-backgroundHover',
+                            'text-bolt-elements-button-danger-text',
                           )}
                         >
                           {isDeleting ? 'Deleting...' : 'Delete All Chats'}
@@ -280,39 +298,27 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                   )}
                   {activeTab === 'providers' && (
                     <div className="p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-medium text-bolt-elements-textPrimary">Providers</h3>
+                      <div className="flex mb-4">
                         <input
                           type="text"
                           placeholder="Search providers..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="mb-4 p-2 rounded border border-gray-300"
+                          className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1.5 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor"
                         />
                       </div>
                       {filteredProviders.map((provider) => (
                         <div
                           key={provider.name}
-                          className="flex flex-col mb-6 provider-item hover:bg-bolt-elements-bg-depth-3 p-4 rounded-lg"
+                          className="flex flex-col mb-2 provider-item hover:bg-bolt-elements-bg-depth-3 p-4 rounded-lg border border-bolt-elements-borderColor "
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-bolt-elements-textPrimary">{provider.name}</span>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                className="sr-only"
-                                checked={provider.isEnabled}
-                                onChange={() => handleToggleProvider(provider.name)}
-                              />
-                              <div className={classNames(
-                                'settings-toggle__track',
-                                provider.isEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
-                              )}></div>
-                              <div className={classNames(
-                                'settings-toggle__thumb',
-                                provider.isEnabled ? 'settings-toggle__thumb--enabled' : ''
-                              )}></div>
-                            </label>
+                            <Switch
+                              className="ml-auto"
+                              checked={provider.isEnabled}
+                              onCheckedChange={(enabled) => handleToggleProvider(provider.name, enabled)}
+                            />
                           </div>
                           {/* Base URL input for configurable providers */}
                           {URL_CONFIGURABLE_PROVIDERS.includes(provider.name) && provider.isEnabled && (
@@ -323,7 +329,7 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                                 value={baseUrls[provider.name]}
                                 onChange={(e) => handleBaseUrlChange(provider.name, e.target.value)}
                                 placeholder={`Enter ${provider.name} base URL`}
-                                className="w-full p-2 rounded border border-bolt-elements-borderColor bg-bolt-elements-bg-depth-2 text-bolt-elements-textPrimary text-sm"
+                                className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1.5 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor"
                               />
                             </div>
                           )}
@@ -343,14 +349,18 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                             checked={isDebugEnabled}
                             onChange={() => setIsDebugEnabled(!isDebugEnabled)}
                           />
-                          <div className={classNames(
-                            'settings-toggle__track',
-                            isDebugEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
-                          )}></div>
-                          <div className={classNames(
-                            'settings-toggle__thumb',
-                            isDebugEnabled ? 'settings-toggle__thumb--enabled' : ''
-                          )}></div>
+                          <div
+                            className={classNames(
+                              'settings-toggle__track',
+                              isDebugEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled',
+                            )}
+                          ></div>
+                          <div
+                            className={classNames(
+                              'settings-toggle__thumb',
+                              isDebugEnabled ? 'settings-toggle__thumb--enabled' : '',
+                            )}
+                          ></div>
                         </label>
                       </div>
                     </div>
@@ -367,14 +377,18 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                             checked={isJustSayEnabled}
                             onChange={() => setIsJustSayEnabled(!isJustSayEnabled)}
                           />
-                          <div className={classNames(
-                            'settings-toggle__track',
-                            isJustSayEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled'
-                          )}></div>
-                          <div className={classNames(
-                            'settings-toggle__thumb',
-                            isJustSayEnabled ? 'settings-toggle__thumb--enabled' : ''
-                          )}></div>
+                          <div
+                            className={classNames(
+                              'settings-toggle__track',
+                              isJustSayEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled',
+                            )}
+                          ></div>
+                          <div
+                            className={classNames(
+                              'settings-toggle__thumb',
+                              isJustSayEnabled ? 'settings-toggle__thumb--enabled' : '',
+                            )}
+                          ></div>
                         </label>
                       </div>
                     </div>
@@ -408,7 +422,9 @@ export const Settings = ({ open, onClose }: SettingsProps) => {
                       <ul>
                         <li className="text-bolt-elements-textSecondary">Ollama: {process.env.REACT_APP_OLLAMA_URL}</li>
                         <li className="text-bolt-elements-textSecondary">OpenAI: {process.env.REACT_APP_OPENAI_URL}</li>
-                        <li className="text-bolt-elements-textSecondary">LM Studio: {process.env.REACT_APP_LM_STUDIO_URL}</li>
+                        <li className="text-bolt-elements-textSecondary">
+                          LM Studio: {process.env.REACT_APP_LM_STUDIO_URL}
+                        </li>
                       </ul>
 
                       <h4 className="text-md font-medium text-bolt-elements-textPrimary mt-4">Version Information</h4>

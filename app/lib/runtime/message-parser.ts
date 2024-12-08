@@ -29,6 +29,7 @@ export interface ParserCallbacks {
   onArtifactClose?: ArtifactCallback;
   onActionOpen?: ActionCallback;
   onActionClose?: ActionCallback;
+  onReceivedActionContent?: ActionCallback;
 }
 
 interface ElementFactoryProps {
@@ -99,6 +100,14 @@ export class StreamingMessageParser {
 
             currentAction.content = content;
 
+
+            this._options.callbacks?.onReceivedActionContent?.({
+              artifactId: currentArtifact.id,
+              messageId,
+              actionId: String(state.actionId - 1),
+              action: currentAction as BoltAction,
+            });
+
             this._options.callbacks?.onActionClose?.({
               artifactId: currentArtifact.id,
               messageId,
@@ -118,6 +127,18 @@ export class StreamingMessageParser {
 
             i = closeIndex + ARTIFACT_ACTION_TAG_CLOSE.length;
           } else {
+            
+            const content = input.slice(i, input.length - ARTIFACT_ACTION_TAG_CLOSE.length);
+
+            this._options.callbacks?.onReceivedActionContent?.({
+              artifactId: currentArtifact.id,
+              messageId,
+              actionId: String(state.actionId - 1),
+              action: {
+                ...currentAction,
+                content,
+              } as BoltAction,
+            });
             break;
           }
         } else {

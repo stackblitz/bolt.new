@@ -7,6 +7,7 @@ import { BaseChat } from '~/components/chat/BaseChat';
 import { Chat } from '~/components/chat/Chat.client';
 import { useGit } from '~/lib/hooks/useGit';
 import { useChatHistory } from '~/lib/persistence';
+import { createCommandsMessage, detectProjectCommands } from '~/utils/projectCommands';
 
 const IGNORE_PATTERNS = [
   'node_modules/**',
@@ -49,39 +50,49 @@ export function GitUrlImport() {
 
       if (importChat) {
         const filePaths = Object.keys(data).filter((filePath) => !ig.ignores(filePath));
-        console.log(filePaths);
 
         const textDecoder = new TextDecoder('utf-8');
-        const message: Message = {
+
+        // Convert files to common format for command detection
+        const fileContents = filePaths
+          .map((filePath) => {
+            const { data: content, encoding } = data[filePath];
+            return {
+              path: filePath,
+              content: encoding === 'utf8' ? content : content instanceof Uint8Array ? textDecoder.decode(content) : '',
+            };
+          })
+          .filter((f) => f.content);
+
+        // Detect and create commands message
+        const commands = await detectProjectCommands(fileContents);
+        const commandsMessage = createCommandsMessage(commands);
+
+        // Create files message
+        const filesMessage: Message = {
           role: 'assistant',
           content: `Cloning the repo ${repoUrl} into ${workdir}
-<boltArtifact id="imported-files" title="Git Cloned Files" type="bundled" >           
-          ${filePaths
-            .map((filePath) => {
-              const { data: content, encoding } = data[filePath];
-
-              if (encoding === 'utf8') {
-                return `<boltAction type="file" filePath="${filePath}">
-${content}
-</boltAction>`;
-              } else if (content instanceof Uint8Array) {
-                return `<boltAction type="file" filePath="${filePath}">
-${textDecoder.decode(content)}
-</boltAction>`;
-              } else {
-                return '';
-              }
-            })
-            .join('\n')}
- </boltArtifact>`,
+<boltArtifact id="imported-files" title="Git Cloned Files" type="bundled">           
+${fileContents
+  .map(
+    (file) =>
+      `<boltAction type="file" filePath="${file.path}">
+${file.content}
+</boltAction>`,
+  )
+  .join('\n')}
+</boltArtifact>`,
           id: generateId(),
           createdAt: new Date(),
         };
-        console.log(JSON.stringify(message));
 
-        importChat(`Git Project:${repoUrl.split('/').slice(-1)[0]}`, [message]);
+        const messages = [filesMessage];
 
-        // console.log(files);
+        if (commandsMessage) {
+          messages.push(commandsMessage);
+        }
+
+        await importChat(`Git Project:${repoUrl.split('/').slice(-1)[0]}`, messages);
       }
     }
   };

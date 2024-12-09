@@ -30,6 +30,7 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isJustSayEnabled, setIsJustSayEnabled] = useState(false);
+  const [isLocalModelsEnabled, setIsLocalModelsEnabled] = useState(false);
   const [isExperimentalFeature1Enabled, setIsExperimentalFeature1Enabled] = useState(false);
   const [isExperimentalFeature2Enabled, setIsExperimentalFeature2Enabled] = useState(false);
 
@@ -115,6 +116,10 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
   };
 
   const filteredProviders = providers
+    .filter((provider) => {
+      const isLocalModelProvider = ['OpenAILike', 'LMStudio', 'Ollama'].includes(provider.name);
+      return isLocalModelsEnabled || !isLocalModelProvider;
+    })
     .filter((provider) => provider.name.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -359,11 +364,11 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                           Disclaimer: Experimental features may be unstable and are subject to change.
                         </p>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-bolt-elements-textPrimary">Replace with local models</span>
+                          <span className="text-bolt-elements-textPrimary">Enable Local Models</span>
                           <Switch
                             className="ml-auto"
-                            checked={isJustSayEnabled}
-                            onCheckedChange={() => setIsJustSayEnabled(!isJustSayEnabled)}
+                            checked={isLocalModelsEnabled}
+                            onCheckedChange={() => setIsLocalModelsEnabled(!isLocalModelsEnabled)}
                           />
                         </div>
                       </div>

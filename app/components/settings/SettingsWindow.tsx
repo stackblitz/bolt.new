@@ -205,13 +205,12 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
 
   const versionHash = commit.commit; // Get the version hash from commit.json
 
-
   const handleSaveConnection = () => {
     Cookies.set('githubUsername', githubUsername);
     Cookies.set('githubToken', githubToken);
     toast.success('GitHub credentials saved successfully!');
+  };
 
-  // Update the toggle handlers to save to cookies
   const handleToggleDebug = (enabled: boolean) => {
     setIsDebugEnabled(enabled);
     Cookies.set('isDebugEnabled', String(enabled));

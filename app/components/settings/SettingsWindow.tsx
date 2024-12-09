@@ -26,12 +26,18 @@ const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
 export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('chat-history');
-  const [isDebugEnabled, setIsDebugEnabled] = useState(false);
+  const [isDebugEnabled, setIsDebugEnabled] = useState(() => {
+    const savedDebugState = Cookies.get('isDebugEnabled');
+    return savedDebugState === 'true';
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isJustSayEnabled, setIsJustSayEnabled] = useState(false);
   const [githubUsername, setGithubUsername] = useState(Cookies.get('githubUsername') || '');
   const [githubToken, setGithubToken] = useState(Cookies.get('githubToken') || '');
+  const [isLocalModelsEnabled, setIsLocalModelsEnabled] = useState(() => {
+    const savedLocalModelsState = Cookies.get('isLocalModelsEnabled');
+    return savedLocalModelsState === 'true';
+  });
 
   // Load base URLs from cookies
   const [baseUrls, setBaseUrls] = useState(() => {
@@ -116,6 +122,10 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
   };
 
   const filteredProviders = providers
+    .filter((provider) => {
+      const isLocalModelProvider = ['OpenAILike', 'LMStudio', 'Ollama'].includes(provider.name);
+      return isLocalModelsEnabled || !isLocalModelProvider;
+    })
     .filter((provider) => provider.name.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -195,10 +205,21 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
 
   const versionHash = commit.commit; // Get the version hash from commit.json
 
+
   const handleSaveConnection = () => {
     Cookies.set('githubUsername', githubUsername);
     Cookies.set('githubToken', githubToken);
     toast.success('GitHub credentials saved successfully!');
+
+  // Update the toggle handlers to save to cookies
+  const handleToggleDebug = (enabled: boolean) => {
+    setIsDebugEnabled(enabled);
+    Cookies.set('isDebugEnabled', String(enabled));
+  };
+
+  const handleToggleLocalModels = (enabled: boolean) => {
+    setIsLocalModelsEnabled(enabled);
+    Cookies.set('isLocalModelsEnabled', String(enabled));
   };
 
   return (
@@ -348,57 +369,31 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                   )}
                   {activeTab === 'features' && (
                     <div className="p-4 bg-bolt-elements-bg-depth-2 border border-bolt-elements-borderColor rounded-lg mb-4">
-                      <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Feature Settings</h3>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-bolt-elements-textPrimary">Debug Info</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only"
+                      <div className="mb-6">
+                        <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Optional Features</h3>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-bolt-elements-textPrimary">Debug Info</span>
+                          <Switch
+                            className="ml-auto"
                             checked={isDebugEnabled}
-                            onChange={() => setIsDebugEnabled(!isDebugEnabled)}
+                            onCheckedChange={handleToggleDebug}
                           />
-                          <div
-                            className={classNames(
-                              'settings-toggle__track',
-                              isDebugEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled',
-                            )}
-                          ></div>
-                          <div
-                            className={classNames(
-                              'settings-toggle__thumb',
-                              isDebugEnabled ? 'settings-toggle__thumb--enabled' : '',
-                            )}
-                          ></div>
-                        </label>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {activeTab === 'features' && (
-                    <div className="p-4 bg-bolt-elements-bg-depth-2 border border-bolt-elements-borderColor rounded-lg">
-                      <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Experimental Area</h3>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-bolt-elements-textPrimary">Replace with local models</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={isJustSayEnabled}
-                            onChange={() => setIsJustSayEnabled(!isJustSayEnabled)}
+
+                      <div className="mb-6 border-t border-bolt-elements-borderColor pt-4">
+                        <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Experimental Features</h3>
+                        <p className="text-sm text-bolt-elements-textSecondary mb-4">
+                          Disclaimer: Experimental features may be unstable and are subject to change.
+                        </p>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-bolt-elements-textPrimary">Enable Local Models</span>
+                          <Switch
+                            className="ml-auto"
+                            checked={isLocalModelsEnabled}
+                            onCheckedChange={handleToggleLocalModels}
                           />
-                          <div
-                            className={classNames(
-                              'settings-toggle__track',
-                              isJustSayEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled',
-                            )}
-                          ></div>
-                          <div
-                            className={classNames(
-                              'settings-toggle__thumb',
-                              isJustSayEnabled ? 'settings-toggle__thumb--enabled' : '',
-                            )}
-                          ></div>
-                        </label>
+                        </div>
                       </div>
                     </div>
                   )}

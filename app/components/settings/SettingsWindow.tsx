@@ -201,12 +201,6 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
     toast.success('GitHub credentials saved successfully!');
   };
 
-  const handleTestConnection = () => {
-    // Implement the logic to test the GitHub connection here
-    // For example, you could make an API call to GitHub to verify the credentials
-    toast.info('Testing GitHub connection...');
-  };
-
   return (
     <RadixDialog.Root open={open}>
       <RadixDialog.Portal>
@@ -475,12 +469,6 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                           className="bg-bolt-elements-button-primary-background rounded-lg px-4 py-2 mr-2 transition-colors duration-200 hover:bg-bolt-elements-button-primary-backgroundHover text-bolt-elements-button-primary-text"
                         >
                           Save Connection
-                        </button>
-                        <button
-                          onClick={handleTestConnection}
-                          className="bg-blue-500 rounded-lg px-4 py-2 transition-colors duration-200 hover:bg-blue-600 text-white"
-                        >
-                          Test Connection
                         </button>
                       </div>
                     </div>

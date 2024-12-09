@@ -30,6 +30,8 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isJustSayEnabled, setIsJustSayEnabled] = useState(false);
+  const [isExperimentalFeature1Enabled, setIsExperimentalFeature1Enabled] = useState(false);
+  const [isExperimentalFeature2Enabled, setIsExperimentalFeature2Enabled] = useState(false);
 
   // Load base URLs from cookies
   const [baseUrls, setBaseUrls] = useState(() => {
@@ -339,57 +341,31 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                   )}
                   {activeTab === 'features' && (
                     <div className="p-4 bg-bolt-elements-bg-depth-2 border border-bolt-elements-borderColor rounded-lg mb-4">
-                      <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Feature Settings</h3>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-bolt-elements-textPrimary">Debug Info</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only"
+                      <div className="mb-6">
+                        <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Optional Features</h3>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-bolt-elements-textPrimary">Debug Info</span>
+                          <Switch
+                            className="ml-auto"
                             checked={isDebugEnabled}
-                            onChange={() => setIsDebugEnabled(!isDebugEnabled)}
+                            onCheckedChange={() => setIsDebugEnabled(!isDebugEnabled)}
                           />
-                          <div
-                            className={classNames(
-                              'settings-toggle__track',
-                              isDebugEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled',
-                            )}
-                          ></div>
-                          <div
-                            className={classNames(
-                              'settings-toggle__thumb',
-                              isDebugEnabled ? 'settings-toggle__thumb--enabled' : '',
-                            )}
-                          ></div>
-                        </label>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {activeTab === 'features' && (
-                    <div className="p-4 bg-bolt-elements-bg-depth-2 border border-bolt-elements-borderColor rounded-lg">
-                      <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Experimental Area</h3>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-bolt-elements-textPrimary">Replace with local models</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only"
+
+                      <div className="mb-6 border-t border-bolt-elements-borderColor pt-4">
+                        <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Experimental Features</h3>
+                        <p className="text-sm text-bolt-elements-textSecondary mb-4">
+                          Disclaimer: Experimental features may be unstable and are subject to change.
+                        </p>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-bolt-elements-textPrimary">Replace with local models</span>
+                          <Switch
+                            className="ml-auto"
                             checked={isJustSayEnabled}
-                            onChange={() => setIsJustSayEnabled(!isJustSayEnabled)}
+                            onCheckedChange={() => setIsJustSayEnabled(!isJustSayEnabled)}
                           />
-                          <div
-                            className={classNames(
-                              'settings-toggle__track',
-                              isJustSayEnabled ? 'settings-toggle__track--enabled' : 'settings-toggle__track--disabled',
-                            )}
-                          ></div>
-                          <div
-                            className={classNames(
-                              'settings-toggle__thumb',
-                              isJustSayEnabled ? 'settings-toggle__thumb--enabled' : '',
-                            )}
-                          ></div>
-                        </label>
+                        </div>
                       </div>
                     </div>
                   )}

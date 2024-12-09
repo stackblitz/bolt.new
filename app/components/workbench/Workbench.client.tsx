@@ -162,6 +162,15 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                     <PanelHeaderButton
                       className="mr-1 text-sm"
                       onClick={() => {
+                        workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
+                      }}
+                    >
+                      <div className="i-ph:terminal" />
+                      Toggle Terminal
+                    </PanelHeaderButton>
+                    <PanelHeaderButton
+                      className="mr-1 text-sm"
+                      onClick={() => {
                         const repoName = prompt(
                           'Please enter a name for your new GitHub repository:',
                           'bolt-generated-project',

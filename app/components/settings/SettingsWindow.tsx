@@ -26,11 +26,17 @@ const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
 export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('chat-history');
-  const [isDebugEnabled, setIsDebugEnabled] = useState(false);
+  const [isDebugEnabled, setIsDebugEnabled] = useState(() => {
+    const savedDebugState = Cookies.get('isDebugEnabled');
+    return savedDebugState === 'true';
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isJustSayEnabled, setIsJustSayEnabled] = useState(false);
-  const [isLocalModelsEnabled, setIsLocalModelsEnabled] = useState(false);
+  const [isLocalModelsEnabled, setIsLocalModelsEnabled] = useState(() => {
+    const savedLocalModelsState = Cookies.get('isLocalModelsEnabled');
+    return savedLocalModelsState === 'true';
+  });
   const [isExperimentalFeature1Enabled, setIsExperimentalFeature1Enabled] = useState(false);
   const [isExperimentalFeature2Enabled, setIsExperimentalFeature2Enabled] = useState(false);
 
@@ -199,6 +205,17 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
 
   const versionHash = commit.commit; // Get the version hash from commit.json
 
+  // Update the toggle handlers to save to cookies
+  const handleToggleDebug = (enabled: boolean) => {
+    setIsDebugEnabled(enabled);
+    Cookies.set('isDebugEnabled', String(enabled));
+  };
+
+  const handleToggleLocalModels = (enabled: boolean) => {
+    setIsLocalModelsEnabled(enabled);
+    Cookies.set('isLocalModelsEnabled', String(enabled));
+  };
+
   return (
     <RadixDialog.Root open={open}>
       <RadixDialog.Portal>
@@ -353,7 +370,7 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                           <Switch
                             className="ml-auto"
                             checked={isDebugEnabled}
-                            onCheckedChange={() => setIsDebugEnabled(!isDebugEnabled)}
+                            onCheckedChange={handleToggleDebug}
                           />
                         </div>
                       </div>
@@ -368,7 +385,7 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                           <Switch
                             className="ml-auto"
                             checked={isLocalModelsEnabled}
-                            onCheckedChange={() => setIsLocalModelsEnabled(!isLocalModelsEnabled)}
+                            onCheckedChange={handleToggleLocalModels}
                           />
                         </div>
                       </div>

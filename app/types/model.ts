@@ -7,4 +7,5 @@ export type ProviderInfo = {
   getApiKeyLink?: string;
   labelForGetApiKey?: string;
   icon?: string;
+  isEnabled?: boolean;
 };

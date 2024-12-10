@@ -41,6 +41,7 @@ https://thinktank.ottomator.ai
 - ✅ Mobile friendly (@qwikode)
 - ✅ Better prompt enhancing (@SujalXplores)
 - ✅ Attach images to prompts (@atrokhym)
+- ✅ Detect package.json and commands to auto install and run preview for folder and git import (@wonderwhy-er)
 - ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call

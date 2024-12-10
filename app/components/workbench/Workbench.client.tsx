@@ -17,6 +17,7 @@ import { renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
 import useViewport from '~/lib/hooks';
+import Cookies from 'js-cookie';
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -180,21 +181,22 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                           return;
                         }
 
-                        const githubUsername = prompt('Please enter your GitHub username:');
+                        const githubUsername = Cookies.get('githubUsername');
+                        const githubToken = Cookies.get('githubToken');
 
-                        if (!githubUsername) {
-                          alert('GitHub username is required. Push to GitHub cancelled.');
-                          return;
+                        if (!githubUsername || !githubToken) {
+                          const usernameInput = prompt('Please enter your GitHub username:');
+                          const tokenInput = prompt('Please enter your GitHub personal access token:');
+
+                          if (!usernameInput || !tokenInput) {
+                            alert('GitHub username and token are required. Push to GitHub cancelled.');
+                            return;
+                          }
+
+                          workbenchStore.pushToGitHub(repoName, usernameInput, tokenInput);
+                        } else {
+                          workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);
                         }
-
-                        const githubToken = prompt('Please enter your GitHub personal access token:');
-
-                        if (!githubToken) {
-                          alert('GitHub token is required. Push to GitHub cancelled.');
-                          return;
-                        }
-
-                        workbenchStore.pushToGitHub(repoName, githubUsername, githubToken);
                       }}
                     >
                       <div className="i-ph:github-logo" />

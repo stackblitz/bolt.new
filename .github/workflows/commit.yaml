@@ -1,0 +1,32 @@
+name: Update Commit Hash File
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  update-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v3
+      
+    - name: Get the latest commit hash
+      run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+    - name: Update commit file
+      run: |
+        echo "{ \"commit\": \"$COMMIT_HASH\" }" > app/commit.json
+
+    - name: Commit and push the update
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add app/commit.json
+        git commit -m "chore: update commit hash to $COMMIT_HASH"
+        git push

@@ -1,5 +1,7 @@
-import { map } from 'nanostores';
+import { atom, map } from 'nanostores';
 import { workbenchStore } from './workbench';
+import type { ProviderInfo } from '~/utils/types';
+import { PROVIDER_LIST } from '~/utils/constants';
 
 export interface Shortcut {
   key: string;
@@ -15,32 +17,18 @@ export interface Shortcuts {
   toggleTerminal: Shortcut;
 }
 
-export interface Provider {
-  name: string;
-  isEnabled: boolean;
+export interface IProviderSetting {
+  enabled?: boolean;
+  baseUrl?: string;
 }
+export type IProviderConfig = ProviderInfo & {
+  settings: IProviderSetting;
+};
 
-export interface Settings {
-  shortcuts: Shortcuts;
-  providers: Provider[];
-}
+export const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
+export const LOCAL_PROVIDERS = ['OpenAILike', 'LMStudio', 'Ollama'];
 
-export const providersList: Provider[] = [
-  { name: 'Groq', isEnabled: false },
-  { name: 'HuggingFace', isEnabled: false },
-  { name: 'OpenAI', isEnabled: false },
-  { name: 'Anthropic', isEnabled: false },
-  { name: 'OpenRouter', isEnabled: false },
-  { name: 'Google', isEnabled: false },
-  { name: 'Ollama', isEnabled: false },
-  { name: 'OpenAILike', isEnabled: false },
-  { name: 'Together', isEnabled: false },
-  { name: 'Deepseek', isEnabled: false },
-  { name: 'Mistral', isEnabled: false },
-  { name: 'Cohere', isEnabled: false },
-  { name: 'LMStudio', isEnabled: false },
-  { name: 'xAI', isEnabled: false },
-];
+export type ProviderSetting = Record<string, IProviderConfig>;
 
 export const shortcutsStore = map<Shortcuts>({
   toggleTerminal: {
@@ -50,14 +38,17 @@ export const shortcutsStore = map<Shortcuts>({
   },
 });
 
-export const settingsStore = map<Settings>({
-  shortcuts: shortcutsStore.get(),
-  providers: providersList,
+const initialProviderSettings: ProviderSetting = {};
+PROVIDER_LIST.forEach((provider) => {
+  initialProviderSettings[provider.name] = {
+    ...provider,
+    settings: {
+      enabled: false,
+    },
+  };
 });
+export const providersStore = map<ProviderSetting>(initialProviderSettings);
 
-shortcutsStore.subscribe((shortcuts) => {
-  settingsStore.set({
-    ...settingsStore.get(),
-    shortcuts,
-  });
-});
+export const isDebugMode = atom(false);
+
+export const isLocalModelsEnabled = atom(true);

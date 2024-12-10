@@ -372,16 +372,14 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                         <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Optional Features</h3>
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-bolt-elements-textPrimary">Debug Info</span>
-                          <Switch
-                            className="ml-auto"
-                            checked={isDebugEnabled}
-                            onCheckedChange={handleToggleDebug}
-                          />
+                          <Switch className="ml-auto" checked={isDebugEnabled} onCheckedChange={handleToggleDebug} />
                         </div>
                       </div>
 
                       <div className="mb-6 border-t border-bolt-elements-borderColor pt-4">
-                        <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Experimental Features</h3>
+                        <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">
+                          Experimental Features
+                        </h3>
                         <p className="text-sm text-bolt-elements-textSecondary mb-4">
                           Disclaimer: Experimental features may be unstable and are subject to change.
                         </p>
@@ -439,7 +437,9 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                       <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">GitHub Connection</h3>
                       <div className="flex mb-4">
                         <div className="flex-1 mr-2">
-                          <label className="block text-sm text-bolt-elements-textSecondary mb-1">GitHub Username:</label>
+                          <label className="block text-sm text-bolt-elements-textSecondary mb-1">
+                            GitHub Username:
+                          </label>
                           <input
                             type="text"
                             value={githubUsername}
@@ -448,7 +448,9 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                           />
                         </div>
                         <div className="flex-1">
-                          <label className="block text-sm text-bolt-elements-textSecondary mb-1">Personal Access Token:</label>
+                          <label className="block text-sm text-bolt-elements-textSecondary mb-1">
+                            Personal Access Token:
+                          </label>
                           <input
                             type="password"
                             value={githubToken}

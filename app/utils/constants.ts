@@ -384,7 +384,7 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
       maxTokenAllowed: 8000,
     }));
   } catch (e) {
-    console.error('Error getting Ollama models:', e);
+    console.warn('Failed to get Ollama models:', e);
     return [];
   }
 }
@@ -472,7 +472,7 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
       provider: 'LMStudio',
     }));
   } catch (e) {
-    console.error('Error getting LMStudio models:', e);
+    console.warn('Failed to get LMStudio models:', e);
     return [];
   }
 }

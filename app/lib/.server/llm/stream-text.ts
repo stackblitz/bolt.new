@@ -74,7 +74,6 @@ function createFilesContext(files: FileMap) {
     const relPath = x.replace('/home/project/', '');
     return !ig.ignores(relPath);
   });
-  console.log(filePaths);
 
   const fileContexts = filePaths
     .filter((x) => files[x] && files[x].type == 'file')
@@ -174,8 +173,6 @@ export async function streamText(
     codeContext = createFilesContext(files);
     systemPrompt = `${systemPrompt}\n\n ${codeContext}`;
   }
-
-  console.log({ codeContext, processedMessages });
 
   return _streamText({
     model: getModel(currentProvider, currentModel, env, apiKeys) as any,

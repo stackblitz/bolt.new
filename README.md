@@ -183,6 +183,38 @@ DEFAULT_NUM_CTX=8192
 
 ---
 
+### Update Your Local Version to the Latest
+
+To keep your local version of Bolt.diy up to date with the latest changes, follow these steps for your operating system:
+
+#### 1. **Navigate to your project folder**  
+   Navigate to the directory where you cloned the repository and open a terminal:
+
+#### 2. **Fetch the Latest Changes**  
+   Use Git to pull the latest changes from the main repository:
+
+   ```bash
+   git pull origin main
+   ```
+
+#### 3. **Update Dependencies**  
+   After pulling the latest changes, update the project dependencies by running the following command:
+
+     ```bash
+     pnpm install
+     ```
+
+#### 4. **Run the Application**  
+   Once the updates are complete, you can start the application again with:
+
+   ```bash
+   pnpm run dev
+   ```
+
+This ensures that you're running the latest version of Bolt.diy and can take advantage of all the newest features and bug fixes.
+
+---
+
 ## Available Scripts  
 
 Here are the available commands for managing the application:  

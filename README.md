@@ -193,9 +193,9 @@ To keep your local version of Bolt.diy up to date with the latest changes, follo
 #### 2. **Fetch the Latest Changes**  
    Use Git to pull the latest changes from the main repository:
 
-   ```bash
-   git pull origin main
-   ```
+     ```bash
+     git pull origin main
+     ```
 
 #### 3. **Update Dependencies**  
    After pulling the latest changes, update the project dependencies by running the following command:

@@ -272,7 +272,7 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                     GitHub
                   </a>
                   <a
-                    href="https://coleam00.github.io/bolt.new-any-llm"
+                    href="https://stackblitz-labs.github.io/bolt.diy/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={classNames(styles['settings-button'], 'flex items-center gap-2')}

@@ -4,7 +4,7 @@
 
 Welcome to Bolt.diy, the official open source version of Bolt.new (previously known as oTToDev and Bolt.new ANY LLM), which allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
 
-Check the [Bolt.diy Docs](https://coleam00.github.io/bolt.new-any-llm/) for more information.
+Check the [Bolt.diy Docs](https://coleam00.github.io/bolt.new-any-llm/) for more information. This link might not work for a bit after the transfer FIY!
 
 Bolt.diy was originally started by [Cole Medin](https://www.youtube.com/@ColeMedin) but has quickly grown into a massive community effort to build the BEST open source AI coding assistant!
 
@@ -98,7 +98,7 @@ If you see usr/local/bin in the output then you're good to go.
 3. Clone the repository (if you haven't already) by opening a Terminal window (or CMD with admin permissions) and then typing in this:
 
 ```
-git clone https://github.com/coleam00/bolt.new-any-llm.git
+git clone https://github.com/stackblitz-labs/bolt.diy.git
 ```
 
 3. Rename .env.example to .env.local and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example". For Windows and Linux the path will be similar.

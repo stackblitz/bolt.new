@@ -1,12 +1,14 @@
 [![Bolt.new: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.new)
 
-# Bolt.new Fork by Cole Medin - oTToDev
+# Bolt.diy (Previously oTToDev)
 
-This fork of Bolt.new (oTToDev) allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
+Welcome to Bolt.diy, the official open source version of Bolt.new (previously known as oTToDev and Bolt.new ANY LLM), which allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
 
-Check the [oTToDev Docs](https://coleam00.github.io/bolt.new-any-llm/) for more information.
+Check the [Bolt.diy Docs](https://coleam00.github.io/bolt.new-any-llm/) for more information.
 
-## Join the community for oTToDev!
+Bolt.diy was originally started by [Cole Medin](https://www.youtube.com/@ColeMedin) but has quickly grown into a massive community effort to build the BEST open source AI coding assistant!
+
+## Join the community for Bolt.diy!
 
 https://thinktank.ottomator.ai
 
@@ -56,7 +58,7 @@ https://thinktank.ottomator.ai
 
 ## Bolt.new: AI-Powered Full-Stack Web Development in the Browser
 
-Bolt.new is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. If you're here to build your own AI-powered web dev agent using the Bolt open source codebase, [click here to get started!](./CONTRIBUTING.md)
+Bolt.new (and by extension Bolt.diy) is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. If you're here to build your own AI-powered web dev agent using the Bolt open source codebase, [click here to get started!](./CONTRIBUTING.md)
 
 ## What Makes Bolt.new Different
 
@@ -225,11 +227,11 @@ pnpm run dev
 
 This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
 
-## How do I contribute to oTToDev?
+## How do I contribute to Bolt.diy?
 
-[Please check out our dedicated page for contributing to oTToDev here!](CONTRIBUTING.md)
+[Please check out our dedicated page for contributing to Bolt.diy here!](CONTRIBUTING.md)
 
-## What are the future plans for oTToDev?
+## What are the future plans for Bolt.diy?
 
 [Check out our Roadmap here!](https://roadmap.sh/r/ottodev-roadmap-2ovzo)
 
@@ -237,4 +239,4 @@ Lot more updates to this roadmap coming soon!
 
 ## FAQ
 
-[Please check out our dedicated page for FAQ's related to oTToDev here!](FAQ.md)
+[Please check out our dedicated page for FAQ's related to Bolt.diy here!](FAQ.md)

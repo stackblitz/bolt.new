@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie';
 import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
 import type { ProviderInfo } from '~/types/model';
+import { createScopedLogger } from './logger';
 
 export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
@@ -9,6 +10,8 @@ export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
 export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
 export const DEFAULT_MODEL = 'claude-3-5-sonnet-latest';
 export const PROMPT_COOKIE_KEY = 'cachedPrompt';
+
+const logger = createScopedLogger('Constants');
 
 const PROVIDER_LIST: ProviderInfo[] = [
   {
@@ -127,7 +130,7 @@ const PROVIDER_LIST: ProviderInfo[] = [
       { name: 'gemini-1.5-flash-8b', label: 'Gemini 1.5 Flash-8b', provider: 'Google', maxTokenAllowed: 8192 },
       { name: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', provider: 'Google', maxTokenAllowed: 8192 },
       { name: 'gemini-1.5-pro-002', label: 'Gemini 1.5 Pro-002', provider: 'Google', maxTokenAllowed: 8192 },
-      { name: 'gemini-exp-1121', label: 'Gemini exp-1121', provider: 'Google', maxTokenAllowed: 8192 },
+      { name: 'gemini-exp-1206', label: 'Gemini exp-1206', provider: 'Google', maxTokenAllowed: 8192 },
     ],
     getApiKeyLink: 'https://aistudio.google.com/app/apikey',
   },
@@ -383,8 +386,8 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
       provider: 'Ollama',
       maxTokenAllowed: 8000,
     }));
-  } catch (e) {
-    console.error('Error getting Ollama models:', e);
+  } catch (e: any) {
+    logger.warn('Failed to get Ollama models: ', e.message || '');
     return [];
   }
 }
@@ -471,8 +474,8 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
       label: model.id,
       provider: 'LMStudio',
     }));
-  } catch (e) {
-    console.error('Error getting LMStudio models:', e);
+  } catch (e: any) {
+    logger.warn('Failed to get LMStudio models: ', e.message || '');
     return [];
   }
 }
@@ -491,7 +494,7 @@ async function initializeModelList(): Promise<ModelInfo[]> {
       }
     }
   } catch (error: any) {
-    console.warn(`Failed to fetch apikeys from cookies:${error?.message}`);
+    logger.warn(`Failed to fetch apikeys from cookies: ${error?.message}`);
   }
   MODEL_LIST = [
     ...(

@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie';
 import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
 import type { ProviderInfo, IProviderSetting } from '~/types/model';
+import { createScopedLogger } from './logger';
 
 export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
@@ -9,6 +10,8 @@ export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
 export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
 export const DEFAULT_MODEL = 'claude-3-5-sonnet-latest';
 export const PROMPT_COOKIE_KEY = 'cachedPrompt';
+
+const logger = createScopedLogger('Constants');
 
 const PROVIDER_LIST: ProviderInfo[] = [
   {
@@ -386,8 +389,8 @@ async function getOllamaModels(apiKeys?: Record<string, string>, settings?: IPro
       provider: 'Ollama',
       maxTokenAllowed: 8000,
     }));
-  } catch (e) {
-    console.error('Error getting Ollama models:', e);
+  } catch (e: any) {
+    logger.warn('Failed to get Ollama models: ', e.message || '');
     return [];
   }
 }
@@ -475,8 +478,8 @@ async function getLMStudioModels(_apiKeys?: Record<string, string>, settings?: I
       label: model.id,
       provider: 'LMStudio',
     }));
-  } catch (e) {
-    console.error('Error getting LMStudio models:', e);
+  } catch (e: any) {
+    logger.warn('Failed to get LMStudio models: ', e.message || '');
     return [];
   }
 }
@@ -495,7 +498,7 @@ async function initializeModelList(providerSettings?: Record<string, IProviderSe
       }
     }
   } catch (error: any) {
-    console.warn(`Failed to fetch apikeys from cookies:${error?.message}`);
+    logger.warn(`Failed to fetch apikeys from cookies: ${error?.message}`);
   }
   MODEL_LIST = [
     ...(

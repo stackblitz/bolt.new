@@ -1,15 +1,15 @@
 # Frequently Asked Questions (FAQ)
 
-## How do I get the best results with oTToDev?
+## How do I get the best results with Bolt.diy?
 
 - **Be specific about your stack**:  
-  Mention the frameworks or libraries you want to use (e.g., Astro, Tailwind, ShadCN) in your initial prompt. This ensures that oTToDev scaffolds the project according to your preferences.
+  Mention the frameworks or libraries you want to use (e.g., Astro, Tailwind, ShadCN) in your initial prompt. This ensures that Bolt.diy scaffolds the project according to your preferences.
 
 - **Use the enhance prompt icon**:  
   Before sending your prompt, click the *enhance* icon to let the AI refine your prompt. You can edit the suggested improvements before submitting.
 
 - **Scaffold the basics first, then add features**:  
-  Ensure the foundational structure of your application is in place before introducing advanced functionality. This helps oTToDev establish a solid base to build on.
+  Ensure the foundational structure of your application is in place before introducing advanced functionality. This helps Bolt.diy establish a solid base to build on.
 
 - **Batch simple instructions**:  
   Combine simple tasks into a single prompt to save time and reduce API credit consumption. For example:  
@@ -17,19 +17,14 @@
 
 ---
 
-## How do I contribute to oTToDev?
+## How do I contribute to Bolt.diy?
 
 Check out our [Contribution Guide](CONTRIBUTING.md) for more details on how to get involved!
 
 ---
 
-## Do you plan on merging oTToDev back into the official Bolt.new repo?
 
-Stay tuned! We’ll share updates on this early next month.
-
----
-
-## What are the future plans for oTToDev?
+## What are the future plans for Bolt.diy?
 
 Visit our [Roadmap](https://roadmap.sh/r/ottodev-roadmap-2ovzo) for the latest updates.  
 New features and improvements are on the way!
@@ -38,13 +33,13 @@ New features and improvements are on the way!
 
 ## Why are there so many open issues/pull requests?
 
-oTToDev began as a small showcase project on @ColeMedin's YouTube channel to explore editing open-source projects with local LLMs. However, it quickly grew into a massive community effort!  
+Bolt.diy began as a small showcase project on @ColeMedin's YouTube channel to explore editing open-source projects with local LLMs. However, it quickly grew into a massive community effort!  
 
 We’re forming a team of maintainers to manage demand and streamline issue resolution. The maintainers are rockstars, and we’re also exploring partnerships to help the project thrive.
 
 ---
 
-## How do local LLMs compare to larger models like Claude 3.5 Sonnet for oTToDev/Bolt.new?
+## How do local LLMs compare to larger models like Claude 3.5 Sonnet for Bolt.diy?
 
 While local LLMs are improving rapidly, larger models like GPT-4o, Claude 3.5 Sonnet, and DeepSeek Coder V2 236b still offer the best results for complex applications. Our ongoing focus is to improve prompts, agents, and the platform to better support smaller local LLMs.
 

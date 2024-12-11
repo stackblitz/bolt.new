@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Switch } from '~/components/ui/Switch';
 import { useSettings } from '~/lib/hooks/useSettings';
-import { LOCAL_PROVIDERS, URL_CONFIGURABLE_PROVIDERS, type IProviderConfig } from '~/lib/stores/settings';
+import { LOCAL_PROVIDERS, URL_CONFIGURABLE_PROVIDERS } from '~/lib/stores/settings';
+import type { IProviderConfig } from '~/types/model';
 
 export default function ProvidersTab() {
   const { providers, updateProviderSettings, isLocalModel } = useSettings();

@@ -17,7 +17,6 @@ import Cookies from 'js-cookie';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 import styles from './BaseChat.module.scss';
-import type { ProviderInfo } from '~/utils/types';
 import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportChatButton';
 import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
@@ -26,6 +25,7 @@ import GitCloneButton from './GitCloneButton';
 import FilePreview from './FilePreview';
 import { ModelSelector } from '~/components/chat/ModelSelector';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
+import type { IProviderSetting, ProviderInfo } from '~/types/model';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -131,7 +131,26 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         Cookies.remove('apiKeys');
       }
 
-      initializeModelList().then((modelList) => {
+      let providerSettings: Record<string, IProviderSetting> | undefined = undefined;
+
+      try {
+        const savedProviderSettings = Cookies.get('providers');
+
+        if (savedProviderSettings) {
+          const parsedProviderSettings = JSON.parse(savedProviderSettings);
+
+          if (typeof parsedProviderSettings === 'object' && parsedProviderSettings !== null) {
+            providerSettings = parsedProviderSettings;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading Provider Settings from cookies:', error);
+
+        // Clear invalid cookie data
+        Cookies.remove('providers');
+      }
+
+      initializeModelList(providerSettings).then((modelList) => {
         setModelList(modelList);
       });
 

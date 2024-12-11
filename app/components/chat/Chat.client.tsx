@@ -17,9 +17,9 @@ import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
 import Cookies from 'js-cookie';
-import type { ProviderInfo } from '~/utils/types';
 import { debounce } from '~/utils/debounce';
 import { useSettings } from '~/lib/hooks/useSettings';
+import type { ProviderInfo } from '~/types/model';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',

@@ -1,7 +1,7 @@
 import { atom, map } from 'nanostores';
 import { workbenchStore } from './workbench';
-import type { ProviderInfo } from '~/utils/types';
 import { PROVIDER_LIST } from '~/utils/constants';
+import type { IProviderConfig } from '~/types/model';
 
 export interface Shortcut {
   key: string;
@@ -16,14 +16,6 @@ export interface Shortcut {
 export interface Shortcuts {
   toggleTerminal: Shortcut;
 }
-
-export interface IProviderSetting {
-  enabled?: boolean;
-  baseUrl?: string;
-}
-export type IProviderConfig = ProviderInfo & {
-  settings: IProviderSetting;
-};
 
 export const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
 export const LOCAL_PROVIDERS = ['OpenAILike', 'LMStudio', 'Ollama'];

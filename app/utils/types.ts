@@ -26,12 +26,3 @@ export interface ModelInfo {
   provider: string;
   maxTokenAllowed: number;
 }
-
-export interface ProviderInfo {
-  staticModels: ModelInfo[];
-  name: string;
-  getDynamicModels?: () => Promise<ModelInfo[]>;
-  getApiKeyLink?: string;
-  labelForGetApiKey?: string;
-  icon?: string;
-}

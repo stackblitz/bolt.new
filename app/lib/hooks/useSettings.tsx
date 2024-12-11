@@ -1,14 +1,8 @@
 import { useStore } from '@nanostores/react';
-import {
-  isDebugMode,
-  isLocalModelsEnabled,
-  LOCAL_PROVIDERS,
-  providersStore,
-  type IProviderSetting,
-} from '~/lib/stores/settings';
+import { isDebugMode, isLocalModelsEnabled, LOCAL_PROVIDERS, providersStore } from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import type { ProviderInfo } from '~/utils/types';
+import type { IProviderSetting, ProviderInfo } from '~/types/model';
 
 export function useSettings() {
   const providers = useStore(providersStore);

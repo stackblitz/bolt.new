@@ -77,155 +77,125 @@ Whether you’re an experienced developer, a PM, or a designer, Bolt.new allows 
 
 For developers interested in building their own AI-powered development tools with WebContainers, check out the open-source Bolt codebase in this repo!
 
-## Setup
+## Setup  
 
-Many of you are new users to installing software from Github. If you have any installation troubles reach out and submit an "issue" using the links above, or feel free to enhance this documentation by forking, editing the instructions, and doing a pull request.
+If you're new to installing software from GitHub, don't worry! If you encounter any issues, feel free to submit an "issue" using the provided links or improve this documentation by forking the repository, editing the instructions, and submitting a pull request.  
 
-1. Install Git from https://git-scm.com/downloads
+### Prerequisites  
 
-2. Install Node.js from https://nodejs.org/en/download/ 
+1. **Install Git**: [Download Git](https://git-scm.com/downloads)  
+2. **Install Node.js**: [Download Node.js](https://nodejs.org/en/download/)  
 
-Pay attention to the installer notes after completion. 
+   - After installation, the Node.js path is usually added to your system automatically. To verify:  
+     - **Windows**: Search for "Edit the system environment variables," click "Environment Variables," and check if `Node.js` is in the `Path` variable.  
+     - **Mac/Linux**: Open a terminal and run:  
+       ```bash  
+       echo $PATH  
+       ```  
+       Look for `/usr/local/bin` in the output.  
 
-On all operating systems, the path to Node.js should automatically be added to your system path. But you can check your path if you want to be sure. On Windows, you can search for "edit the system environment variables" in your system, select "Environment Variables..." once you are in the system properties, and then check for a path to Node in your "Path" system variable. On a Mac or Linux machine, it will tell you to check if /usr/local/bin is in your $PATH. To determine if usr/local/bin is included in $PATH open your Terminal and run:
+### Clone the Repository  
 
-```
-echo $PATH .
-```
+Clone the repository using Git:  
 
-If you see usr/local/bin in the output then you're good to go.
+```bash  
+git clone https://github.com/stackblitz-labs/bolt.diy.git  
+```  
 
-3. Clone the repository (if you haven't already) by opening a Terminal window (or CMD with admin permissions) and then typing in this:
+### (Optional) Configure Environment Variables  
 
-```
-git clone https://github.com/stackblitz-labs/bolt.diy.git
-```
+Most environment variables can be configured directly through the settings menu of the application. However, if you need to manually configure them:  
 
-3. Rename .env.example to .env.local and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example". For Windows and Linux the path will be similar.
+1. Rename `.env.example` to `.env.local`.  
+2. Add your LLM API keys. For example:  
 
-![image](https://github.com/user-attachments/assets/7e6a532c-2268-401f-8310-e8d20c731328)
+```env  
+GROQ_API_KEY=YOUR_GROQ_API_KEY  
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY  
+ANTHROPIC_API_KEY=YOUR_ANTHROPIC_API_KEY  
+```  
 
-If you can't see the file indicated above, its likely you can't view hidden files. On Mac, open a Terminal window and enter this command below. On Windows, you will see the hidden files option in File Explorer Settings. A quick Google search will help you if you are stuck here.
+**Note**: Ollama does not require an API key as it runs locally.  
 
-```
-defaults write com.apple.finder AppleShowAllFiles YES
-```
+3. Optionally, set additional configurations:  
 
-**NOTE**: you only have to set the ones you want to use and Ollama doesn't need an API key because it runs locally on your computer:
+```env  
+# Debugging  
+VITE_LOG_LEVEL=debug  
 
-Get your GROQ API Key here: https://console.groq.com/keys
+# Ollama settings (example: 8K context, localhost port 11434)  
+OLLAMA_API_BASE_URL=http://localhost:11434  
+DEFAULT_NUM_CTX=8192  
+```  
 
-Get your Open AI API Key by following these instructions: https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key
+**Important**: Do not commit your `.env.local` file to version control. This file is already included in `.gitignore`.  
 
-Get your Anthropic API Key in your account settings: https://console.anthropic.com/settings/keys
+---
 
-```
-GROQ_API_KEY=XXX
-OPENAI_API_KEY=XXX
-ANTHROPIC_API_KEY=XXX
-```
+## Run the Application  
 
-Optionally, you can set the debug level:
+### Option 1: Without Docker
 
-```
-VITE_LOG_LEVEL=debug
-```
+1. **Install Dependencies**:  
+   ```bash  
+   pnpm install  
+   ```  
+   If `pnpm` is not installed, install it using:  
+   ```bash  
+   sudo npm install -g pnpm  
+   ```  
 
-And if using Ollama set the DEFAULT_NUM_CTX, the example below uses 8K context and ollama running on localhost port 11434:
+2. **Start the Application**:  
+   ```bash  
+   pnpm run dev  
+   ```
+   This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.  
 
-```
-OLLAMA_API_BASE_URL=http://localhost:11434
-DEFAULT_NUM_CTX=8192
-```
+### Option 2: With Docker  
 
-**Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
+#### Prerequisites  
+- Ensure Git, Node.js, and Docker are installed: [Download Docker](https://www.docker.com/)  
 
-## Run with Docker
+#### Steps  
 
-Prerequisites:
+1. **Build the Docker Image**:  
 
-Git and Node.js as mentioned above, as well as Docker: https://www.docker.com/
+   Use the provided NPM scripts:  
+   ```bash  
+   npm run dockerbuild       # Development build  
+   npm run dockerbuild:prod  # Production build  
+   ```  
 
-### 1a. Using Helper Scripts
+   Alternatively, use Docker commands directly:  
+   ```bash  
+   docker build . --target bolt-ai-development  # Development build  
+   docker build . --target bolt-ai-production   # Production build  
+   ```  
 
-NPM scripts are provided for convenient building:
+2. **Run the Container**:  
+   Use Docker Compose profiles to manage environments:  
+   ```bash  
+   docker-compose --profile development up  # Development  
+   docker-compose --profile production up   # Production  
+   ```  
 
-```bash
-# Development build
-npm run dockerbuild
+   - With the development profile, changes to your code will automatically reflect in the running container (hot reloading).  
 
-# Production build
-npm run dockerbuild:prod
-```
+---
 
-### 1b. Direct Docker Build Commands (alternative to using NPM scripts)
+## Available Scripts  
 
-You can use Docker's target feature to specify the build environment instead of using NPM scripts if you wish:
+Here are the available commands for managing the application:  
 
-```bash
-# Development build
-docker build . --target bolt-ai-development
-
-# Production build
-docker build . --target bolt-ai-production
-```
-
-### 2. Docker Compose with Profiles to Run the Container
-
-Use Docker Compose profiles to manage different environments:
-
-```bash
-# Development environment
-docker-compose --profile development up
-
-# Production environment
-docker-compose --profile production up
-```
-
-When you run the Docker Compose command with the development profile, any changes you
-make on your machine to the code will automatically be reflected in the site running
-on the container (i.e. hot reloading still applies!).
-
-## Run Without Docker
-
-1. Install dependencies using Terminal (or CMD in Windows with admin permissions):
-
-```
-pnpm install
-```
-
-If you get an error saying "command not found: pnpm" or similar, then that means pnpm isn't installed. You can install it via this:
-
-```
-sudo npm install -g pnpm
-```
-
-2. Start the application with the command:
-
-```bash
-pnpm run dev
-```
-## Available Scripts
-
-- `pnpm run dev`: Starts the development server.
-- `pnpm run build`: Builds the project.
-- `pnpm run start`: Runs the built application locally using Wrangler Pages. This script uses `bindings.sh` to set up necessary bindings so you don't have to duplicate environment variables.
-- `pnpm run preview`: Builds the project and then starts it locally, useful for testing the production build. Note, HTTP streaming currently doesn't work as expected with `wrangler pages dev`.
-- `pnpm test`: Runs the test suite using Vitest.
-- `pnpm run typecheck`: Runs TypeScript type checking.
-- `pnpm run typegen`: Generates TypeScript types using Wrangler.
-- `pnpm run deploy`: Builds the project and deploys it to Cloudflare Pages.
-- `pnpm run lint:fix`: Runs the linter and automatically fixes issues according to your ESLint configuration. 
-
-## Development
-
-To start the development server:
-
-```bash
-pnpm run dev
-```
-
-This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
+- `pnpm run dev`: Start the development server.  
+- `pnpm run build`: Build the project.  
+- `pnpm run start`: Run the built application locally (uses Wrangler Pages).  
+- `pnpm run preview`: Build and start the application locally for production testing.  
+- `pnpm test`: Run the test suite using Vitest.  
+- `pnpm run typecheck`: Perform TypeScript type checking.  
+- `pnpm run typegen`: Generate TypeScript types using Wrangler.  
+- `pnpm run deploy`: Build and deploy the project to Cloudflare Pages.  
+- `pnpm lint:fix`: Run the linter and automatically fix issues.  
 
 ## How do I contribute to Bolt.diy?
 

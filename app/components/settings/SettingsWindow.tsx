@@ -263,7 +263,7 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                 ))}
                 <div className="mt-auto flex flex-col gap-2">
                   <a
-                    href="https://github.com/coleam00/bolt.new-any-llm"
+                    href="https://github.com/stackblitz-labs/bolt.diy"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={classNames(styles['settings-button'], 'flex items-center gap-2')}

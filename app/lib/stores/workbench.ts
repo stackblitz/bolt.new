@@ -16,6 +16,7 @@ import * as nodePath from 'node:path';
 import { extractRelativePath } from '~/utils/diff';
 import { description } from '~/lib/persistence';
 import Cookies from 'js-cookie';
+import { createSampler } from '~/utils/sampler';
 
 export interface ArtifactState {
   id: string;
@@ -262,9 +263,9 @@ export class WorkbenchStore {
     this.artifacts.setKey(messageId, { ...artifact, ...state });
   }
   addAction(data: ActionCallbackData) {
-    this._addAction(data);
+    // this._addAction(data);
 
-    // this.addToExecutionQueue(()=>this._addAction(data))
+    this.addToExecutionQueue(() => this._addAction(data));
   }
   async _addAction(data: ActionCallbackData) {
     const { messageId } = data;
@@ -280,7 +281,7 @@ export class WorkbenchStore {
 
   runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     if (isStreaming) {
-      this._runAction(data, isStreaming);
+      this.actionStreamSampler(data, isStreaming);
     } else {
       this.addToExecutionQueue(() => this._runAction(data, isStreaming));
     }
@@ -292,6 +293,12 @@ export class WorkbenchStore {
 
     if (!artifact) {
       unreachable('Artifact not found');
+    }
+
+    const action = artifact.runner.actions.get()[data.actionId];
+
+    if (!action || action.executed) {
+      return;
     }
 
     if (data.action.type === 'file') {
@@ -322,6 +329,10 @@ export class WorkbenchStore {
       await artifact.runner.runAction(data);
     }
   }
+
+  actionStreamSampler = createSampler(async (data: ActionCallbackData, isStreaming: boolean = false) => {
+    return await this._runAction(data, isStreaming);
+  }, 100); // TODO: remove this magic number to have it configurable
 
   #getArtifact(id: string) {
     const artifacts = this.artifacts.get();

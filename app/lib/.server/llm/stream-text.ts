@@ -4,6 +4,7 @@ import { MAX_TOKENS } from './constants';
 import { getSystemPrompt } from './prompts';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, getModelList, MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
 import ignore from 'ignore';
+import type { IProviderSetting } from '~/types/model';
 
 interface ToolResult<Name extends string, Args, Result> {
   toolCallId: string;
@@ -131,16 +132,18 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
   return { model, provider, content: cleanedContent };
 }
 
-export async function streamText(
-  messages: Messages,
-  env: Env,
-  options?: StreamingOptions,
-  apiKeys?: Record<string, string>,
-  files?: FileMap,
-) {
+export async function streamText(props: {
+  messages: Messages;
+  env: Env;
+  options?: StreamingOptions;
+  apiKeys?: Record<string, string>;
+  files?: FileMap;
+  providerSettings?: Record<string, IProviderSetting>;
+}) {
+  const { messages, env, options, apiKeys, files, providerSettings } = props;
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
-  const MODEL_LIST = await getModelList(apiKeys || {});
+  const MODEL_LIST = await getModelList(apiKeys || {}, providerSettings);
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
       const { model, provider, content } = extractPropertiesFromMessage(message);
@@ -175,7 +178,7 @@ export async function streamText(
   }
 
   return _streamText({
-    model: getModel(currentProvider, currentModel, env, apiKeys) as any,
+    model: getModel(currentProvider, currentModel, env, apiKeys, providerSettings) as any,
     system: systemPrompt,
     maxTokens: dynamicMaxTokens,
     messages: convertToCoreMessages(processedMessages as any),

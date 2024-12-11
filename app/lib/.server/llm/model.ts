@@ -11,6 +11,7 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { createMistral } from '@ai-sdk/mistral';
 import { createCohere } from '@ai-sdk/cohere';
 import type { LanguageModelV1 } from 'ai';
+import type { IProviderSetting } from '~/types/model';
 
 export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ? parseInt(process.env.DEFAULT_NUM_CTX, 10) : 32768;
 
@@ -127,14 +128,20 @@ export function getXAIModel(apiKey: OptionalApiKey, model: string) {
   return openai(model);
 }
 
-export function getModel(provider: string, model: string, env: Env, apiKeys?: Record<string, string>) {
+export function getModel(
+  provider: string,
+  model: string,
+  env: Env,
+  apiKeys?: Record<string, string>,
+  providerSettings?: Record<string, IProviderSetting>,
+) {
   /*
    * let apiKey; // Declare first
    * let baseURL;
    */
 
   const apiKey = getAPIKey(env, provider, apiKeys); // Then assign
-  const baseURL = getBaseURL(env, provider);
+  const baseURL = providerSettings?.[provider].baseUrl || getBaseURL(env, provider);
 
   switch (provider) {
     case 'Anthropic':

@@ -1,4 +1,4 @@
-site_name: Bolt.Local Docs
+site_name: Bolt.diy Docs
 site_dir: ../site
 theme:
   name: material
@@ -31,19 +31,19 @@ theme:
     repo: fontawesome/brands/github
   # logo: assets/logo.png
   # favicon: assets/logo.png
-repo_name: Bolt.Local
-repo_url: https://github.com/coleam00/bolt.new-any-llm
+repo_name: Bolt.diy
+repo_url: https://github.com/stackblitz-labs/bolt.diy
 edit_uri: ""
 
 extra:
   generator: false
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/coleam00/bolt.new-any-llm
-      name: Bolt.Local
+      link: https://github.com/stackblitz-labs/bolt.diy
+      name: Bolt.diy
     - icon: fontawesome/brands/discourse
       link: https://thinktank.ottomator.ai/
-      name: Bolt.Local Discourse
+      name: Bolt.diy Discourse
 
 
 markdown_extensions:

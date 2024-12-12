@@ -49,7 +49,14 @@ export default function ProvidersTab() {
           className="flex flex-col mb-2 provider-item hover:bg-bolt-elements-bg-depth-3 p-4 rounded-lg border border-bolt-elements-borderColor "
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-bolt-elements-textPrimary">{provider.name}</span>
+            <div className="flex items-center gap-2">
+              <img
+                src={`/icons/${provider.name.toLowerCase()}.svg`}
+                alt={`${provider.name} icon`}
+                className="w-6 h-6 dark:invert"
+              />
+              <span className="text-bolt-elements-textPrimary">{provider.name}</span>
+            </div>
             <Switch
               className="ml-auto"
               checked={provider.settings.enabled}

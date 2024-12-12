@@ -10,6 +10,7 @@ export default function ConnectionsTab() {
     Cookies.set('githubUsername', githubUsername);
     Cookies.set('githubToken', githubToken);
     toast.success('GitHub credentials saved successfully!');
+    Cookies.set('git:github.com', JSON.stringify({ username: githubToken, password: 'x-oauth-basic' }));
   };
 
   return (

@@ -23,7 +23,7 @@ export function useSettings() {
             ...currentProvider,
             settings: {
               ...parsedProviders[provider],
-              enabled: parsedProviders[provider].enabled || true,
+              enabled: parsedProviders[provider].enabled ?? true,
             },
           });
         });
@@ -70,10 +70,13 @@ export function useSettings() {
   }, [providers, isLocalModel]);
 
   // helper function to update settings
-  const updateProviderSettings = useCallback((provider: string, config: IProviderSetting) => {
-    const settings = providers[provider].settings;
-    providersStore.setKey(provider, { ...providers[provider], settings: { ...settings, ...config } });
-  }, []);
+  const updateProviderSettings = useCallback(
+    (provider: string, config: IProviderSetting) => {
+      const settings = providers[provider].settings;
+      providersStore.setKey(provider, { ...providers[provider], settings: { ...settings, ...config } });
+    },
+    [providers],
+  );
 
   const enableDebugMode = useCallback((enabled: boolean) => {
     isDebugMode.set(enabled);

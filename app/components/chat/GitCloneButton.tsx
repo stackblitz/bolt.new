@@ -1,7 +1,6 @@
 import ignore from 'ignore';
 import { useGit } from '~/lib/hooks/useGit';
 import type { Message } from 'ai';
-import WithTooltip from '~/components/ui/Tooltip';
 import { detectProjectCommands, createCommandsMessage } from '~/utils/projectCommands';
 import { generateId } from '~/utils/fileUtils';
 
@@ -73,7 +72,7 @@ export default function GitCloneButton({ importChat }: GitCloneButtonProps) {
         const filesMessage: Message = {
           role: 'assistant',
           content: `Cloning the repo ${repoUrl} into ${workdir}
-<boltArtifact id="imported-files" title="Git Cloned Files" type="bundled">           
+<boltArtifact id="imported-files" title="Git Cloned Files" type="bundled">
 ${fileContents
   .map(
     (file) =>
@@ -99,17 +98,13 @@ ${file.content}
   };
 
   return (
-    <WithTooltip tooltip="Clone A Git Repo">
-      <button
-        onClick={(e) => {
-          onClick(e);
-        }}
-        title="Clone A Git Repo"
-        className="px-4 py-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-all flex items-center gap-2"
-      >
-        <span className="i-ph:git-branch" />
-        Clone A Git Repo
-      </button>
-    </WithTooltip>
+    <button
+      onClick={onClick}
+      title="Clone a Git Repo"
+      className="px-4 py-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-all flex items-center gap-2"
+    >
+      <span className="i-ph:git-branch" />
+      Clone a Git Repo
+    </button>
   );
 }

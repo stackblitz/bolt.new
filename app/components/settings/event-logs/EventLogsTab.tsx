@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { Switch } from '~/components/ui/Switch';
 import { logStore, type LogEntry } from '~/lib/stores/logs';
 import { useStore } from '@nanostores/react';
+import { classNames } from '~/utils/classNames';
 
 export default function EventLogsTab() {
   const {} = useSettings();
@@ -19,8 +20,8 @@ export default function EventLogsTab() {
       const matchesLevel = !logLevel || log.level === logLevel;
       const matchesSearch =
         !searchQuery ||
-        log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        JSON.stringify(log.details).toLowerCase().includes(searchQuery.toLowerCase());
+        log.message?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        JSON.stringify(log.details)?.toLowerCase()?.includes(searchQuery?.toLowerCase());
 
       return matchesLevel && matchesSearch;
     });
@@ -118,7 +119,7 @@ export default function EventLogsTab() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 h-full flex flex-col">
       <div className="flex flex-col space-y-4 mb-4">
         {/* Title and Toggles Row */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -140,7 +141,7 @@ export default function EventLogsTab() {
           <select
             value={logLevel}
             onChange={(e) => setLogLevel(e.target.value as LogEntry['level'])}
-            className="bg-bolt-elements-bg-depth-2 text-bolt-elements-textPrimary rounded-lg px-3 py-1.5 text-sm min-w-[100px]"
+            className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[20%] text-sm min-w-[100px]"
           >
             <option value="info">Info</option>
             <option value="warning">Warning</option>
@@ -153,20 +154,30 @@ export default function EventLogsTab() {
               placeholder="Search logs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-bolt-elements-bg-depth-2 text-bolt-elements-textPrimary rounded-lg px-3 py-1.5 text-sm"
+              className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1.5 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor"
             />
           </div>
           {showLogs && (
             <div className="flex items-center gap-2 flex-nowrap">
               <button
                 onClick={handleExportLogs}
-                className="bg-blue-500 text-white rounded-lg px-3 py-1.5 hover:bg-blue-600 transition-colors duration-200 text-sm whitespace-nowrap"
+                className={classNames(
+                  'bg-bolt-elements-button-primary-background',
+                  'rounded-lg px-4 py-2 transition-colors duration-200',
+                  'hover:bg-bolt-elements-button-primary-backgroundHover',
+                  'text-bolt-elements-button-primary-text',
+                )}
               >
                 Export Logs
               </button>
               <button
                 onClick={handleClearLogs}
-                className="bg-red-500 text-white rounded-lg px-3 py-1.5 hover:bg-red-600 transition-colors duration-200 text-sm whitespace-nowrap"
+                className={classNames(
+                  'bg-bolt-elements-button-danger-background',
+                  'rounded-lg px-4 py-2 transition-colors duration-200',
+                  'hover:bg-bolt-elements-button-danger-backgroundHover',
+                  'text-bolt-elements-button-danger-text',
+                )}
               >
                 Clear Logs
               </button>
@@ -175,7 +186,7 @@ export default function EventLogsTab() {
         </div>
       </div>
 
-      <div className="bg-bolt-elements-bg-depth-1 rounded-lg p-4 h-[calc(100vh-250px)] min-h-[400px] overflow-y-auto logs-container">
+      <div className="bg-bolt-elements-bg-depth-1 rounded-lg p-4 h-[calc(100vh - 250px)] min-h-[400px] overflow-y-auto logs-container overflow-y-auto">
         {filteredLogs.length === 0 ? (
           <div className="text-center text-bolt-elements-textSecondary py-8">No logs found</div>
         ) : (

@@ -11,7 +11,6 @@ import { logger } from '~/utils/logger';
 import { HistoryItem } from './HistoryItem';
 import { binDates } from './date-binning';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
-import { ClockIcon } from '@heroicons/react/24/outline';
 
 const menuVariants = {
   closed: {
@@ -49,7 +48,7 @@ function CurrentDateTime() {
 
   return (
     <div className="flex items-center gap-2 px-4 py-3 font-bold text-gray-700 dark:text-gray-300 border-b border-bolt-elements-borderColor">
-      <ClockIcon className="h-4 w-4" />
+      <div className="h-4 w-4 i-ph:clock-thin" />
       {dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
     </div>
   );

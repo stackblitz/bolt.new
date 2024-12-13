@@ -32,10 +32,30 @@ export default function EventLogsTab() {
   }, []);
 
   useEffect(() => {
-    // Add some initial logs for testing
-    logStore.logSystem('System started', { version: '1.0.0' });
-    logStore.logWarning('High memory usage detected', { memoryUsage: '85%' });
-    logStore.logError('Failed to connect to provider', new Error('Connection timeout'), { provider: 'OpenAI' });
+    // System info logs
+    logStore.logSystem('Application initialized', {
+      version: process.env.NEXT_PUBLIC_APP_VERSION,
+      environment: process.env.NODE_ENV,
+    });
+
+    // Debug logs for system state
+    logStore.logDebug('System configuration loaded', {
+      runtime: 'Next.js',
+      features: ['AI Chat', 'Event Logging'],
+    });
+
+    // Warning logs for potential issues
+    logStore.logWarning('Resource usage threshold approaching', {
+      memoryUsage: '75%',
+      cpuLoad: '60%',
+    });
+
+    // Error logs with detailed context
+    logStore.logError('API connection failed', new Error('Connection timeout'), {
+      endpoint: '/api/chat',
+      retryCount: 3,
+      lastAttempt: new Date().toISOString(),
+    });
   }, []);
 
   useEffect(() => {

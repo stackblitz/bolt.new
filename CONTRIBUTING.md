@@ -47,7 +47,7 @@ Before you begin, ensure you have the following installed:
 1. Clone the repository (if you haven't already):
 
 ```bash
-git clone https://github.com/coleam00/bolt.new-any-llm.git
+git clone https://github.com/stackblitz-labs/bolt.diy.git
 ```
 
 2. Install dependencies:

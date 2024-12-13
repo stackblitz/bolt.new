@@ -1,4 +1,4 @@
-[![Bolt.new: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.new)
+[![Bolt.diy: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.diy)
 
 # Bolt.diy (Previously oTToDev)
 
@@ -56,176 +56,167 @@ https://thinktank.ottomator.ai
 - ⬜ Perplexity Integration
 - ⬜ Vertex AI Integration
 
-## Bolt.new: AI-Powered Full-Stack Web Development in the Browser
+## Bolt.diy Features
 
-Bolt.new (and by extension Bolt.diy) is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. If you're here to build your own AI-powered web dev agent using the Bolt open source codebase, [click here to get started!](./CONTRIBUTING.md)
+- **AI-powered full-stack web development** directly in your browser.
+- **Support for multiple LLMs** with an extensible architecture to integrate additional models.
+- **Attach images to prompts** for better contextual understanding.
+- **Integrated terminal** to view output of LLM-run commands.
+- **Revert code to earlier versions** for easier debugging and quicker changes.
+- **Download projects as ZIP** for easy portability.
+- **Integration-ready Docker support** for a hassle-free setup.
 
-## What Makes Bolt.new Different
+## Setup Bolt.diy 
 
-Claude, v0, etc are incredible- but you can't install packages, run backends, or edit code. That’s where Bolt.new stands out:
+If you're new to installing software from GitHub, don't worry! If you encounter any issues, feel free to submit an "issue" using the provided links or improve this documentation by forking the repository, editing the instructions, and submitting a pull request. The following instruction will help you get the stable branch up and running on your local machine in no time.  
 
-- **Full-Stack in the Browser**: Bolt.new integrates cutting-edge AI models with an in-browser development environment powered by **StackBlitz’s WebContainers**. This allows you to:
-  - Install and run npm tools and libraries (like Vite, Next.js, and more)
-  - Run Node.js servers
-  - Interact with third-party APIs
-  - Deploy to production from chat
-  - Share your work via a URL
+### Prerequisites  
 
-- **AI with Environment Control**: Unlike traditional dev environments where the AI can only assist in code generation, Bolt.new gives AI models **complete control** over the entire  environment including the filesystem, node server, package manager, terminal, and browser console. This empowers AI agents to handle the whole app lifecycle—from creation to deployment.
+1. **Install Git**: [Download Git](https://git-scm.com/downloads)  
+2. **Install Node.js**: [Download Node.js](https://nodejs.org/en/download/)  
 
-Whether you’re an experienced developer, a PM, or a designer, Bolt.new allows you to easily build production-grade full-stack applications.
+   - After installation, the Node.js path is usually added to your system automatically. To verify:  
+     - **Windows**: Search for "Edit the system environment variables," click "Environment Variables," and check if `Node.js` is in the `Path` variable.  
+     - **Mac/Linux**: Open a terminal and run:  
+       ```bash  
+       echo $PATH  
+       ```  
+       Look for `/usr/local/bin` in the output.  
 
-For developers interested in building their own AI-powered development tools with WebContainers, check out the open-source Bolt codebase in this repo!
+### Clone the Repository  
 
-## Setup
+Clone the repository using Git:  
 
-Many of you are new users to installing software from Github. If you have any installation troubles reach out and submit an "issue" using the links above, or feel free to enhance this documentation by forking, editing the instructions, and doing a pull request.
+```bash  
+git clone -b stable https://github.com/stackblitz-labs/bolt.diy  
+```  
 
-1. Install Git from https://git-scm.com/downloads
+### (Optional) Configure Environment Variables  
 
-2. Install Node.js from https://nodejs.org/en/download/ 
+Most environment variables can be configured directly through the settings menu of the application. However, if you need to manually configure them:  
 
-Pay attention to the installer notes after completion. 
+1. Rename `.env.example` to `.env.local`.  
+2. Add your LLM API keys. For example:  
 
-On all operating systems, the path to Node.js should automatically be added to your system path. But you can check your path if you want to be sure. On Windows, you can search for "edit the system environment variables" in your system, select "Environment Variables..." once you are in the system properties, and then check for a path to Node in your "Path" system variable. On a Mac or Linux machine, it will tell you to check if /usr/local/bin is in your $PATH. To determine if usr/local/bin is included in $PATH open your Terminal and run:
+```env  
+GROQ_API_KEY=YOUR_GROQ_API_KEY  
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY  
+ANTHROPIC_API_KEY=YOUR_ANTHROPIC_API_KEY  
+```  
 
-```
-echo $PATH .
-```
+**Note**: Ollama does not require an API key as it runs locally.  
 
-If you see usr/local/bin in the output then you're good to go.
+3. Optionally, set additional configurations:  
 
-3. Clone the repository (if you haven't already) by opening a Terminal window (or CMD with admin permissions) and then typing in this:
+```env  
+# Debugging  
+VITE_LOG_LEVEL=debug  
 
-```
-git clone https://github.com/stackblitz-labs/bolt.diy.git
-```
+# Ollama settings (example: 8K context, localhost port 11434)  
+OLLAMA_API_BASE_URL=http://localhost:11434  
+DEFAULT_NUM_CTX=8192  
+```  
 
-3. Rename .env.example to .env.local and add your LLM API keys. You will find this file on a Mac at "[your name]/bold.new-any-llm/.env.example". For Windows and Linux the path will be similar.
+**Important**: Do not commit your `.env.local` file to version control. This file is already included in `.gitignore`.  
 
-![image](https://github.com/user-attachments/assets/7e6a532c-2268-401f-8310-e8d20c731328)
+---
 
-If you can't see the file indicated above, its likely you can't view hidden files. On Mac, open a Terminal window and enter this command below. On Windows, you will see the hidden files option in File Explorer Settings. A quick Google search will help you if you are stuck here.
+## Run the Application  
 
-```
-defaults write com.apple.finder AppleShowAllFiles YES
-```
+### Option 1: Without Docker
 
-**NOTE**: you only have to set the ones you want to use and Ollama doesn't need an API key because it runs locally on your computer:
+1. **Install Dependencies**:  
+   ```bash  
+   pnpm install  
+   ```  
+   If `pnpm` is not installed, install it using:  
+   ```bash  
+   sudo npm install -g pnpm  
+   ```  
 
-Get your GROQ API Key here: https://console.groq.com/keys
+2. **Start the Application**:  
+   ```bash  
+   pnpm run dev  
+   ```
+   This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.  
 
-Get your Open AI API Key by following these instructions: https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key
+### Option 2: With Docker  
 
-Get your Anthropic API Key in your account settings: https://console.anthropic.com/settings/keys
+#### Prerequisites  
+- Ensure Git, Node.js, and Docker are installed: [Download Docker](https://www.docker.com/)  
 
-```
-GROQ_API_KEY=XXX
-OPENAI_API_KEY=XXX
-ANTHROPIC_API_KEY=XXX
-```
+#### Steps  
 
-Optionally, you can set the debug level:
+1. **Build the Docker Image**:  
 
-```
-VITE_LOG_LEVEL=debug
-```
+   Use the provided NPM scripts:  
+   ```bash  
+   npm run dockerbuild       # Development build  
+   npm run dockerbuild:prod  # Production build  
+   ```  
 
-And if using Ollama set the DEFAULT_NUM_CTX, the example below uses 8K context and ollama running on localhost port 11434:
+   Alternatively, use Docker commands directly:  
+   ```bash  
+   docker build . --target bolt-ai-development  # Development build  
+   docker build . --target bolt-ai-production   # Production build  
+   ```  
 
-```
-OLLAMA_API_BASE_URL=http://localhost:11434
-DEFAULT_NUM_CTX=8192
-```
+2. **Run the Container**:  
+   Use Docker Compose profiles to manage environments:  
+   ```bash  
+   docker-compose --profile development up  # Development  
+   docker-compose --profile production up   # Production  
+   ```  
 
-**Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
+   - With the development profile, changes to your code will automatically reflect in the running container (hot reloading).  
 
-## Run with Docker
+---
 
-Prerequisites:
+### Update Your Local Version to the Latest
 
-Git and Node.js as mentioned above, as well as Docker: https://www.docker.com/
+To keep your local version of Bolt.diy up to date with the latest changes, follow these steps for your operating system:
 
-### 1a. Using Helper Scripts
+#### 1. **Navigate to your project folder**  
+   Navigate to the directory where you cloned the repository and open a terminal:
 
-NPM scripts are provided for convenient building:
+#### 2. **Fetch the Latest Changes**  
+   Use Git to pull the latest changes from the main repository:
 
-```bash
-# Development build
-npm run dockerbuild
+   ```bash
+   git pull origin main
+   ```
 
-# Production build
-npm run dockerbuild:prod
-```
+#### 3. **Update Dependencies**  
+   After pulling the latest changes, update the project dependencies by running the following command:
 
-### 1b. Direct Docker Build Commands (alternative to using NPM scripts)
+   ```bash
+   pnpm install
+   ```
 
-You can use Docker's target feature to specify the build environment instead of using NPM scripts if you wish:
+#### 4. **Run the Application**  
+   Once the updates are complete, you can start the application again with:
 
-```bash
-# Development build
-docker build . --target bolt-ai-development
+   ```bash
+   pnpm run dev
+   ```
 
-# Production build
-docker build . --target bolt-ai-production
-```
+This ensures that you're running the latest version of Bolt.diy and can take advantage of all the newest features and bug fixes.
 
-### 2. Docker Compose with Profiles to Run the Container
+---
 
-Use Docker Compose profiles to manage different environments:
+## Available Scripts  
 
-```bash
-# Development environment
-docker-compose --profile development up
+Here are the available commands for managing the application:  
 
-# Production environment
-docker-compose --profile production up
-```
-
-When you run the Docker Compose command with the development profile, any changes you
-make on your machine to the code will automatically be reflected in the site running
-on the container (i.e. hot reloading still applies!).
-
-## Run Without Docker
-
-1. Install dependencies using Terminal (or CMD in Windows with admin permissions):
-
-```
-pnpm install
-```
-
-If you get an error saying "command not found: pnpm" or similar, then that means pnpm isn't installed. You can install it via this:
-
-```
-sudo npm install -g pnpm
-```
-
-2. Start the application with the command:
-
-```bash
-pnpm run dev
-```
-## Available Scripts
-
-- `pnpm run dev`: Starts the development server.
-- `pnpm run build`: Builds the project.
-- `pnpm run start`: Runs the built application locally using Wrangler Pages. This script uses `bindings.sh` to set up necessary bindings so you don't have to duplicate environment variables.
-- `pnpm run preview`: Builds the project and then starts it locally, useful for testing the production build. Note, HTTP streaming currently doesn't work as expected with `wrangler pages dev`.
-- `pnpm test`: Runs the test suite using Vitest.
-- `pnpm run typecheck`: Runs TypeScript type checking.
-- `pnpm run typegen`: Generates TypeScript types using Wrangler.
-- `pnpm run deploy`: Builds the project and deploys it to Cloudflare Pages.
-- `pnpm run lint:fix`: Runs the linter and automatically fixes issues according to your ESLint configuration. 
-
-## Development
-
-To start the development server:
-
-```bash
-pnpm run dev
-```
-
-This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
+- `pnpm run dev`: Start the development server.  
+- `pnpm run build`: Build the project.  
+- `pnpm run start`: Run the built application locally (uses Wrangler Pages).  
+- `pnpm run preview`: Build and start the application locally for production testing.  
+- `pnpm test`: Run the test suite using Vitest.  
+- `pnpm run typecheck`: Perform TypeScript type checking.  
+- `pnpm run typegen`: Generate TypeScript types using Wrangler.  
+- `pnpm run deploy`: Build and deploy the project to Cloudflare Pages.  
+- `pnpm lint:fix`: Run the linter and automatically fix issues.  
 
 ## How do I contribute to Bolt.diy?
 

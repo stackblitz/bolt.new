@@ -1,0 +1,808 @@
+# Release v0.0.1
+
+### 🎉 First Release
+
+#### ✨ Features
+
+- add login
+- use tailwind-compat
+- refactor layout and introduce workspace panel and fix some bugs
+- add first version of workbench, increase token limit, improve system prompt
+- improve prompt, add ability to abort streaming, improve message parser
+- add support for message continuation (#1)
+- chat autoscroll (#6)
+- add simple api error handling (#9)
+- initial persistence (#3)
+- submit file changes to the llm (#11)
+- add 'Open in StackBlitz' button to header (#10)
+- add terminal and simple shortcut system (#16)
+- use artifact id in urls, store metadata in history (#15)
+- oauth-based login (#7)
+- allow to disable auth during development (#21)
+- allow to open up to three terminals (#22)
+- tweak ui for redirect screen (#23)
+- initial chat history ui (#25)
+- add ability to change preview URL (#26)
+- implement light and dark theme (#30)
+- add basic analytics (#29)
+- send analytics event for token usage (#37)
+- add dropdown to select preview port (#17)
+- add file tree breadcrumb (#40)
+- rework ux for deleting chats (#46)
+- navigate away when deleting current chat (#44)
+- add avatar (#47)
+- sanitize user messages (#42)
+- remove authentication (#1)
+- add readme image (#4)
+- add readme image (#4)
+- added sync files to selected local folder function is created. Yarn package manager fixes, styling fixes. Sass module fix. Added Claude model for open router.
+- add ability to enter API keys in the UI
+- added bolt dedicated shell
+- hyperlinked on "Start application"  actionto switch to preview in workbench
+- add custom unique filename when doanload as zip
+- add Together AI integration and provider implementation guide
+- better prompt enhancement
+- prompt caching
+- search chats
+- Connections Tabs
+
+
+#### 🐛 Bug Fixes
+
+- buttons after switching to tailwind-compat reset
+- update system prompt
+- do not use path mapping for worker function
+- make file tree scrollable (#14)
+- always parse all assistant messages (#13)
+- issue with generating a new url id every time (#18)
+- use jose for cloudflare compatibility (#20)
+- typo in example prompt
+- adjust system prompt (#32)
+- update dependencies to fix type validation error (#33)
+- user avatar (#51)
+- remove monorepo
+- add issue templates (#2)
+- update repo name
+- rename template
+- rename template
+- add license
+- update README.md (#3)
+- typo
+- remove duplicated bug_report template
+- update links
+- add screen recordings section to bug_report.yml
+- typo
+- remove duplicated bug_report template
+- update links
+- add screen recordings section to bug_report.yml
+- remove logout button (#130)
+- typo in README.md (#117)
+- typo in README.md (#151)
+- typos in CONTRIBUTING.md (#165)
+- don't always show scrollbars (#548)
+- don't always show scrollbars (#548)
+- working
+- Resolved
+- adds missing -t for dockerbuild:prod command in package.json
+- bug  #245
+- added scroll fix for file browser
+- global execution queue added
+- enhance prompt "Invalid or missing provider" bad request error
+- prettier issue
+- silent eslint issues
+- add browser environment check for local API calls
+- sidebar scroll always showing up
+- tooltip UI
+- typo in docker-compose.yaml
+- updated ci
+- Added some minor UI fix
+- artifact loop fix
+- clean up
+- small bug
+- correction
+- grammar/typos in system prompt
+- grammar
+- re-capitalize "NEW"
+- dev command
+
+
+#### 📚 Documentation
+
+- fix typo in CONTRIBUTING.md (#158)
+- fix typos in README.md (#164)
+- docs added to readme
+- add link to bolt.new issue tracker
+- added socials
+
+
+#### ♻️ Code Refactoring
+
+- workbench store and move logic into action runner (#4)
+- improve history item hover states and interactions
+- settinge menu refactored with useSettings hook
+
+
+#### ⚙️ CI
+
+- use correct versions (#2)
+- deploy to cloudflare (#19)
+- remove deployment workflow
+
+
+#### 🔧 Chores
+
+- make sure that husky hooks are executed
+- update readme
+- update gitignore
+- disable css shorthand to avoid conflicts
+- better clarify readme (#41)
+- update readme
+- create bug report template
+- update readme (#3)
+- update readme
+- create MAIN-FOLDER-README.md
+- update MAIN-FOLDER-README.md
+- rename README.md to CONTRIBUTING.md
+- rename MAIN-FOLDER-README.md to README.md
+- update readme
+- update contributing guide
+- update contributing guide
+- update readme
+- update readme (#7)
+- Add environment variables for OpenAI API Like integration
+- Update environment variable names for OpenAI Like integration
+- Update environment variable names for OpenAI Like integration
+- cleanup logging
+- reverted pnpm package version to match ghaction
+- reverted pnpm lock
+- recreated the lock file
+- ui fix
+- fixed lock file
+- update commit hash to 31e7b48e057d12008a9790810433179bf88b9a32
+- update commit hash to 0a9f04fe3d6001efb863eee7bd2210b5a889e04e
+- update commit hash to 95e38e020cc8a4d865172187fc25c94b39806275
+- update commit hash to 5b6b26bc9ce287e6e351ca443ad0f411d1371a7f
+- update commit hash to 67f63aaf31f406379daa97708d6a1a9f8ac41d43
+- update commit hash to 33d87a1b0eaf5ec36232bb54b3ba9e44e228024d
+- update commit hash to db8c65ec2ba2f28382cb5e792a3f7495fb9a8e03
+- update commit hash to d9ae9d5afbd0310a976fc4c9aee4b9256edef79a
+- update commit hash to 7269c8246f7e89d29a4dd7b446617d66be2bb8da
+- update commit hash to 9758e6c2a00bb9104f4338f67a5757945c69bfa1
+- update commit hash to ac2f42d2d1398f218ec430dd8ba5667011f9d452
+- update commit hash to b4978ca8193afa277f6df0d80e5fbdf787a3524a
+- update commit hash to 5aeb52ae01aee1bc98605f41a0c747ef26dc8739
+- update commit hash to eddf5603c3865536f96774fc3358cf24760fb613
+- update commit hash to 225042bf5ffbf34868cf28ea1091c35a63f76599
+- update commit hash to 1466b6e8777932ce0ab26199126c912373532637
+- update commit hash to 46ad914d1869a7ebb37c67ee68aa7e65333e462f
+- update commit hash to 61a6e133783565ac33fd3e1100a1484debad7c0d
+- update commit hash to 3c71e4e1a1ea6179f0550d3f7628a2f6a75db286
+- update commit hash to 1d5ad998b911dcf7deb3fa34516f73ee46901d1e
+- update commit hash to fa526a643b3529dad86574af5c7ded33388901a2
+- update commit hash to 7d202a4cc737183b29531dcb6336bdb77d899974
+- update commit hash to 62bc87b6f31f5db69cde4874db02739ce8df9ded
+- update commit hash to 154935cdeb054d2cc22dfb0c7e6cf084f02b95d0
+- update commit hash to 7d482ace3d20d62d73107777a51c4ccc375c5969
+- update commit hash to ab08f52aa0b13350cdfe0d0136b668af5e1cd108
+- update commit hash to fd2c17c384a69ab5e7a40113342caa7de405b944
+- update commit hash to c8a7ed9eb02a3626a6e1d591545102765bf762cb
+- update commit hash to f682216515e6e594c6a55cf4520eb67d63939b60
+- update commit hash to 8f3b4cd08249d26b14397e66241b9d099d3eb205
+- update commit hash to 5e1936f5de539324f840305bd94a22260c339511
+- update commit hash to f6329c28c6941fd5c6457a10c209b4b66402e8d5
+- update commit hash to 0b9fd89c7089e98cfc2c17b6fd6ed7cdd6517f1a
+- update commit hash to e7859a34ae64dfac73bbf6fb9e243dc0a7be0a09
+- update commit hash to acd61fea8b6f5c6bbc6d2c7906ac88a6c6aaee5a
+- update commit hash to 4b36601061652ec2ec3cb1f1d5c7cc5649690bbb
+- update commit hash to b0c2f69dca041736f3dd7a8d48df3b5c44fe0948
+- update commit hash to fb1ec72b505a0da0f03a6f1282845844afd7d61c
+- update commit hash to 91ec049b72fcf42d807eb0aa1c8caa01611a4e1d
+- fix workflow permission
+- update commit hash to cbad04f035f017a4797768c75e180f10920c0e17
+- update commit hash to 3f706702b2486e72efe1602e710ccef6c387c82a
+- versioning workflow fix
+- update commit hash to 212ab4a020245c96e3d126c9ef5522d4e9db1edf
+- update commit hash to 0969aacb3533b94887cd63883b30c7fb91d2a957
+- added workflow permission
+- update commit hash to 5c1b4de26a861113ac727b521dfaae07b5f6856b
+- update commit hash to b4104962b7c33202f004bcd05ed75d29c641f014
+- adding workflow
+- update commit hash to 6cb536a9a32e04b4ebc1f3788d6fae06c5bce5ac
+
+
+#### 🔍 Other Changes
+
+- add file tree and hook up editor
+- sync file changes back to webcontainer (#5)
+- enforce consistent import paths (#8)
+- remove settings button
+- add slider to switch between code or preview (#12)
+- adjust system prompt (#24)
+- style sidebar and landing page (#27)
+- hidden file patterns (#31)
+- show tooltip when the editor is read-only (#34)
+- allow to minimize chat (#35)
+- correctly sort file tree (#36)
+- encrypt data and fix renewal (#38)
+- disable eslint
+- Create bug_report.yml
+- Update README.md
+- Update README.md
+- Update README.md
+- Update README.md
+- Update README.md
+- Create MAIN-FOLDER-README.md
+- Update MAIN-FOLDER-README.md
+- Update MAIN-FOLDER-README.md
+- Update MAIN-FOLDER-README.md
+- Rename README.md to CONTRIBUTING.md
+- Rename MAIN-FOLDER-README.md to README.md
+- Update README.md
+- Update CONTRIBUTING.md
+- Update CONTRIBUTING.md
+- Update README.md
+- Update README.md (#7)
+- don't render directly in body
+- Add support for docker dev in bolt
+- Update node version and enable host network
+- don't render directly in body
+- Merge branch 'main' into add-docker-support
+- fix hanging shells (#153)
+- show issue page (#157)
+- fix hanging shells (#159)
+- Merge branch 'main' into add-docker-support
+- Update Dockerfile
+- Add corepack to setup pnpm
+- Added the ability to use practically any LLM you can dream of within Bolt.new
+- Added the OpenRouter provider and a few models from OpenRouter (easily extendable to include more!)
+- Add provider filtering on model list
+- Set default provider from constants
+- added Google Generative AI (gemini) integration
+- use correct issues url (#514)
+- let the ollama models be auto generated from ollama api
+- added download code button
+- Merge pull request #1 from ocodo/main
+- Merge pull request #2 from jonathands/main
+- Merge branch 'main' into main
+- Merge pull request #5 from yunatamos/main
+- Merge pull request #6 from fabwaseem/download-code
+- Fixing up codebase after merging pull requests
+- Updated README with new providers and a running list of features to add to the fork
+- Adding together to the list of integration requests
+- added Google Generative AI (gemini) integration
+- Update README.md
+- Update README.md
+- add planning step + organize shell commands
+- Update prompts.ts
+- Update max_tokens in constants.ts
+- More feature requests!!
+- Merge pull request #7 from ocodo/main
+- Docker Additions
+- Added GitHub push functionality
+- Create github-build-push.yml
+- moved action
+- Update github-build-push.yml
+- Update github-build-push.yml
+- Update github-build-push.yml
+- Update github-build-push.yml
+- Update README.md
+- Merge pull request #28 from kofi-bhr/patch-1
+- Merge pull request #8 from yunatamos/patch-1
+- Merge pull request #1 from coleam00/main
+- add mistral models
+- mistral models added
+- removed pixtral
+- Merge branch 'coleam00:main' into main
+- Update types.ts
+- Update constants.ts
+- Merge branch 'main' into add-docker-support
+- Added deepseek models
+- Merge branch 'main' of https://github.com/zenith110/bolt.new-any-llm
+- Added more instructions for newbs
+- Merge pull request #1 from mayurjobanputra/mayurjobanputra-patch-1
+- Update docker-compose.yml
+- Merge branch 'main' from coleam00 into add-docker-support
+- Merge pull request #1 from ZerxZ/main
+- Enabled boh dev and production docker images. Added convenience scripts and deconflicted start and dockerstart scripts
+- updated ollama to use defined base URL for model calls
+- Adding CONTRIBUTING.md specifically for this fork.
+- Merge branch 'main' into main
+- Merge pull request #11 from kofi-bhr/main
+- Merge pull request #12 from fernsdavid25/patch-1
+- Merge pull request #23 from aaronbolton/main
+- Merge pull request #24 from goncaloalves/main
+- Merge branch 'main' into main
+- Merge pull request #30 from muzafferkadir/main
+- Merge pull request #36 from ArulGandhi/main
+- Merge pull request #44 from TarekS93/main
+- Merge branch 'main' into main
+- Merge pull request #51 from zenith110/main
+- Merge branch 'main' into main
+- Merge pull request #60 from ZerxZ/main
+- Merge branch 'main' into main
+- Merge pull request #64 from noobydp/main
+- Cleanup and fixing Ollama models not showing up after merging changes
+- Updating README with finished implementations and reorder the list of priorities
+- Update constants.ts
+- Enhancing Dockerfile to use a staged build, and docker-compose-yaml to use profiles, either 'development' or 'producion'. Adding nixpacks.toml to enable robust coolify support
+- Corrected nixpacks.toml filename
+- Merge pull request #70 from ArulGandhi/main
+- Corrected nixpacks.toml filename
+- Merge branch 'add-docker-support' of github.com:hillct/bolt.new-any-llm into add-docker-support  Just a little cleanup... nixpax.toml is no more. Embedding Coolify config in Dockerfile and docker-compose.yaml
+- Adding hints for Coolify config into docker-compose.yaml
+- Adding full suffix o cocker-compose.yaml for ompatibiliy
+- Merge branch 'main' into add-docker-support
+- Corrected oudated docker build convenience script target
+- Merge branch 'coleam00:main' into main
+- main
+- create .dockerignore file
+- Added Docker Deployment documentation to CONTRIBUTING.md
+- LM Studio Integration
+- Remove Package-lock.json
+- Added DEEPSEEK_API_KEY to .env.example
+- Changed mode.ts to add BaseURL. Thanks @alumbs
+- Merge branch 'coleam00:main' into main
+- More feature requests! Will look at pull requests soon
+- Merge pull request #55 from mayurjobanputra/main
+- Merge pull request #71 from hillct/add-docker-support
+- Fixing up Docker Compose to work with hot reloads in development and environment variables
+- Merge pull request #77 from ajshovon/main
+- Fixing up setup + installation instructions in README
+- Small mention of hot reloading even when running in container
+- Fix createGoogleGenerativeAI arguments
+- Instructions on making Ollama models work well
+- Merge branch 'coleam00:main' into main
+- Update README.md changed .env to .env.local
+- Making Ollama work within the Docker container, very important fix
+- Moved provider and setProvider variables to the higher level component so that it can be accessed in sendMessage. Added provider to message queue in sendMessage. Changed streamText to extract both model and provider.
+- Added sanitization for user messages. Use regex defined in constants.ts instead of redefining.
+- Merge branch 'coleam00:main' into main
+- Added support for xAI Grok Beta
+- Added the XAI_API_KEY variable to the .env.example
+- Merge pull request #196 from milutinke/x-ai
+- Added the latest Sonnet 3.5 and Haiku 3.5
+- Set numCtx = 32768 for Ollama models
+- Merge pull request #209 from patrykwegrzyn/main
+- added code streaming to editor while AI is writing code
+- Show which model name and provider is used in user message.
+- Merge branch 'main' into main
+- Merge branch 'main' into new_bolt1
+- Merge pull request #101 from ali00209/new_bolt1
+- feat(bolt-terminal) bolt terminal integrated with the system
+- Merge branch 'main' into respect-provider-choice
+- Merge pull request #188 from TommyHolmberg/respect-provider-choice
+- Fixing merge conflicts in BaseChat.tsx
+- Noting that API key will still work if set in .env file
+- Merge branch 'coleam00:main' into main
+- Merge pull request #178 from albahrani/patch-1
+- Merge branch 'main' into main
+- Merge branch 'main' into claude-new-sonnet-and-haiku
+- Merge pull request #205 from milutinke/claude-new-sonnet-and-haiku
+- Update README.md
+- Delete github-build-push.yml
+- Merge branch 'main' of https://github.com/aaronbolton/bolt.new-any-llm
+- Merge pull request #242 from aaronbolton/main
+- Merge branch 'coleam00:main' into main
+- @wonderwhy-er suggestion fix pr
+- Merge branch 'main' of https://github.com/karrot0/bolt.new-any-llm
+- Merge pull request #104 from karrot0/main
+- Refactor/standartize model providers, add "get provider key" for those who have it for first time users
+- Merge pull request #254 from ali00209/new_bolt5
+- Merge pull request #247 from JNN5/main
+- Bug fixes
+- Merge pull request #228 from thecodacus/feature--bolt-shell
+- Temporarily removing semantic-pr.yaml in order to verify otherwise ready for review PRs.
+- Merge pull request #261 from chrismahoney/fix/remove-ghaction-titlecheck
+- Merge branch 'main' into code-streaming
+- temporary removed lock file
+- recreated the lock file
+- made types optional and, workbench get repo fix
+- type fix
+- Merge pull request #213 from thecodacus/code-streaming
+- Merge remote-tracking branch 'coleam00/main' into addGetKeyLinks
+- Use cookies instead of request body that is stale sometimes
+- Added dynamic openrouter model list
+- Fix google api key bug
+- Various bug fixes around model/provider selection
+- Merge branch 'coleam00:main' into main
+- TypeCheck fix
+- added rey effects for the UI as decorative elements
+- More type fixes
+- One more fix
+- Update README.md
+- Merge pull request #251 from wonderwhy-er/addGetKeyLinks
+- Merge pull request #285 from cardonasMind/patch-1
+- Merge pull request #158 from dmaksimov/main
+- Removing console log of provider info
+- Fix missing key for React.Fragment in Array map listing
+- Merge pull request #296 from chrismahoney/fix/provider-consolelog
+- Merge pull request #304 from thecodacus/fix-filetree-scroll-fix
+- Merge pull request #118 from armfuls/main
+- Add ability to return to older chat message state
+- clean up unnecesary files
+- excluded the action from execution pipeline
+- .gitignore
+- Add ability to duplicate chat in sidebar
+- Huggingface Models Integrated
+- Add windows start command
+- Fix package.json
+- Should not provide hard-coded OLLAMA_API_BASE_URL value in .env.example
+- Merge pull request #321 from chrismahoney/fix/revert-ollamaurl
+- Added tooltips and fork
+- Show revert and fork only on AI messages
+- Fix lost rewind functionality
+- Lock file
+- Created DEFAULT_NUM_CTX VAR with a deafult of 32768
+- [UX] click shortcut in chat to go to source file in workbench
+- revert spaces
+- image-upload
+- add module lucide-react
+- Delete yarn.lock
+- DEFAULT_NUM_CTX additions
+- Merge pull request #314 from ahsan3219/main
+- Merge pull request #305 from wonderwhy-er/Rewind-to-older-message
+- Update the Google Gemini models list
+- Fix the list of names to include the correct model
+- Merge pull request #309 from thecodacus/fix-project-reload-execution-order
+- Revert useless changes
+- Merge pull request #330 from hgosansn/ux-click-open-file-in-chat
+- Merge remote-tracking branch 'upstream/main'
+- changing based on PR review
+- Merge pull request #338 from kekePower/kekePower/update-google-models
+- update comment to reflect the the codeline
+- use a descriptive anique filename when downloading the files to zip
+- Updating README with new features and a link to our community
+- Merge pull request #347 from SujalXplores/fix/enhance-prompt
+- .gitignore
+- Add background for chat window
+- Cohere support added
+- max token is now dynamically handle for each model
+- Merge pull request #350 from wonderwhy-er/Add-background-for-chat-window
+- Merge branch 'coleam00:main' into main
+- console message removed
+- README.md updated
+- flash fix
+- another theme switch fix
+- removed the background color from rays
+- fixes for PR #332
+- .
+- model pickup
+- Update stream-text.ts dynamic model max  Token updated
+- Merge pull request #351 from hasanraiyan/main
+- mobile friendly
+- mobile friendly editor scrollable option buttons
+- Added speech to text capability
+- Clear speech to text, listening upon submission
+- Revert constant change
+- Merge pull request #361 from qwikode/feature/mobile-friendly
+- Limit linting to app
+- Lint-fix all files in app
+- Ignore some stackblitz specific linting rules
+- header gradient and textarea border effect
+- remove commented code
+- picking right model
+- Merge branch 'main' into main
+- Merge pull request #328 from aaronbolton/main
+- Merge remote-tracking branch 'upstream/main'
+- merge with upstream
+- Update to Gemini exp-1121
+- Export chat from sidebar
+- Fix linting issues
+- Make tooltip easier to reuse across the app
+- Added export button
+- Merge remote-tracking branch 'upstream/main' into linting
+- Merge pull request #371 from kekePower/update-google-gemini
+- Merge remote-tracking branch 'upstream/main' into linting
+- Lint and fix recent changes from main
+- Added 3 new models to Huggingface
+- Merge pull request #380 from kekePower/update-huggingface-models
+- Merge remote-tracking branch 'upstream/main' into linting
+- adds Husky 🐶 for pre-commit linting
+- Add information about the linting pre-commit to the contributions guideline
+- Merge pull request #367 from mrsimpson/linting
+- Add import, fix export
+- Merge remote-tracking branch 'coleam00/main' into import-export-individual-chats
+- Lint fixes
+- Type fixes
+- Don't fix linting-issues pre-commit
+- Terminal render too many times causing performance freeze
+- Small change to make review easier
+- Couple of bugfixes
+- adding docs
+- updated
+- Merge pull request #372 from wonderwhy-er/import-export-individual-chats
+- Small-cleanup-of-base-chat-component
+- Proof of concept for folder import
+- Merge pull request #412 from wonderwhy-er/Cleanup-extract-import-button
+- work in progress poc git import
+- Created FAQ at bottom of README
+- Added roadmap to README FAQ
+- Added parsing if ignore file and added handling of binary files
+- Merge remote-tracking branch 'coleam00/main' into Import-folder
+- Merge with master fixes
+- Merge pull request #414 from SujalXplores/fix/eslint-issues
+- Merge pull request #378 from mrsimpson/force-local-linting
+- Merge pull request #411 from SujalXplores/fix/prettier-issue
+- Merge pull request #422 from SujalXplores/feat/improve-sidebar
+- Merge pull request #413 from wonderwhy-er/Import-folder
+- Refinement of folder import
+- shell commands failing on app reload
+- artifact actionlist rendering in chat
+- add prompt caching to README
+- upload new files
+-  added faq
+- Merge branch 'main' into docs
+- updated name
+- pipeline fix
+- updated CI name
+- reduced the filesize by over 7x, reduced image size to 1200x600
+- Bump the npm_and_yarn group across 1 directory with 9 updates
+- Merge pull request #456 from oTToDev-CE/dependabot/npm_and_yarn/npm_and_yarn-4762c9dd00
+- Merge pull request #455 from oTToDev-CE/image-size
+- fix
+- Merge branch 'docs'
+- Merge pull request #445 from thecodacus/docs
+- Merge pull request #460 from oTToDev-CE/ollama-model-not-respected
+- Merge pull request #440 from SujalXplores/feat/search-chats
+- Merge branch 'coleam00:main' into main
+- Update action-runner.ts
+- Merge pull request #427 from PuneetP16/fix-app-reload
+- merge with upstream/main
+- adjusting spaces for X button in file-preview
+- Merge pull request #488 from thecodacus/github-action-fix-for-docs
+- Updated README Headings and Ollama Section
+- liniting fix
+- Merge pull request #9 from lassecapel/feat-add-custom-project-name
+- Update constants.ts
+- Update docker-compose.yaml
+- added collapsable chat area
+- Update ExamplePrompts.tsx
+- Merge pull request #11 from PuneetP16/fix-artifact-code-block-rendering
+- Merge pull request #10 from SujalXplores/feat/prompt-caching
+- Update BaseChat.module.scss
+- Update BaseChat.tsx
+- Merge pull request #16 from dustinwloring1988/default-prompt-change
+- Merge pull request #17 from dustinwloring1988/collapsible-model-and-provider
+- Merge pull request #18 from dustinwloring1988/pretty-up
+- Merge pull request #20 from dustinwloring1988/readme-heading-ollama-section
+- Merge pull request #15 from dustinwloring1988/artifact-code-block
+- Merge pull request #19 from dustinwloring1988/unique-name-on-download-zip
+- Merge branch 'stable-additions' into linting-fix
+- Merge pull request #21 from dustinwloring1988/linting-fix
+- lint fix
+- fixed path
+- Merge pull request #22 from dustinwloring1988/stable-additions
+- Merge pull request #23 from dustinwloring1988/prompt-caching
+- Merge branch 'dev' into ui-glow
+- Merge pull request #26 from dustinwloring1988/stable-additions
+- Merge pull request #25 from dustinwloring1988/ui-glow
+- small fixes
+- Update ImportFolderButton.tsx
+- last test fix
+- hotfix
+- hotfix for test and lint done
+- updated packages
+- Merge branch 'stable-additions' into stable-plus-ui-glow
+- Merge pull request #491 from dustinwloring1988/stable-additions
+- Updated features being developed in README
+- Merge branch 'main' into stable-plus-ui-glow
+- Merge pull request #493 from dustinwloring1988/stable-plus-ui-glow
+- added example buttons
+- Merge pull request #1 from dustinwloring1988/example-buttons
+- Merge pull request #2 from hgosansn/main
+- Merge pull request #7 from ibrain-one/feature/307-together-ai-integration
+- improved start
+- fixed typo
+- fixed typo
+- Merge pull request #11 from oTToDev-CE/improve-start
+- Update package.json
+- moved faq to its own page
+- Update README.md
+- Update README.md
+- Merge pull request #21 from oTToDev-CE/readme-faq-mod
+- Update README.md
+- Update FAQ.md
+- Update FAQ.md
+- Updated SCSS to use @use instead of @import via sass-migrator
+- Merge pull request #1 from oTToDev-CE/stable-changes
+- pre commit lint
+- Merge pull request #1 from dustinwloring1988/main
+- Merge pull request #2 from calvinvette/main
+- precommit lint
+- new lint rules
+- prompt enhanchment
+- Merge pull request #2 from oTToDev-CE/main
+- Update .env.example
+- lint rules added and fixed
+- Merge pull request #3 from oTToDev-CE/main
+- added last lint rule for this update
+- Merge pull request #4 from oTToDev-CE/main
+- added the v3_lazyRouteDiscovery flag
+- added artifact bundling for custom long artifacts like uploading folder
+- Merge pull request #498 from dustinwloring1988/main
+- Create main.yml
+- Merge pull request #505 from oTToDev-CE/main
+- Update README.md
+- Merge pull request #506 from dustinwloring1988/doc-addition
+- Update and rename main.yml to stale.yml
+- Merge branch 'main' into docs-added-to-readme
+- Merge remote-tracking branch 'origin/main' into bundle-artifact
+- Merge pull request #508 from thecodacus/docs-added-to-readme
+- Update stale.yml
+- Merge remote-tracking branch 'coleam00/main' into Folder-import-refinement
+- adding to display the image in the chat conversation. and paste image too. tnx to @Stijnus
+- Update linting-failed-message in pre-commit
+- Merge pull request #512 from mrsimpson/fix-lint-failed-message
+- merge with upstream
+- together AI Dynamic Models
+- clean up
+- Merge branch 'main' into github-import
+- adding drag and drop images to text area
+- added context to history
+- fixed test cases
+- added nvm for husky
+- Implement chat description editing in sidebar and header, add visual cue for active chat in sidebar
+- added bundled artifact
+- added cookies storage for git
+- updated pnpm.lock
+- skipped images
+- Merge branch 'main' into feat/improve-prompt-enhancement
+- Merge pull request #428 from SujalXplores/feat/improve-prompt-enhancement
+- Merge pull request #471 from sci3ma/patch-1
+- Merge branch 'main' into fix/ui-gradient
+- Merge pull request #368 from qwikode/fix/ui-gradient
+- removed package lock file as this is not needed for pnpm repo, also added nvm support for husky
+- added nvm support for husky
+- Merge branch 'main' into improve-start-command-on-windows
+- Merge pull request #316 from wonderwhy-er/improve-start-command-on-windows
+- Merge pull request #519 from thecodacus/package-lock-removed
+- Update bug_report.yml
+- Merge pull request #520 from oTToDev-CE/doc/issue-template-update
+- some minor fix
+- fixed action-runner linting
+- Merge pull request #483 from PuneetP16/feat/enhance-chat-description-management
+- Merge branch 'main' into github-import
+- Hardcode url for together ai as fallback if not set in env
+- Hardcode url for together ai as fallback if not set in env
+- Merge pull request #332 from atrokhym/main
+- Updating README now that image attaching is merged, changing order of items in README list.
+- Hardcode url for together ai as fallback if not set in env
+- Split code a little bit
+- lock file
+- Merge pull request #537 from wonderwhy-er/Voice-input-with-fixes
+- Added Fullscreen and Resizing to Preview
+- Lint fix
+- Merge pull request #550 from wonderwhy-er/pr-549
+- Merge branch 'main' into together-ai-dynamic-model-list
+- list fix
+- Merge pull request #513 from thecodacus/together-ai-dynamic-model-list
+- Merge pull request #533 from wonderwhy-er/harcode-together-ai-api-url-as-fallback
+- added spinner
+- Merge pull request #504 from thecodacus/bundle-artifact
+- Merge branch 'main' into github-import
+- Update BaseChat.tsx
+- lint fix
+- artifact bugfix
+- Merge pull request #569 from thecodacus/fix-artifact-bug
+- Merge branch 'main' into github-import
+- fix bundling
+- linting
+- added lock file ignore
+- Merge pull request #571 from thecodacus/artifact-bugfix
+- Update to Gemini exp-1206
+- Merge branch 'main' into github-import
+- Added a tabbed setting modal
+- Merge branch 'coleam00:main' into ui/model-dropdown
+- Merge pull request #421 from thecodacus/github-import
+- Merge branch 'main' into Folder-import-refinement
+- add vue support for codemirror
+- Merge branch 'main' into ui-background-rays
+- background rays  and changed the theme color to purple
+- updated theme color
+- Merge pull request #580 from oTToDev-CE/feat/add-tabbed-setting-modal
+- Merge branch 'coleam00:main' into ui/model-dropdown
+- fix position issue
+- typecheck fix
+- Merge pull request #565 from oTToDev-CE/ui/model-dropdown
+- import from url
+- Merge branch 'main' into git-import-from-url
+- Small Style Update
+- Update folderImport.ts
+- Update ImportFolderButton.tsx
+- Changed Colors
+- Merge pull request #426 from wonderwhy-er/Folder-import-refinement
+- Reuse automatic setup commands for git import
+- Update readme
+- Merge pull request #589 from wonderwhy-er/Add-command-detection-to-git-import-flow
+- Merge branch 'main' into git-import-from-url
+- added setup command
+- More styling changes
+- update to styles
+- Merge pull request #585 from thecodacus/git-import-from-url
+- Merge pull request #592 from oTToDev-CE/ui/settings-style
+- Merge pull request #581 from mark-when/vue
+- refactor(SettingWindow):Updated Settings Tab Styling
+- updated padding
+- added backdrop blur
+- delete lock file
+- added lockfile back
+- Merge branch 'main' into update-setting-modal-styles
+- added lock file
+- Merge pull request #600 from thecodacus/update-setting-modal-styles
+- Merge pull request #573 from kekePower/update-gemini-models
+- Update docs
+- Merge pull request #605 from dustinwloring1988/doc/removed-ollama-modelfile-section
+- Update FAQ.md
+- Merge pull request #606 from dustinwloring1988/doc/faq-clean-up
+- removed test connection button
+- fixed toggle not displaying in feature tab
+- moved local models to the experimental features
+- Remembers Settings In Features
+- Merge pull request #610 from oTToDev-CE/ui/features-toggle-fix
+- Merge branch 'main' into ui/add-tab-connections
+- fix formatting error on conflict resolve
+- Merge pull request #607 from oTToDev-CE/ui/add-tab-connections
+- remaining changes
+- Merge branch 'main' into ui-background-rays
+- Merge pull request #282 from thecodacus/ui-background-rays
+- added logo
+- Merge pull request #625 from thecodacus/updated-logo-in-header
+- console error fix due to duplicate keys
+- moved log to only print on change, and changed error logs to warnings
+- lint fix
+- some more logs cleanup
+- Replaced images to match new style
+- Add files via upload
+- Merge pull request #628 from thecodacus/console-error-fox-due-to-duplicate-keys-in-model-selector
+- Add files via upload
+- updated to adapth baseurl setup
+- Merge pull request #629 from oTToDev-CE/doc/images-replace
+- Updating name to Bolt.diy in README
+- Updating git clone url in README.
+- Fixing typo.
+- Merge branch 'main' of https://github.com/stackblitz-labs/bolt.diy
+- Update SettingsWindow.tsx
+- Updating documentation link in README.
+- Merge branch 'main' of https://github.com/stackblitz-labs/bolt.diy
+- Merge pull request #635 from Bolt-CE/main
+- updated docs with new name
+- Changed Docs URL
+- Merge pull request #637 from thecodacus/fix-docs
+- fix Title
+- Merge pull request #639 from thecodacus/fix-docs
+- Merge pull request #638 from Bolt-CE/main
+- merge
+- Merge pull request #645 from wonderwhy-er/pr-620
+- Remove other oTToDev mentions
+- Merge pull request #648 from wonderwhy-er/Remove-ottodev-mentions
+- Add gemini flash 2.0
+- Merge pull request #649 from wonderwhy-er/Add-Gemini-2.0-flash
+- Update prompts.ts
+- Merge pull request #654 from Badbird5907/fix/prompt
+- settings bugfix
+- Merge pull request #662 from thecodacus/settings-bugfix
+- Merge pull request #665 from AriPerkkio/docs/issue-template-link
+- added start message for dev server
+- Merge pull request #668 from thecodacus/terminal-start-log-for-dev-server
+- Merge pull request #682 from thecodacus/bug/prestart-script
+- added default value to true
+- Merge pull request #683 from thecodacus/setting-default-value
+- added verioning system and stable branch
+- imporoved version for versioning system
+- Merge pull request #688 from thecodacus/stable-branch-workflow
+- Merge branch 'main' into chore--fix-versioning-workflow
+- updated flow to use pnpm
+- Merge pull request #689 from thecodacus/chore--fix-versioning-workflow
+- fix the creds issue in workflow
+- Merge pull request #690 from thecodacus/update-stable-workflow
+- Merge pull request #691 from thecodacus/workflow-fix
+- Merge pull request #692 from thecodacus/versioning-workflow
+- updated workflow
+- Merge pull request #695 from thecodacus/fix-versioning
+- Merge pull request #696 from thecodacus/fix/workflow-permission
+- Merge branch 'main' into update-socials
+- Merge pull request #697 from thecodacus/update-socials
+- Merge pull request #701 from thecodacus/auto-versioning #release
+- skipping commit version
+
+

@@ -44,6 +44,14 @@ extra:
     - icon: fontawesome/brands/discourse
       link: https://thinktank.ottomator.ai/
       name: Bolt.diy Discourse
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/bolt_diy
+      name: Bolt.diy on X
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/bolt.diy
+      name: Bolt.diy on Bluesky
+
+      
 
 
 markdown_extensions:

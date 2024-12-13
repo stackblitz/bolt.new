@@ -1,23 +1,45 @@
 name: Update Stable Branch
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
+
 permissions:
   contents: write
   
 jobs:
-  update-stable:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'stable-release')
+  update-commit:
+    if: contains(github.event.head_commit.message, '#release')
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: read
+
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v3
+      
+    - name: Get the latest commit hash
+      run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+    - name: Update commit file
+      run: |
+        echo "{ \"commit\": \"$COMMIT_HASH\" }" > app/commit.json
+
+    - name: Commit and push the update
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add app/commit.json
+        git commit -m "chore: update commit hash to $COMMIT_HASH"
+        git push
+  prepare-release:
+    needs: update-commit
+    if: contains(github.event.head_commit.message, '#release')
+    runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configure Git
         run: |
@@ -49,17 +71,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Determine Version Bump
-        id: version_bump
-        run: |
-          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'major') }}" == "true" ]]; then
-            echo "bump=major" >> $GITHUB_OUTPUT
-          elif [[ "${{ contains(github.event.pull_request.labels.*.name, 'minor') }}" == "true" ]]; then
-            echo "bump=minor" >> $GITHUB_OUTPUT
-          else
-            echo "bump=patch" >> $GITHUB_OUTPUT
-          fi
-
       - name: Get Current Version
         id: current_version
         run: |
@@ -68,6 +79,18 @@ jobs:
 
       - name: Install semver
         run: pnpm add -g semver
+
+      - name: Determine Version Bump
+        id: version_bump
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          if [[ $COMMIT_MSG =~ "#release:major" ]]; then
+            echo "bump=major" >> $GITHUB_OUTPUT
+          elif [[ $COMMIT_MSG =~ "#release:minor" ]]; then
+            echo "bump=minor" >> $GITHUB_OUTPUT
+          else
+            echo "bump=patch" >> $GITHUB_OUTPUT
+          fi
 
       - name: Bump Version
         id: bump_version
@@ -158,32 +181,30 @@ jobs:
           echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Commit Version Update
+      - name: Commit and Tag Release
         run: |
           git pull
           git add package.json pnpm-lock.yaml changelog.md
-          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
+          git commit -m "chore: release version ${{ steps.bump_version.outputs.new_version }}"
+          git tag "v${{ steps.bump_version.outputs.new_version }}"
           git push
+          git push --tags
 
       - name: Update Stable Branch
         run: |
-          # Ensure stable branch exists
-          git checkout stable 2>/dev/null || git checkout -b stable
-          git merge main --no-ff -m "chore: merge main into stable for version ${{ steps.bump_version.outputs.new_version }}"
-          git push --set-upstream origin stable
+          if ! git checkout stable 2>/dev/null; then
+            echo "Creating new stable branch..."
+            git checkout -b stable
+          fi
+          git merge main --no-ff -m "chore: release version ${{ steps.bump_version.outputs.new_version }}"
+          git push --set-upstream origin stable --force
 
-      - name: Create and Push Tag
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="v${{ steps.bump_version.outputs.new_version }}"
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-
-      # - name: Create GitHub Release
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     VERSION="v${{ steps.bump_version.outputs.new_version }}"
-      #     gh release create "$VERSION" \
-      #       --title "Release $VERSION" \
-      #       --notes "${{ steps.changelog.outputs.content }}" \
-      #       --target stable
+          gh release create "$VERSION" \
+            --title "Release $VERSION" \
+            --notes "${{ steps.changelog.outputs.content }}" \
+            --target stable

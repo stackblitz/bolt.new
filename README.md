@@ -1,4 +1,4 @@
-[![Bolt.new: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.new)
+[![Bolt.diy: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.diy)
 
 # Bolt.diy (Previously oTToDev)
 
@@ -56,30 +56,19 @@ https://thinktank.ottomator.ai
 - ⬜ Perplexity Integration
 - ⬜ Vertex AI Integration
 
-## Bolt.new: AI-Powered Full-Stack Web Development in the Browser
+## Bolt.diy Features
 
-Bolt.new (and by extension Bolt.diy) is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. If you're here to build your own AI-powered web dev agent using the Bolt open source codebase, [click here to get started!](./CONTRIBUTING.md)
+- **AI-powered full-stack web development** directly in your browser.
+- **Support for multiple LLMs** with an extensible architecture to integrate additional models.
+- **Attach images to prompts** for better contextual understanding.
+- **Integrated terminal** to view output of LLM-run commands.
+- **Revert code to earlier versions** for easier debugging and quicker changes.
+- **Download projects as ZIP** for easy portability.
+- **Integration-ready Docker support** for a hassle-free setup.
 
-## What Makes Bolt.new Different
+## Setup Bolt.diy 
 
-Claude, v0, etc are incredible- but you can't install packages, run backends, or edit code. That’s where Bolt.new stands out:
-
-- **Full-Stack in the Browser**: Bolt.new integrates cutting-edge AI models with an in-browser development environment powered by **StackBlitz’s WebContainers**. This allows you to:
-  - Install and run npm tools and libraries (like Vite, Next.js, and more)
-  - Run Node.js servers
-  - Interact with third-party APIs
-  - Deploy to production from chat
-  - Share your work via a URL
-
-- **AI with Environment Control**: Unlike traditional dev environments where the AI can only assist in code generation, Bolt.new gives AI models **complete control** over the entire  environment including the filesystem, node server, package manager, terminal, and browser console. This empowers AI agents to handle the whole app lifecycle—from creation to deployment.
-
-Whether you’re an experienced developer, a PM, or a designer, Bolt.new allows you to easily build production-grade full-stack applications.
-
-For developers interested in building their own AI-powered development tools with WebContainers, check out the open-source Bolt codebase in this repo!
-
-## Setup  
-
-If you're new to installing software from GitHub, don't worry! If you encounter any issues, feel free to submit an "issue" using the provided links or improve this documentation by forking the repository, editing the instructions, and submitting a pull request.  
+If you're new to installing software from GitHub, don't worry! If you encounter any issues, feel free to submit an "issue" using the provided links or improve this documentation by forking the repository, editing the instructions, and submitting a pull request. The following instruction will help you get the stable branch up and running on your local machine in no time.  
 
 ### Prerequisites  
 
@@ -99,7 +88,7 @@ If you're new to installing software from GitHub, don't worry! If you encounter 
 Clone the repository using Git:  
 
 ```bash  
-git clone https://github.com/stackblitz-labs/bolt.diy.git  
+git clone -b stable https://github.com/stackblitz-labs/bolt.diy  
 ```  
 
 ### (Optional) Configure Environment Variables  

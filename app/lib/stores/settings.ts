@@ -35,7 +35,7 @@ PROVIDER_LIST.forEach((provider) => {
   initialProviderSettings[provider.name] = {
     ...provider,
     settings: {
-      enabled: false,
+      enabled: true,
     },
   };
 });

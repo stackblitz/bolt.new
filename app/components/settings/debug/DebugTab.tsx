@@ -33,7 +33,7 @@ interface IProviderConfig {
 const LOCAL_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
 const versionHash = commit.commit;
 const GITHUB_URLS = {
-  original: 'https://api.github.com/repos/Stijnus/bolt.new-any-llm/commits/main',
+  original: 'https://api.github.com/repos/stackblitz-labs/bolt.diy/commits/main',
   fork: 'https://api.github.com/repos/Stijnus/bolt.new-any-llm/commits/main',
 };
 
@@ -327,7 +327,7 @@ export default function DebugTab() {
           <button
             onClick={handleCheckForUpdate}
             disabled={isCheckingUpdate}
-            className={`bg-bolt-elements-button-primary-background rounded-lg px-4 py-2 transition-colors duration-200 
+            className={`bg-bolt-elements-button-primary-background rounded-lg px-4 py-2 transition-colors duration-200
               ${!isCheckingUpdate ? 'hover:bg-bolt-elements-button-primary-backgroundHover' : 'opacity-75 cursor-not-allowed'}
               text-bolt-elements-button-primary-text`}
           >
@@ -353,7 +353,7 @@ export default function DebugTab() {
                 </li>
                 <li>
                   Install any new dependencies:{' '}
-                  <code className="bg-bolt-elements-surface-hover px-1 rounded">npm install</code>
+                  <code className="bg-bolt-elements-surface-hover px-1 rounded">pnpm install</code>
                 </li>
                 <li>Restart the application</li>
               </ol>

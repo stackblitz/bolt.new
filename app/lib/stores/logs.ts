@@ -17,7 +17,7 @@ const MAX_LOGS = 1000; // Maximum number of logs to keep in memory
 
 class LogStore {
   private _logs = map<Record<string, LogEntry>>({});
-  showLogs = atom(false);
+  showLogs = atom(true);
 
   constructor() {
     // Load saved logs from cookies on initialization

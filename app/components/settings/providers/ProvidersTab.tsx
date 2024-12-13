@@ -3,6 +3,7 @@ import { Switch } from '~/components/ui/Switch';
 import { useSettings } from '~/lib/hooks/useSettings';
 import { LOCAL_PROVIDERS, URL_CONFIGURABLE_PROVIDERS } from '~/lib/stores/settings';
 import type { IProviderConfig } from '~/types/model';
+import { logStore } from '~/lib/stores/logs';
 
 export default function ProvidersTab() {
   const { providers, updateProviderSettings, isLocalModel } = useSettings();
@@ -60,7 +61,15 @@ export default function ProvidersTab() {
             <Switch
               className="ml-auto"
               checked={provider.settings.enabled}
-              onCheckedChange={(enabled) => updateProviderSettings(provider.name, { ...provider.settings, enabled })}
+              onCheckedChange={(enabled) => {
+                updateProviderSettings(provider.name, { ...provider.settings, enabled });
+
+                if (enabled) {
+                  logStore.logProvider(`Provider ${provider.name} enabled`, { provider: provider.name });
+                } else {
+                  logStore.logProvider(`Provider ${provider.name} disabled`, { provider: provider.name });
+                }
+              }}
             />
           </div>
           {/* Base URL input for configurable providers */}
@@ -70,9 +79,14 @@ export default function ProvidersTab() {
               <input
                 type="text"
                 value={provider.settings.baseUrl || ''}
-                onChange={(e) =>
-                  updateProviderSettings(provider.name, { ...provider.settings, baseUrl: e.target.value })
-                }
+                onChange={(e) => {
+                  const newBaseUrl = e.target.value;
+                  updateProviderSettings(provider.name, { ...provider.settings, baseUrl: newBaseUrl });
+                  logStore.logProvider(`Base URL updated for ${provider.name}`, {
+                    provider: provider.name,
+                    baseUrl: newBaseUrl,
+                  });
+                }}
                 placeholder={`Enter ${provider.name} base URL`}
                 className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1.5 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor"
               />

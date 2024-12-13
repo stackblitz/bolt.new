@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { db, deleteById, getAll } from '~/lib/persistence';
 import { classNames } from '~/utils/classNames';
 import styles from '~/components/settings/Settings.module.scss';
+import { logStore } from '~/lib/stores/logs'; // Import logStore for event logging
 
 export default function ChatHistoryTab() {
   const navigate = useNavigate();
@@ -22,7 +23,10 @@ export default function ChatHistoryTab() {
 
   const handleDeleteAllChats = async () => {
     if (!db) {
+      const error = new Error('Database is not available');
+      logStore.logError('Failed to delete chats - DB unavailable', error);
       toast.error('Database is not available');
+
       return;
     }
 
@@ -30,13 +34,12 @@ export default function ChatHistoryTab() {
       setIsDeleting(true);
 
       const allChats = await getAll(db);
-
-      // Delete all chats one by one
       await Promise.all(allChats.map((chat) => deleteById(db!, chat.id)));
-
+      logStore.logSystem('All chats deleted successfully', { count: allChats.length });
       toast.success('All chats deleted successfully');
       navigate('/', { replace: true });
     } catch (error) {
+      logStore.logError('Failed to delete chats', error);
       toast.error('Failed to delete chats');
       console.error(error);
     } finally {
@@ -46,7 +49,10 @@ export default function ChatHistoryTab() {
 
   const handleExportAllChats = async () => {
     if (!db) {
+      const error = new Error('Database is not available');
+      logStore.logError('Failed to export chats - DB unavailable', error);
       toast.error('Database is not available');
+
       return;
     }
 
@@ -58,8 +64,10 @@ export default function ChatHistoryTab() {
       };
 
       downloadAsJson(exportData, `all-chats-${new Date().toISOString()}.json`);
+      logStore.logSystem('Chats exported successfully', { count: allChats.length });
       toast.success('Chats exported successfully');
     } catch (error) {
+      logStore.logError('Failed to export chats', error);
       toast.error('Failed to export chats');
       console.error(error);
     }

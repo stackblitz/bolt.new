@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
+import { logStore } from '~/lib/stores/logs';
 
 export default function ConnectionsTab() {
   const [githubUsername, setGithubUsername] = useState(Cookies.get('githubUsername') || '');
@@ -9,6 +10,10 @@ export default function ConnectionsTab() {
   const handleSaveConnection = () => {
     Cookies.set('githubUsername', githubUsername);
     Cookies.set('githubToken', githubToken);
+    logStore.logSystem('GitHub connection settings updated', {
+      username: githubUsername,
+      hasToken: !!githubToken,
+    });
     toast.success('GitHub credentials saved successfully!');
   };
 

@@ -29,7 +29,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Determine Version Bump
         id: version_bump
@@ -49,7 +68,7 @@ jobs:
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
       - name: Install semver
-        run: npm install -g semver
+        run: pnpm add -g semver
 
       - name: Bump Version
         id: bump_version
@@ -60,7 +79,7 @@ jobs:
       - name: Update Package.json
         run: |
           NEW_VERSION=${{ steps.bump_version.outputs.new_version }}
-          npm version $NEW_VERSION --no-git-tag-version --allow-same-version
+          pnpm version $NEW_VERSION --no-git-tag-version --allow-same-version
 
       - name: Generate Changelog
         id: changelog
@@ -142,7 +161,7 @@ jobs:
 
       - name: Commit Version Update
         run: |
-          git add package.json package-lock.json
+          git add package.json pnpm-lock.yaml
           git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
           git push origin main
 

@@ -1,0 +1,154 @@
+name: Update Stable Branch
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  update-stable:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'stable-release')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Determine Version Bump
+        id: version_bump
+        run: |
+          if contains(github.event.pull_request.labels.*.name, 'major')
+            echo "bump=major" >> $GITHUB_OUTPUT
+          elif contains(github.event.pull_request.labels.*.name, 'minor')
+            echo "bump=minor" >> $GITHUB_OUTPUT
+          else
+            echo "bump=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get Current Version
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bump Version
+        id: bump_version
+        run: |
+          npm install -g semver
+          NEW_VERSION=$(semver -i ${{ steps.version_bump.outputs.bump }} ${{ steps.current_version.outputs.version }})
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update Package.json
+        run: |
+          NEW_VERSION=${{ steps.bump_version.outputs.new_version }}
+          npm version $NEW_VERSION --no-git-tag-version
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          # Get the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$LATEST_TAG" ]; then
+            # If no tags exist, get all commits
+            echo "### 🎉 First Release" >> changelog.md
+            echo "" >> changelog.md
+          else
+            # Get commits since last tag
+            echo "### 🔄 Changes since $LATEST_TAG" >> changelog.md
+            echo "" >> changelog.md
+          fi
+          
+          # Function to extract conventional commit type
+          get_commit_type() {
+            if [[ $1 =~ ^feat: ]]; then echo "✨ Features"; 
+            elif [[ $1 =~ ^fix: ]]; then echo "🐛 Bug Fixes";
+            elif [[ $1 =~ ^docs: ]]; then echo "📚 Documentation";
+            elif [[ $1 =~ ^style: ]]; then echo "💎 Styles";
+            elif [[ $1 =~ ^refactor: ]]; then echo "♻️ Code Refactoring";
+            elif [[ $1 =~ ^perf: ]]; then echo "⚡️ Performance Improvements";
+            elif [[ $1 =~ ^test: ]]; then echo "✅ Tests";
+            elif [[ $1 =~ ^build: ]]; then echo "🛠️ Build System";
+            elif [[ $1 =~ ^ci: ]]; then echo "⚙️ CI";
+            elif [[ $1 =~ ^chore: ]]; then echo "🔧 Chores";
+            else echo "🔍 Other Changes";
+            fi
+          }
+          
+          # Generate categorized changelog
+          CATEGORIES=()
+          declare -A COMMITS_BY_CATEGORY
+          
+          # Get commits since last tag or all commits if no tag exists
+          if [ -z "$LATEST_TAG" ]; then
+            git log --pretty=format:"%s" > temp_commits.txt
+          else
+            git log ${LATEST_TAG}..HEAD --pretty=format:"%s" > temp_commits.txt
+          fi
+          
+          while IFS= read -r commit; do
+            CATEGORY=$(get_commit_type "$commit")
+            if [[ ! " ${CATEGORIES[@]} " =~ " ${CATEGORY} " ]]; then
+              CATEGORIES+=("$CATEGORY")
+            fi
+            COMMITS_BY_CATEGORY["$CATEGORY"]+="- ${commit#*: }"$'\n'
+          done < temp_commits.txt
+          
+          # Write categorized commits to changelog
+          for category in "${CATEGORIES[@]}"; do
+            if [ -n "${COMMITS_BY_CATEGORY[$category]}" ]; then
+              echo "#### $category" >> changelog.md
+              echo "" >> changelog.md
+              echo "${COMMITS_BY_CATEGORY[$category]}" >> changelog.md
+              echo "" >> changelog.md
+            fi
+          done
+          
+          rm temp_commits.txt
+          
+          # Save changelog content for the release
+          CHANGELOG_CONTENT=$(cat changelog.md)
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Commit Version Update
+        run: |
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
+          git push origin main
+
+      - name: Update Stable Branch
+        run: |
+          git checkout stable
+          git merge main
+          git push origin stable
+          
+      - name: Create and Push Tag
+        run: |
+          VERSION="v${{ steps.bump_version.outputs.new_version }}"
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ steps.bump_version.outputs.new_version }}"
+          
+          # Create release with generated changelog
+          gh release create "$VERSION" \
+            --title "Release $VERSION" \
+            --notes "${{ steps.changelog.outputs.content }}"

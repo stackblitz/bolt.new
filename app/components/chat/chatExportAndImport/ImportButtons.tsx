@@ -1,6 +1,5 @@
 import type { Message } from 'ai';
 import { toast } from 'react-toastify';
-import React from 'react';
 import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 
 export function ImportButtons(importChat: ((description: string, messages: Message[]) => Promise<void>) | undefined) {

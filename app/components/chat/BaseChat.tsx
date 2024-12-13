@@ -431,7 +431,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           return;
                         }
 
-                        handleSendMessage?.(event);
+                        if (!event.nativeEvent.isComposing) {
+                          handleSendMessage?.(event);
+                        }
                       }
                     }}
                     value={input}

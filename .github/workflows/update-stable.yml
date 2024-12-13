@@ -8,7 +8,7 @@ on:
 
 permissions:
   contents: write
-
+  
 jobs:
   update-stable:
     if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'stable-release')

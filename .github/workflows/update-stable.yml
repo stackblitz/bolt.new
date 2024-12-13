@@ -15,7 +15,10 @@ jobs:
       pull-requests: read
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
         run: |
@@ -158,22 +161,23 @@ jobs:
 
       - name: Commit Version Update
         run: |
-          git add package.json pnpm-lock.yaml
+          git pull
+          git add package.json pnpm-lock.yaml changelog.md
           git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
-          git push main
+          git push
 
       - name: Update Stable Branch
         run: |
           # Ensure stable branch exists
           git checkout stable 2>/dev/null || git checkout -b stable
           git merge main --no-ff -m "chore: merge main into stable for version ${{ steps.bump_version.outputs.new_version }}"
-          git push stable
+          git push --set-upstream origin stable
 
       - name: Create and Push Tag
         run: |
           VERSION="v${{ steps.bump_version.outputs.new_version }}"
           git tag -a "$VERSION" -m "Release $VERSION"
-          git push "$VERSION"
+          git push origin "$VERSION"
 
       # - name: Create GitHub Release
       #   env:

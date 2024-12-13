@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   update-stable:
     if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'stable-release')
@@ -15,8 +18,10 @@ jobs:
       pull-requests: read
     
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Configure Git
         run: |
           git config --global user.name 'github-actions[bot]'

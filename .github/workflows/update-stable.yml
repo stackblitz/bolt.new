@@ -5,6 +5,7 @@ on:
     types: [closed]
     branches:
       - main
+
 permissions:
   contents: write
   
@@ -17,8 +18,10 @@ jobs:
       pull-requests: read
     
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Configure Git
         run: |
           git config --global user.name 'github-actions[bot]'

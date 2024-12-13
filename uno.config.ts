@@ -241,6 +241,7 @@ export default defineConfig({
       collections: {
         ...customIconCollection,
       },
+      unit: 'em',
     }),
   ],
 });

@@ -160,20 +160,20 @@ jobs:
         run: |
           git add package.json pnpm-lock.yaml
           git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
-          git push origin main
+          git push main
 
       - name: Update Stable Branch
         run: |
           # Ensure stable branch exists
           git checkout stable 2>/dev/null || git checkout -b stable
           git merge main --no-ff -m "chore: merge main into stable for version ${{ steps.bump_version.outputs.new_version }}"
-          git push origin stable
+          git push stable
 
       - name: Create and Push Tag
         run: |
           VERSION="v${{ steps.bump_version.outputs.new_version }}"
           git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
+          git push "$VERSION"
 
       # - name: Create GitHub Release
       #   env:

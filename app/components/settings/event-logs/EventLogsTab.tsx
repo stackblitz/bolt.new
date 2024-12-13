@@ -9,7 +9,7 @@ import { classNames } from '~/utils/classNames';
 export default function EventLogsTab() {
   const {} = useSettings();
   const showLogs = useStore(logStore.showLogs);
-  const [logLevel, setLogLevel] = useState<LogEntry['level']>('info');
+  const [logLevel, setLogLevel] = useState<LogEntry['level'] | 'all'>('info');
   const [autoScroll, setAutoScroll] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [, forceUpdate] = useState({});
@@ -17,7 +17,7 @@ export default function EventLogsTab() {
   const filteredLogs = useMemo(() => {
     const logs = logStore.getLogs();
     return logs.filter((log) => {
-      const matchesLevel = !logLevel || log.level === logLevel;
+      const matchesLevel = !logLevel || log.level === logLevel || logLevel === 'all';
       const matchesSearch =
         !searchQuery ||
         log.message?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -143,6 +143,7 @@ export default function EventLogsTab() {
             onChange={(e) => setLogLevel(e.target.value as LogEntry['level'])}
             className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[20%] text-sm min-w-[100px]"
           >
+            <option value="all">All</option>
             <option value="info">Info</option>
             <option value="warning">Warning</option>
             <option value="error">Error</option>

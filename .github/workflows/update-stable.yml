@@ -15,11 +15,8 @@ jobs:
       pull-requests: read
     
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-          
+      - uses: actions/checkout@v3
+
       - name: Configure Git
         run: |
           git config --global user.name 'github-actions[bot]'
@@ -178,12 +175,12 @@ jobs:
           git tag -a "$VERSION" -m "Release $VERSION"
           git push origin "$VERSION"
 
-      - name: Create GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="v${{ steps.bump_version.outputs.new_version }}"
-          gh release create "$VERSION" \
-            --title "Release $VERSION" \
-            --notes "${{ steps.changelog.outputs.content }}" \
-            --target stable
+      # - name: Create GitHub Release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     VERSION="v${{ steps.bump_version.outputs.new_version }}"
+      #     gh release create "$VERSION" \
+      #       --title "Release $VERSION" \
+      #       --notes "${{ steps.changelog.outputs.content }}" \
+      #       --target stable

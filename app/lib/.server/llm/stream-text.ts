@@ -38,7 +38,7 @@ type Dirent = File | Folder;
 
 export type FileMap = Record<string, Dirent | undefined>;
 
-function simplifyBoltActions(input: string): string {
+export function simplifyBoltActions(input: string): string {
   // Using regex to match boltAction tags that have type="file"
   const regex = /(<boltAction[^>]*type="file"[^>]*>)([\s\S]*?)(<\/boltAction>)/g;
 
@@ -156,8 +156,9 @@ export async function streamText(props: {
 
       return { ...message, content };
     } else if (message.role == 'assistant') {
-      let content = message.content;
-      content = simplifyBoltActions(content);
+      const content = message.content;
+
+      // content = simplifyBoltActions(content);
 
       return { ...message, content };
     }

@@ -297,7 +297,6 @@ export class WorkbenchStore {
 
     const action = artifact.runner.actions.get()[data.actionId];
 
-
     if (!action || action.executed) {
       return;
     }

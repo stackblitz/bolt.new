@@ -117,7 +117,7 @@ export const ScreenshotSelector = memo(
 
         // Get window scroll position
         const scrollX = window.scrollX;
-        const scrollY = window.scrollY;
+        const scrollY = window.scrollY + 40;
 
         // Get the container's position in the page
         const containerRect = containerRef.current.getBoundingClientRect();

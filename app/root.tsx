@@ -78,6 +78,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { logStore } from './lib/stores/logs';
+
 export default function App() {
-  return <Outlet />;
+  const theme = useStore(themeStore);
+
+  useEffect(() => {
+    logStore.logSystem('Application initialized', {
+      theme,
+      platform: navigator.platform,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    });
+  }, []);
+
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
 }

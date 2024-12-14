@@ -2,19 +2,42 @@
 
 echo "🔍 Running pre-commit hook to check the code looks good... 🔍"
 
+# Load NVM if available (useful for managing Node.js versions)
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # Load nvm if you're using i
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
+# Ensure `pnpm` is available
+echo "Checking if pnpm is available..."
+if ! command -v pnpm >/dev/null 2>&1; then
+    echo "❌ pnpm not found! Please ensure pnpm is installed and available in PATH."
+    exit 1
+fi
+
+# Run typecheck
+echo "Running typecheck..."
 if ! pnpm typecheck; then
     echo "❌ Type checking failed! Please review TypeScript types."
     echo "Once you're done, don't forget to add your changes to the commit! 🚀"
     exit 1
 fi
 
+# Run lint
+echo "Running lint..."
 if ! pnpm lint; then
-    echo "❌ Linting failed! 'pnpm lint:fix' will help you fix the easy ones."
+    echo "❌ Linting failed! Run 'pnpm lint:fix' to fix the easy issues."
     echo "Once you're done, don't forget to add your beautification to the commit! 🤩"
     exit 1
 fi
 
-echo "👍 All good! Committing changes..."
+# Update commit.json with the latest commit hash
+echo "Updating commit.json with the latest commit hash..."
+COMMIT_HASH=$(git rev-parse HEAD)
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to get commit hash. Ensure you are in a git repository."
+    exit 1
+fi
+
+echo "{ \"commit\": \"$COMMIT_HASH\" }" > app/commit.json
+git add app/commit.json
+
+echo "👍 All checks passed! Committing changes..."

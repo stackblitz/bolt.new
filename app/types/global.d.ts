@@ -3,3 +3,11 @@ interface Window {
   webkitSpeechRecognition: typeof SpeechRecognition;
   SpeechRecognition: typeof SpeechRecognition;
 }
+
+interface Performance {
+  memory?: {
+    jsHeapSizeLimit: number;
+    totalJSHeapSize: number;
+    usedJSHeapSize: number;
+  };
+}

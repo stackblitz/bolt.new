@@ -1,4 +1,5 @@
 import { atom } from 'nanostores';
+import { logStore } from './logs';
 
 export type Theme = 'dark' | 'light';
 
@@ -26,10 +27,8 @@ function initStore() {
 export function toggleTheme() {
   const currentTheme = themeStore.get();
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
   themeStore.set(newTheme);
-
+  logStore.logSystem(`Theme changed to ${newTheme} mode`);
   localStorage.setItem(kTheme, newTheme);
-
   document.querySelector('html')?.setAttribute('data-theme', newTheme);
 }

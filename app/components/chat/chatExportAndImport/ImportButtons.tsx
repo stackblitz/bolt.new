@@ -1,11 +1,10 @@
 import type { Message } from 'ai';
 import { toast } from 'react-toastify';
-import React from 'react';
 import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 
 export function ImportButtons(importChat: ((description: string, messages: Message[]) => Promise<void>) | undefined) {
   return (
-    <div className="flex flex-col items-center justify-center flex-1 p-4">
+    <div className="flex flex-col items-center justify-center w-auto">
       <input
         type="file"
         id="chat-import"

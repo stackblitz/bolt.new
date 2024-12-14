@@ -4,7 +4,7 @@
 
 The `DEFAULT_NUM_CTX` environment variable can be used to limit the maximum number of context values used by the qwen2.5-coder model. For example, to limit the context to 24576 values (which uses 32GB of VRAM), set `DEFAULT_NUM_CTX=24576` in your `.env.local` file.
 
-First off, thank you for considering contributing to Bolt.new! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make Bolt.new a better tool for developers worldwide.
+First off, thank you for considering contributing to Bolt.diy! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make Bolt.diy a better tool for developers worldwide.
 
 ## 📋 Table of Contents
 - [Code of Conduct](#code-of-conduct)
@@ -62,7 +62,7 @@ We're looking for dedicated contributors to help maintain and grow this project.
 ### 🔄 Initial Setup
 1. Clone the repository:
 ```bash
-git clone https://github.com/coleam00/bolt.new-any-llm.git
+git clone https://github.com/stackblitz-labs/bolt.diy.git
 ```
 
 2. Install dependencies:

@@ -1,6 +1,6 @@
 # Contributing to oTToDev
 
-First off, thank you for considering contributing to oTToDev! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make oTToDev a better tool for developers worldwide.
+First off, thank you for considering contributing to Bolt.diy! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make Bolt.diy a better tool for developers worldwide.
 
 ## 📋 Table of Contents
 - [Code of Conduct](#code-of-conduct)

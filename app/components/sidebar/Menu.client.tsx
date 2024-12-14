@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
+import { SettingsWindow } from '~/components/settings/SettingsWindow';
+import { SettingsButton } from '~/components/ui/SettingsButton';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
 import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
@@ -33,12 +35,32 @@ const menuVariants = {
 
 type DialogContent = { type: 'delete'; item: ChatHistoryItem } | null;
 
+function CurrentDateTime() {
+  const [dateTime, setDateTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDateTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-2 px-4 py-3 font-bold text-gray-700 dark:text-gray-300 border-b border-bolt-elements-borderColor">
+      <div className="h-4 w-4 i-ph:clock-thin" />
+      {dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    </div>
+  );
+}
+
 export const Menu = () => {
   const { duplicateCurrentChat, exportChat } = useChatHistory();
   const menuRef = useRef<HTMLDivElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const { filteredItems: filteredList, handleSearchChange } = useSearchFilter({
     items: list,
@@ -123,18 +145,17 @@ export const Menu = () => {
       variants={menuVariants}
       className="flex selection-accent flex-col side-menu fixed top-0 w-[350px] h-full bg-bolt-elements-background-depth-2 border-r rounded-r-3xl border-bolt-elements-borderColor z-sidebar shadow-xl shadow-bolt-elements-sidebar-dropdownShadow text-sm"
     >
-      <div className="flex items-center h-[var(--header-height)]">{/* Placeholder */}</div>
+      <div className="h-[60px]" /> {/* Spacer for top margin */}
+      <CurrentDateTime />
       <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
         <div className="p-4 select-none">
           <a
             href="/"
-            className="flex gap-2 items-center bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme"
+            className="flex gap-2 items-center bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme mb-4"
           >
             <span className="inline-block i-bolt:chat scale-110" />
             Start new chat
           </a>
-        </div>
-        <div className="pl-4 pr-4 my-2">
           <div className="relative w-full">
             <input
               className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1.5 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor"
@@ -200,10 +221,12 @@ export const Menu = () => {
             </Dialog>
           </DialogRoot>
         </div>
-        <div className="flex items-center border-t border-bolt-elements-borderColor p-4">
-          <ThemeSwitch className="ml-auto" />
+        <div className="flex items-center justify-between border-t border-bolt-elements-borderColor p-4">
+          <SettingsButton onClick={() => setIsSettingsOpen(true)} />
+          <ThemeSwitch />
         </div>
       </div>
+      <SettingsWindow open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </motion.div>
   );
 };

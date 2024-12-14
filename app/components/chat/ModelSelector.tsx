@@ -1,5 +1,6 @@
 import type { ProviderInfo } from '~/types/model';
 import type { ModelInfo } from '~/utils/types';
+import { useEffect } from 'react';
 
 interface ModelSelectorProps {
   model?: string;
@@ -19,6 +20,39 @@ export const ModelSelector = ({
   modelList,
   providerList,
 }: ModelSelectorProps) => {
+  // Load enabled providers from cookies
+
+  // Update enabled providers when cookies change
+  useEffect(() => {
+    // If current provider is disabled, switch to first enabled provider
+    if (providerList.length == 0) {
+      return;
+    }
+
+    if (provider && !providerList.map((p) => p.name).includes(provider.name)) {
+      const firstEnabledProvider = providerList[0];
+      setProvider?.(firstEnabledProvider);
+
+      // Also update the model to the first available one for the new provider
+      const firstModel = modelList.find((m) => m.provider === firstEnabledProvider.name);
+
+      if (firstModel) {
+        setModel?.(firstModel.name);
+      }
+    }
+  }, [providerList, provider, setProvider, modelList, setModel]);
+
+  if (providerList.length === 0) {
+    return (
+      <div className="mb-2 p-4 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary">
+        <p className="text-center">
+          No providers are currently enabled. Please enable at least one provider in the settings to start using the
+          chat.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-2 flex gap-2 flex-col sm:flex-row">
       <select
@@ -52,8 +86,8 @@ export const ModelSelector = ({
       >
         {[...modelList]
           .filter((e) => e.provider == provider?.name && e.name)
-          .map((modelOption) => (
-            <option key={modelOption.name} value={modelOption.name}>
+          .map((modelOption, index) => (
+            <option key={index} value={modelOption.name}>
               {modelOption.label}
             </option>
           ))}

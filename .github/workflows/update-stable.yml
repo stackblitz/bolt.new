@@ -1,0 +1,210 @@
+name: Update Stable Branch
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  
+jobs:
+  update-commit:
+    if: contains(github.event.head_commit.message, '#release')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v3
+      
+    - name: Get the latest commit hash
+      run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+    - name: Update commit file
+      run: |
+        echo "{ \"commit\": \"$COMMIT_HASH\" }" > app/commit.json
+
+    - name: Commit and push the update
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add app/commit.json
+        git commit -m "chore: update commit hash to $COMMIT_HASH"
+        git push
+  prepare-release:
+    needs: update-commit
+    if: contains(github.event.head_commit.message, '#release')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Get Current Version
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Install semver
+        run: pnpm add -g semver
+
+      - name: Determine Version Bump
+        id: version_bump
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          if [[ $COMMIT_MSG =~ "#release:major" ]]; then
+            echo "bump=major" >> $GITHUB_OUTPUT
+          elif [[ $COMMIT_MSG =~ "#release:minor" ]]; then
+            echo "bump=minor" >> $GITHUB_OUTPUT
+          else
+            echo "bump=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump Version
+        id: bump_version
+        run: |
+          NEW_VERSION=$(semver -i ${{ steps.version_bump.outputs.bump }} ${{ steps.current_version.outputs.version }})
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update Package.json
+        run: |
+          NEW_VERSION=${{ steps.bump_version.outputs.new_version }}
+          pnpm version $NEW_VERSION --no-git-tag-version --allow-same-version
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          # Get the latest tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          # Start changelog file
+          echo "# Release v${{ steps.bump_version.outputs.new_version }}" > changelog.md
+          echo "" >> changelog.md
+          
+          if [ -z "$LATEST_TAG" ]; then
+            echo "### 🎉 First Release" >> changelog.md
+            echo "" >> changelog.md
+            COMPARE_BASE="$(git rev-list --max-parents=0 HEAD)"
+          else
+            echo "### 🔄 Changes since $LATEST_TAG" >> changelog.md
+            echo "" >> changelog.md
+            COMPARE_BASE="$LATEST_TAG"
+          fi
+          
+          # Function to extract conventional commit type
+          get_commit_type() {
+            if [[ $1 =~ ^feat:|^feature: ]]; then echo "✨ Features"; 
+            elif [[ $1 =~ ^fix: ]]; then echo "🐛 Bug Fixes";
+            elif [[ $1 =~ ^docs: ]]; then echo "📚 Documentation";
+            elif [[ $1 =~ ^style: ]]; then echo "💎 Styles";
+            elif [[ $1 =~ ^refactor: ]]; then echo "♻️ Code Refactoring";
+            elif [[ $1 =~ ^perf: ]]; then echo "⚡️ Performance Improvements";
+            elif [[ $1 =~ ^test: ]]; then echo "✅ Tests";
+            elif [[ $1 =~ ^build: ]]; then echo "🛠️ Build System";
+            elif [[ $1 =~ ^ci: ]]; then echo "⚙️ CI";
+            elif [[ $1 =~ ^chore: ]]; then echo "🔧 Chores";
+            else echo "🔍 Other Changes";
+            fi
+          }
+          
+          # Generate categorized changelog
+          declare -A CATEGORIES
+          declare -A COMMITS_BY_CATEGORY
+          
+          # Get commits since last tag or all commits if no tag exists
+          while IFS= read -r commit_line; do
+            HASH=$(echo "$commit_line" | cut -d'|' -f1)
+            MSG=$(echo "$commit_line" | cut -d'|' -f2)
+            PR_NUM=$(echo "$commit_line" | cut -d'|' -f3)
+            
+            CATEGORY=$(get_commit_type "$MSG")
+            CATEGORIES["$CATEGORY"]=1
+            
+            # Format commit message with PR link if available
+            if [ -n "$PR_NUM" ]; then
+              COMMITS_BY_CATEGORY["$CATEGORY"]+="- ${MSG#*: } ([#$PR_NUM](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/pull/$PR_NUM))"$'\n'
+            else
+              COMMITS_BY_CATEGORY["$CATEGORY"]+="- ${MSG#*: }"$'\n'
+            fi
+          done < <(git log "${COMPARE_BASE}..HEAD" --pretty=format:"%H|%s|%(trailers:key=PR-Number,valueonly)" --reverse)
+          
+          # Write categorized commits to changelog
+          for category in "✨ Features" "🐛 Bug Fixes" "📚 Documentation" "💎 Styles" "♻️ Code Refactoring" "⚡️ Performance Improvements" "✅ Tests" "🛠️ Build System" "⚙️ CI" "🔧 Chores" "🔍 Other Changes"; do
+            if [ -n "${COMMITS_BY_CATEGORY[$category]}" ]; then
+              echo "#### $category" >> changelog.md
+              echo "" >> changelog.md
+              echo "${COMMITS_BY_CATEGORY[$category]}" >> changelog.md
+              echo "" >> changelog.md
+            fi
+          done
+          
+          # Add compare link if not first release
+          if [ -n "$LATEST_TAG" ]; then
+            echo "**Full Changelog**: [\`$LATEST_TAG..v${{ steps.bump_version.outputs.new_version }}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/$LATEST_TAG...v${{ steps.bump_version.outputs.new_version }})" >> changelog.md
+          fi
+          
+          # Save changelog content for the release
+          CHANGELOG_CONTENT=$(cat changelog.md)
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Commit and Tag Release
+        run: |
+          git pull
+          git add package.json pnpm-lock.yaml changelog.md
+          git commit -m "chore: release version ${{ steps.bump_version.outputs.new_version }}"
+          git tag "v${{ steps.bump_version.outputs.new_version }}"
+          git push
+          git push --tags
+
+      - name: Update Stable Branch
+        run: |
+          if ! git checkout stable 2>/dev/null; then
+            echo "Creating new stable branch..."
+            git checkout -b stable
+          fi
+          git merge main --no-ff -m "chore: release version ${{ steps.bump_version.outputs.new_version }}"
+          git push --set-upstream origin stable --force
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ steps.bump_version.outputs.new_version }}"
+          gh release create "$VERSION" \
+            --title "Release $VERSION" \
+            --notes "${{ steps.changelog.outputs.content }}" \
+            --target stable

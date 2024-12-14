@@ -16,6 +16,7 @@ import * as nodePath from 'node:path';
 import { extractRelativePath } from '~/utils/diff';
 import { description } from '~/lib/persistence';
 import Cookies from 'js-cookie';
+import { createSampler } from '~/utils/sampler';
 
 export interface ArtifactState {
   id: string;
@@ -280,7 +281,7 @@ export class WorkbenchStore {
 
   runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     if (isStreaming) {
-      this._runAction(data, isStreaming);
+      this.actionStreamSampler(data, isStreaming);
     } else {
       this.addToExecutionQueue(() => this._runAction(data, isStreaming));
     }
@@ -296,7 +297,8 @@ export class WorkbenchStore {
 
     const action = artifact.runner.actions.get()[data.actionId];
 
-    if (action.executed) {
+
+    if (!action || action.executed) {
       return;
     }
 
@@ -328,6 +330,10 @@ export class WorkbenchStore {
       await artifact.runner.runAction(data);
     }
   }
+
+  actionStreamSampler = createSampler(async (data: ActionCallbackData, isStreaming: boolean = false) => {
+    return await this._runAction(data, isStreaming);
+  }, 100); // TODO: remove this magic number to have it configurable
 
   #getArtifact(id: string) {
     const artifacts = this.artifacts.get();

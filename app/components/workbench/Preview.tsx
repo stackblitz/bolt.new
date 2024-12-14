@@ -289,14 +289,20 @@ export const Preview = memo(() => {
         >
           {activePreview ? (
             <>
-            <iframe ref={iframeRef} title="preview" className="border-none w-full h-full bg-white" src={iframeUrl} allowFullScreen />
+              <iframe
+                ref={iframeRef}
+                title="preview"
+                className="border-none w-full h-full bg-white"
+                src={iframeUrl}
+                allowFullScreen
+              />
               <ScreenshotSelector
-              isSelectionMode={isSelectionMode}
-              setIsSelectionMode={setIsSelectionMode}
-              containerRef={iframeRef}
-            />
-          </>
-        ) : (
+                isSelectionMode={isSelectionMode}
+                setIsSelectionMode={setIsSelectionMode}
+                containerRef={iframeRef}
+              />
+            </>
+          ) : (
             <div className="flex w-full h-full justify-center items-center bg-white">No preview available</div>
           )}
 

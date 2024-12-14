@@ -24,6 +24,7 @@ export const ScreenshotSelector = memo(
           videoRef.current.remove();
           videoRef.current = null;
         }
+
         if (mediaStreamRef.current) {
           mediaStreamRef.current.getTracks().forEach((track) => track.stop());
           mediaStreamRef.current = null;
@@ -52,10 +53,12 @@ export const ScreenshotSelector = memo(
               videoRef.current.remove();
               videoRef.current = null;
             }
+
             if (mediaStreamRef.current) {
               mediaStreamRef.current.getTracks().forEach((track) => track.stop());
               mediaStreamRef.current = null;
             }
+
             setIsSelectionMode(false);
             setSelectionStart(null);
             setSelectionEnd(null);
@@ -84,16 +87,23 @@ export const ScreenshotSelector = memo(
           toast.error('Failed to initialize screen capture');
         }
       }
+
       return mediaStreamRef.current;
     };
 
     const handleCopySelection = useCallback(async () => {
-      if (!isSelectionMode || !selectionStart || !selectionEnd || !containerRef.current) return;
+      if (!isSelectionMode || !selectionStart || !selectionEnd || !containerRef.current) {
+        return;
+      }
 
       setIsCapturing(true);
+
       try {
         const stream = await initializeStream();
-        if (!stream || !videoRef.current) return;
+
+        if (!stream || !videoRef.current) {
+          return;
+        }
 
         // Wait for video to be ready
         await new Promise((resolve) => setTimeout(resolve, 300));
@@ -102,6 +112,7 @@ export const ScreenshotSelector = memo(
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = videoRef.current.videoWidth;
         tempCanvas.height = videoRef.current.videoHeight;
+
         const tempCtx = tempCanvas.getContext('2d');
 
         if (!tempCtx) {
@@ -140,6 +151,7 @@ export const ScreenshotSelector = memo(
         const canvas = document.createElement('canvas');
         canvas.width = Math.round(Math.abs(selectionEnd.x - selectionStart.x));
         canvas.height = Math.round(Math.abs(selectionEnd.y - selectionStart.y));
+
         const ctx = canvas.getContext('2d');
 
         if (!ctx) {
@@ -152,18 +164,23 @@ export const ScreenshotSelector = memo(
         // Convert to blob
         const blob = await new Promise<Blob>((resolve, reject) => {
           canvas.toBlob((blob) => {
-            if (blob) resolve(blob);
-            else reject(new Error('Failed to create blob'));
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to create blob'));
+            }
           }, 'image/png');
         });
 
         // Create a FileReader to convert blob to base64
         const reader = new FileReader();
+
         reader.onload = (e) => {
           const base64Image = e.target?.result as string;
 
           // Find the textarea element
           const textarea = document.querySelector('textarea');
+
           if (textarea) {
             // Get the setters from the BaseChat component
             const setUploadedFiles = (window as any).__BOLT_SET_UPLOADED_FILES__;
@@ -186,6 +203,7 @@ export const ScreenshotSelector = memo(
       } catch (error) {
         console.error('Failed to capture screenshot:', error);
         toast.error('Failed to capture screenshot');
+
         if (mediaStreamRef.current) {
           mediaStreamRef.current.getTracks().forEach((track) => track.stop());
           mediaStreamRef.current = null;
@@ -202,7 +220,11 @@ export const ScreenshotSelector = memo(
       (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!isSelectionMode) return;
+
+        if (!isSelectionMode) {
+          return;
+        }
+
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -216,7 +238,11 @@ export const ScreenshotSelector = memo(
       (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!isSelectionMode || !selectionStart) return;
+
+        if (!isSelectionMode || !selectionStart) {
+          return;
+        }
+
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -225,7 +251,9 @@ export const ScreenshotSelector = memo(
       [isSelectionMode, selectionStart],
     );
 
-    if (!isSelectionMode) return null;
+    if (!isSelectionMode) {
+      return null;
+    }
 
     return (
       <div

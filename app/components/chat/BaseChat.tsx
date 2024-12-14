@@ -425,15 +425,17 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         }
 
                         event.preventDefault();
-                        
+
                         if (isStreaming) {
                           handleStop?.();
                           return;
                         }
+
                         // ignore if using input method engine
                         if (event.nativeEvent.isComposing) {
-                          return
+                          return;
                         }
+
                         handleSendMessage?.(event);
                       }
                     }}

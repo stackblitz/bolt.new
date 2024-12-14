@@ -35,12 +35,14 @@ PROVIDER_LIST.forEach((provider) => {
   initialProviderSettings[provider.name] = {
     ...provider,
     settings: {
-      enabled: false,
+      enabled: true,
     },
   };
 });
 export const providersStore = map<ProviderSetting>(initialProviderSettings);
 
 export const isDebugMode = atom(false);
+
+export const isEventLogsEnabled = atom(false);
 
 export const isLocalModelsEnabled = atom(true);

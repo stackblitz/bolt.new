@@ -3,7 +3,7 @@ import { Switch } from '~/components/ui/Switch';
 import { useSettings } from '~/lib/hooks/useSettings';
 
 export default function FeaturesTab() {
-  const { debug, enableDebugMode, isLocalModel, enableLocalModels } = useSettings();
+  const { debug, enableDebugMode, isLocalModel, enableLocalModels, eventLogs, enableEventLogs } = useSettings();
   return (
     <div className="p-4 bg-bolt-elements-bg-depth-2 border border-bolt-elements-borderColor rounded-lg mb-4">
       <div className="mb-6">
@@ -11,6 +11,10 @@ export default function FeaturesTab() {
         <div className="flex items-center justify-between mb-2">
           <span className="text-bolt-elements-textPrimary">Debug Info</span>
           <Switch className="ml-auto" checked={debug} onCheckedChange={enableDebugMode} />
+        </div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-bolt-elements-textPrimary">Event Logs</span>
+          <Switch className="ml-auto" checked={eventLogs} onCheckedChange={enableEventLogs} />
         </div>
       </div>
 

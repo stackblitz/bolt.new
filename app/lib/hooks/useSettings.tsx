@@ -1,12 +1,20 @@
 import { useStore } from '@nanostores/react';
-import { isDebugMode, isLocalModelsEnabled, LOCAL_PROVIDERS, providersStore } from '~/lib/stores/settings';
+import {
+  isDebugMode,
+  isEventLogsEnabled,
+  isLocalModelsEnabled,
+  LOCAL_PROVIDERS,
+  providersStore,
+} from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import type { IProviderSetting, ProviderInfo } from '~/types/model';
+import { logStore } from '~/lib/stores/logs'; // assuming logStore is imported from this location
 
 export function useSettings() {
   const providers = useStore(providersStore);
   const debug = useStore(isDebugMode);
+  const eventLogs = useStore(isEventLogsEnabled);
   const isLocalModel = useStore(isLocalModelsEnabled);
   const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
 
@@ -23,7 +31,7 @@ export function useSettings() {
             ...currentProvider,
             settings: {
               ...parsedProviders[provider],
-              enabled: parsedProviders[provider].enabled || true,
+              enabled: parsedProviders[provider].enabled ?? true,
             },
           });
         });
@@ -37,6 +45,13 @@ export function useSettings() {
 
     if (savedDebugMode) {
       isDebugMode.set(savedDebugMode === 'true');
+    }
+
+    // load event logs from cookies
+    const savedEventLogs = Cookies.get('isEventLogsEnabled');
+
+    if (savedEventLogs) {
+      isEventLogsEnabled.set(savedEventLogs === 'true');
     }
 
     // load local models from cookies
@@ -70,18 +85,29 @@ export function useSettings() {
   }, [providers, isLocalModel]);
 
   // helper function to update settings
-  const updateProviderSettings = useCallback((provider: string, config: IProviderSetting) => {
-    const settings = providers[provider].settings;
-    providersStore.setKey(provider, { ...providers[provider], settings: { ...settings, ...config } });
-  }, []);
+  const updateProviderSettings = useCallback(
+    (provider: string, config: IProviderSetting) => {
+      const settings = providers[provider].settings;
+      providersStore.setKey(provider, { ...providers[provider], settings: { ...settings, ...config } });
+    },
+    [providers],
+  );
 
   const enableDebugMode = useCallback((enabled: boolean) => {
     isDebugMode.set(enabled);
+    logStore.logSystem(`Debug mode ${enabled ? 'enabled' : 'disabled'}`);
     Cookies.set('isDebugEnabled', String(enabled));
+  }, []);
+
+  const enableEventLogs = useCallback((enabled: boolean) => {
+    isEventLogsEnabled.set(enabled);
+    logStore.logSystem(`Event logs ${enabled ? 'enabled' : 'disabled'}`);
+    Cookies.set('isEventLogsEnabled', String(enabled));
   }, []);
 
   const enableLocalModels = useCallback((enabled: boolean) => {
     isLocalModelsEnabled.set(enabled);
+    logStore.logSystem(`Local models ${enabled ? 'enabled' : 'disabled'}`);
     Cookies.set('isLocalModelsEnabled', String(enabled));
   }, []);
 
@@ -91,6 +117,8 @@ export function useSettings() {
     updateProviderSettings,
     debug,
     enableDebugMode,
+    eventLogs,
+    enableEventLogs,
     isLocalModel,
     enableLocalModels,
   };

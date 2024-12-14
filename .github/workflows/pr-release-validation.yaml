@@ -1,0 +1,31 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Validate PR Labels
+        run: |
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'stable-release') }}" == "true" ]]; then
+            echo "✓ PR has stable-release label"
+            
+            # Check version bump labels
+            if [[ "${{ contains(github.event.pull_request.labels.*.name, 'major') }}" == "true" ]]; then
+              echo "✓ Major version bump requested"
+            elif [[ "${{ contains(github.event.pull_request.labels.*.name, 'minor') }}" == "true" ]]; then
+              echo "✓ Minor version bump requested"
+            else
+              echo "✓ Patch version bump will be applied"
+            fi
+          else
+            echo "This PR doesn't have the stable-release label. No release will be created." 
+          fi

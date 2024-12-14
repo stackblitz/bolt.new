@@ -2,6 +2,7 @@ import Cookies from 'js-cookie';
 import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
 import type { ProviderInfo, IProviderSetting } from '~/types/model';
 import { createScopedLogger } from './logger';
+import { logStore } from '~/lib/stores/logs';
 
 export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
@@ -373,12 +374,6 @@ const getOllamaBaseUrl = (settings?: IProviderSetting) => {
 };
 
 async function getOllamaModels(apiKeys?: Record<string, string>, settings?: IProviderSetting): Promise<ModelInfo[]> {
-  /*
-   * if (typeof window === 'undefined') {
-   * return [];
-   * }
-   */
-
   try {
     const baseUrl = getOllamaBaseUrl(settings);
     const response = await fetch(`${baseUrl}/api/tags`);
@@ -391,7 +386,9 @@ async function getOllamaModels(apiKeys?: Record<string, string>, settings?: IPro
       maxTokenAllowed: 8000,
     }));
   } catch (e: any) {
+    logStore.logError('Failed to get Ollama models', e, { baseUrl: settings?.baseUrl });
     logger.warn('Failed to get Ollama models: ', e.message || '');
+
     return [];
   }
 }
@@ -465,10 +462,6 @@ async function getOpenRouterModels(): Promise<ModelInfo[]> {
 }
 
 async function getLMStudioModels(_apiKeys?: Record<string, string>, settings?: IProviderSetting): Promise<ModelInfo[]> {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-
   try {
     const baseUrl = settings?.baseUrl || import.meta.env.LMSTUDIO_API_BASE_URL || 'http://localhost:1234';
     const response = await fetch(`${baseUrl}/v1/models`);
@@ -480,7 +473,9 @@ async function getLMStudioModels(_apiKeys?: Record<string, string>, settings?: I
       provider: 'LMStudio',
     }));
   } catch (e: any) {
+    logStore.logError('Failed to get LMStudio models', e, { baseUrl: settings?.baseUrl });
     logger.warn('Failed to get LMStudio models: ', e.message || '');
+
     return [];
   }
 }
@@ -499,6 +494,7 @@ async function initializeModelList(providerSettings?: Record<string, IProviderSe
       }
     }
   } catch (error: any) {
+    logStore.logError('Failed to fetch API keys from cookies', error);
     logger.warn(`Failed to fetch apikeys from cookies: ${error?.message}`);
   }
   MODEL_LIST = [

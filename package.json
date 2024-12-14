@@ -5,10 +5,11 @@
   "license": "MIT",
   "sideEffects": false,
   "type": "module",
+  "version": "0.0.1",
   "scripts": {
     "deploy": "npm run build && wrangler pages deploy",
     "build": "remix vite:build",
-    "dev": "remix vite:dev",
+    "dev": "node pre-start.cjs  && remix vite:dev",
     "test": "vitest --run",
     "test:watch": "vitest",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app",

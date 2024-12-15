@@ -1,14 +1,14 @@
-[![Bolt.diy: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.diy)
+[![bolt.diy: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.diy)
 
-# Bolt.diy (Previously oTToDev)
+# bolt.diy (Previously oTToDev)
 
-Welcome to Bolt.diy, the official open source version of Bolt.new (previously known as oTToDev and Bolt.new ANY LLM), which allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
+Welcome to bolt.diy, the official open source version of Bolt.new (previously known as oTToDev and bolt.new ANY LLM), which allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
 
-Check the [Bolt.diy Docs](https://stackblitz-labs.github.io/bolt.diy/) for more information. This documentation is still being updated after the transfer.
+Check the [bolt.diy Docs](https://stackblitz-labs.github.io/bolt.diy/) for more information. This documentation is still being updated after the transfer.
 
-Bolt.diy was originally started by [Cole Medin](https://www.youtube.com/@ColeMedin) but has quickly grown into a massive community effort to build the BEST open source AI coding assistant!
+bolt.diy was originally started by [Cole Medin](https://www.youtube.com/@ColeMedin) but has quickly grown into a massive community effort to build the BEST open source AI coding assistant!
 
-## Join the community for Bolt.diy!
+## Join the community for bolt.diy!
 
 https://thinktank.ottomator.ai
 
@@ -20,7 +20,7 @@ https://thinktank.ottomator.ai
 - ✅ Autogenerate Ollama models from what is downloaded (@yunatamos)
 - ✅ Filter models by provider (@jasonm23)
 - ✅ Download project as ZIP (@fabwaseem)
-- ✅ Improvements to the main Bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
+- ✅ Improvements to the main bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
 - ✅ DeepSeek API Integration (@zenith110)
 - ✅ Mistral API Integration (@ArulGandhi)
 - ✅ "Open AI Like" API Integration (@ZerxZ)
@@ -45,7 +45,7 @@ https://thinktank.ottomator.ai
 - ✅ Attach images to prompts (@atrokhym)
 - ✅ Detect package.json and commands to auto install and run preview for folder and git import (@wonderwhy-er)
 - ✅ Selection tool to target changes visually (@emcconnell)
-- ⬜ **HIGH PRIORITY** - Prevent Bolt from rewriting files as often (file locking and diffs)
+- ⬜ **HIGH PRIORITY** - Prevent bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
 - ⬜ Deploy directly to Vercel/Netlify/other similar platforms
@@ -57,7 +57,7 @@ https://thinktank.ottomator.ai
 - ⬜ Perplexity Integration
 - ⬜ Vertex AI Integration
 
-## Bolt.diy Features
+## bolt.diy Features
 
 - **AI-powered full-stack web development** directly in your browser.
 - **Support for multiple LLMs** with an extensible architecture to integrate additional models.
@@ -67,7 +67,7 @@ https://thinktank.ottomator.ai
 - **Download projects as ZIP** for easy portability.
 - **Integration-ready Docker support** for a hassle-free setup.
 
-## Setup Bolt.diy 
+## Setup bolt.diy 
 
 If you're new to installing software from GitHub, don't worry! If you encounter any issues, feel free to submit an "issue" using the provided links or improve this documentation by forking the repository, editing the instructions, and submitting a pull request. The following instruction will help you get the stable branch up and running on your local machine in no time.  
 
@@ -175,7 +175,7 @@ DEFAULT_NUM_CTX=8192
 
 ### Update Your Local Version to the Latest
 
-To keep your local version of Bolt.diy up to date with the latest changes, follow these steps for your operating system:
+To keep your local version of bolt.diy up to date with the latest changes, follow these steps for your operating system:
 
 #### 1. **Navigate to your project folder**  
    Navigate to the directory where you cloned the repository and open a terminal:
@@ -201,34 +201,36 @@ To keep your local version of Bolt.diy up to date with the latest changes, follo
    pnpm run dev
    ```
 
-This ensures that you're running the latest version of Bolt.diy and can take advantage of all the newest features and bug fixes.
+This ensures that you're running the latest version of bolt.diy and can take advantage of all the newest features and bug fixes.
 
 ---
 
-## Available Scripts  
+## Available Scripts
 
-Here are the available commands for managing the application:  
+- **`pnpm run dev`**: Starts the development server.
+- **`pnpm run build`**: Builds the project.
+- **`pnpm run start`**: Runs the built application locally using Wrangler Pages.
+- **`pnpm run preview`**: Builds and runs the production build locally.
+- **`pnpm test`**: Runs the test suite using Vitest.
+- **`pnpm run typecheck`**: Runs TypeScript type checking.
+- **`pnpm run typegen`**: Generates TypeScript types using Wrangler.
+- **`pnpm run deploy`**: Deploys the project to Cloudflare Pages.
+- **`pnpm run lint:fix`**: Automatically fixes linting issues.
 
-- `pnpm run dev`: Start the development server.  
-- `pnpm run build`: Build the project.  
-- `pnpm run start`: Run the built application locally (uses Wrangler Pages).  
-- `pnpm run preview`: Build and start the application locally for production testing.  
-- `pnpm test`: Run the test suite using Vitest.  
-- `pnpm run typecheck`: Perform TypeScript type checking.  
-- `pnpm run typegen`: Generate TypeScript types using Wrangler.  
-- `pnpm run deploy`: Build and deploy the project to Cloudflare Pages.  
-- `pnpm lint:fix`: Run the linter and automatically fix issues.  
+---
 
-## How do I contribute to Bolt.diy?
+## Contributing
 
-[Please check out our dedicated page for contributing to Bolt.diy here!](CONTRIBUTING.md)
+We welcome contributions! Check out our [Contributing Guide](CONTRIBUTING.md) to get started.
 
-## What are the future plans for Bolt.diy?
+---
 
-[Check out our Roadmap here!](https://roadmap.sh/r/ottodev-roadmap-2ovzo)
+## Roadmap
 
-Lot more updates to this roadmap coming soon!
+Explore upcoming features and priorities on our [Roadmap](https://roadmap.sh/r/ottodev-roadmap-2ovzo).
+
+---
 
 ## FAQ
 
-[Please check out our dedicated page for FAQ's related to Bolt.diy here!](FAQ.md)
+For answers to common questions, visit our [FAQ Page](FAQ.md).

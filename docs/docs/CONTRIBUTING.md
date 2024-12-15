@@ -176,6 +176,8 @@ docker-compose --profile development up
 docker-compose --profile production up
 ```
 
+---
+
 ## Running the Application
 
 After building using any of the methods above, run the container with:

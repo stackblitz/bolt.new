@@ -1,4 +1,4 @@
-site_name: Bolt.diy Docs
+site_name: bolt.diy Docs
 site_dir: ../site
 theme:
   name: material
@@ -31,7 +31,7 @@ theme:
     repo: fontawesome/brands/github
   # logo: assets/logo.png
   # favicon: assets/logo.png
-repo_name: Bolt.diy
+repo_name: bolt.diy
 repo_url: https://github.com/stackblitz-labs/bolt.diy
 edit_uri: ""
 
@@ -40,16 +40,16 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/stackblitz-labs/bolt.diy
-      name: Bolt.diy
+      name: bolt.diy
     - icon: fontawesome/brands/discourse
       link: https://thinktank.ottomator.ai/
-      name: Bolt.diy Discourse
+      name: bolt.diy Discourse
     - icon: fontawesome/brands/x-twitter
       link: https://x.com/bolt_diy
-      name: Bolt.diy on X
+      name: bolt.diy on X
     - icon: fontawesome/brands/bluesky
       link: https://bsky.app/profile/bolt.diy
-      name: Bolt.diy on Bluesky
+      name: bolt.diy on Bluesky
 
       
 

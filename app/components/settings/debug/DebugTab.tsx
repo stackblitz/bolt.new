@@ -35,6 +35,7 @@ const versionHash = commit.commit;
 const GITHUB_URLS = {
   original: 'https://api.github.com/repos/stackblitz-labs/bolt.diy/commits/main',
   fork: 'https://api.github.com/repos/Stijnus/bolt.new-any-llm/commits/main',
+  commitJson: 'https://raw.githubusercontent.com/stackblitz-labs/bolt.diy/main/app/commit.json',
 };
 
 function getSystemInfo(): SystemInfo {
@@ -257,29 +258,22 @@ export default function DebugTab() {
       setIsCheckingUpdate(true);
       setUpdateMessage('Checking for updates...');
 
-      const [originalResponse, forkResponse] = await Promise.all([
-        fetch(GITHUB_URLS.original),
-        fetch(GITHUB_URLS.fork),
-      ]);
-
-      if (!originalResponse.ok || !forkResponse.ok) {
+      // Fetch the commit data from the specified URL
+      const localCommitResponse = await fetch(GITHUB_URLS.commitJson);
+      if (!localCommitResponse.ok) {
         throw new Error('Failed to fetch repository information');
       }
 
-      const [originalData, forkData] = await Promise.all([
-        originalResponse.json() as Promise<{ sha: string }>,
-        forkResponse.json() as Promise<{ sha: string }>,
-      ]);
+      const localCommitData = await localCommitResponse.json();
+      const originalCommitHash = localCommitData.commit; // Use the fetched commit hash
 
-      const originalCommitHash = originalData.sha;
-      const forkCommitHash = forkData.sha;
-      const isForked = versionHash === forkCommitHash && forkCommitHash !== originalCommitHash;
+      const currentLocalCommitHash = commit.commit; // Your current local commit hash
 
-      if (originalCommitHash !== versionHash) {
+      if (originalCommitHash !== currentLocalCommitHash) {
         setUpdateMessage(
           `Update available from original repository!\n` +
-            `Current: ${versionHash.slice(0, 7)}${isForked ? ' (forked)' : ''}\n` +
-            `Latest: ${originalCommitHash.slice(0, 7)}`,
+          `Current: ${currentLocalCommitHash.slice(0, 7)}\n` +
+          `Latest: ${originalCommitHash.slice(0, 7)}`
         );
       } else {
         setUpdateMessage('You are on the latest version from the original repository');

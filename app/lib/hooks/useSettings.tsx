@@ -13,6 +13,10 @@ import type { IProviderSetting, ProviderInfo } from '~/types/model';
 import { logStore } from '~/lib/stores/logs'; // assuming logStore is imported from this location
 import commit from '~/commit.json';
 
+interface CommitData {
+  commit: string;
+}
+
 export function useSettings() {
   const providers = useStore(providersStore);
   const debug = useStore(isDebugMode);
@@ -29,7 +33,7 @@ export function useSettings() {
         console.warn('Failed to fetch stable commit info');
         return false;
       }
-      const stableData = await stableResponse.json();
+      const stableData = await stableResponse.json() as CommitData;
       return commit.commit === stableData.commit;
     } catch (error) {
       console.warn('Error checking stable version:', error);

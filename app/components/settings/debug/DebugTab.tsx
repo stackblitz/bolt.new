@@ -32,6 +32,10 @@ interface IProviderConfig {
   };
 }
 
+interface CommitData {
+  commit: string;
+}
+
 const LOCAL_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
 const versionHash = commit.commit;
 const GITHUB_URLS = {
@@ -266,10 +270,10 @@ export default function DebugTab() {
 
       const localCommitResponse = await fetch(GITHUB_URLS.commitJson(branchToCheck));
       if (!localCommitResponse.ok) {
-        throw new Error('Failed to fetch repository information');
+        throw new Error('Failed to fetch local commit info');
       }
 
-      const localCommitData = await localCommitResponse.json();
+      const localCommitData = await localCommitResponse.json() as CommitData;
       const remoteCommitHash = localCommitData.commit;
       const currentCommitHash = versionHash;
 

@@ -5,18 +5,41 @@ import {
   isLocalModelsEnabled,
   LOCAL_PROVIDERS,
   providersStore,
+  latestBranch,
 } from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import type { IProviderSetting, ProviderInfo } from '~/types/model';
 import { logStore } from '~/lib/stores/logs'; // assuming logStore is imported from this location
+import commit from '~/commit.json';
+
+interface CommitData {
+  commit: string;
+}
 
 export function useSettings() {
   const providers = useStore(providersStore);
   const debug = useStore(isDebugMode);
   const eventLogs = useStore(isEventLogsEnabled);
   const isLocalModel = useStore(isLocalModelsEnabled);
+  const useLatest = useStore(latestBranch);
   const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
+
+  // Function to check if we're on stable version
+  const checkIsStableVersion = async () => {
+    try {
+      const stableResponse = await fetch('https://raw.githubusercontent.com/stackblitz-labs/bolt.diy/stable/app/commit.json');
+      if (!stableResponse.ok) {
+        console.warn('Failed to fetch stable commit info');
+        return false;
+      }
+      const stableData = await stableResponse.json() as CommitData;
+      return commit.commit === stableData.commit;
+    } catch (error) {
+      console.warn('Error checking stable version:', error);
+      return false;
+    }
+  };
 
   // reading values from cookies on mount
   useEffect(() => {
@@ -59,6 +82,19 @@ export function useSettings() {
 
     if (savedLocalModels) {
       isLocalModelsEnabled.set(savedLocalModels === 'true');
+    }
+
+    // load latest branch setting from cookies or determine based on version
+    const savedLatestBranch = Cookies.get('useLatestBranch');
+    if (savedLatestBranch === undefined) {
+      // If setting hasn't been set by user, check version
+      checkIsStableVersion().then(isStable => {
+        const shouldUseLatest = !isStable;
+        latestBranch.set(shouldUseLatest);
+        Cookies.set('useLatestBranch', String(shouldUseLatest));
+      });
+    } else {
+      latestBranch.set(savedLatestBranch === 'true');
     }
   }, []);
 
@@ -111,6 +147,12 @@ export function useSettings() {
     Cookies.set('isLocalModelsEnabled', String(enabled));
   }, []);
 
+  const enableLatestBranch = useCallback((enabled: boolean) => {
+    latestBranch.set(enabled);
+    logStore.logSystem(`Main branch updates ${enabled ? 'enabled' : 'disabled'}`);
+    Cookies.set('useLatestBranch', String(enabled));
+  }, []);
+
   return {
     providers,
     activeProviders,
@@ -121,5 +163,7 @@ export function useSettings() {
     enableEventLogs,
     isLocalModel,
     enableLocalModels,
+    useLatestBranch: useLatest,
+    enableLatestBranch,
   };
 }

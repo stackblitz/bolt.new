@@ -27,6 +27,7 @@ interface IProviderConfig {
   name: string;
   settings: {
     enabled: boolean;
+    baseUrl?: string;
   };
 }
 
@@ -213,29 +214,30 @@ export default function DebugTab() {
 
     try {
       const entries = Object.entries(providers) as [string, IProviderConfig][];
-      const statuses = entries
-        .filter(([, provider]) => LOCAL_PROVIDERS.includes(provider.name))
-        .map(async ([, provider]) => {
-          const envVarName =
-            provider.name.toLowerCase() === 'ollama'
-              ? 'OLLAMA_API_BASE_URL'
-              : provider.name.toLowerCase() === 'lmstudio'
+      const statuses = await Promise.all(
+        entries
+          .filter(([, provider]) => LOCAL_PROVIDERS.includes(provider.name))
+          .map(async ([, provider]) => {
+            const envVarName =
+              provider.name.toLowerCase() === 'ollama'
+                ? 'OLLAMA_API_BASE_URL'
+                : provider.name.toLowerCase() === 'lmstudio'
                 ? 'LMSTUDIO_API_BASE_URL'
                 : `REACT_APP_${provider.name.toUpperCase()}_URL`;
 
-          // Access environment variables through import.meta.env
-          const url = import.meta.env[envVarName] || null;
-          console.log(`[Debug] Using URL for ${provider.name}:`, url, `(from ${envVarName})`);
+            // Access environment variables through import.meta.env
+            const url = import.meta.env[envVarName] || provider.settings.baseUrl || null; // Ensure baseUrl is used
+            console.log(`[Debug] Using URL for ${provider.name}:`, url, `(from ${envVarName})`);
 
-          const status = await checkProviderStatus(url, provider.name);
+            const status = await checkProviderStatus(url, provider.name);
+            return {
+              ...status,
+              enabled: provider.settings.enabled ?? false,
+            };
+          })
+      );
 
-          return {
-            ...status,
-            enabled: provider.settings.enabled ?? false,
-          };
-        });
-
-      Promise.all(statuses).then(setActiveProviders);
+      setActiveProviders(statuses);
     } catch (error) {
       console.error('[Debug] Failed to update provider statuses:', error);
     }

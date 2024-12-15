@@ -3,7 +3,7 @@ name: Update Commit Hash File
 on:
   push:
     branches:
-      - main
+      - '**'
 
 permissions:
   contents: write

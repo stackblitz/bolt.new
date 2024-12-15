@@ -9,6 +9,8 @@ https://thinktank.ottomator.ai
 
 bolt.diy is an AI-powered web development agent that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. If you're here to build your own AI-powered web dev agent using the Bolt open source codebase, [click here to get started!](./CONTRIBUTING.md)
 
+---
+
 ## What Makes bolt.diy Different
 
 Claude, v0, etc are incredible- but you can't install packages, run backends, or edit code. That’s where bolt.diy stands out:
@@ -25,6 +27,8 @@ Claude, v0, etc are incredible- but you can't install packages, run backends, or
 Whether you’re an experienced developer, a PM, or a designer, bolt.diy allows you to easily build production-grade full-stack applications.
 
 For developers interested in building their own AI-powered development tools with WebContainers, check out the open-source Bolt codebase in this repo!
+
+---
 
 ## Setup
 
@@ -128,6 +132,8 @@ When you run the Docker Compose command with the development profile, any change
 make on your machine to the code will automatically be reflected in the site running
 on the container (i.e. hot reloading still applies!).
 
+---
+
 ## Run Without Docker
 
 1. Install dependencies using Terminal (or CMD in Windows with admin permissions):
@@ -148,6 +154,8 @@ sudo npm install -g pnpm
 pnpm run dev
 ```
 
+---
+
 ## Adding New LLMs:
 
 To make new LLMs available to use in this version of bolt.diy, head on over to `app/utils/constants.ts` and find the constant MODEL_LIST. Each element in this array is an object that has the model ID for the name (get this from the provider's API documentation), a label for the frontend model dropdown, and the provider. 
@@ -155,6 +163,8 @@ To make new LLMs available to use in this version of bolt.diy, head on over to `
 By default, Anthropic, OpenAI, Groq, and Ollama are implemented as providers, but the YouTube video for this repo covers how to extend this to work with more providers if you wish!
 
 When you add a new model to the MODEL_LIST array, it will immediately be available to use when you run the app locally or reload it. For Ollama models, make sure you have the model installed already before trying to use it here!
+
+---
 
 ## Available Scripts
 
@@ -167,6 +177,8 @@ When you add a new model to the MODEL_LIST array, it will immediately be availab
 - `pnpm run typegen`: Generates TypeScript types using Wrangler.
 - `pnpm run deploy`: Builds the project and deploys it to Cloudflare Pages.
 
+---
+
 ## Development
 
 To start the development server:
@@ -176,6 +188,8 @@ pnpm run dev
 ```
 
 This will start the Remix Vite development server. You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
+
+---
 
 ## Tips and Tricks
 

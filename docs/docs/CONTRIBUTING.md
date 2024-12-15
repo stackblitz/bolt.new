@@ -8,9 +8,13 @@
 - [Development Setup](#development-setup)
 - [Deploymnt with Docker](#docker-deployment-documentation)
 
+---
+
 ## Code of Conduct
 
 This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.
+
+---
 
 ## How Can I Contribute?
 
@@ -29,6 +33,8 @@ This project and everyone participating in it is governed by our Code of Conduct
 ### ✨ Becoming a Core Contributor
 We're looking for dedicated contributors to help maintain and grow this project. If you're interested in becoming a core contributor, please fill out our [Contributor Application Form](https://forms.gle/TBSteXSDCtBDwr5m7).
 
+---
+
 ## Pull Request Guidelines
 
 ### 📝 PR Checklist
@@ -43,6 +49,8 @@ We're looking for dedicated contributors to help maintain and grow this project.
 3. Address all review comments
 4. Maintain clean commit history
 
+---
+
 ## Coding Standards
 
 ### 💻 General Guidelines
@@ -50,6 +58,8 @@ We're looking for dedicated contributors to help maintain and grow this project.
 - Comment complex logic
 - Keep functions focused and small
 - Use meaningful variable names
+
+---
 
 ## Development Setup
 
@@ -100,6 +110,8 @@ pnpm run dev
 
 **Note**: You will need Google Chrome Canary to run this locally if you use Chrome! It's an easy install and a good browser for web development anyway.
 
+---
+
 ## Testing
 
 Run the test suite with:
@@ -107,6 +119,8 @@ Run the test suite with:
 ```bash
 pnpm test
 ```
+
+---
 
 ## Deployment
 
@@ -117,6 +131,8 @@ pnpm run deploy
 ```
 
 Make sure you have the necessary permissions and Wrangler is correctly configured for your Cloudflare account.
+
+---
 
 # Docker Deployment Documentation
 
@@ -172,6 +188,8 @@ docker run -p 5173:5173 --env-file .env.local bolt-ai:development
 docker run -p 5173:5173 --env-file .env.local bolt-ai:production
 ```
 
+---
+
 ## Deployment with Coolify
 
 [Coolify](https://github.com/coollabsio/coolify) provides a straightforward deployment process:
@@ -189,6 +207,8 @@ docker run -p 5173:5173 --env-file .env.local bolt-ai:production
    - Adjust other environment variables as needed
 7. Deploy the application
 
+---
+
 ## VS Code Integration
 
 The `docker-compose.yaml` configuration is compatible with VS Code dev containers:
@@ -197,6 +217,8 @@ The `docker-compose.yaml` configuration is compatible with VS Code dev container
 2. Select the dev container configuration
 3. Choose the "development" profile from the context menu
 
+---
+
 ## Environment Files
 
 Ensure you have the appropriate `.env.local` file configured before running the containers. This file should contain:
@@ -204,11 +226,15 @@ Ensure you have the appropriate `.env.local` file configured before running the 
 - Environment-specific configurations
 - Other required environment variables
 
+---
+
 ## DEFAULT_NUM_CTX
 
 The `DEFAULT_NUM_CTX` environment variable can be used to limit the maximum number of context values used by the qwen2.5-coder model. For example, to limit the context to 24576 values (which uses 32GB of VRAM), set `DEFAULT_NUM_CTX=24576` in your `.env.local` file.
 
 First off, thank you for considering contributing to bolt.diy! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make bolt.diy a better tool for developers worldwide.
+
+---
 
 ## Notes
 

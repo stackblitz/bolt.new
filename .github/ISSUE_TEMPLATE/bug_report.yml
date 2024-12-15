@@ -21,7 +21,7 @@ body:
     id: link
     attributes:
       label: Link to the Bolt URL that caused the error
-      description: Please do not delete it after reporting!
+      description: Please do not delete it after reporting! **Please make your project public** before providing a link to it. This will allow anyone trying to help you to easily reproduce the issue and provide assistance.
     validations:
       required: true
   - type: textarea

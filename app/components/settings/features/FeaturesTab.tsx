@@ -24,7 +24,7 @@ export default function FeaturesTab() {
           Disclaimer: Experimental features may be unstable and are subject to change.
         </p>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-bolt-elements-textPrimary">Enable Local Models</span>
+          <span className="text-bolt-elements-textPrimary">Experimental Providers</span>
           <Switch className="ml-auto" checked={isLocalModel} onCheckedChange={enableLocalModels} />
         </div>
       </div>

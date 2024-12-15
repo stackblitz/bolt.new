@@ -266,7 +266,12 @@ export default function DebugTab() {
         throw new Error('Failed to fetch repository information');
       }
 
-      const localCommitData = await localCommitResponse.json();
+      // Define the expected structure of the commit data
+      interface CommitData {
+        commit: string;
+      }
+
+      const localCommitData: CommitData = await localCommitResponse.json(); // Explicitly define the type here
       const originalCommitHash = localCommitData.commit; // Use the fetched commit hash
 
       const currentLocalCommitHash = commit.commit; // Your current local commit hash

@@ -1,4 +1,4 @@
-# bolt.diy Contribution Guidelines
+# Contribution Guidelines
 
 ## 📋 Table of Contents
 - [Code of Conduct](#code-of-conduct)

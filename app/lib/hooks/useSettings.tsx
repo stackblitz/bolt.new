@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import type { IProviderSetting, ProviderInfo } from '~/types/model';
 import { logStore } from '~/lib/stores/logs'; // assuming logStore is imported from this location
+import commit from '~/commit.json';
 
 export function useSettings() {
   const providers = useStore(providersStore);
@@ -19,6 +20,22 @@ export function useSettings() {
   const isLocalModel = useStore(isLocalModelsEnabled);
   const useLatest = useStore(useLatestBranch);
   const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
+
+  // Function to check if we're on stable version
+  const checkIsStableVersion = async () => {
+    try {
+      const stableResponse = await fetch('https://raw.githubusercontent.com/stackblitz-labs/bolt.diy/stable/app/commit.json');
+      if (!stableResponse.ok) {
+        console.warn('Failed to fetch stable commit info');
+        return false;
+      }
+      const stableData = await stableResponse.json();
+      return commit.commit === stableData.commit;
+    } catch (error) {
+      console.warn('Error checking stable version:', error);
+      return false;
+    }
+  };
 
   // reading values from cookies on mount
   useEffect(() => {
@@ -63,10 +80,16 @@ export function useSettings() {
       isLocalModelsEnabled.set(savedLocalModels === 'true');
     }
 
-    // load latest branch setting from cookies
+    // load latest branch setting from cookies or determine based on version
     const savedLatestBranch = Cookies.get('useLatestBranch');
-
-    if (savedLatestBranch) {
+    if (savedLatestBranch === undefined) {
+      // If setting hasn't been set by user, check version
+      checkIsStableVersion().then(isStable => {
+        const shouldUseLatest = !isStable;
+        useLatestBranch.set(shouldUseLatest);
+        Cookies.set('useLatestBranch', String(shouldUseLatest));
+      });
+    } else {
       useLatestBranch.set(savedLatestBranch === 'true');
     }
   }, []);

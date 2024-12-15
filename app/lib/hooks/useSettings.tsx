@@ -5,7 +5,7 @@ import {
   isLocalModelsEnabled,
   LOCAL_PROVIDERS,
   providersStore,
-  useLatestBranch,
+  latestBranch,
 } from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
@@ -22,7 +22,7 @@ export function useSettings() {
   const debug = useStore(isDebugMode);
   const eventLogs = useStore(isEventLogsEnabled);
   const isLocalModel = useStore(isLocalModelsEnabled);
-  const useLatest = useStore(useLatestBranch);
+  const useLatest = useStore(latestBranch);
   const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
 
   // Function to check if we're on stable version
@@ -90,11 +90,11 @@ export function useSettings() {
       // If setting hasn't been set by user, check version
       checkIsStableVersion().then(isStable => {
         const shouldUseLatest = !isStable;
-        useLatestBranch.set(shouldUseLatest);
+        latestBranch.set(shouldUseLatest);
         Cookies.set('useLatestBranch', String(shouldUseLatest));
       });
     } else {
-      useLatestBranch.set(savedLatestBranch === 'true');
+      latestBranch.set(savedLatestBranch === 'true');
     }
   }, []);
 
@@ -148,7 +148,7 @@ export function useSettings() {
   }, []);
 
   const enableLatestBranch = useCallback((enabled: boolean) => {
-    useLatestBranch.set(enabled);
+    latestBranch.set(enabled);
     logStore.logSystem(`Main branch updates ${enabled ? 'enabled' : 'disabled'}`);
     Cookies.set('useLatestBranch', String(enabled));
   }, []);

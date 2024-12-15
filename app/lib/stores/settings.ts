@@ -47,4 +47,4 @@ export const isEventLogsEnabled = atom(false);
 
 export const isLocalModelsEnabled = atom(true);
 
-export const useLatestBranch = atom(false);
+export const latestBranch = atom(false);

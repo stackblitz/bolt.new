@@ -27,6 +27,7 @@ import { ModelSelector } from '~/components/chat/ModelSelector';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 import type { IProviderSetting, ProviderInfo } from '~/types/model';
 import { ScreenshotStateManager } from './ScreenshotStateManager';
+import { toast } from 'react-toastify';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -492,22 +493,16 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         className={classNames(
                           'transition-all',
                           enhancingPrompt ? 'opacity-100' : '',
-                          promptEnhanced ? 'text-bolt-elements-item-contentAccent' : '',
-                          promptEnhanced ? 'pr-1.5' : '',
-                          promptEnhanced ? 'enabled:hover:bg-bolt-elements-item-backgroundAccent' : '',
                         )}
-                        onClick={() => enhancePrompt?.()}
+                        onClick={() => {
+                          enhancePrompt?.();
+                          toast.success('Prompt enhanced!');
+                        }}
                       >
                         {enhancingPrompt ? (
-                          <>
-                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
-                            <div className="ml-1.5">Enhancing prompt...</div>
-                          </>
+                          <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
                         ) : (
-                          <>
-                            <div className="i-bolt:stars text-xl"></div>
-                            {promptEnhanced && <div className="ml-1.5">Prompt enhanced</div>}
-                          </>
+                          <div className="i-bolt:stars text-xl"></div>
                         )}
                       </IconButton>
 

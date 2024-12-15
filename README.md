@@ -43,7 +43,7 @@ https://thinktank.ottomator.ai
 - ✅ Mobile friendly (@qwikode)
 - ✅ Better prompt enhancing (@SujalXplores)
 - ✅ Attach images to prompts (@atrokhym)
-- ✅ Detect package.json and commands to auto install and run preview for folder and git import (@wonderwhy-er)
+- ✅ Detect package.json and commands to auto install & run preview for folder and git import (@wonderwhy-er)
 - ✅ Selection tool to target changes visually (@emcconnell)
 - ⬜ **HIGH PRIORITY** - Prevent bolt from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)

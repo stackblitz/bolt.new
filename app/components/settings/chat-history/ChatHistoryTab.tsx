@@ -22,17 +22,20 @@ export default function ChatHistoryTab() {
   };
 
   const handleDeleteAllChats = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete all chats? This action cannot be undone.");
+    if (!confirmDelete) {
+      return; // Exit if the user cancels
+    }
+
     if (!db) {
       const error = new Error('Database is not available');
       logStore.logError('Failed to delete chats - DB unavailable', error);
       toast.error('Database is not available');
-
       return;
     }
 
     try {
       setIsDeleting(true);
-
       const allChats = await getAll(db);
       await Promise.all(allChats.map((chat) => deleteById(db!, chat.id)));
       logStore.logSystem('All chats deleted successfully', { count: allChats.length });
@@ -52,7 +55,6 @@ export default function ChatHistoryTab() {
       const error = new Error('Database is not available');
       logStore.logError('Failed to export chats - DB unavailable', error);
       toast.error('Database is not available');
-
       return;
     }
 

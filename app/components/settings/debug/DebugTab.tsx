@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSettings } from '~/lib/hooks/useSettings';
 import commit from '~/commit.json';
+import { toast } from 'react-toastify';
 
 interface ProviderStatus {
   name: string;
@@ -308,8 +309,9 @@ export default function DebugTab() {
       Version: versionHash,
       Timestamp: new Date().toISOString(),
     };
+
     navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2)).then(() => {
-      alert('Debug information copied to clipboard!');
+      toast.success('Debug information copied to clipboard!');
     });
   }, [activeProviders, systemInfo]);
 

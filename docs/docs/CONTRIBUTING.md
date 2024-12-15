@@ -1,10 +1,4 @@
-# Contribution Guidelines
-
-## DEFAULT_NUM_CTX
-
-The `DEFAULT_NUM_CTX` environment variable can be used to limit the maximum number of context values used by the qwen2.5-coder model. For example, to limit the context to 24576 values (which uses 32GB of VRAM), set `DEFAULT_NUM_CTX=24576` in your `.env.local` file.
-
-First off, thank you for considering contributing to Bolt.diy! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make Bolt.diy a better tool for developers worldwide.
+# bolt.diy Contribution Guidelines
 
 ## 📋 Table of Contents
 - [Code of Conduct](#code-of-conduct)
@@ -209,6 +203,12 @@ Ensure you have the appropriate `.env.local` file configured before running the 
 - API keys
 - Environment-specific configurations
 - Other required environment variables
+
+## DEFAULT_NUM_CTX
+
+The `DEFAULT_NUM_CTX` environment variable can be used to limit the maximum number of context values used by the qwen2.5-coder model. For example, to limit the context to 24576 values (which uses 32GB of VRAM), set `DEFAULT_NUM_CTX=24576` in your `.env.local` file.
+
+First off, thank you for considering contributing to bolt.diy! This fork aims to expand the capabilities of the original project by integrating multiple LLM providers and enhancing functionality. Every contribution helps make bolt.diy a better tool for developers worldwide.
 
 ## Notes
 

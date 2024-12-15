@@ -5,6 +5,9 @@ import { LOCAL_PROVIDERS, URL_CONFIGURABLE_PROVIDERS } from '~/lib/stores/settin
 import type { IProviderConfig } from '~/types/model';
 import { logStore } from '~/lib/stores/logs';
 
+// Import a default fallback icon
+import DefaultIcon from '/icons/Ollama.svg'; // Adjust the path as necessary
+
 export default function ProvidersTab() {
   const { providers, updateProviderSettings, isLocalModel } = useSettings();
   const [filteredProviders, setFilteredProviders] = useState<IProviderConfig[]>([]);
@@ -51,7 +54,14 @@ export default function ProvidersTab() {
         >
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <img src={`/icons/${provider.name}.svg`} alt={`${provider.name} icon`} className="w-6 h-6 dark:invert" />
+              <img
+                src={`/icons/${provider.name}.svg`} // Attempt to load the specific icon
+                onError={(e) => { // Fallback to default icon on error
+                  e.currentTarget.src = DefaultIcon;
+                }}
+                alt={`${provider.name} icon`}
+                className="w-6 h-6 dark:invert"
+              />
               <span className="text-bolt-elements-textPrimary">{provider.name}</span>
             </div>
             <Switch

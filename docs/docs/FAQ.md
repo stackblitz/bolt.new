@@ -23,7 +23,6 @@ Check out our [Contribution Guide](CONTRIBUTING.md) for more details on how to g
 
 ---
 
-
 ## What are the future plans for bolt.diy?
 
 Visit our [Roadmap](https://roadmap.sh/r/ottodev-roadmap-2ovzo) for the latest updates.  

@@ -5,7 +5,7 @@ bolt.diy allows you to choose the LLM that you use for each prompt! Currently, y
 
 ## Join the community!
 
-https://thinktank.ottomator.ai
+[Join the community!](https://thinktank.ottomator.ai)
 
 ---
 
@@ -38,9 +38,9 @@ For developers interested in building their own AI-powered development tools wit
 
 Many of you are new users to installing software from Github. If you have any installation troubles reach out and submit an "issue" using the links above, or feel free to enhance this documentation by forking, editing the instructions, and doing a pull request.
 
-1. Install Git from https://git-scm.com/downloads
+1. [Install Git from](https://git-scm.com/downloads)
 
-2. Install Node.js from https://nodejs.org/en/download/ 
+2. [Install Node.js from](https://nodejs.org/en/download/)
 
 Pay attention to the installer notes after completion. 
 
@@ -70,11 +70,11 @@ defaults write com.apple.finder AppleShowAllFiles YES
 
 **NOTE**: you only have to set the ones you want to use and Ollama doesn't need an API key because it runs locally on your computer:
 
-Get your GROQ API Key here: https://console.groq.com/keys
+[Get your GROQ API Key here](https://console.groq.com/keys)
 
-Get your Open AI API Key by following these instructions: https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key
+[Get your Open AI API Key by following these instructions](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)
 
-Get your Anthropic API Key in your account settings: https://console.anthropic.com/settings/keys
+Get your Anthropic API Key in your [account settings](https://console.anthropic.com/settings/keys)
 
 ```
 GROQ_API_KEY=XXX

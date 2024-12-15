@@ -499,8 +499,6 @@ async function getLMStudioModels(_apiKeys?: Record<string, string>, settings?: I
     }));
   } catch (e: any) {
     logStore.logError('Failed to get LMStudio models', e, { baseUrl: settings?.baseUrl });
-    logger.warn('Failed to get LMStudio models: ', e.message || '');
-
     return [];
   }
 }

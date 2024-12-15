@@ -15,6 +15,7 @@ export default function ConnectionsTab() {
       hasToken: !!githubToken,
     });
     toast.success('GitHub credentials saved successfully!');
+    Cookies.set('git:github.com', JSON.stringify({ username: githubToken, password: 'x-oauth-basic' }));
   };
 
   return (

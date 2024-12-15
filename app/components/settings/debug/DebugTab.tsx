@@ -36,7 +36,7 @@ const versionHash = commit.commit;
 const GITHUB_URLS = {
   original: 'https://api.github.com/repos/stackblitz-labs/bolt.diy/commits/main',
   fork: 'https://api.github.com/repos/Stijnus/bolt.new-any-llm/commits/main',
-  commitJson: 'https://raw.githubusercontent.com/stackblitz-labs/bolt.diy/main/app/commit.json',
+  commitJson: (branch: string) => `https://raw.githubusercontent.com/stackblitz-labs/bolt.diy/${branch}/app/commit.json`,
 };
 
 function getSystemInfo(): SystemInfo {
@@ -260,8 +260,11 @@ export default function DebugTab() {
       setIsCheckingUpdate(true);
       setUpdateMessage('Checking for updates...');
 
-      // Fetch the commit data from the specified URL
-      const localCommitResponse = await fetch(GITHUB_URLS.commitJson);
+      // Get current branch from commit.json
+      const currentBranch = commit.branch || 'main';
+
+      // Fetch the commit data from the specified URL for the current branch
+      const localCommitResponse = await fetch(GITHUB_URLS.commitJson(currentBranch));
       if (!localCommitResponse.ok) {
         throw new Error('Failed to fetch repository information');
       }
@@ -269,21 +272,22 @@ export default function DebugTab() {
       // Define the expected structure of the commit data
       interface CommitData {
         commit: string;
+        branch: string;
       }
 
-      const localCommitData: CommitData = await localCommitResponse.json(); // Explicitly define the type here
-      const originalCommitHash = localCommitData.commit; // Use the fetched commit hash
+      const localCommitData: CommitData = await localCommitResponse.json();
+      const originalCommitHash = localCommitData.commit;
 
-      const currentLocalCommitHash = commit.commit; // Your current local commit hash
+      const currentLocalCommitHash = commit.commit;
 
       if (originalCommitHash !== currentLocalCommitHash) {
         setUpdateMessage(
-          `Update available from original repository!\n` +
+          `Update available from original repository (${currentBranch} branch)!\n` +
           `Current: ${currentLocalCommitHash.slice(0, 7)}\n` +
           `Latest: ${originalCommitHash.slice(0, 7)}`
         );
       } else {
-        setUpdateMessage('You are on the latest version from the original repository');
+        setUpdateMessage(`You are on the latest version from the original repository (${currentBranch} branch)`);
       }
     } catch (error) {
       setUpdateMessage('Failed to check for updates');

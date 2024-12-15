@@ -3,7 +3,7 @@ import { Switch } from '~/components/ui/Switch';
 import { useSettings } from '~/lib/hooks/useSettings';
 
 export default function FeaturesTab() {
-  const { debug, enableDebugMode, isLocalModel, enableLocalModels, eventLogs, enableEventLogs } = useSettings();
+  const { debug, enableDebugMode, isLocalModel, enableLocalModels, eventLogs, enableEventLogs, useLatestBranch, enableLatestBranch } = useSettings();
 
   const handleToggle = (enabled: boolean) => {
     enableDebugMode(enabled);
@@ -14,9 +14,18 @@ export default function FeaturesTab() {
     <div className="p-4 bg-bolt-elements-bg-depth-2 border border-bolt-elements-borderColor rounded-lg mb-4">
       <div className="mb-6">
         <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-4">Optional Features</h3>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-bolt-elements-textPrimary">Debug Features</span>
-          <Switch className="ml-auto" checked={debug} onCheckedChange={handleToggle} />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-bolt-elements-textPrimary">Debug Features</span>
+            <Switch className="ml-auto" checked={debug} onCheckedChange={handleToggle} />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-bolt-elements-textPrimary">Use Main Branch</span>
+              <p className="text-sm text-bolt-elements-textSecondary">Check for updates against the main branch instead of stable</p>
+            </div>
+            <Switch className="ml-auto" checked={useLatestBranch} onCheckedChange={enableLatestBranch} />
+          </div>
         </div>
       </div>
 

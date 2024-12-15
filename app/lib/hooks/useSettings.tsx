@@ -5,6 +5,7 @@ import {
   isLocalModelsEnabled,
   LOCAL_PROVIDERS,
   providersStore,
+  useLatestBranch,
 } from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
@@ -16,6 +17,7 @@ export function useSettings() {
   const debug = useStore(isDebugMode);
   const eventLogs = useStore(isEventLogsEnabled);
   const isLocalModel = useStore(isLocalModelsEnabled);
+  const useLatest = useStore(useLatestBranch);
   const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
 
   // reading values from cookies on mount
@@ -59,6 +61,13 @@ export function useSettings() {
 
     if (savedLocalModels) {
       isLocalModelsEnabled.set(savedLocalModels === 'true');
+    }
+
+    // load latest branch setting from cookies
+    const savedLatestBranch = Cookies.get('useLatestBranch');
+
+    if (savedLatestBranch) {
+      useLatestBranch.set(savedLatestBranch === 'true');
     }
   }, []);
 
@@ -111,6 +120,12 @@ export function useSettings() {
     Cookies.set('isLocalModelsEnabled', String(enabled));
   }, []);
 
+  const enableLatestBranch = useCallback((enabled: boolean) => {
+    useLatestBranch.set(enabled);
+    logStore.logSystem(`Main branch updates ${enabled ? 'enabled' : 'disabled'}`);
+    Cookies.set('useLatestBranch', String(enabled));
+  }, []);
+
   return {
     providers,
     activeProviders,
@@ -121,5 +136,7 @@ export function useSettings() {
     enableEventLogs,
     isLocalModel,
     enableLocalModels,
+    useLatestBranch: useLatest,
+    enableLatestBranch,
   };
 }

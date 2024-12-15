@@ -202,7 +202,7 @@ const checkProviderStatus = async (url: string | null, providerName: string): Pr
 };
 
 export default function DebugTab() {
-  const { providers } = useSettings();
+  const { providers, useLatestBranch } = useSettings();
   const [activeProviders, setActiveProviders] = useState<ProviderStatus[]>([]);
   const [updateMessage, setUpdateMessage] = useState<string>('');
   const [systemInfo] = useState<SystemInfo>(getSystemInfo());
@@ -261,34 +261,26 @@ export default function DebugTab() {
       setIsCheckingUpdate(true);
       setUpdateMessage('Checking for updates...');
 
-      // Get current branch from commit.json
-      const currentBranch = commit.branch || 'main';
+      const branchToCheck = useLatestBranch ? 'main' : 'stable';
+      console.log(`[Debug] Checking for updates against ${branchToCheck} branch`);
 
-      // Fetch the commit data from the specified URL for the current branch
-      const localCommitResponse = await fetch(GITHUB_URLS.commitJson(currentBranch));
+      const localCommitResponse = await fetch(GITHUB_URLS.commitJson(branchToCheck));
       if (!localCommitResponse.ok) {
         throw new Error('Failed to fetch repository information');
       }
 
-      // Define the expected structure of the commit data
-      interface CommitData {
-        commit: string;
-        branch: string;
-      }
+      const localCommitData = await localCommitResponse.json();
+      const remoteCommitHash = localCommitData.commit;
+      const currentCommitHash = versionHash;
 
-      const localCommitData: CommitData = await localCommitResponse.json();
-      const originalCommitHash = localCommitData.commit;
-
-      const currentLocalCommitHash = commit.commit;
-
-      if (originalCommitHash !== currentLocalCommitHash) {
+      if (remoteCommitHash !== currentCommitHash) {
         setUpdateMessage(
-          `Update available from original repository (${currentBranch} branch)!\n` +
-          `Current: ${currentLocalCommitHash.slice(0, 7)}\n` +
-          `Latest: ${originalCommitHash.slice(0, 7)}`
+          `Update available from ${branchToCheck} branch!\n` +
+          `Current: ${currentCommitHash.slice(0, 7)}\n` +
+          `Latest: ${remoteCommitHash.slice(0, 7)}`
         );
       } else {
-        setUpdateMessage(`You are on the latest version from the original repository (${currentBranch} branch)`);
+        setUpdateMessage(`You are on the latest version from the ${branchToCheck} branch`);
       }
     } catch (error) {
       setUpdateMessage('Failed to check for updates');
@@ -296,7 +288,7 @@ export default function DebugTab() {
     } finally {
       setIsCheckingUpdate(false);
     }
-  }, [isCheckingUpdate]);
+  }, [isCheckingUpdate, useLatestBranch]);
 
   const handleCopyToClipboard = useCallback(() => {
     const debugInfo = {
@@ -311,14 +303,17 @@ export default function DebugTab() {
         responseTime: provider.responseTime,
         url: provider.url,
       })),
-      Version: versionHash,
+      Version: {
+        hash: versionHash.slice(0, 7),
+        branch: useLatestBranch ? 'main' : 'stable'
+      },
       Timestamp: new Date().toISOString(),
     };
 
     navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2)).then(() => {
       toast.success('Debug information copied to clipboard!');
     });
-  }, [activeProviders, systemInfo]);
+  }, [activeProviders, systemInfo, useLatestBranch]);
 
   return (
     <div className="p-4 space-y-6">

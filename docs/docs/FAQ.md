@@ -1,4 +1,4 @@
-# bolt.diy Frequently Asked Questions (FAQ)
+# Frequently Asked Questions (FAQ)
 
 ## How do I get the best results with bolt.diy?
 

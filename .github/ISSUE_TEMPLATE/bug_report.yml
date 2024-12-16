@@ -35,7 +35,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ![Making your project public](https://utfs.io/f/Z7LZ2jpNjvEALRh1ugzY28iwZcP7IloW1OKsd64SeRGFvMp0)
+        ![Making your project public](https://github.com/stackblitz/bolt.new/blob/main/public/project-visibility.jpg?raw=true)
   - type: textarea
     id: steps
     attributes:

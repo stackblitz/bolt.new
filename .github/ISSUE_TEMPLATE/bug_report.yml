@@ -1,14 +1,11 @@
 name: "Bug report"
-description: Create a report to help us improve
-body:
+description: Create a report to help us improve body:
   - type: markdown
     attributes:
       value: |
         Thank you for reporting an issue :pray:.
-
         This issue tracker is for bugs and issues found with [Bolt.new](https://bolt.new).
         If you experience issues related to WebContainer, please file an issue in our [WebContainer repo](https://github.com/stackblitz/webcontainer-core), or file an issue in our [StackBlitz core repo](https://github.com/stackblitz/core) for issues with StackBlitz.
-
         The more information you fill in, the better we can help you.
   - type: textarea
     id: description
@@ -30,8 +27,8 @@ body:
       label: Validations
       description: Before submitting the issue, please make sure you do the following
       options:
-        - label: **Please make your project public.** [![Public Project](https://private-user-images.githubusercontent.com/14806298/393748075-ef51fed3-fc20-4b22-b254-7b813249076d.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzQzMzk1NjQsIm5iZiI6MTczNDMzOTI2NCwicGF0aCI6Ii8xNDgwNjI5OC8zOTM3NDgwNzUtZWY1MWZlZDMtZmMyMC00YjIyLWIyNTQtN2I4MTMyNDkwNzZkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEyMTYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMjE2VDA4NTQyNFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU2ZThkZTYyMGI0YWQzYWVlNWM2OTMzM2NiNzExY2JmYWMyYjg3YzkwMjJmMWU4MzM0NTU0YjA0NzAxODVjYzkmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.2uStAAxx3RpyxSc2VCwRpwrk1p7jHrRuAYqUIZ9j5vc)] This will allow anyone trying to help you to easily reproduce the issue and provide assistance.
-          required: true
+        - label: **Please make your project public.** [![Public Project](https://private-user-images.githubusercontent.com/14806298/393748075-ef51fed3-fc20-4b22-b254-7b813249076d.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzQzMzk1NjQsIm5iZiI6MTczNDMzOTI2NCwicGF0aCI6Ii8xNDgwNjI5OC8zOTM3NDgwNzUtZWY1MWZlZDMtZmMyMC00YjIyLWIyNTQtN2I4MTMyNDkwNzZkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEyMTYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZvbD1hbmQmcm9sPSd2YWx1ZScuLnBuZyIsInNpZGVudGlhbCI6IjA5LjE1Ni40LjU1NSIsImtleSI6InFwcyJ9) (preferably) or screenshot showcasing the issue. This will assist us in resolving your issue <u>quickly</u>.
+    required: true
   - type: textarea
     id: steps
     attributes:

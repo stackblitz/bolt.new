@@ -5,10 +5,8 @@ body:
     attributes:
       value: |
         Thank you for reporting an issue :pray:.
-
         This issue tracker is for bugs and issues found with [Bolt.new](https://bolt.new).
         If you experience issues related to WebContainer, please file an issue in our [WebContainer repo](https://github.com/stackblitz/webcontainer-core), or file an issue in our [StackBlitz core repo](https://github.com/stackblitz/core) for issues with StackBlitz.
-
         The more information you fill in, the better we can help you.
   - type: textarea
     id: description
@@ -30,9 +28,9 @@ body:
       label: Validations
       description: Before submitting the issue, please make sure you do the following
       options:
-        - label: "Please make your project public. (See the image below.) This will allow anyone trying to help you to easily reproduce the issue and provide assistance."
+        - label: "Please make your project public. See the image below. This will allow anyone trying to help you to easily reproduce the issue and provide assistance."
           required: true
-- type: markdown
+  - type: markdown
     attributes:
       value: |
         ![Making your project public](https://utfs.io/f/Z7LZ2jpNjvEALRh1ugzY28iwZcP7IloW1OKsd64SeRGFvMp0)

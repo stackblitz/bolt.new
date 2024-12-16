@@ -8,8 +8,12 @@ COPY package.json pnpm-lock.yaml ./
 
 RUN corepack enable pnpm && pnpm install
 
+# Change ownership of /app to node user
+RUN chown -R node:node /app
+
 # Copy the rest of your app's source code
-COPY . .
+USER node
+COPY --chown=node:node . .
 
 # Expose the port the app runs on
 EXPOSE 5173
@@ -46,7 +50,7 @@ ENV WRANGLER_SEND_METRICS=false \
 # Pre-configure wrangler to disable metrics
 RUN mkdir -p /root/.config/.wrangler && \
     echo '{"enabled":false}' > /root/.config/.wrangler/metrics.json
-
+RUN mkdir -p /app/app && echo '{"hash": "development"}' > /app/app/commit.json
 RUN npm run build
 
 CMD [ "pnpm", "run", "dockerstart"]
@@ -80,4 +84,5 @@ ENV GROQ_API_KEY=${GROQ_API_KEY} \
     DEFAULT_NUM_CTX=${DEFAULT_NUM_CTX}
 
 RUN mkdir -p ${WORKDIR}/run
+RUN mkdir -p /app/app && echo '{"hash": "development"}' > /app/app/commit.json
 CMD pnpm run dev --host

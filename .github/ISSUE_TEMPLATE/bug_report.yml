@@ -21,9 +21,17 @@ body:
     id: link
     attributes:
       label: Link to the Bolt URL that caused the error
-      description: Please do not delete it after reporting! **Please make your project public** before providing a link to it. This will allow anyone trying to help you to easily reproduce the issue and provide assistance.
+      description: Please do not delete it after reporting!
     validations:
       required: true
+  - type: checkboxes
+    id: checkboxes
+    attributes:
+      label: Validations
+      description: Before submitting the issue, please make sure you do the following
+      options:
+        - label: **Please make your project public.** [![Public Project](https://private-user-images.githubusercontent.com/14806298/393748075-ef51fed3-fc20-4b22-b254-7b813249076d.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzQzMzk1NjQsIm5iZiI6MTczNDMzOTI2NCwicGF0aCI6Ii8xNDgwNjI5OC8zOTM3NDgwNzUtZWY1MWZlZDMtZmMyMC00YjIyLWIyNTQtN2I4MTMyNDkwNzZkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEyMTYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMjE2VDA4NTQyNFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU2ZThkZTYyMGI0YWQzYWVlNWM2OTMzM2NiNzExY2JmYWMyYjg3YzkwMjJmMWU4MzM0NTU0YjA0NzAxODVjYzkmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.2uStAAxx3RpyxSc2VCwRpwrk1p7jHrRuAYqUIZ9j5vc)] This will allow anyone trying to help you to easily reproduce the issue and provide assistance.
+          required: true
   - type: textarea
     id: steps
     attributes:

@@ -24,6 +24,18 @@ body:
       description: Please do not delete it after reporting!
     validations:
       required: true
+  - type: checkboxes
+    id: checkboxes
+    attributes:
+      label: Validations
+      description: Before submitting the issue, please make sure you do the following
+      options:
+        - label: "Please make your project public or accessible by URL. This will allow anyone trying to help you to easily reproduce the issue and provide assistance."
+          required: true
+  - type: markdown
+    attributes:
+      value: |
+        ![Making your project public](https://github.com/stackblitz/bolt.new/blob/main/public/project-visibility.jpg?raw=true)
   - type: textarea
     id: steps
     attributes:

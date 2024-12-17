@@ -1,0 +1,28 @@
+services:
+  bolt:
+    container_name: bolt
+    image: bolt-new
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_LOG_LEVEL=debug
+    env_file:
+      - .env.local
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp=unconfined
+    command: pnpm exec vite dev --host
+    networks:
+      - boltnew
+
+networks:
+  boltnew:
+    name: boltnew

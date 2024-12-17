@@ -34,15 +34,15 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
 
     const transformStream = new TransformStream({
       transform(chunk, controller) {
-        const processedChunk = decoder
-          .decode(chunk)
-          .split('\n')
-          .filter((line) => line !== '')
-          .map(parseStreamPart)
-          .map((part) => part.value)
-          .join('');
-
-        controller.enqueue(encoder.encode(processedChunk));
+        const decodedChunk = decoder.decode(chunk);
+        const parts = decodedChunk.split('\n').filter((line) => line !== '');
+        for (const part of parts) {
+          const parsed = parseStreamPart(part);
+          if (parsed.type === 'text') {
+            controller.enqueue(encoder.encode(parsed.value));
+          }
+          // Non-text chunks are ignored
+        }
       },
     });
 

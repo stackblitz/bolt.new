@@ -56,10 +56,34 @@ git clone https://github.com/stackblitz/bolt.new.git
 pnpm install
 ```
 
-3. Create a `.env.local` file in the root directory and add your Anthropic API key:
+3. Set Up Supabase Auth & Providers:
+
+- Create a new project on Supabase and generate a new anon key.
+- Add the anon key to the `.env.local` file.
+- Add the supabase url to the `.env.local` file.
+- Configure supabase providers (Google, GitHub, etc).
+
+4. Create a `.env.local` file in the root directory and add your Anthropic API key:
 
 ```
-ANTHROPIC_API_KEY=XXX
+ANTHROPIC_API_KEY=your_api_key
+TOGETHER_API_KEY=your_api_key
+```
+
+```
+# SUPABASE
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_anon_key
+# Client Supabase
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
+
+```
+# NETLIFY
+NETLIFY_AUTH_TOKEN=your_auth_token
+NETLIFY_CLIENT_SECRET=your_client_secret
+VITE_NETLIFY_CLIENT_ID=your_client_id
 ```
 
 Optionally, you can set the debug level:
@@ -70,9 +94,21 @@ VITE_LOG_LEVEL=debug
 
 **Important**: Never commit your `.env.local` file to version control. It's already included in .gitignore.
 
+## Add Custom Models from Together AI
+
+To add custom models from Together AI, you can add them to the `app/components/chat/ProviderSelector.tsx` file.
+
+```
+const togetherModels = [
+  'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+  'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+  'mistralai/Mixtral-8x7B-Instruct-v0.1',
+  '... add more models here ...'
+];
+
 ## Available Scripts
 
-- `pnpm run dev`: Starts the development server.
+- `pnpm run dev`: Starts the development server (use Chrome Canary for best results when testing locally).
 - `pnpm run build`: Builds the project.
 - `pnpm run start`: Runs the built application locally using Wrangler Pages. This script uses `bindings.sh` to set up necessary bindings so you don't have to duplicate environment variables.
 - `pnpm run preview`: Builds the project and then starts it locally, useful for testing the production build. Note, HTTP streaming currently doesn't work as expected with `wrangler pages dev`.

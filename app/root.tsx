@@ -10,6 +10,8 @@ import { useEffect } from 'react';
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
 import xtermStyles from '@xterm/xterm/css/xterm.css?url';
+// src/main.js or src/main.tsx
+import './index.css';
 
 import 'virtual:uno.css';
 

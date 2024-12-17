@@ -16,7 +16,7 @@
   --bolt-elements-code-background: theme('colors.gray.100');
   --bolt-elements-code-text: theme('colors.gray.950');
 
-  --bolt-elements-button-primary-background: theme('colors.alpha.accent.10');
+  --bolt-elements-button-primary-background: theme('colors.blue.400');
   --bolt-elements-button-primary-backgroundHover: theme('colors.alpha.accent.20');
   --bolt-elements-button-primary-text: theme('colors.accent.500');
 
@@ -122,7 +122,7 @@
   --bolt-elements-code-background: theme('colors.gray.800');
   --bolt-elements-code-text: theme('colors.white');
 
-  --bolt-elements-button-primary-background: theme('colors.alpha.accent.10');
+  --bolt-elements-button-primary-background: theme('colors.blue.500');
   --bolt-elements-button-primary-backgroundHover: theme('colors.alpha.accent.20');
   --bolt-elements-button-primary-text: theme('colors.accent.500');
 
@@ -217,8 +217,8 @@
  */
 :root {
   --header-height: 54px;
-  --chat-max-width: 37rem;
-  --chat-min-width: 640px;
+  --chat-max-width: 32rem;
+  --chat-min-width: 545px;
   --workbench-width: min(calc(100% - var(--chat-min-width)), 1536px);
   --workbench-inner-width: var(--workbench-width);
   --workbench-left: calc(100% - var(--workbench-width));

@@ -2,7 +2,7 @@ import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { useChatHistory } from '~/lib/persistence';
@@ -12,6 +12,10 @@ import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
+import { providerStore } from '~/lib/stores/provider';
+import { useAuth } from '~/lib/hooks/useAuth';
+import { CornerRightUp } from 'lucide-react';
+import { useSpeechRecognition } from '~/lib/hooks/useSpeechRecognition';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -23,7 +27,41 @@ const logger = createScopedLogger('Chat');
 export function Chat() {
   renderLogger.trace('Chat');
 
+  const { user, isLoading } = useAuth();
   const { ready, initialMessages, storeMessageHistory } = useChatHistory();
+
+  if (!user) {
+    return <div className="relative h-screen flex flex-col items-center justify-center bg-bolt-elements-background-depth-1">
+      <div className="absolute top-0 right-5 p-4 animate-bounce">
+        <CornerRightUp className="w-10 h-10 text-white" />
+      </div>
+    <div className=" flex flex-col items-center justify-center my-auto max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+    <div className="p-6">
+      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg
+          className="w-8 h-8 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          />
+        </svg>
+      </div>
+      <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Chat Access Restricted</h2>
+      <p className="text-center text-gray-600 mb-6">
+        Please log in to access the chat feature. Our chat is exclusive to registered users to ensure a safe and
+        engaging environment for all participants.
+      </p>
+    </div>
+  </div>
+  </div>;
+  }
 
   return (
     <>
@@ -75,16 +113,21 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const [animationScope, animate] = useAnimate();
 
+  const provider = useStore(providerStore);
+
   const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
     onError: (error) => {
       logger.error('Request failed\n\n', error);
-      toast.error('There was an error processing your request');
+      console.log('There was an error processing your request'); // @todo: Handle this better
     },
     onFinish: () => {
       logger.debug('Finished streaming');
     },
     initialMessages,
+    body: {
+      provider: provider === 'anthropic' ? 'anthropic' : { type: 'together', model: provider.model },
+    },
   });
 
   const { enhancingPrompt, promptEnhanced, enhancePrompt, resetEnhancer } = usePromptEnhancer();
@@ -153,13 +196,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       return;
     }
 
-    /**
-     * @note (delm) Usually saving files shouldn't take long but it may take longer if there
-     * many unsaved files. In that case we need to block user input and show an indicator
-     * of some kind so the user is aware that something is happening. But I consider the
-     * happy case to be no unsaved files and I would expect users to save their changes
-     * before they send another message.
-     */
     await workbenchStore.saveAllFiles();
 
     const fileModifications = workbenchStore.getFileModifcations();
@@ -171,64 +207,73 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     if (fileModifications !== undefined) {
       const diff = fileModificationsToHTML(fileModifications);
 
-      /**
-       * If we have file modifications we append a new user message manually since we have to prefix
-       * the user input with the file modifications and we don't want the new user input to appear
-       * in the prompt. Using `append` is almost the same as `handleSubmit` except that we have to
-       * manually reset the input and we'd have to manually pass in file attachments. However, those
-       * aren't relevant here.
-       */
-      append({ role: 'user', content: `${diff}\n\n${_input}` });
+      append({
+        role: 'user',
+        content: `${diff}\n\n${_input}`,
+        // We don't need to manually include the provider here as it's handled by the useChat hook
+      });
 
-      /**
-       * After sending a new message we reset all modifications since the model
-       * should now be aware of all the changes.
-       */
       workbenchStore.resetAllFileModifications();
     } else {
-      append({ role: 'user', content: _input });
+      append({
+        role: 'user',
+        content: _input,
+        // We don't need to manually include the provider here as it's handled by the useChat hook
+      });
     }
 
     setInput('');
-
     resetEnhancer();
-
     textareaRef.current?.blur();
   };
 
   const [messageRef, scrollRef] = useSnapScroll();
 
-  return (
-    <BaseChat
-      ref={animationScope}
-      textareaRef={textareaRef}
-      input={input}
-      showChat={showChat}
-      chatStarted={chatStarted}
-      isStreaming={isLoading}
-      enhancingPrompt={enhancingPrompt}
-      promptEnhanced={promptEnhanced}
-      sendMessage={sendMessage}
-      messageRef={messageRef}
-      scrollRef={scrollRef}
-      handleInputChange={handleInputChange}
-      handleStop={abort}
-      messages={messages.map((message, i) => {
-        if (message.role === 'user') {
-          return message;
-        }
+  const { isListening, startListening, stopListening } = useSpeechRecognition();
 
-        return {
-          ...message,
-          content: parsedMessages[i] || '',
-        };
-      })}
-      enhancePrompt={() => {
-        enhancePrompt(input, (input) => {
-          setInput(input);
-          scrollTextArea();
-        });
-      }}
-    />
+  const handleVoiceInput = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening((transcript) => {
+        setInput(transcript);
+      });
+    }
+  }, [isListening, startListening, stopListening, setInput]);
+
+  return (
+      <BaseChat
+        ref={animationScope}
+        textareaRef={textareaRef}
+        input={input}
+        showChat={showChat}
+        chatStarted={chatStarted}
+        isStreaming={isLoading}
+        enhancingPrompt={enhancingPrompt}
+        promptEnhanced={promptEnhanced}
+        sendMessage={sendMessage}
+        messageRef={messageRef}
+        scrollRef={scrollRef}
+        handleInputChange={handleInputChange}
+        handleStop={abort}
+        messages={messages.map((message, i) => {
+          if (message.role === 'user') {
+            return message;
+          }
+
+          return {
+            ...message,
+            content: parsedMessages[i] || '',
+          };
+        })}
+        enhancePrompt={() => {
+          enhancePrompt(input, (input) => {
+            setInput(input);
+            scrollTextArea();
+          });
+        }}
+        isListening={isListening}
+        onVoiceInput={handleVoiceInput}
+      />
   );
 });

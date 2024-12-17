@@ -3,6 +3,7 @@ import React from 'react';
 import { classNames } from '~/utils/classNames';
 import { AssistantMessage } from './AssistantMessage';
 import { UserMessage } from './UserMessage';
+import { useAuth } from '~/lib/hooks/useAuth';
 
 interface MessagesProps {
   id?: string;
@@ -13,6 +14,7 @@ interface MessagesProps {
 
 export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: MessagesProps, ref) => {
   const { id, isStreaming = false, messages = [] } = props;
+  const { user, isLoading } = useAuth();
 
   return (
     <div id={id} ref={ref} className={props.className}>
@@ -35,8 +37,8 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
               >
                 {isUserMessage && (
                   <div className="flex items-center justify-center w-[34px] h-[34px] overflow-hidden bg-white text-gray-600 rounded-full shrink-0 self-start">
-                    <div className="i-ph:user-fill text-xl"></div>
-                  </div>
+                  <img className="w-full h-full" src={user?.user_metadata?.avatar_url} alt="User avatar" />
+                </div>
                 )}
                 <div className="grid grid-col-1 w-full">
                   {isUserMessage ? <UserMessage content={content} /> : <AssistantMessage content={content} />}

@@ -12,9 +12,31 @@ export const loader = () => json({});
 
 export default function Index() {
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="relative flex flex-col h-full w-full bg-bolt-elements-background-depth-1">
       <Header />
       <ClientOnly fallback={<BaseChat />}>{() => <Chat />}</ClientOnly>
+      <div className="absolute top-[-50vh] left-1/2 transform -translate-x-1/2 w-full h-[100vh] rounded-[50%]"
+           style={{
+             background: `radial-gradient(
+               50% 50% at 50% 50%,
+               rgba(26, 139, 157, 0.15) 0%,
+               rgba(15, 76, 117, 0.08) 45%,
+               rgba(0, 11, 24, 0) 100%
+             )`
+           }}
+      />
+      
+      {/* Secondary glow effect */}
+      <div className="absolute top-[-20vh] left-1/2 transform -translate-x-1/2 w-full h-[70vh] rounded-[50%]"
+           style={{
+             background: `radial-gradient(
+               50% 50% at 50% 50%,
+               rgba(26, 139, 157, 0.1) 0%,
+               rgba(15, 76, 117, 0.05) 70%,
+               rgba(0, 11, 24, 0) 100%
+             )`
+           }}
+      />
     </div>
   );
 }

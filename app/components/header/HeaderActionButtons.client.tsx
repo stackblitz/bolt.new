@@ -46,7 +46,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 interface ButtonProps {
   active?: boolean;
   disabled?: boolean;
-  children?: any;
+  children?: React.ReactNode;
   onClick?: VoidFunction;
 }
 

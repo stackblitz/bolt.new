@@ -1,6 +1,5 @@
 import { streamText as _streamText, convertToCoreMessages } from 'ai';
-import { getAPIKey } from '~/lib/.server/llm/api-key';
-import { getAnthropicModel } from '~/lib/.server/llm/model';
+import { getAnthropicModel, getOpenAIModel, getCustomModel } from '~/lib/.server/llm/model';
 import { MAX_TOKENS } from './constants';
 import { getSystemPrompt } from './prompts';
 
@@ -22,14 +21,44 @@ export type Messages = Message[];
 export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
 
 export function streamText(messages: Messages, env: Env, options?: StreamingOptions) {
-  return _streamText({
-    model: getAnthropicModel(getAPIKey(env)),
-    system: getSystemPrompt(),
-    maxTokens: MAX_TOKENS,
-    headers: {
-      'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15',
-    },
-    messages: convertToCoreMessages(messages),
-    ...options,
-  });
+  const aiProvider = process.env.AI_PROVIDER || env.AI_PROVIDER || 'anthropic';
+
+  switch (aiProvider) {
+    case 'anthropic': {
+      return _streamText({
+        model: getAnthropicModel(env),
+        system: getSystemPrompt(),
+        maxTokens: MAX_TOKENS,
+        messages: convertToCoreMessages(messages),
+        ...options,
+      });
+    }
+
+    case 'openai': {
+      return _streamText({
+        model: getOpenAIModel(env),
+        system: getSystemPrompt(),
+        maxTokens: MAX_TOKENS,
+        messages: convertToCoreMessages(messages),
+        ...options,
+      });
+    }
+
+    case 'custom': {
+      console.log('1111', messages);
+      console.log('222', process.env.MODEL);
+
+      return _streamText({
+        model: getCustomModel(env),
+        system: getSystemPrompt(),
+        maxTokens: MAX_TOKENS,
+        messages,
+        ...options,
+      });
+    }
+
+    default: {
+      throw new Error(`Invalid AI provider: ${aiProvider}`);
+    }
+  }
 }

@@ -45,9 +45,6 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
     }
 
     case 'custom': {
-      console.log('1111', messages);
-      console.log('222', process.env.MODEL);
-
       return _streamText({
         model: getCustomModel(env),
         system: getSystemPrompt(),

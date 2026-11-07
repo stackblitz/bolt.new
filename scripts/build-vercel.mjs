@@ -18,7 +18,7 @@ try {
   const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
   const result = spawnSync(command, ['exec', 'remix', 'vite:build'], {
     cwd: root,
-    env: { ...process.env, DEPLOY_TARGET: 'vercel' },
+    env: { ...process.env, DEPLOY_TARGET: 'vercel', VITE_DEPLOY_TARGET: 'vercel' },
     stdio: 'inherit',
   });
 

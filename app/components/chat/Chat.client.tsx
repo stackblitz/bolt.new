@@ -79,7 +79,24 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     api: '/api/chat',
     onError: (error) => {
       logger.error('Request failed\n\n', error);
-      toast.error('There was an error processing your request');
+
+      let message = error instanceof Error ? error.message : String(error);
+
+      try {
+        const responseError = JSON.parse(message);
+
+        if (typeof responseError.error === 'string') {
+          message = responseError.error;
+        }
+      } catch {
+        // The AI SDK may provide a plain-text error instead of a JSON response.
+      }
+
+      if (/rate limit|too many requests|\\b429\\b/i.test(message)) {
+        toast.error(message);
+      } else {
+        toast.error('There was an error processing your request');
+      }
     },
     onFinish: () => {
       logger.debug('Finished streaming');

@@ -1,0 +1,59 @@
+name: Verify deployment-fix
+
+on:
+  push:
+    branches:
+      - deployment-fix
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: verify-deployment-fix
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout deployment-fix
+        uses: actions/checkout@v4
+        with:
+          ref: deployment-fix
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.4.0
+          run_install: false
+
+      - name: Install dependencies and generate lockfile
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Commit generated lockfile when changed
+        run: |
+          if ! git diff --quiet -- pnpm-lock.yaml; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add pnpm-lock.yaml
+            git commit -m "chore: update pnpm lockfile for AI providers"
+            git push origin HEAD:deployment-fix
+          fi
+
+      - name: Verify frozen lockfile install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Production build for Vercel
+        run: DEPLOY_TARGET=vercel pnpm run build

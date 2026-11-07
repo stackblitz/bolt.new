@@ -1,5 +1,4 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/cloudflare';
-import { generateText } from 'ai';
 import { getAIConfig } from '~/lib/.server/llm/api-key';
 import { getAIModel } from '~/lib/.server/llm/model';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
@@ -19,11 +18,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // A safe, server-side provider probe. It never exposes the API key.
     if (url.searchParams.get('probe') === '1') {
       try {
-        const result = await generateText({
-          model: getAIModel(),
-          prompt: 'Reply with the single word OK.',
-          maxTokens: 8,
-        });
+        const result = await streamText(
+          [{ role: 'user', content: 'Reply with exactly OK.' }],
+          undefined,
+          { toolChoice: 'none' },
+        );
+        const reader = result.toAIStream().getReader();
+        const decoder = new TextDecoder();
+        let streamedText = '';
+
+        while (true) {
+          const chunk = await reader.read();
+
+          if (chunk.done) {
+            break;
+          }
+
+          streamedText += decoder.decode(chunk.value, { stream: true });
+        }
+
+        streamedText += decoder.decode();
+
+        if (!streamedText.trim()) {
+          throw new Error('Groq accepted the request but returned an empty text stream.');
+        }
 
         return new Response(JSON.stringify({
           ok: true,
@@ -31,7 +49,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
           model: config.model,
           apiKeyConfigured: true,
           probe: 'passed',
-          responseReceived: Boolean(result.text),
+          responseReceived: true,
+          responseLength: streamedText.length,
+          responsePreview: streamedText.slice(0, 80),
         }), { headers: { 'Content-Type': 'application/json' } });
       } catch (probeError) {
         const detail = probeError instanceof Error ? probeError.message : String(probeError);

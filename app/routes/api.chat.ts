@@ -110,6 +110,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   try {
     const options: StreamingOptions = {
       toolChoice: 'none',
+      // Avoid spending the same TPM quota on repeated retries after a 429 response.
+      maxRetries: 0,
       onFinish: async ({ text: content, finishReason }) => {
         if (finishReason !== 'length') {
           return stream.close();
@@ -145,11 +147,23 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown chat route error';
-    console.error('[BeamCore] Chat route failed before streaming:', message);
+    console.error('[BeamCore] Chat route failed before streaming:', error);
 
-    return new Response(JSON.stringify({ error: 'The AI chat request could not be started.', detail: message }), {
-      status: 502,
-      headers: { 'Content-Type': 'application/json' },
+    const isRateLimited = /rate limit|too many requests|\\b429\\b/i.test(message);
+    const retryAfterMatch = message.match(/try again in\\s+([\\d.]+)\\s*s/i);
+    const retryAfterSeconds = retryAfterMatch
+      ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
+      : 10;
+    const userMessage = isRateLimited
+      ? `Groq is temporarily at its token limit. Please wait ${retryAfterSeconds} seconds, then try again.`
+      : 'The AI service could not complete this request. Please try again.';
+
+    return new Response(JSON.stringify({ error: userMessage }), {
+      status: isRateLimited ? 429 : 502,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(isRateLimited ? { 'Retry-After': String(retryAfterSeconds) } : {}),
+      },
     });
   }
 }

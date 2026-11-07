@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.39",
+    "@ai-sdk/openai": "^0.0.44",
     "@codemirror/autocomplete": "^6.17.0",
     "@codemirror/commands": "^6.6.0",
     "@codemirror/lang-cpp": "^6.0.2",
@@ -76,8 +77,7 @@
     "remix-island": "^0.2.0",
     "remix-utils": "^7.6.0",
     "shiki": "^1.9.1",
-    "unist-util-visit": "^5.0.0",
-    "@ai-sdk/openai": "^0.0.44"
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@blitz/eslint-plugin": "0.1.0",

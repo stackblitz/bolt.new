@@ -48,7 +48,7 @@ export function getAIConfig(cloudflareEnv?: AIEnvironment): AIConfig {
     apiKey,
     model:
       readEnvironmentVariable(provider === 'groq' ? 'GROQ_MODEL' : 'OPENROUTER_MODEL', cloudflareEnv) ||
-      (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'deepseek/deepseek-v4.1-flash-1017'),
+      (provider === 'groq' ? 'openai/gpt-oss-120b' : 'deepseek/deepseek-v4.1-flash'),
     baseURL:
       provider === 'groq' ? 'https://api.groq.com/openai/v1' : 'https://openrouter.ai/api/v1',
   };

@@ -1,5 +1,4 @@
 import { cloudflareDevProxyVitePlugin as remixCloudflareDevProxy, vitePlugin as remixVitePlugin } from '@remix-run/dev';
-import { installGlobals } from '@remix-run/node';
 import { vercelPreset } from '@vercel/remix/vite';
 import UnoCSS from 'unocss/vite';
 import { defineConfig, type ViteDevServer } from 'vite';
@@ -7,9 +6,6 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-if (process.env.DEPLOY_TARGET === 'vercel') {
-  installGlobals({ nativeFetch: true });
-}
 
 export default defineConfig((config) => {
   const isVercelBuild = process.env.DEPLOY_TARGET === 'vercel';

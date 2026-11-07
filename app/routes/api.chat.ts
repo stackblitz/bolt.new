@@ -1,5 +1,7 @@
-import { type ActionFunctionArgs } from '@remix-run/cloudflare';
+import { type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/cloudflare';
+import { generateText } from 'ai';
 import { getAIConfig } from '~/lib/.server/llm/api-key';
+import { getAIModel } from '~/lib/.server/llm/model';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
@@ -9,9 +11,45 @@ import SwitchableStream from '~/lib/.server/llm/switchable-stream';
  * Safe configuration check for the Preview deployment.
  * Never returns or logs the provider API key itself.
  */
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const config = getAIConfig();
+    const url = new URL(request.url);
+
+    // A safe, server-side provider probe. It never exposes the API key.
+    if (url.searchParams.get('probe') === '1') {
+      try {
+        const result = await generateText({
+          model: getAIModel(),
+          prompt: 'Reply with the single word OK.',
+          maxTokens: 8,
+        });
+
+        return new Response(JSON.stringify({
+          ok: true,
+          provider: config.provider,
+          model: config.model,
+          apiKeyConfigured: true,
+          probe: 'passed',
+          responseReceived: Boolean(result.text),
+        }), { headers: { 'Content-Type': 'application/json' } });
+      } catch (probeError) {
+        const detail = probeError instanceof Error ? probeError.message : String(probeError);
+        console.error('[BeamCore] AI provider probe failed:', probeError);
+
+        return new Response(JSON.stringify({
+          ok: false,
+          provider: config.provider,
+          model: config.model,
+          apiKeyConfigured: true,
+          probe: 'failed',
+          detail,
+        }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     return new Response(JSON.stringify({
       ok: true,

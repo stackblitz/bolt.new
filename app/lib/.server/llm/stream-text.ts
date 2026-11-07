@@ -1,4 +1,4 @@
-import { streamText as _streamText, convertToCoreMessages } from 'ai';
+import { generateText as _generateText, streamText as _streamText, convertToCoreMessages } from 'ai';
 import { getAIModel } from '~/lib/.server/llm/model';
 import type { AIEnvironment } from './api-key';
 import { MAX_TOKENS } from './constants';
@@ -27,6 +27,23 @@ export function streamText(
   options?: StreamingOptions,
 ) {
   return _streamText({
+    model: getAIModel(env),
+    system: getSystemPrompt(),
+    maxTokens: MAX_TOKENS,
+    messages: convertToCoreMessages(messages),
+    ...options,
+  });
+}
+
+
+export type GenerationOptions = Omit<Parameters<typeof _generateText>[0], 'model'>;
+
+export function generateText(
+  messages: Messages,
+  env: AIEnvironment | undefined,
+  options?: GenerationOptions,
+) {
+  return _generateText({
     model: getAIModel(env),
     system: getSystemPrompt(),
     maxTokens: MAX_TOKENS,

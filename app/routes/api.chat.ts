@@ -1,15 +1,52 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
+import { getAIConfig } from '~/lib/.server/llm/api-key';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
+
+/**
+ * Safe configuration check for the Preview deployment.
+ * Never returns or logs the provider API key itself.
+ */
+export async function loader() {
+  try {
+    const config = getAIConfig();
+
+    return Response.json({
+      ok: true,
+      provider: config.provider,
+      model: config.model,
+      apiKeyConfigured: Boolean(config.apiKey),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'AI provider configuration is unavailable.';
+    console.error('[BeamCore] AI configuration check failed:', message);
+
+    return Response.json(
+      { ok: false, error: message },
+      { status: 503 },
+    );
+  }
+}
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  const { messages } = await request.json<{ messages: Messages }>();
+  let messages: Messages;
+
+  try {
+    const body = await request.json<{ messages: Messages }>();
+    messages = body.messages;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return Response.json({ error: 'A non-empty messages array is required.' }, { status: 400 });
+    }
+  } catch {
+    return Response.json({ error: 'The chat request body must be valid JSON.' }, { status: 400 });
+  }
 
   const stream = new SwitchableStream();
 
@@ -46,14 +83,16 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
       status: 200,
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache, no-transform',
       },
     });
   } catch (error) {
-    console.log(error);
+    const message = error instanceof Error ? error.message : 'Unknown chat route error';
+    console.error('[BeamCore] Chat route failed before streaming:', message);
 
-    throw new Response(null, {
-      status: 500,
-      statusText: 'Internal Server Error',
-    });
+    return Response.json(
+      { error: 'The AI chat request could not be started.', detail: message },
+      { status: 502 },
+    );
   }
 }

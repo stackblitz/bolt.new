@@ -8,7 +8,7 @@ import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 if (process.env.DEPLOY_TARGET === 'vercel') {
-  installGlobals();
+  installGlobals({ nativeFetch: true });
 }
 
 export default defineConfig((config) => {

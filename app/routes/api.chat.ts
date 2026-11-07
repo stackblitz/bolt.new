@@ -1,9 +1,8 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/cloudflare';
 import { getAIConfig } from '~/lib/.server/llm/api-key';
-import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '~/lib/.server/llm/constants';
+import { MAX_RESPONSE_SEGMENTS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
-import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
-import SwitchableStream from '~/lib/.server/llm/switchable-stream';
+import { generateText, type Messages } from '~/lib/.server/llm/stream-text';
 
 /**
  * Safe configuration check for the Preview deployment.
@@ -17,29 +16,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // A safe, server-side provider probe. It never exposes the API key.
     if (url.searchParams.get('probe') === '1') {
       try {
-        const result = await streamText(
+        const result = await generateText(
           [{ role: 'user', content: 'Reply with exactly OK.' }],
           undefined,
-          { toolChoice: 'none' },
+          { maxRetries: 0, maxTokens: 8 },
         );
-        const reader = result.toAIStream().getReader();
-        const decoder = new TextDecoder();
-        let streamedText = '';
 
-        while (true) {
-          const chunk = await reader.read();
-
-          if (chunk.done) {
-            break;
-          }
-
-          streamedText += decoder.decode(chunk.value, { stream: true });
-        }
-
-        streamedText += decoder.decode();
-
-        if (!streamedText.trim()) {
-          throw new Error('Groq accepted the request but returned an empty text stream.');
+        if (!result.text.trim()) {
+          throw new Error('Groq accepted the request but returned an empty response.');
         }
 
         return new Response(JSON.stringify({
@@ -49,8 +33,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
           apiKeyConfigured: true,
           probe: 'passed',
           responseReceived: true,
-          responseLength: streamedText.length,
-          responsePreview: streamedText.slice(0, 80),
+          responseLength: result.text.length,
+          responsePreview: result.text.slice(0, 80),
         }), { headers: { 'Content-Type': 'application/json' } });
       } catch (probeError) {
         const detail = probeError instanceof Error ? probeError.message : String(probeError);
@@ -105,40 +89,36 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     return new Response(JSON.stringify({ error: 'The chat request body must be valid JSON.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
-  const stream = new SwitchableStream();
-
   try {
-    const options: StreamingOptions = {
-      toolChoice: 'none',
-      // Avoid spending the same TPM quota on repeated retries after a 429 response.
-      maxRetries: 0,
-      onFinish: async ({ text: content, finishReason }) => {
-        if (finishReason !== 'length') {
-          return stream.close();
-        }
+    // Use the non-streaming provider API here because Remix's Web Stream
+    // polyfill conflicts with the stream parser in this version of the AI SDK.
+    // The UI still receives the same plain-text response format, after generation completes.
+    let responseText = '';
+    let nextMessages: Messages = [...messages];
 
-        if (stream.switches >= MAX_RESPONSE_SEGMENTS) {
-          throw Error('Cannot continue message: Maximum segments reached');
-        }
+    for (let segment = 0; segment < MAX_RESPONSE_SEGMENTS; segment += 1) {
+      const result = await generateText(nextMessages, context.cloudflare?.env, {
+        maxRetries: 0,
+      });
 
-        const switchesLeft = MAX_RESPONSE_SEGMENTS - stream.switches;
+      responseText += result.text;
 
-        console.log(`Reached max token limit (${MAX_TOKENS}): Continuing message (${switchesLeft} switches left)`);
+      if (result.finishReason !== 'length' || segment === MAX_RESPONSE_SEGMENTS - 1) {
+        break;
+      }
 
-        messages.push({ role: 'assistant', content });
-        messages.push({ role: 'user', content: CONTINUE_PROMPT });
+      nextMessages = [
+        ...nextMessages,
+        { role: 'assistant', content: result.text },
+        { role: 'user', content: CONTINUE_PROMPT },
+      ];
+    }
 
-        const result = await streamText(messages, context.cloudflare?.env, options);
+    if (!responseText.trim()) {
+      throw new Error('The AI provider returned an empty response.');
+    }
 
-        return stream.switchSource(result.toAIStream());
-      },
-    };
-
-    const result = await streamText(messages, context.cloudflare?.env, options);
-
-    stream.switchSource(result.toAIStream());
-
-    return new Response(stream.readable, {
+    return new Response(responseText, {
       status: 200,
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
@@ -147,7 +127,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown chat route error';
-    console.error('[BeamCore] Chat route failed before streaming:', error);
+    console.error('[BeamCore] Chat route failed:', error);
 
     const isRateLimited = /rate limit|too many requests|\b429\b/i.test(message);
     const retryAfterMatch = message.match(/try again in\s+([\d.]+)\s*s/i);

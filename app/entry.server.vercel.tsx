@@ -1,4 +1,4 @@
-import { TransformStream as WebStreamsTransformStream } from 'web-streams-polyfill';
+import { TransformStream as WebStreamsTransformStream } from 'web-streams-polyfill/dist/ponyfill.js';
 import { RemixServer } from '@remix-run/react';
 import { handleRequest, type EntryContext } from '@vercel/remix';
 

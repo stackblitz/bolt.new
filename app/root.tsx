@@ -69,6 +69,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
     document.querySelector('html')?.setAttribute('data-theme', theme);
   }, [theme]);
 
+  if (import.meta.env.VITE_DEPLOY_TARGET === 'vercel') {
+    return (
+      <html lang="en" data-theme={theme}>
+        <head>
+          <Meta />
+          <Links />
+          <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
+        </head>
+        <body>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </body>
+      </html>
+    );
+  }
+
   return (
     <>
       {children}

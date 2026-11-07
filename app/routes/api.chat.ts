@@ -19,7 +19,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         const result = await generateText(
           [{ role: 'user', content: 'Reply with exactly OK.' }],
           undefined,
-          { maxRetries: 0, maxTokens: 8 },
+          { maxRetries: 0, maxTokens: 128 },
         );
 
         if (!result.text.trim()) {

@@ -13,20 +13,20 @@ export async function loader() {
   try {
     const config = getAIConfig();
 
-    return Response.json({
+    return new Response(JSON.stringify({
       ok: true,
       provider: config.provider,
       model: config.model,
       apiKeyConfigured: Boolean(config.apiKey),
-    });
+    }), { headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'AI provider configuration is unavailable.';
     console.error('[BeamCore] AI configuration check failed:', message);
 
-    return Response.json(
-      { ok: false, error: message },
-      { status: 503 },
-    );
+    return new Response(JSON.stringify({ ok: false, error: message }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
@@ -42,10 +42,10 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     messages = body.messages;
 
     if (!Array.isArray(messages) || messages.length === 0) {
-      return Response.json({ error: 'A non-empty messages array is required.' }, { status: 400 });
+      return new Response(JSON.stringify({ error: 'A non-empty messages array is required.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
   } catch {
-    return Response.json({ error: 'The chat request body must be valid JSON.' }, { status: 400 });
+    return new Response(JSON.stringify({ error: 'The chat request body must be valid JSON.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
   const stream = new SwitchableStream();
@@ -90,9 +90,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const message = error instanceof Error ? error.message : 'Unknown chat route error';
     console.error('[BeamCore] Chat route failed before streaming:', message);
 
-    return Response.json(
-      { error: 'The AI chat request could not be started.', detail: message },
-      { status: 502 },
-    );
+    return new Response(JSON.stringify({ error: 'The AI chat request could not be started.', detail: message }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

@@ -29,7 +29,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
         `,
         },
       ],
-      context.cloudflare.env,
+      context.cloudflare?.env,
     );
 
     const transformStream = new TransformStream({

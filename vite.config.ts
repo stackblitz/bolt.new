@@ -1,11 +1,19 @@
 import { cloudflareDevProxyVitePlugin as remixCloudflareDevProxy, vitePlugin as remixVitePlugin } from '@remix-run/dev';
+import { installGlobals } from '@remix-run/node';
+import { vercelPreset } from '@vercel/remix/vite';
 import UnoCSS from 'unocss/vite';
 import { defineConfig, type ViteDevServer } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
+if (process.env.DEPLOY_TARGET === 'vercel') {
+  installGlobals();
+}
+
 export default defineConfig((config) => {
+  const isVercelBuild = process.env.DEPLOY_TARGET === 'vercel';
+
   return {
     build: {
       target: 'esnext',
@@ -14,8 +22,9 @@ export default defineConfig((config) => {
       nodePolyfills({
         include: ['path', 'buffer'],
       }),
-      config.mode !== 'test' && remixCloudflareDevProxy(),
+      config.mode !== 'test' && !isVercelBuild && remixCloudflareDevProxy(),
       remixVitePlugin({
+        ...(isVercelBuild ? { presets: [vercelPreset()] } : {}),
         future: {
           v3_fetcherPersist: true,
           v3_relativeSplatPath: true,

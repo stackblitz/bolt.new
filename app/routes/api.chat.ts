@@ -32,20 +32,20 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         messages.push({ role: 'assistant', content });
         messages.push({ role: 'user', content: CONTINUE_PROMPT });
 
-        const result = await streamText(messages, context.cloudflare.env, options);
+        const result = await streamText(messages, context.cloudflare?.env, options);
 
         return stream.switchSource(result.toAIStream());
       },
     };
 
-    const result = await streamText(messages, context.cloudflare.env, options);
+    const result = await streamText(messages, context.cloudflare?.env, options);
 
     stream.switchSource(result.toAIStream());
 
     return new Response(stream.readable, {
       status: 200,
       headers: {
-        contentType: 'text/plain; charset=utf-8',
+        'Content-Type': 'text/plain; charset=utf-8',
       },
     });
   } catch (error) {

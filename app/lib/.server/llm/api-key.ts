@@ -1,9 +1,15 @@
 import { env } from 'node:process';
 
-export function getAPIKey(cloudflareEnv: Env) {
+export function getAPIKey(cloudflareEnv?: Env) {
   /**
-   * The `cloudflareEnv` is only used when deployed or when previewing locally.
-   * In development the environment variables are available through `env`.
+   * Cloudflare bindings are available when deployed or previewing locally.
+   * On Node/Vercel, the key is supplied through the server environment.
    */
-  return env.ANTHROPIC_API_KEY || cloudflareEnv.ANTHROPIC_API_KEY;
+  const apiKey = env.ANTHROPIC_API_KEY || cloudflareEnv?.ANTHROPIC_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY is not configured on the server.');
+  }
+
+  return apiKey;
 }

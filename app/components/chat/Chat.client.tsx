@@ -92,7 +92,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
         // The AI SDK may provide a plain-text error instead of a JSON response.
       }
 
-      if (/rate limit|too many requests|\\b429\\b/i.test(message)) {
+      if (/rate limit|too many requests|\b429\b/i.test(message)) {
         toast.error(message);
       } else {
         toast.error('There was an error processing your request');

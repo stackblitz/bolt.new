@@ -55,6 +55,7 @@
     "@unocss/reset": "^0.61.0",
     "@vercel/remix": "2.10.2",
     "@webcontainer/api": "1.3.0-internal.10",
+    "web-streams-polyfill": "3.3.3",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-web-links": "^0.11.0",
     "@xterm/xterm": "^5.5.0",

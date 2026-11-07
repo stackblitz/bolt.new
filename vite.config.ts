@@ -24,7 +24,12 @@ export default defineConfig((config) => {
       }),
       config.mode !== 'test' && !isVercelBuild && remixCloudflareDevProxy(),
       remixVitePlugin({
-        ...(isVercelBuild ? { presets: [vercelPreset()] } : {}),
+        ...(isVercelBuild
+          ? {
+              presets: [vercelPreset()],
+              serverEntryPoint: 'app/entry.server.vercel.tsx',
+            }
+          : {}),
         future: {
           v3_fetcherPersist: true,
           v3_relativeSplatPath: true,

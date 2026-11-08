@@ -248,8 +248,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const retryAfterSeconds = retryAfterMatch
       ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
       : 10;
-    const isAuthError = /\\b401\\b|\\b403\\b|api key.*(invalid|not valid)|unauthorized/i.test(message);
-    const isModelError = /\\b404\\b|model.*(not found|unsupported)|not supported for this endpoint/i.test(message);
+    const isAuthError = /\b401\b|\b403\b|api key.*(invalid|not valid)|unauthorized/i.test(message);
+    const isModelError = /\b404\b|model.*(not found|unsupported)|not supported for this endpoint/i.test(message);
     const userMessage = isRateLimited
       ? `Gemini is temporarily rate-limited or out of quota. Wait ${retryAfterSeconds} seconds and try again; check Google AI Studio quota if it continues.`
       : isAuthError

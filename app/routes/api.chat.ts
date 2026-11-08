@@ -18,16 +18,16 @@ function isBuildRequest(messages: Messages) {
 
   if (
     !text ||
-    /\\b(?:how do i|how can i|how to|what is|what are|explain|teach me|tell me how|show me how|why should i)\\b/i.test(text)
+    /\b(?:how do i|how can i|how to|what is|what are|explain|teach me|tell me how|show me how|why should i)\b/i.test(text)
   ) {
     return false;
   }
 
-  return /\\b(?:build|create|make|generate|develop|implement|scaffold|write|program|fix|update|edit|modify|refactor|debug|design)\\b|(?:kirkir\\w*|gina|samar da|gyara|sabunta|canza|yi min)/i.test(text);
+  return /\b(?:build|create|make|generate|develop|implement|scaffold|write|program|fix|update|edit|modify|refactor|debug|design)\b|(?:kirkir\w*|gina|samar da|gyara|sabunta|canza|yi min)/i.test(text);
 }
 
 function hasExecutableArtifact(text: string) {
-  const artifact = /<boltArtifact\\b([^>]*)>([\\s\\S]*?)<\\/boltArtifact>/i.exec(text);
+  const artifact = /<boltArtifact\b([^>]*)>([\s\\S]*?)<\/boltArtifact>/i.exec(text);
 
   if (!artifact) {
     return false;
@@ -35,12 +35,12 @@ function hasExecutableArtifact(text: string) {
 
   const attributes = artifact[1];
   const body = artifact[2];
-  const hasId = /\\bid="[^"]+"/i.test(attributes);
-  const hasTitle = /\\btitle="[^"]+"/i.test(attributes);
+  const hasId = /\bid="[^"]+"/i.test(attributes);
+  const hasTitle = /\btitle="[^"]+"/i.test(attributes);
   const hasFileAction =
-    /<boltAction\\b(?=[^>]*\\btype="file")(?=[^>]*\\bfilePath="[^"]+")[^>]*>[\\s\\S]*?<\\/boltAction>/i.test(body);
+    /<boltAction\b(?=[^>]*\btype="file")(?=[^>]*\bfilePath="[^"]+")[^>]*>[\s\\S]*?<\/boltAction>/i.test(body);
   const hasShellAction =
-    /<boltAction\\b(?=[^>]*\\btype="shell")[^>]*>[\\s\\S]*?<\\/boltAction>/i.test(body);
+    /<boltAction\b(?=[^>]*\btype="shell")[^>]*>[\s\\S]*?<\/boltAction>/i.test(body);
 
   return hasId && hasTitle && (hasFileAction || hasShellAction);
 }
@@ -75,8 +75,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
           model: config.model,
           apiKeyConfigured: true,
           probe: executable ? 'passed' : 'failed',
-          artifactDetected: /<boltArtifact\\b/i.test(result.text),
-          actionDetected: /<boltAction\\b/i.test(result.text),
+          artifactDetected: /<boltArtifact\b/i.test(result.text),
+          actionDetected: /<boltAction\b/i.test(result.text),
           finishReason: result.finishReason,
           responsePreview: result.text.slice(0, 180),
         }), {
@@ -243,8 +243,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const message = error instanceof Error ? error.message : 'Unknown chat route error';
     console.error('[BeamCore] Chat route failed:', error);
 
-    const isRateLimited = /rate limit|too many requests|\\b429\\b/i.test(message);
-    const retryAfterMatch = message.match(/try again in\\s+([\\d.]+)\\s*s/i);
+    const isRateLimited = /rate limit|too many requests|\b429\b/i.test(message);
+    const retryAfterMatch = message.match(/try again in\s+([\\d.]+)\s*s/i);
     const retryAfterSeconds = retryAfterMatch
       ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
       : 10;

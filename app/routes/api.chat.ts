@@ -244,7 +244,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     console.error('[BeamCore] Chat route failed:', error);
 
     const isRateLimited = /rate limit|too many requests|\b429\b/i.test(message);
-    const retryAfterMatch = message.match(/try again in\s+([\d.]+)\s*s/i);
+    const retryAfterMatch =
+      message.match(/(?:try again in|retry after|retry in)\s+([\d.]+)\s*s/i) ||
+      message.match(/"retryDelay"\s*:\s*"([\d.]+)s"/i);
     const retryAfterSeconds = retryAfterMatch
       ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
       : 10;

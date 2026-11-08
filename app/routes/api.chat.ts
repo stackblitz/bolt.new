@@ -4,26 +4,114 @@ import { MAX_RESPONSE_SEGMENTS } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { generateText, type Messages } from '~/lib/.server/llm/stream-text';
 
+const BUILD_RETRY_PROMPT = `
+Your previous response did not contain executable Bolt actions, so no project files could be created.
+Do not search, browse, narrate, or provide a plan. Immediately complete the user's original project request.
+Return ONLY one valid <boltArtifact id="..." title="..."> with at least one complete
+<boltAction type="file" filePath="relative/path">FULL FILE CONTENT</boltAction>.
+Add shell actions only when required. Do not wrap the tags in Markdown fences.
+`;
+
+function isBuildRequest(messages: Messages) {
+  const latestUserMessage = [...messages].reverse().find((message) => message.role === 'user')?.content || '';
+  const text = latestUserMessage.trim();
+
+  if (
+    !text ||
+    /\\b(?:how do i|how can i|how to|what is|what are|explain|teach me|tell me how|show me how|why should i)\\b/i.test(text)
+  ) {
+    return false;
+  }
+
+  return /\\b(?:build|create|make|generate|develop|implement|scaffold|write|program|fix|update|edit|modify|refactor|debug|design)\\b|(?:kirkir\\w*|gina|samar da|gyara|sabunta|canza|yi min)/i.test(text);
+}
+
+function hasExecutableArtifact(text: string) {
+  const artifact = /<boltArtifact\\b([^>]*)>([\\s\\S]*?)<\\/boltArtifact>/i.exec(text);
+
+  if (!artifact) {
+    return false;
+  }
+
+  const attributes = artifact[1];
+  const body = artifact[2];
+  const hasId = /\\bid="[^"]+"/i.test(attributes);
+  const hasTitle = /\\btitle="[^"]+"/i.test(attributes);
+  const hasFileAction =
+    /<boltAction\\b(?=[^>]*\\btype="file")(?=[^>]*\\bfilePath="[^"]+")[^>]*>[\\s\\S]*?<\\/boltAction>/i.test(body);
+  const hasShellAction =
+    /<boltAction\\b(?=[^>]*\\btype="shell")[^>]*>[\\s\\S]*?<\\/boltAction>/i.test(body);
+
+  return hasId && hasTitle && (hasFileAction || hasShellAction);
+}
+
 /**
  * Safe configuration check for the Preview deployment.
  * Never returns or logs the provider API key itself.
  */
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   try {
-    const config = getAIConfig();
+    const env = context.cloudflare?.env;
+    const config = getAIConfig(env);
     const url = new URL(request.url);
 
-    // A safe, server-side provider probe. It never exposes the API key.
+    // Verify that the configured provider can produce the executable format used by the builder.
+    if (url.searchParams.get('probe') === 'build') {
+      try {
+        const result = await generateText(
+          [{
+            role: 'user',
+            content: 'Create a tiny HTML page that says BeamCore build probe. Return one complete Bolt artifact with one file action for index.html.',
+          }],
+          env,
+          { maxRetries: 0, maxTokens: 1536 },
+        );
+
+        const executable = hasExecutableArtifact(result.text);
+
+        return new Response(JSON.stringify({
+          ok: executable,
+          provider: config.provider,
+          model: config.model,
+          apiKeyConfigured: true,
+          probe: executable ? 'passed' : 'failed',
+          artifactDetected: /<boltArtifact\\b/i.test(result.text),
+          actionDetected: /<boltAction\\b/i.test(result.text),
+          finishReason: result.finishReason,
+          responsePreview: result.text.slice(0, 180),
+        }), {
+          status: executable ? 200 : 502,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } catch (probeError) {
+        const detail = probeError instanceof Error ? probeError.message : String(probeError);
+        console.error('[BeamCore] Build protocol probe failed:', probeError);
+
+        return new Response(JSON.stringify({
+          ok: false,
+          provider: config.provider,
+          model: config.model,
+          apiKeyConfigured: true,
+          probe: 'failed',
+          detail,
+        }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // Basic provider connectivity probe.
     if (url.searchParams.get('probe') === '1') {
       try {
         const result = await generateText(
           [{ role: 'user', content: 'Reply with exactly OK.' }],
-          undefined,
+          env,
           { maxRetries: 0, maxTokens: 128 },
         );
 
         if (!result.text.trim()) {
-          throw new Error('Groq accepted the request but returned an empty response.');
+          throw new Error('The AI provider accepted the request but returned an empty response.');
         }
 
         return new Response(JSON.stringify({
@@ -90,9 +178,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   }
 
   try {
-    // Use the non-streaming provider API here because Remix's Web Stream
-    // polyfill conflicts with the stream parser in this version of the AI SDK.
-    // The UI still receives the same plain-text response format, after generation completes.
+    // Keep the non-streaming provider call for Cloudflare compatibility.
+    // Chat.client.tsx uses streamProtocol: 'text' to consume this plain-text response.
     let responseText = '';
     let nextMessages: Messages = [...messages];
 
@@ -118,6 +205,33 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
       throw new Error('The AI provider returned an empty response.');
     }
 
+    // If this is a build/edit request, do not accept a status-only answer as success.
+    // Retry once with an explicit executable-output instruction.
+    if (isBuildRequest(messages) && !hasExecutableArtifact(responseText)) {
+      console.warn('[BeamCore] Build response had no executable Bolt actions; retrying once.');
+
+      const retryResult = await generateText(
+        [
+          ...messages,
+          { role: 'assistant', content: responseText },
+          { role: 'user', content: BUILD_RETRY_PROMPT },
+        ],
+        context.cloudflare?.env,
+        { maxRetries: 0 },
+      );
+
+      if (hasExecutableArtifact(retryResult.text)) {
+        responseText = retryResult.text;
+      } else {
+        console.error('[BeamCore] Groq retry still returned no executable Bolt actions.', {
+          finishReason: retryResult.finishReason,
+          responseLength: retryResult.text.length,
+        });
+        responseText =
+          'I could not start this build because Groq did not return executable file or command actions. No project files were changed. Please try a smaller build request.';
+      }
+    }
+
     return new Response(responseText, {
       status: 200,
       headers: {
@@ -129,8 +243,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const message = error instanceof Error ? error.message : 'Unknown chat route error';
     console.error('[BeamCore] Chat route failed:', error);
 
-    const isRateLimited = /rate limit|too many requests|\b429\b/i.test(message);
-    const retryAfterMatch = message.match(/try again in\s+([\d.]+)\s*s/i);
+    const isRateLimited = /rate limit|too many requests|\\b429\\b/i.test(message);
+    const retryAfterMatch = message.match(/try again in\\s+([\\d.]+)\\s*s/i);
     const retryAfterSeconds = retryAfterMatch
       ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
       : 10;

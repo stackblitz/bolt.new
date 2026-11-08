@@ -27,7 +27,7 @@ function isBuildRequest(messages: Messages) {
 }
 
 function hasExecutableArtifact(text: string) {
-  const artifact = /<boltArtifact\b([^>]*)>([\s\\S]*?)<\/boltArtifact>/i.exec(text);
+  const artifact = /<boltArtifact\b([^>]*)>([\s\S]*?)<\/boltArtifact>/i.exec(text);
 
   if (!artifact) {
     return false;
@@ -38,9 +38,9 @@ function hasExecutableArtifact(text: string) {
   const hasId = /\bid="[^"]+"/i.test(attributes);
   const hasTitle = /\btitle="[^"]+"/i.test(attributes);
   const hasFileAction =
-    /<boltAction\b(?=[^>]*\btype="file")(?=[^>]*\bfilePath="[^"]+")[^>]*>[\s\\S]*?<\/boltAction>/i.test(body);
+    /<boltAction\b(?=[^>]*\btype="file")(?=[^>]*\bfilePath="[^"]+")[^>]*>[\s\S]*?<\/boltAction>/i.test(body);
   const hasShellAction =
-    /<boltAction\b(?=[^>]*\btype="shell")[^>]*>[\s\\S]*?<\/boltAction>/i.test(body);
+    /<boltAction\b(?=[^>]*\btype="shell")[^>]*>[\s\S]*?<\/boltAction>/i.test(body);
 
   return hasId && hasTitle && (hasFileAction || hasShellAction);
 }

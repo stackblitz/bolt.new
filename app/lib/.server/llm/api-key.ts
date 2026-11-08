@@ -1,9 +1,11 @@
 import { env as nodeEnv } from 'node:process';
 
-export type AIProvider = 'groq' | 'openrouter';
+export type AIProvider = 'gemini' | 'groq' | 'openrouter';
 
 export interface AIEnvironment {
   AI_PROVIDER?: string;
+  GEMINI_API_KEY?: string;
+  GEMINI_MODEL?: string;
   GROQ_API_KEY?: string;
   OPENROUTER_API_KEY?: string;
   GROQ_MODEL?: string;
@@ -22,34 +24,47 @@ function readEnvironmentVariable(name: keyof AIEnvironment, cloudflareEnv?: AIEn
 }
 
 export function getAIConfig(cloudflareEnv?: AIEnvironment): AIConfig {
-  const groqApiKey = readEnvironmentVariable('GROQ_API_KEY', cloudflareEnv);
-  const openRouterApiKey = readEnvironmentVariable('OPENROUTER_API_KEY', cloudflareEnv);
   const configuredProvider = readEnvironmentVariable('AI_PROVIDER', cloudflareEnv)?.toLowerCase();
 
-  // Prefer Groq when both keys are present; OpenRouter works automatically when it is the only key.
-  const provider: AIProvider =
-    configuredProvider === 'openrouter' || (!configuredProvider && !groqApiKey && openRouterApiKey)
-      ? 'openrouter'
-      : 'groq';
+  const provider: AIProvider = configuredProvider
+    ? configuredProvider as AIProvider
+    : 'gemini';
 
-  if (configuredProvider && configuredProvider !== 'groq' && configuredProvider !== 'openrouter') {
-    throw new Error('AI_PROVIDER must be either "groq" or "openrouter".');
+  if (!['gemini', 'groq', 'openrouter'].includes(provider)) {
+    throw new Error('AI_PROVIDER must be one of "gemini", "groq", or "openrouter".');
   }
 
-  const apiKey = provider === 'groq' ? groqApiKey : openRouterApiKey;
+  const providerConfig = {
+    gemini: {
+      apiKey: readEnvironmentVariable('GEMINI_API_KEY', cloudflareEnv),
+      model: readEnvironmentVariable('GEMINI_MODEL', cloudflareEnv) || 'gemini-3.8-flash',
+      baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+      requiredKey: 'GEMINI_API_KEY',
+    },
+    groq: {
+      apiKey: readEnvironmentVariable('GROQ_API_KEY', cloudflareEnv),
+      model: readEnvironmentVariable('GROQ_MODEL', cloudflareEnv) || 'openai/gpt-oss-120b',
+      baseURL: 'https://api.groq.com/openai/v1',
+      requiredKey: 'GROQ_API_KEY',
+    },
+    openrouter: {
+      apiKey: readEnvironmentVariable('OPENROUTER_API_KEY', cloudflareEnv),
+      model: readEnvironmentVariable('OPENROUTER_MODEL', cloudflareEnv) || 'deepseek/deepseek-v4.1-flash',
+      baseURL: 'https://openrouter.ai/api/v1',
+      requiredKey: 'OPENROUTER_API_KEY',
+    },
+  }[provider];
 
-  if (!apiKey) {
-    const requiredKey = provider === 'groq' ? 'GROQ_API_KEY' : 'OPENROUTER_API_KEY';
-    throw new Error(`${requiredKey} is not configured on the server.`);
+  if (!providerConfig.apiKey) {
+    throw new Error(
+      `${providerConfig.requiredKey} is not configured on the server. Add it to the Vercel Preview and Production environment variables.`,
+    );
   }
 
   return {
     provider,
-    apiKey,
-    model:
-      readEnvironmentVariable(provider === 'groq' ? 'GROQ_MODEL' : 'OPENROUTER_MODEL', cloudflareEnv) ||
-      (provider === 'groq' ? 'openai/gpt-oss-120b' : 'deepseek/deepseek-v4.1-flash'),
-    baseURL:
-      provider === 'groq' ? 'https://api.groq.com/openai/v1' : 'https://openrouter.ai/api/v1',
+    apiKey: providerConfig.apiKey,
+    model: providerConfig.model,
+    baseURL: providerConfig.baseURL,
   };
 }

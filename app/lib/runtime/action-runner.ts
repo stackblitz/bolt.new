@@ -137,7 +137,7 @@ export class ActionRunner {
       process.kill();
     });
 
-    process.output.pipeTo(
+    const outputTask = process.output.pipeTo(
       new WritableStream({
         write(data) {
           console.log(data);
@@ -146,6 +146,7 @@ export class ActionRunner {
     );
 
     const exitCode = await process.exit;
+    await outputTask;
 
     logger.debug(`Process terminated with code ${exitCode}`);
 
@@ -160,17 +161,28 @@ export class ActionRunner {
     }
 
     const webcontainer = await this.#webcontainer;
+    const requestedPath = action.filePath.replace(/\\\\/g, '/');
+    const safePath = nodePath.posix.normalize(requestedPath);
 
-    let folder = nodePath.dirname(action.filePath);
+    if (
+      !requestedPath ||
+      nodePath.posix.isAbsolute(requestedPath) ||
+      safePath === '.' ||
+      safePath === '..' ||
+      safePath.startsWith('../')
+    ) {
+      throw new Error(`Refusing to write outside the project directory: ${action.filePath}`);
+    }
 
+    const folder = nodePath.posix.dirname(safePath);
 
     if (folder !== '.') {
       await webcontainer.fs.mkdir(folder, { recursive: true });
       logger.debug('Created folder', folder);
     }
 
-    await webcontainer.fs.writeFile(action.filePath, action.content);
-    logger.debug(`File written ${action.filePath}`);
+    await webcontainer.fs.writeFile(safePath, action.content);
+    logger.debug(`File written ${safePath}`);
   }
 
   #updateAction(id: string, newState: ActionStateUpdate) {

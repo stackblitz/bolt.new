@@ -178,7 +178,13 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
      * happy case to be no unsaved files and I would expect users to save their changes
      * before they send another message.
      */
-    await workbenchStore.saveAllFiles();
+    try {
+      await workbenchStore.saveAllFiles();
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      toast.error(`Could not save the current workspace before sending: ${detail}`);
+      return;
+    }
 
     const fileModifications = workbenchStore.getFileModifcations();
 

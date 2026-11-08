@@ -185,7 +185,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
     for (let segment = 0; segment < MAX_RESPONSE_SEGMENTS; segment += 1) {
       const result = await generateText(nextMessages, context.cloudflare?.env, {
-        maxRetries: 0,
+        maxRetries: 2,
       });
 
       responseText += result.text;
@@ -217,13 +217,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           { role: 'user', content: BUILD_RETRY_PROMPT },
         ],
         context.cloudflare?.env,
-        { maxRetries: 0 },
+        { maxRetries: 2 },
       );
 
       if (hasExecutableArtifact(retryResult.text)) {
         responseText = retryResult.text;
       } else {
-        console.error('[BeamCore] Groq retry still returned no executable Bolt actions.', {
+        console.error('[BeamCore] Gemini retry still returned no executable Bolt actions.', {
           finishReason: retryResult.finishReason,
           responseLength: retryResult.text.length,
         });
@@ -248,9 +248,15 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const retryAfterSeconds = retryAfterMatch
       ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
       : 10;
+    const isAuthError = /\\b401\\b|\\b403\\b|api key.*(invalid|not valid)|unauthorized/i.test(message);
+    const isModelError = /\\b404\\b|model.*(not found|unsupported)|not supported for this endpoint/i.test(message);
     const userMessage = isRateLimited
-      ? `Groq is temporarily at its token limit. Please wait ${retryAfterSeconds} seconds, then try again.`
-      : 'The AI service could not complete this request. Please try again.';
+      ? `Gemini is temporarily rate-limited or out of quota. Wait ${retryAfterSeconds} seconds and try again; check Google AI Studio quota if it continues.`
+      : isAuthError
+        ? 'Gemini rejected the API key. Check the GEMINI_API_KEY value in Vercel Environment Variables.'
+        : isModelError
+          ? 'The configured Gemini model is unavailable for this API. Check GEMINI_MODEL in Vercel.'
+          : 'Gemini could not complete this request. Check the server logs for the provider error and try again.';
 
     return new Response(JSON.stringify({ error: userMessage }), {
       status: isRateLimited ? 429 : 502,

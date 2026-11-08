@@ -3,6 +3,9 @@ import { getAIConfig, type AIEnvironment } from './api-key';
 
 export function getAIModel(cloudflareEnv?: AIEnvironment) {
   const config = getAIConfig(cloudflareEnv);
+
+  // Gemini's official OpenAI-compatible endpoint lets us keep the project's
+  // installed AI SDK version and existing chat-completions integration.
   const provider = createOpenAI({
     apiKey: config.apiKey,
     baseURL: config.baseURL,
@@ -14,6 +17,5 @@ export function getAIModel(cloudflareEnv?: AIEnvironment) {
         : undefined,
   });
 
-  // Both Groq and OpenRouter expose an OpenAI-compatible Chat Completions API.
   return provider.chat(config.model);
 }

@@ -27,6 +27,13 @@ if (!import.meta.env.SSR) {
       .then((webcontainer) => {
         webcontainerContext.loaded = true;
         return webcontainer;
+      })
+      .catch((error) => {
+        const detail = error instanceof Error ? error.message : String(error);
+        console.error('[BeamCore] WebContainer startup failed:', error);
+        throw new Error(
+          `The browser project runtime could not start: ${detail}. Check browser support and cross-origin isolation.`,
+        );
       });
 
   if (import.meta.hot) {

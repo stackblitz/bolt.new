@@ -228,7 +228,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           responseLength: retryResult.text.length,
         });
         responseText =
-          'I could not start this build because Groq did not return executable file or command actions. No project files were changed. Please try a smaller build request.';
+          'I could not start this build because Gemini did not return executable file or command actions. No project files were changed. Please try a smaller build request.';
       }
     }
 

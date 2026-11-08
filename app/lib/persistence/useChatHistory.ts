@@ -4,7 +4,7 @@ import { atom } from 'nanostores';
 import type { Message } from 'ai';
 import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { getMessages, getNextId, getUrlId, openDatabase, setMessages } from './db';
+import { getMessages, getNextId, getUrlId, setMessages, withDatabase } from './db';
 
 export interface ChatHistoryItem {
   id: string;
@@ -18,6 +18,8 @@ const persistenceEnabled = !import.meta.env.VITE_DISABLE_PERSISTENCE;
 
 export const db = persistenceEnabled ? await openDatabase() : undefined;
 
+const persistenceEnabled = !import.meta.env.VITE_DISABLE_PERSISTENCE;
+
 export const chatId = atom<string | undefined>(undefined);
 export const description = atom<string | undefined>(undefined);
 
@@ -30,71 +32,99 @@ export function useChatHistory() {
   const [urlId, setUrlId] = useState<string | undefined>();
 
   useEffect(() => {
-    if (!db) {
+    let cancelled = false;
+
+    if (!mixedId || !persistenceEnabled) {
       setReady(true);
-
-      if (persistenceEnabled) {
-        toast.error(`Chat persistence is unavailable`);
-      }
-
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
 
-    if (mixedId) {
-      getMessages(db, mixedId)
-        .then((storedMessages) => {
+    const loadHistory = async () => {
+      try {
+        await withDatabase(async (database) => {
+          const storedMessages = await getMessages(database, mixedId);
+
+          if (cancelled) {
+            return;
+          }
+
           if (storedMessages && storedMessages.messages.length > 0) {
             setInitialMessages(storedMessages.messages);
             setUrlId(storedMessages.urlId);
             description.set(storedMessages.description);
             chatId.set(storedMessages.id);
           } else {
-            navigate(`/`, { replace: true });
+            navigate('/', { replace: true });
           }
-
-          setReady(true);
-        })
-        .catch((error) => {
-          toast.error(error.message);
         });
-    }
-  }, []);
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        console.error('[BeamCore] Could not load saved chat history:', error);
+        toast.error(`Could not load this saved chat. Starting a fresh chat instead. ${detail}`);
+
+        if (!cancelled) {
+          navigate('/', { replace: true });
+        }
+      } finally {
+        if (!cancelled) {
+          setReady(true);
+        }
+      }
+    };
+
+    void loadHistory();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mixedId, navigate]);
 
   return {
     ready: !mixedId || ready,
     initialMessages,
     storeMessageHistory: async (messages: Message[]) => {
-      if (!db || messages.length === 0) {
+      if (!persistenceEnabled || messages.length === 0) {
         return;
       }
 
-      const { firstArtifact } = workbenchStore;
+      await withDatabase(async (database) => {
+        const { firstArtifact } = workbenchStore;
+        let currentUrlId = urlId;
+        let currentDescription = description.get();
+        let currentChatId = chatId.get();
 
-      if (!urlId && firstArtifact?.id) {
-        const urlId = await getUrlId(db, firstArtifact.id);
-
-        navigateChat(urlId);
-        setUrlId(urlId);
-      }
-
-      if (!description.get() && firstArtifact?.title) {
-        description.set(firstArtifact?.title);
-      }
-
-      if (initialMessages.length === 0 && !chatId.get()) {
-        const nextId = await getNextId(db);
-
-        chatId.set(nextId);
-
-        if (!urlId) {
-          navigateChat(nextId);
+        if (!currentUrlId && firstArtifact?.id) {
+          currentUrlId = await getUrlId(database, firstArtifact.id);
+          navigateChat(currentUrlId);
+          setUrlId(currentUrlId);
         }
-      }
 
-      await setMessages(db, chatId.get() as string, messages, urlId, description.get());
+        if (!currentDescription && firstArtifact?.title) {
+          currentDescription = firstArtifact.title;
+          description.set(currentDescription);
+        }
+
+        if (initialMessages.length === 0 && !currentChatId) {
+          currentChatId = await getNextId(database);
+          chatId.set(currentChatId);
+
+          if (!currentUrlId) {
+            navigateChat(currentChatId);
+          }
+        }
+
+        if (!currentChatId) {
+          throw new Error('Chat history could not be assigned a local ID.');
+        }
+
+        await setMessages(database, currentChatId, messages, currentUrlId, currentDescription);
+      });
     },
   };
 }
+
 
 function navigateChat(nextId: string) {
   /**

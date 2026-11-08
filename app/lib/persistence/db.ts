@@ -4,30 +4,146 @@ import type { ChatHistoryItem } from './useChatHistory';
 
 const logger = createScopedLogger('ChatHistory');
 
-// this is used at the top level and never rejects
+// Keep one healthy IndexedDB connection and reopen it after browser-driven closes.
+let cachedDatabase: IDBDatabase | undefined;
+let openingDatabase: Promise<IDBDatabase | undefined> | undefined;
+
+function isDatabaseUsable(database: IDBDatabase) {
+  try {
+    const transaction = database.transaction('chats', 'readonly');
+    transaction.abort();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function invalidateDatabase(database?: IDBDatabase) {
+  if (database && cachedDatabase !== database) {
+    return;
+  }
+
+  try {
+    database?.close();
+  } catch {
+    // The connection may already be closed.
+  }
+
+  cachedDatabase = undefined;
+  openingDatabase = undefined;
+}
+
 export async function openDatabase(): Promise<IDBDatabase | undefined> {
-  return new Promise((resolve) => {
+  if (cachedDatabase) {
+    if (isDatabaseUsable(cachedDatabase)) {
+      return cachedDatabase;
+    }
+
+    invalidateDatabase(cachedDatabase);
+  }
+
+  if (openingDatabase) {
+    return openingDatabase;
+  }
+
+  if (typeof indexedDB === 'undefined') {
+    logger.warn('IndexedDB is not available in this browser context.');
+    return undefined;
+  }
+
+  let pending: Promise<IDBDatabase | undefined>;
+  pending = new Promise((resolve) => {
     const request = indexedDB.open('boltHistory', 1);
 
     request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
-      const db = (event.target as IDBOpenDBRequest).result;
+      const database = (event.target as IDBOpenDBRequest).result;
 
-      if (!db.objectStoreNames.contains('chats')) {
-        const store = db.createObjectStore('chats', { keyPath: 'id' });
+      if (!database.objectStoreNames.contains('chats')) {
+        const store = database.createObjectStore('chats', { keyPath: 'id' });
         store.createIndex('id', 'id', { unique: true });
         store.createIndex('urlId', 'urlId', { unique: true });
       }
     };
 
     request.onsuccess = (event: Event) => {
-      resolve((event.target as IDBOpenDBRequest).result);
+      const database = (event.target as IDBOpenDBRequest).result;
+      cachedDatabase = database;
+
+      const handleClosedConnection = () => {
+        if (cachedDatabase === database) {
+          cachedDatabase = undefined;
+          openingDatabase = undefined;
+          logger.warn('IndexedDB connection closed; it will be reopened on the next operation.');
+        }
+      };
+
+      database.onversionchange = () => {
+        database.close();
+        handleClosedConnection();
+      };
+      database.addEventListener('close', handleClosedConnection);
+
+      if (openingDatabase === pending) {
+        openingDatabase = undefined;
+      }
+
+      resolve(database);
     };
 
     request.onerror = (event: Event) => {
+      const error = (event.target as IDBOpenDBRequest).error;
+      logger.error('Could not open chat history database:', error);
+
+      if (openingDatabase === pending) {
+        openingDatabase = undefined;
+      }
+
       resolve(undefined);
-      logger.error((event.target as IDBOpenDBRequest).error);
+    };
+
+    request.onblocked = () => {
+      logger.warn('Chat history database upgrade is blocked by another open tab.');
     };
   });
+
+  openingDatabase = pending;
+  return pending;
+}
+
+function isClosedDatabaseError(error: unknown) {
+  if (error instanceof DOMException && error.name === 'InvalidStateError') {
+    return true;
+  }
+
+  const message = error instanceof Error ? error.message : String(error);
+  return /database connection is closing|database connection is closed|idbdatabase.*closed/i.test(message);
+}
+
+/**
+ * Run one history operation, reopening the browser database once when a tab
+ * or browser closes the old connection while the application is still open.
+ */
+export async function withDatabase<T>(operation: (database: IDBDatabase) => Promise<T>): Promise<T> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const database = await openDatabase();
+
+    if (!database) {
+      throw new Error('Chat history storage is unavailable in this browser.');
+    }
+
+    try {
+      return await operation(database);
+    } catch (error) {
+      if (attempt === 1 || !isClosedDatabaseError(error)) {
+        throw error;
+      }
+
+      logger.warn('Chat history database connection closed during an operation; reopening and retrying.');
+      invalidateDatabase(database);
+    }
+  }
+
+  throw new Error('Could not restore the chat history database connection.');
 }
 
 export async function getAll(db: IDBDatabase): Promise<ChatHistoryItem[]> {
@@ -52,7 +168,7 @@ export async function setMessages(
     const transaction = db.transaction('chats', 'readwrite');
     const store = transaction.objectStore('chats');
 
-    const request = store.put({
+    store.put({
       id,
       messages,
       urlId,
@@ -60,8 +176,9 @@ export async function setMessages(
       timestamp: new Date().toISOString(),
     });
 
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error || new Error('Could not save chat history.'));
+    transaction.onabort = () => reject(transaction.error || new Error('Chat history save was aborted.'));
   });
 }
 

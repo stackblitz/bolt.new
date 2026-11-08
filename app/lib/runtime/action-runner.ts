@@ -114,9 +114,10 @@ export class ActionRunner {
 
       this.#updateAction(actionId, { status: action.abortSignal.aborted ? 'aborted' : 'complete' });
     } catch (error) {
-      this.#updateAction(actionId, { status: 'failed', error: 'Action failed' });
+      const message = error instanceof Error ? error.message : String(error);
+      this.#updateAction(actionId, { status: 'failed', error: message });
 
-      // re-throw the error to be caught in the promise chain
+      // Re-throw so the execution queue can log the original failure.
       throw error;
     }
   }

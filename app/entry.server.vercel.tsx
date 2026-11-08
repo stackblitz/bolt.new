@@ -1,18 +1,76 @@
-import { installGlobals } from '@remix-run/node';
+import { createReadableStreamFromReadable, type EntryContext } from '@remix-run/node';
 import { RemixServer } from '@remix-run/react';
-import { handleRequest, type EntryContext } from '@vercel/remix';
+import { PassThrough } from 'node:stream';
+import { renderToPipeableStream } from 'react-dom/server';
 
-// Use Undici/native Fetch so the response body stream and TransformStream
-// constructors come from the same Node Web Streams implementation.
-installGlobals({ nativeFetch: true });
+const ABORT_DELAY = 5_000;
 
-export default async function handleVercelRequest(
+export default function handleVercelRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
 ) {
-  const remixServer = <RemixServer context={remixContext} url={request.url} />;
+  if (request.method.toUpperCase() === 'HEAD') {
+    return new Response(null, {
+      status: responseStatusCode,
+      headers: responseHeaders,
+    });
+  }
 
-  return handleRequest(request, responseStatusCode, responseHeaders, remixServer);
+  return new Promise<Response>((resolve, reject) => {
+    let shellRendered = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const { pipe, abort } = renderToPipeableStream(
+      <RemixServer context={remixContext} url={request.url} />,
+      {
+        onShellReady() {
+          shellRendered = true;
+
+          const body = new PassThrough({
+            final(callback) {
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = undefined;
+              }
+
+              callback();
+            },
+          });
+
+          const stream = createReadableStreamFromReadable(body);
+
+          responseHeaders.set('Content-Type', 'text/html; charset=utf-8');
+          responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
+          responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
+
+          pipe(body);
+
+          resolve(
+            new Response(stream, {
+              status: responseStatusCode,
+              headers: responseHeaders,
+            }),
+          );
+        },
+        onShellError(error) {
+          reject(error);
+        },
+        onError(error) {
+          responseStatusCode = 500;
+          console.error('[BeamCore] Vercel SSR render error:', error);
+
+          if (shellRendered) {
+            // The response has already started streaming; retain the original status.
+            responseStatusCode = 200;
+          }
+        },
+      },
+    );
+
+    timeoutId = setTimeout(() => {
+      abort();
+    }, ABORT_DELAY);
+  });
 }

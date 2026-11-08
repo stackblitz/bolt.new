@@ -147,6 +147,10 @@ export class ActionRunner {
     const exitCode = await process.exit;
 
     logger.debug(`Process terminated with code ${exitCode}`);
+
+    if (exitCode !== 0) {
+      throw new Error(`Shell command failed with exit code ${exitCode}: ${action.content}`);
+    }
   }
 
   async #runFileAction(action: ActionState) {
@@ -156,23 +160,13 @@ export class ActionRunner {
 
     const webcontainer = await this.#webcontainer;
 
-    let folder = nodePath.dirname(action.filePath);
-
-    // remove trailing slashes
-    folder = folder.replace(/\/+$/g, '');
-
-    if (folder !== '.') {
-      try {
-        await webcontainer.fs.mkdir(folder, { recursive: true });
-        logger.debug('Created folder', folder);
-      } catch (error) {
-        logger.error('Failed to create folder\n\n', error);
-      }
+     if (folder !== '.') {
+      await webcontainer.fs.mkdir(folder, { recursive: true });
+      logger.debug('Created folder', folder);
     }
 
-    try {
-      await webcontainer.fs.writeFile(action.filePath, action.content);
-      logger.debug(`File written ${action.filePath}`);
+    await webcontainer.fs.writeFile(action.filePath, action.content);
+    logger.debug(`File written ${action.filePath}`);r.debug(`File written ${action.filePath}`);
     } catch (error) {
       logger.error('Failed to write file\n\n', error);
     }

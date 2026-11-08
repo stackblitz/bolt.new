@@ -185,7 +185,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
     for (let segment = 0; segment < MAX_RESPONSE_SEGMENTS; segment += 1) {
       const result = await generateText(nextMessages, context.cloudflare?.env, {
-        maxRetries: 2,
+        maxRetries: 0,
       });
 
       responseText += result.text;
@@ -243,25 +243,37 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const message = error instanceof Error ? error.message : 'Unknown chat route error';
     console.error('[BeamCore] Chat route failed:', error);
 
-    const isRateLimited = /rate limit|too many requests|\b429\b/i.test(message);
+    const isRateLimited = /rate limit|too many requests|resource_exhausted|quota exceeded|\\b429\\b/i.test(message);
     const retryAfterMatch =
-      message.match(/(?:try again in|retry after|retry in)\s+([\d.]+)\s*s/i) ||
-      message.match(/"retryDelay"\s*:\s*"([\d.]+)s"/i);
-    const retryAfterSeconds = retryAfterMatch
-      ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
-      : 10;
-    const isAuthError = /\b401\b|\b403\b|api key.*(invalid|not valid)|unauthorized/i.test(message);
-    const isModelError = /\b404\b|model.*(not found|unsupported)|not supported for this endpoint/i.test(message);
+      message.match(/(?:try again in|retry after|retry in)\\s+([\\d.]+)\\s*s/i) ||
+      message.match(/"retryDelay"\\s*:\\s*"([\\d.]+)s"/i);
+    const responseHeaders =
+      error && typeof error === 'object' && 'responseHeaders' in error
+        ? (error as { responseHeaders?: Record<string, string> }).responseHeaders
+        : undefined;
+    const retryAfterHeader = responseHeaders?.['retry-after'] || responseHeaders?.['Retry-After'];
+    const retryAfterSeconds = retryAfterHeader
+      ? Math.max(1, Math.ceil(Number(retryAfterHeader)))
+      : retryAfterMatch
+        ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
+        : 30;
+    const isAuthError = /\\b401\\b|\\b403\\b|api key.*(invalid|not valid)|unauthorized/i.test(message);
+    const isModelError = /\\b404\\b|model.*(not found|unsupported)|not supported for this endpoint/i.test(message);
+    const isTemporarilyUnavailable = /service unavailable|\\b503\\b|overloaded|temporarily unavailable/i.test(message);
     const userMessage = isRateLimited
-      ? `Gemini is temporarily rate-limited or out of quota. Wait ${retryAfterSeconds} seconds and try again; check Google AI Studio quota if it continues.`
+      ? `Gemini has temporarily limited this API key or project. Wait ${retryAfterSeconds} seconds before retrying. Check Google AI Studio usage and rate limits if it continues.`
       : isAuthError
-        ? 'Gemini rejected the API key. Check the GEMINI_API_KEY value in Vercel Environment Variables.'
+        ? 'Gemini rejected the API key. Check GEMINI_API_KEY in Vercel Environment Variables.'
         : isModelError
-          ? 'The configured Gemini model is unavailable for this API. Check GEMINI_MODEL in Vercel.'
-          : 'Gemini could not complete this request. Check the server logs for the provider error and try again.';
+          ? 'The configured Gemini model is unavailable. Check GEMINI_MODEL in Vercel.'
+          : isTemporarilyUnavailable
+            ? 'Gemini is temporarily unavailable. No files were changed; please retry shortly.'
+            : 'Gemini could not complete this request. Check the server logs for details.';
+
+    const status = isRateLimited ? 429 : isTemporarilyUnavailable ? 503 : 502;
 
     return new Response(JSON.stringify({ error: userMessage }), {
-      status: isRateLimited ? 429 : 502,
+      status,
       headers: {
         'Content-Type': 'application/json',
         ...(isRateLimited ? { 'Retry-After': String(retryAfterSeconds) } : {}),

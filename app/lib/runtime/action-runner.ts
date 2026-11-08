@@ -160,16 +160,18 @@ export class ActionRunner {
 
     const webcontainer = await this.#webcontainer;
 
-     if (folder !== '.') {
+    let folder = nodePath.dirname(action.filePath);
+
+    // Remove trailing slashes before creating the directory.
+    folder = folder.replace(/\\/+$/g, '');
+
+    if (folder !== '.') {
       await webcontainer.fs.mkdir(folder, { recursive: true });
       logger.debug('Created folder', folder);
     }
 
     await webcontainer.fs.writeFile(action.filePath, action.content);
-    logger.debug(`File written ${action.filePath}`);r.debug(`File written ${action.filePath}`);
-    } catch (error) {
-      logger.error('Failed to write file\n\n', error);
-    }
+    logger.debug(`File written ${action.filePath}`);
   }
 
   #updateAction(id: string, newState: ActionStateUpdate) {

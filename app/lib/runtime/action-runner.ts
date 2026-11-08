@@ -163,8 +163,6 @@ export class ActionRunner {
 
     let folder = nodePath.dirname(action.filePath);
 
-    // Remove trailing slashes before creating the directory.
-    folder = folder.replace(/\\/+$/g, '');
 
     if (folder !== '.') {
       await webcontainer.fs.mkdir(folder, { recursive: true });

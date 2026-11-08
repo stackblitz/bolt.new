@@ -161,7 +161,7 @@ export class ActionRunner {
     }
 
     const webcontainer = await this.#webcontainer;
-    const requestedPath = action.filePath.replace(/\\\\/g, '/');
+    const requestedPath = action.filePath.replace(/\\/g, '/');
     const safePath = nodePath.posix.normalize(requestedPath);
 
     if (

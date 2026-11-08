@@ -77,6 +77,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
     api: '/api/chat',
+    streamProtocol: 'text',
     onError: (error) => {
       logger.error('Request failed\n\n', error);
 

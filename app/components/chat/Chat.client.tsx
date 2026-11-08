@@ -8,6 +8,7 @@ import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from
 import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { webcontainer } from '~/lib/webcontainer';
 import { fileModificationsToHTML } from '~/utils/diff';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
@@ -96,7 +97,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       if (/rate limit|too many requests|\b429\b/i.test(message)) {
         toast.error(message);
       } else {
-        toast.error('There was an error processing your request');
+        toast.error(message || 'There was an error processing your request');
       }
     },
     onFinish: () => {
@@ -112,6 +113,16 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   useEffect(() => {
     chatStore.setKey('started', initialMessages.length > 0);
+  }, []);
+
+  // Surface browser runtime startup failures in the UI instead of leaving the
+  // user to discover them in DevTools. This does not block normal chat replies.
+  useEffect(() => {
+    webcontainer.catch((error) => {
+      const detail = error instanceof Error ? error.message : String(error);
+      logger.error('WebContainer startup failed', error);
+      toast.error(`Project runtime failed to start: ${detail}`, { autoClose: false });
+    });
   }, []);
 
   useEffect(() => {

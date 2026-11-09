@@ -212,12 +212,12 @@ export class ActionRunner {
 
   #isDaytonaUnavailable(error: unknown) {
     const detail = error instanceof Error ? error.message : String(error);
-    return /DAYTONA_API_KEY|Daytona request failed|Daytona could not complete|Failed to fetch|NetworkError|ECONN|\\b50[023]\\b|timed out/i.test(detail);
+    return /DAYTONA_API_KEY|Daytona request failed|Daytona could not complete|Failed to fetch|NetworkError|ECONN|\b50[023]\b|timed out/i.test(detail);
   }
 
   async #runWebContainerCommand(command: string) {
     const webcontainer = await this.#webcontainer;
-    const isDevServer = /\\b(?:npm|pnpm|yarn|bun)\\s+(?:run\\s+)?(?:dev|start|preview)\\b/i.test(command);
+    const isDevServer = /\b(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?(?:dev|start|preview)\b/i.test(command);
     const process = await webcontainer.spawn('jsh');
     let output = '';
 
@@ -250,7 +250,7 @@ export class ActionRunner {
     const input = process.input.getWriter();
 
     try {
-      await input.write(isDevServer ? command + '\\n' : command + '\\nexit\\n');
+      await input.write(isDevServer ? command + '\n' : command + '\nexit\n');
     } finally {
       input.releaseLock();
     }

@@ -1,7 +1,7 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/cloudflare';
 import { getAIConfig, type AIProvider } from '~/lib/.server/llm/api-key';
 import { MAX_RESPONSE_SEGMENTS } from '~/lib/.server/llm/constants';
-import { CHAT_SYSTEM_PROMPT, CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
+import { CHAT_SYSTEM_PROMPT, CONTINUE_PROMPT, getSystemPrompt } from '~/lib/.server/llm/prompts';
 import { generateText, type Messages } from '~/lib/.server/llm/stream-text';
 
 const BUILD_RETRY_PROMPT = `
@@ -89,7 +89,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
             content: 'Create a tiny HTML page that says BeamCore build probe. Return one complete Bolt artifact with one file action for index.html.',
           }],
           env,
-          { maxRetries: 0, maxTokens: 1536 },
+          { system: getSystemPrompt(), maxRetries: 0, maxTokens: 1536 },
         );
 
         const executable = hasExecutableArtifact(result.text);
@@ -248,7 +248,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           const result = await generateText(nextMessages, env, {
             maxRetries: 0,
             maxTokens: buildRequest ? 8192 : 1024,
-            ...(buildRequest ? {} : { system: CHAT_SYSTEM_PROMPT }),
+            system: buildRequest ? getSystemPrompt() : CHAT_SYSTEM_PROMPT,
             abortSignal: AbortSignal.timeout(buildRequest ? 90_000 : 35_000),
           }, provider);
 
@@ -319,7 +319,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           { role: 'user', content: BUILD_RETRY_PROMPT },
         ],
         env,
-        { maxRetries: 0, maxTokens: 8192 },
+        { system: getSystemPrompt(), maxRetries: 0, maxTokens: 8192 },
+        activeProvider,
       );
 
       if (hasExecutableArtifact(retryResult.text)) {
@@ -330,7 +331,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           responseLength: retryResult.text.length,
         });
         responseText =
-          'I could not start this build because Gemini did not return executable file or command actions. No project files were changed. Please try a smaller build request.';
+          'I could not start this build because ' + providerLabel + ' did not return executable file or command actions. No project files were changed. Please try a smaller build request.';
       }
     }
 

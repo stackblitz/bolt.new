@@ -41,7 +41,7 @@ export class ActionRunner {
   #webcontainer: Promise<WebContainer>;
   #getFiles: () => FileMap;
   #webcontainerReady = false;
-  #pendingFileMirrors: Promise<void> = Promise.resolve();
+  #daytonaUnavailableReason?: string;
   #currentExecutionPromise: Promise<void> = Promise.resolve();
 
   actions: ActionsMap = map({});
@@ -144,13 +144,14 @@ export class ActionRunner {
       throw new Error('Command was cancelled before execution.');
     }
 
-    const canSyncBrowserFiles = this.#webcontainerReady;
-
-    if (canSyncBrowserFiles) {
-      await this.#pendingFileMirrors;
+    // Daytona is the preferred runtime. If its credentials or service are
+    // unavailable, continue in the browser WebContainer instead of silently
+    // leaving the generated project without a running Preview.
+    if (this.#daytonaUnavailableReason) {
+      logger.warn('Using WebContainer because Daytona is unavailable: ' + this.#daytonaUnavailableReason);
+      return this.#runWebContainerCommand(action.content);
     }
 
-    const shouldSyncBrowserFiles = canSyncBrowserFiles && this.#webcontainerReady;
     const files: DaytonaSyncFile[] = [];
     let totalBytes = 0;
 
@@ -166,7 +167,7 @@ export class ActionRunner {
         relativePath === '.' ||
         relativePath === '..' ||
         relativePath.startsWith('../') ||
-        /(^|\/)(?:node_modules|\.git|\.cache|dist|build)(\/|$)/.test(relativePath)
+        /(^|\\/)(?:node_modules|\\.git|\\.cache|dist|build)(\\/|$)/.test(relativePath)
       ) {
         continue;
       }
@@ -180,24 +181,94 @@ export class ActionRunner {
       files.push({ path: relativePath, content: entry.content });
     }
 
-    if (shouldSyncBrowserFiles && files.length > 0) {
-      await syncDaytonaFiles(files);
+    try {
+      if (files.length > 0) {
+        await syncDaytonaFiles(files);
+      }
+
+      const result = await executeDaytonaCommand(action.content);
+      const output = result.output || '';
+
+      if (typeof result.exitCode === 'number' && result.exitCode !== 0) {
+        throw new Error('Daytona command failed with exit code ' + result.exitCode + '.\\n' + output);
+      }
+
+      if (result.preview) {
+        remotePreviewStore.set(result.preview);
+      }
+
+      logger.info('Command completed in Daytona sandbox.');
+      return { output };
+    } catch (error) {
+      if (!this.#isDaytonaUnavailable(error)) {
+        throw error;
+      }
+
+      this.#daytonaUnavailableReason = error instanceof Error ? error.message : String(error);
+      logger.warn('Daytona is unavailable; falling back to the browser WebContainer.', error);
+      return this.#runWebContainerCommand(action.content);
+    }
+  }
+
+  #isDaytonaUnavailable(error: unknown) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return /DAYTONA_API_KEY|Daytona request failed|Daytona could not complete|Failed to fetch|NetworkError|ECONN|\\b50[023]\\b|timed out/i.test(detail);
+  }
+
+  async #runWebContainerCommand(command: string) {
+    const webcontainer = await this.#webcontainer;
+    const isDevServer = /\\b(?:npm|pnpm|yarn|bun)\\s+(?:run\\s+)?(?:dev|start|preview)\\b/i.test(command);
+    const process = await webcontainer.spawn('jsh');
+    let output = '';
+
+    const outputFinished = process.output.pipeTo(new WritableStream<string>({
+      write(chunk) {
+        output += chunk;
+      },
+    })).catch((error) => {
+      logger.warn('Could not capture all WebContainer command output.', error);
+    });
+
+    let serverReadyPromise: Promise<{ port: number; url: string }> | undefined;
+
+    if (isDevServer) {
+      serverReadyPromise = new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          dispose();
+          process.kill();
+          reject(new Error('WebContainer started the dev command but no preview server became ready within 45 seconds.'));
+        }, 45_000);
+
+        const dispose = webcontainer.on('server-ready', (port, url) => {
+          clearTimeout(timeout);
+          dispose();
+          resolve({ port, url });
+        });
+      });
     }
 
-    const result = await executeDaytonaCommand(action.content);
+    const input = process.input.getWriter();
 
-    if (result.preview) {
-      remotePreviewStore.set(result.preview);
+    try {
+      await input.write(isDevServer ? command + '\\n' : command + '\\nexit\\n');
+    } finally {
+      input.releaseLock();
     }
 
-    const output = result.output || '';
-
-    if (typeof result.exitCode === 'number' && result.exitCode !== 0) {
-      throw new Error('Daytona command failed with exit code ' + result.exitCode + '.\n' + output);
+    if (serverReadyPromise) {
+      const server = await serverReadyPromise;
+      logger.info('WebContainer Preview is ready on port ' + server.port + ': ' + server.url);
+      return { output: (output ? output + '\\n' : '') + 'WebContainer Preview ready: ' + server.url };
     }
 
-    logger.info('Command completed in Daytona sandbox.');
+    const exitCode = await process.exit;
+    await outputFinished;
 
+    if (exitCode !== 0) {
+      throw new Error('WebContainer command failed with exit code ' + exitCode + '.\\n' + output);
+    }
+
+    logger.info('Command completed in browser WebContainer.');
     return { output };
   }
 
@@ -206,7 +277,7 @@ export class ActionRunner {
       unreachable('Expected file action');
     }
 
-    const requestedPath = action.filePath.replace(/\\/g, '/');
+    const requestedPath = action.filePath.replace(/\\\\/g, '/');
     const safePath = nodePath.posix.normalize(requestedPath);
 
     if (
@@ -219,32 +290,50 @@ export class ActionRunner {
       throw new Error('Refusing to write outside the project directory: ' + action.filePath);
     }
 
-    // Persist the file in the primary remote runtime first. A browser runtime
-    // startup failure must never prevent Daytona from receiving project files.
-    await writeDaytonaFile(safePath, action.content);
+    let browserSaved = false;
+    let remoteSaved = false;
+    let browserError: unknown;
 
-    // Keep the WebContainer filesystem as a best-effort editor mirror only.
-    // Do not block remote shell actions or Preview while the browser runtime boots.
-    const mirror = this.#webcontainer
-      .then(async (webcontainer) => {
-        const folder = nodePath.posix.dirname(safePath);
+    // Write locally first so a missing Daytona credential never discards the
+    // AI-generated file. The local editor and Preview remain usable offline.
+    try {
+      const webcontainer = await this.#webcontainer;
+      const folder = nodePath.posix.dirname(safePath);
 
-        if (folder !== '.') {
-          await webcontainer.fs.mkdir(folder, { recursive: true });
-          logger.debug('Created local folder', folder);
-        }
+      if (folder !== '.') {
+        await webcontainer.fs.mkdir(folder, { recursive: true });
+        logger.debug('Created browser project folder', folder);
+      }
 
-        await webcontainer.fs.writeFile(safePath, action.content);
-        this.#webcontainerReady = true;
-        logger.debug('File mirrored into the browser editor: ' + safePath);
-      })
-      .catch((error) => {
-        this.#webcontainerReady = false;
-        logger.warn('Browser file mirror unavailable; the file was saved in Daytona: ' + safePath, error);
-      });
+      await webcontainer.fs.writeFile(safePath, action.content);
+      this.#webcontainerReady = true;
+      browserSaved = true;
+      logger.debug('File saved to browser WebContainer: ' + safePath);
+    } catch (error) {
+      browserError = error;
+      this.#webcontainerReady = false;
+      logger.warn('Could not save the file to browser WebContainer: ' + safePath, error);
+    }
 
-    this.#pendingFileMirrors = Promise.all([this.#pendingFileMirrors, mirror]).then(() => undefined);
-    logger.debug('File saved to Daytona sandbox: ' + safePath);
+    if (!this.#daytonaUnavailableReason) {
+      try {
+        await writeDaytonaFile(safePath, action.content);
+        remoteSaved = true;
+        logger.debug('File mirrored to Daytona sandbox: ' + safePath);
+      } catch (error) {
+        this.#daytonaUnavailableReason = error instanceof Error ? error.message : String(error);
+        logger.warn('Daytona file sync is unavailable; keeping the file in WebContainer: ' + safePath, error);
+      }
+    }
+
+    if (!browserSaved && !remoteSaved) {
+      const browserDetail = browserError instanceof Error ? browserError.message : String(browserError || '');
+      throw new Error(
+        'Could not save ' + safePath + ' in either runtime. WebContainer: ' +
+        (browserDetail || 'unavailable') + '. Daytona: ' +
+        (this.#daytonaUnavailableReason || 'unavailable'),
+      );
+    }
   }
 
   #updateAction(id: string, newState: ActionStateUpdate) {

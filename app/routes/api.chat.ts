@@ -1,7 +1,7 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/cloudflare';
 import { getAIConfig } from '~/lib/.server/llm/api-key';
 import { MAX_RESPONSE_SEGMENTS } from '~/lib/.server/llm/constants';
-import { CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
+import { CHAT_SYSTEM_PROMPT, CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { generateText, type Messages } from '~/lib/.server/llm/stream-text';
 
 const BUILD_RETRY_PROMPT = `
@@ -177,15 +177,25 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     return new Response(JSON.stringify({ error: 'The chat request body must be valid JSON.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
+  let providerLabel = 'AI provider';
+  const buildRequest = isBuildRequest(messages);
+
   try {
-    // Keep the non-streaming provider call for Cloudflare compatibility.
-    // Chat.client.tsx uses streamProtocol: 'text' to consume this plain-text response.
+    const env = context.cloudflare?.env;
+    const config = getAIConfig(env);
+    providerLabel = config.provider === 'gemini' ? 'Gemini' : config.provider === 'groq' ? 'Groq' : 'OpenRouter';
+
+    // Keep the response as plain text for the existing useChat text protocol.
+    // Ordinary questions use a compact prompt/output budget; project builds keep
+    // the complete Bolt instructions and a larger output budget.
     let responseText = '';
     let nextMessages: Messages = [...messages];
 
     for (let segment = 0; segment < MAX_RESPONSE_SEGMENTS; segment += 1) {
-      const result = await generateText(nextMessages, context.cloudflare?.env, {
+      const result = await generateText(nextMessages, env, {
         maxRetries: 0,
+        maxTokens: buildRequest ? 8192 : 1536,
+        ...(buildRequest ? {} : { system: CHAT_SYSTEM_PROMPT }),
       });
 
       responseText += result.text;
@@ -207,7 +217,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
     // If this is a build/edit request, do not accept a status-only answer as success.
     // Retry once with an explicit executable-output instruction.
-    if (isBuildRequest(messages) && !hasExecutableArtifact(responseText)) {
+    if (buildRequest && !hasExecutableArtifact(responseText)) {
       console.warn('[BeamCore] Build response had no executable Bolt actions; retrying once.');
 
       const retryResult = await generateText(
@@ -216,8 +226,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           { role: 'assistant', content: responseText },
           { role: 'user', content: BUILD_RETRY_PROMPT },
         ],
-        context.cloudflare?.env,
-        { maxRetries: 2 },
+        env,
+        { maxRetries: 2, maxTokens: 8192 },
       );
 
       if (hasExecutableArtifact(retryResult.text)) {
@@ -243,10 +253,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const message = error instanceof Error ? error.message : 'Unknown chat route error';
     console.error('[BeamCore] Chat route failed:', error);
 
-    const isRateLimited = /rate limit|too many requests|resource_exhausted|quota exceeded|\\b429\\b/i.test(message);
-    const retryAfterMatch =
-      message.match(/(?:try again in|retry after|retry in)\\s+([\\d.]+)\\s*s/i) ||
-      message.match(/"retryDelay"\\s*:\\s*"([\\d.]+)s"/i);
+    const isRateLimited = /rate limit|too many requests|resource_exhausted|quota|\\b429\\b/i.test(message);
+    const retryAfterMatch = message.match(/(?:try again in|retry after|retry in)\\s+(?:(\\d+)h)?(?:(\\d+)m)?([\\d.]+)s/i);
     const responseHeaders =
       error && typeof error === 'object' && 'responseHeaders' in error
         ? (error as { responseHeaders?: Record<string, string> }).responseHeaders
@@ -255,20 +263,32 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     const retryAfterSeconds = retryAfterHeader
       ? Math.max(1, Math.ceil(Number(retryAfterHeader)))
       : retryAfterMatch
-        ? Math.max(1, Math.ceil(Number(retryAfterMatch[1])))
+        ? Math.max(
+            1,
+            Math.ceil(
+              Number(retryAfterMatch[1] || 0) * 3600 +
+              Number(retryAfterMatch[2] || 0) * 60 +
+              Number(retryAfterMatch[3] || 0),
+            ),
+          )
         : 30;
+    const retryAfterText = retryAfterSeconds >= 3600
+      ? Math.ceil(retryAfterSeconds / 3600) + ' hour(s)'
+      : retryAfterSeconds >= 60
+        ? Math.ceil(retryAfterSeconds / 60) + ' minute(s)'
+        : retryAfterSeconds + ' seconds';
     const isAuthError = /\\b401\\b|\\b403\\b|api key.*(invalid|not valid)|unauthorized/i.test(message);
     const isModelError = /\\b404\\b|model.*(not found|unsupported)|not supported for this endpoint/i.test(message);
     const isTemporarilyUnavailable = /service unavailable|\\b503\\b|overloaded|temporarily unavailable/i.test(message);
     const userMessage = isRateLimited
-      ? `Gemini has temporarily limited this API key or project. Wait ${retryAfterSeconds} seconds before retrying. Check Google AI Studio usage and rate limits if it continues.`
+      ? providerLabel + ' has reached its current usage quota. Try again in about ' + retryAfterText + ', or increase the provider quota in its billing/rate-limit settings.'
       : isAuthError
-        ? 'Gemini rejected the API key. Check GEMINI_API_KEY in Vercel Environment Variables.'
+        ? providerLabel + ' rejected its API key. Check the corresponding API key in Vercel Environment Variables.'
         : isModelError
-          ? 'The configured Gemini model is unavailable. Check GEMINI_MODEL in Vercel.'
+          ? 'The configured ' + providerLabel + ' model is unavailable. Check the model setting in Vercel.'
           : isTemporarilyUnavailable
-            ? 'Gemini is temporarily unavailable. No files were changed; please retry shortly.'
-            : 'Gemini could not complete this request. Check the server logs for details.';
+            ? providerLabel + ' is temporarily unavailable. No project files were changed; please retry shortly.'
+            : providerLabel + ' could not complete this request. Check the server logs for details.';
 
     const status = isRateLimited ? 429 : isTemporarilyUnavailable ? 503 : 502;
 

@@ -2,6 +2,14 @@ import { MODIFICATIONS_TAG_NAME, WORK_DIR } from '~/utils/constants';
 import { allowedHTMLElements } from '~/utils/markdown';
 import { stripIndents } from '~/utils/stripIndent';
 
+export const CHAT_SYSTEM_PROMPT = `
+You are BeamCore, a helpful and accurate AI assistant.
+Answer the user's actual question directly, in the language they used.
+For ordinary questions, give a clear, useful answer in normal Markdown.
+Do not claim to have created or changed files unless the user asked for a project task and you returned executable Bolt actions.
+When the user asks to build, create, edit, fix, or modify a project, follow the full Bolt artifact instructions in the project system prompt.
+`;
+
 export const getSystemPrompt = (cwd: string = WORK_DIR) => `
 You are Bolt, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.
 

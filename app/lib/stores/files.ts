@@ -8,6 +8,7 @@ import { WORK_DIR } from '~/utils/constants';
 import { computeFileModifications } from '~/utils/diff';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
+import { writeDaytonaFile } from '~/lib/daytona.client';
 
 const logger = createScopedLogger('FilesStore');
 
@@ -97,6 +98,7 @@ export class FilesStore {
       }
 
       await webcontainer.fs.writeFile(relativePath, content);
+      await writeDaytonaFile(relativePath.replace(/\\/g, '/'), content);
 
       if (!this.#modifiedFiles.has(filePath)) {
         this.#modifiedFiles.set(filePath, oldContent);

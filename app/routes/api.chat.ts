@@ -26,6 +26,31 @@ function isBuildRequest(messages: Messages) {
   return /\b(?:build|create|make|generate|develop|implement|scaffold|write|program|fix|update|edit|modify|refactor|debug|design)\b|(?:kirkir\w*|gina|samar da|gyara|sabunta|canza|yi min)/i.test(text);
 }
 
+function compactChatMessages(messages: Messages): Messages {
+  const selected = messages.slice(-10);
+  const maxTotalCharacters = 12_000;
+  let remaining = maxTotalCharacters;
+  const compacted: Messages = [];
+
+  for (let index = selected.length - 1; index >= 0; index -= 1) {
+    const message = selected[index];
+
+    if (remaining <= 0) {
+      break;
+    }
+
+    const content = message.content || '';
+    const keptContent = content.length > remaining
+      ? content.slice(-remaining)
+      : content;
+
+    compacted.unshift({ ...message, content: keptContent });
+    remaining -= keptContent.length;
+  }
+
+  return compacted;
+}
+
 function hasExecutableArtifact(text: string) {
   const artifact = /<boltArtifact\b([^>]*)>([\s\S]*?)<\/boltArtifact>/i.exec(text);
 
@@ -189,7 +214,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     // Ordinary questions use a compact prompt/output budget; project builds keep
     // the complete Bolt instructions and a larger output budget.
     let responseText = '';
-    let nextMessages: Messages = [...messages];
+    let nextMessages: Messages = buildRequest ? [...messages] : compactChatMessages(messages);
 
     for (let segment = 0; segment < MAX_RESPONSE_SEGMENTS; segment += 1) {
       const result = await generateText(nextMessages, env, {
@@ -200,7 +225,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
       responseText += result.text;
 
-      if (result.finishReason !== 'length' || segment === MAX_RESPONSE_SEGMENTS - 1) {
+      if (!buildRequest || result.finishReason !== 'length' || segment === MAX_RESPONSE_SEGMENTS - 1) {
         break;
       }
 
@@ -227,13 +252,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           { role: 'user', content: BUILD_RETRY_PROMPT },
         ],
         env,
-        { maxRetries: 2, maxTokens: 8192 },
+        { maxRetries: 0, maxTokens: 8192 },
       );
 
       if (hasExecutableArtifact(retryResult.text)) {
         responseText = retryResult.text;
       } else {
-        console.error('[BeamCore] Gemini retry still returned no executable Bolt actions.', {
+        console.error('[BeamCore] Provider retry still returned no executable Bolt actions.', {
           finishReason: retryResult.finishReason,
           responseLength: retryResult.text.length,
         });

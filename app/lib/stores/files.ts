@@ -98,7 +98,9 @@ export class FilesStore {
       }
 
       await webcontainer.fs.writeFile(relativePath, content);
-      await writeDaytonaFile(relativePath.replace(/\\/g, '/'), content);
+      await writeDaytonaFile(relativePath.replace(/\\/g, '/'), content).catch((syncError) => {
+        logger.error('File saved locally, but Daytona sync failed', syncError);
+      });
 
       if (!this.#modifiedFiles.has(filePath)) {
         this.#modifiedFiles.set(filePath, oldContent);

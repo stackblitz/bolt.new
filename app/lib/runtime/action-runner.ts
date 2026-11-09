@@ -40,6 +40,8 @@ type ActionsMap = MapStore<Record<string, ActionState>>;
 export class ActionRunner {
   #webcontainer: Promise<WebContainer>;
   #getFiles: () => FileMap;
+  #webcontainerReady = false;
+  #pendingFileMirrors: Promise<void> = Promise.resolve();
   #currentExecutionPromise: Promise<void> = Promise.resolve();
 
   actions: ActionsMap = map({});
@@ -47,6 +49,16 @@ export class ActionRunner {
   constructor(webcontainerPromise: Promise<WebContainer>, getFiles: () => FileMap = () => ({})) {
     this.#webcontainer = webcontainerPromise;
     this.#getFiles = getFiles;
+
+    void this.#webcontainer.then(
+      () => {
+        this.#webcontainerReady = true;
+      },
+      (error) => {
+        this.#webcontainerReady = false;
+        logger.warn('Browser WebContainer is unavailable; Daytona remains the primary runtime.', error);
+      },
+    );
   }
 
   addAction(data: ActionCallbackData) {
@@ -132,6 +144,13 @@ export class ActionRunner {
       throw new Error('Command was cancelled before execution.');
     }
 
+    const canSyncBrowserFiles = this.#webcontainerReady;
+
+    if (canSyncBrowserFiles) {
+      await this.#pendingFileMirrors;
+    }
+
+    const shouldSyncBrowserFiles = canSyncBrowserFiles && this.#webcontainerReady;
     const files: DaytonaSyncFile[] = [];
     let totalBytes = 0;
 
@@ -161,7 +180,7 @@ export class ActionRunner {
       files.push({ path: relativePath, content: entry.content });
     }
 
-    if (files.length > 0) {
+    if (shouldSyncBrowserFiles && files.length > 0) {
       await syncDaytonaFiles(files);
     }
 
@@ -200,18 +219,32 @@ export class ActionRunner {
       throw new Error('Refusing to write outside the project directory: ' + action.filePath);
     }
 
-    const webcontainer = await this.#webcontainer;
-    const folder = nodePath.posix.dirname(safePath);
-
-    if (folder !== '.') {
-      await webcontainer.fs.mkdir(folder, { recursive: true });
-      logger.debug('Created local folder', folder);
-    }
-
-    await webcontainer.fs.writeFile(safePath, action.content);
+    // Persist the file in the primary remote runtime first. A browser runtime
+    // startup failure must never prevent Daytona from receiving project files.
     await writeDaytonaFile(safePath, action.content);
 
-    logger.debug('File written locally and uploaded to Daytona: ' + safePath);
+    // Keep the WebContainer filesystem as a best-effort editor mirror only.
+    // Do not block remote shell actions or Preview while the browser runtime boots.
+    const mirror = this.#webcontainer
+      .then(async (webcontainer) => {
+        const folder = nodePath.posix.dirname(safePath);
+
+        if (folder !== '.') {
+          await webcontainer.fs.mkdir(folder, { recursive: true });
+          logger.debug('Created local folder', folder);
+        }
+
+        await webcontainer.fs.writeFile(safePath, action.content);
+        this.#webcontainerReady = true;
+        logger.debug('File mirrored into the browser editor: ' + safePath);
+      })
+      .catch((error) => {
+        this.#webcontainerReady = false;
+        logger.warn('Browser file mirror unavailable; the file was saved in Daytona: ' + safePath, error);
+      });
+
+    this.#pendingFileMirrors = Promise.all([this.#pendingFileMirrors, mirror]).then(() => undefined);
+    logger.debug('File saved to Daytona sandbox: ' + safePath);
   }
 
   #updateAction(id: string, newState: ActionStateUpdate) {

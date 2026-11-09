@@ -11,6 +11,7 @@ import { IconButton } from '~/components/ui/IconButton';
 import { PanelHeaderButton } from '~/components/ui/PanelHeaderButton';
 import { Slider, type SliderOptions } from '~/components/ui/Slider';
 import { workbenchStore, type WorkbenchViewType } from '~/lib/stores/workbench';
+import { remotePreviewStore } from '~/lib/daytona.client';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
@@ -56,6 +57,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
   renderLogger.trace('Workbench');
 
   const hasPreview = useStore(computed(workbenchStore.previews, (previews) => previews.length > 0));
+  const remotePreview = useStore(remotePreviewStore);
   const showWorkbench = useStore(workbenchStore.showWorkbench);
   const selectedFile = useStore(workbenchStore.selectedFile);
   const currentDocument = useStore(workbenchStore.currentDocument);
@@ -68,10 +70,11 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
   };
 
   useEffect(() => {
-    if (hasPreview) {
+    if (hasPreview || remotePreview) {
       setSelectedView('preview');
+      workbenchStore.showWorkbench.set(true);
     }
-  }, [hasPreview]);
+  }, [hasPreview, remotePreview]);
 
   useEffect(() => {
     workbenchStore.setDocuments(files);

@@ -3,6 +3,9 @@ import { map, type MapStore } from 'nanostores';
 import * as nodePath from 'node:path';
 import type { BoltAction } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
+import { WORK_DIR } from '~/utils/constants';
+import { executeDaytonaCommand, remotePreviewStore, syncDaytonaFiles, writeDaytonaFile, type DaytonaSyncFile } from '~/lib/daytona.client';
+import type { FileMap } from '~/lib/stores/files';
 import { unreachable } from '~/utils/unreachable';
 import type { ActionCallbackData } from './message-parser';
 
@@ -15,6 +18,7 @@ export type BaseActionState = BoltAction & {
   abort: () => void;
   executed: boolean;
   abortSignal: AbortSignal;
+  output?: string;
 };
 
 export type FailedActionState = BoltAction &
@@ -25,7 +29,7 @@ export type FailedActionState = BoltAction &
 
 export type ActionState = BaseActionState | FailedActionState;
 
-type BaseActionUpdate = Partial<Pick<BaseActionState, 'status' | 'abort' | 'executed'>>;
+type BaseActionUpdate = Partial<Pick<BaseActionState, 'status' | 'abort' | 'executed' | 'output'>>;
 
 export type ActionStateUpdate =
   | BaseActionUpdate
@@ -35,22 +39,22 @@ type ActionsMap = MapStore<Record<string, ActionState>>;
 
 export class ActionRunner {
   #webcontainer: Promise<WebContainer>;
+  #getFiles: () => FileMap;
   #currentExecutionPromise: Promise<void> = Promise.resolve();
 
   actions: ActionsMap = map({});
 
-  constructor(webcontainerPromise: Promise<WebContainer>) {
+  constructor(webcontainerPromise: Promise<WebContainer>, getFiles: () => FileMap = () => ({})) {
     this.#webcontainer = webcontainerPromise;
+    this.#getFiles = getFiles;
   }
 
   addAction(data: ActionCallbackData) {
     const { actionId } = data;
-
     const actions = this.actions.get();
     const action = actions[actionId];
 
     if (action) {
-      // action already added
       return;
     }
 
@@ -77,7 +81,7 @@ export class ActionRunner {
     const action = this.actions.get()[actionId];
 
     if (!action) {
-      unreachable(`Action ${actionId} not found`);
+      unreachable('Action ' + actionId + ' not found');
     }
 
     if (action.executed) {
@@ -87,11 +91,9 @@ export class ActionRunner {
     this.#updateAction(actionId, { ...action, ...data.action, executed: true });
 
     this.#currentExecutionPromise = this.#currentExecutionPromise
-      .then(() => {
-        return this.#executeAction(actionId);
-      })
+      .then(() => this.#executeAction(actionId))
       .catch((error) => {
-        console.error('Action failed:', error);
+        console.error('[BeamCore] Action execution failed:', error);
       });
   }
 
@@ -103,7 +105,8 @@ export class ActionRunner {
     try {
       switch (action.type) {
         case 'shell': {
-          await this.#runShellAction(action);
+          const result = await this.#runShellAction(action);
+          this.#updateAction(actionId, { output: result.output });
           break;
         }
         case 'file': {
@@ -116,8 +119,6 @@ export class ActionRunner {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.#updateAction(actionId, { status: 'failed', error: message });
-
-      // Re-throw so the execution queue can log the original failure.
       throw error;
     }
   }
@@ -127,32 +128,58 @@ export class ActionRunner {
       unreachable('Expected shell action');
     }
 
-    const webcontainer = await this.#webcontainer;
-
-    const process = await webcontainer.spawn('jsh', ['-c', action.content], {
-      env: { npm_config_yes: true },
-    });
-
-    action.abortSignal.addEventListener('abort', () => {
-      process.kill();
-    });
-
-    const outputTask = process.output.pipeTo(
-      new WritableStream({
-        write(data) {
-          console.log(data);
-        },
-      }),
-    );
-
-    const exitCode = await process.exit;
-    await outputTask;
-
-    logger.debug(`Process terminated with code ${exitCode}`);
-
-    if (exitCode !== 0) {
-      throw new Error(`Shell command failed with exit code ${exitCode}: ${action.content}`);
+    if (action.abortSignal.aborted) {
+      throw new Error('Command was cancelled before execution.');
     }
+
+    const files: DaytonaSyncFile[] = [];
+    let totalBytes = 0;
+
+    for (const [absolutePath, entry] of Object.entries(this.#getFiles())) {
+      if (entry?.type !== 'file' || entry.isBinary) {
+        continue;
+      }
+
+      const relativePath = nodePath.posix.relative(WORK_DIR, absolutePath.replace(/\\/g, '/'));
+
+      if (
+        !relativePath ||
+        relativePath === '.' ||
+        relativePath === '..' ||
+        relativePath.startsWith('../') ||
+        /(^|\/)(?:node_modules|\.git|\.cache|dist|build)(\/|$)/.test(relativePath)
+      ) {
+        continue;
+      }
+
+      totalBytes += new TextEncoder().encode(entry.content).byteLength;
+
+      if (files.length >= 300 || totalBytes > 2_000_000) {
+        break;
+      }
+
+      files.push({ path: relativePath, content: entry.content });
+    }
+
+    if (files.length > 0) {
+      await syncDaytonaFiles(files);
+    }
+
+    const result = await executeDaytonaCommand(action.content);
+
+    if (result.preview) {
+      remotePreviewStore.set(result.preview);
+    }
+
+    const output = result.output || '';
+
+    if (typeof result.exitCode === 'number' && result.exitCode !== 0) {
+      throw new Error('Daytona command failed with exit code ' + result.exitCode + '.\n' + output);
+    }
+
+    logger.info('Command completed in Daytona sandbox.');
+
+    return { output };
   }
 
   async #runFileAction(action: ActionState) {
@@ -160,7 +187,6 @@ export class ActionRunner {
       unreachable('Expected file action');
     }
 
-    const webcontainer = await this.#webcontainer;
     const requestedPath = action.filePath.replace(/\\/g, '/');
     const safePath = nodePath.posix.normalize(requestedPath);
 
@@ -171,23 +197,25 @@ export class ActionRunner {
       safePath === '..' ||
       safePath.startsWith('../')
     ) {
-      throw new Error(`Refusing to write outside the project directory: ${action.filePath}`);
+      throw new Error('Refusing to write outside the project directory: ' + action.filePath);
     }
 
+    const webcontainer = await this.#webcontainer;
     const folder = nodePath.posix.dirname(safePath);
 
     if (folder !== '.') {
       await webcontainer.fs.mkdir(folder, { recursive: true });
-      logger.debug('Created folder', folder);
+      logger.debug('Created local folder', folder);
     }
 
     await webcontainer.fs.writeFile(safePath, action.content);
-    logger.debug(`File written ${safePath}`);
+    await writeDaytonaFile(safePath, action.content);
+
+    logger.debug('File written locally and uploaded to Daytona: ' + safePath);
   }
 
   #updateAction(id: string, newState: ActionStateUpdate) {
     const actions = this.actions.get();
-
     this.actions.setKey(id, { ...actions[id], ...newState });
   }
 }

@@ -79,7 +79,8 @@
     "remix-island": "^0.2.0",
     "remix-utils": "^7.6.0",
     "shiki": "^1.9.1",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.0.0",
+    "@daytona/sdk": "0.231.0"
   },
   "devDependencies": {
     "@blitz/eslint-plugin": "0.1.0",

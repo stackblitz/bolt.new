@@ -18,19 +18,16 @@ export interface ArtifactState {
 }
 
 export type ArtifactUpdateState = Pick<ArtifactState, 'title' | 'closed'>;
-
 type Artifacts = MapStore<Record<string, ArtifactState>>;
-
 export type WorkbenchViewType = 'code' | 'preview';
 
 export class WorkbenchStore {
   #previewsStore = new PreviewsStore(webcontainer);
   #filesStore = new FilesStore(webcontainer);
   #editorStore = new EditorStore(this.#filesStore);
-  #terminalStore = new TerminalStore(webcontainer);
+  #terminalStore = new TerminalStore();
 
   artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
-
   showWorkbench: WritableAtom<boolean> = import.meta.hot?.data.showWorkbench ?? atom(false);
   currentView: WritableAtom<WorkbenchViewType> = import.meta.hot?.data.currentView ?? atom('code');
   unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
@@ -90,7 +87,6 @@ export class WorkbenchStore {
     this.#editorStore.setDocuments(files);
 
     if (this.#filesStore.filesCount > 0 && this.currentDocument.get() === undefined) {
-      // we find the first file and select it
       for (const [filePath, dirent] of Object.entries(files)) {
         if (dirent?.type === 'file') {
           this.setSelectedFile(filePath);
@@ -113,7 +109,6 @@ export class WorkbenchStore {
 
     const originalContent = this.#filesStore.getFile(filePath)?.content;
     const unsavedChanges = originalContent !== undefined && originalContent !== newContent;
-
     this.#editorStore.updateFile(filePath, newContent);
 
     const currentDocument = this.currentDocument.get();
@@ -144,9 +139,7 @@ export class WorkbenchStore {
       return;
     }
 
-    const { filePath } = editorDocument;
-
-    this.#editorStore.updateScrollPosition(filePath, position);
+    this.#editorStore.updateScrollPosition(editorDocument.filePath, position);
   }
 
   setSelectedFile(filePath: string | undefined) {
@@ -162,38 +155,31 @@ export class WorkbenchStore {
     }
 
     await this.#filesStore.saveFile(filePath, document.value);
-
     const newUnsavedFiles = new Set(this.unsavedFiles.get());
     newUnsavedFiles.delete(filePath);
-
     this.unsavedFiles.set(newUnsavedFiles);
   }
 
   async saveCurrentDocument() {
     const currentDocument = this.currentDocument.get();
 
-    if (currentDocument === undefined) {
-      return;
+    if (currentDocument) {
+      await this.saveFile(currentDocument.filePath);
     }
-
-    await this.saveFile(currentDocument.filePath);
   }
 
   resetCurrentDocument() {
     const currentDocument = this.currentDocument.get();
 
-    if (currentDocument === undefined) {
+    if (!currentDocument) {
       return;
     }
 
-    const { filePath } = currentDocument;
-    const file = this.#filesStore.getFile(filePath);
+    const file = this.#filesStore.getFile(currentDocument.filePath);
 
-    if (!file) {
-      return;
+    if (file) {
+      this.setCurrentDocumentContent(file.content);
     }
-
-    this.setCurrentDocumentContent(file.content);
   }
 
   async saveAllFiles() {
@@ -211,13 +197,11 @@ export class WorkbenchStore {
   }
 
   abortAllActions() {
-    // TODO: what do we wanna do and how do we wanna recover from this?
+    // Daytona commands are bounded by the server-side command timeout.
   }
 
   addArtifact({ messageId, title, id }: ArtifactCallbackData) {
-    const artifact = this.#getArtifact(messageId);
-
-    if (artifact) {
+    if (this.#getArtifact(messageId)) {
       return;
     }
 
@@ -229,24 +213,20 @@ export class WorkbenchStore {
       id,
       title,
       closed: false,
-      runner: new ActionRunner(webcontainer),
+      runner: new ActionRunner(webcontainer, () => this.#filesStore.files.get()),
     });
   }
 
   updateArtifact({ messageId }: ArtifactCallbackData, state: Partial<ArtifactUpdateState>) {
     const artifact = this.#getArtifact(messageId);
 
-    if (!artifact) {
-      return;
+    if (artifact) {
+      this.artifacts.setKey(messageId, { ...artifact, ...state });
     }
-
-    this.artifacts.setKey(messageId, { ...artifact, ...state });
   }
 
   async addAction(data: ActionCallbackData) {
-    const { messageId } = data;
-
-    const artifact = this.#getArtifact(messageId);
+    const artifact = this.#getArtifact(data.messageId);
 
     if (!artifact) {
       unreachable('Artifact not found');
@@ -256,9 +236,7 @@ export class WorkbenchStore {
   }
 
   async runAction(data: ActionCallbackData) {
-    const { messageId } = data;
-
-    const artifact = this.#getArtifact(messageId);
+    const artifact = this.#getArtifact(data.messageId);
 
     if (!artifact) {
       unreachable('Artifact not found');
@@ -268,8 +246,7 @@ export class WorkbenchStore {
   }
 
   #getArtifact(id: string) {
-    const artifacts = this.artifacts.get();
-    return artifacts[id];
+    return this.artifacts.get()[id];
   }
 }
 

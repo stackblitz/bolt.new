@@ -181,6 +181,9 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   code={content}
                 />
               )}
+              {type === 'shell' && action.output && (
+                <pre className="mt-2 max-h-48 overflow-auto rounded-md bg-bolt-elements-background-depth-1 p-3 text-xs whitespace-pre-wrap">{action.output}</pre>
+              )}
             </motion.li>
           );
         })}

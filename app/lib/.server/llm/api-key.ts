@@ -23,12 +23,12 @@ function readEnvironmentVariable(name: keyof AIEnvironment, cloudflareEnv?: AIEn
   return nodeEnv[name] || cloudflareEnv?.[name];
 }
 
-export function getAIConfig(cloudflareEnv?: AIEnvironment): AIConfig {
+export function getAIConfig(cloudflareEnv?: AIEnvironment, providerOverride?: AIProvider): AIConfig {
   const configuredProvider = readEnvironmentVariable('AI_PROVIDER', cloudflareEnv)?.toLowerCase();
 
-  const provider: AIProvider = configuredProvider
+  const provider: AIProvider = providerOverride || (configuredProvider
     ? configuredProvider as AIProvider
-    : 'gemini';
+    : 'gemini');
 
   if (!['gemini', 'groq', 'openrouter'].includes(provider)) {
     throw new Error('AI_PROVIDER must be one of "gemini", "groq", or "openrouter".');

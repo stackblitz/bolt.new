@@ -1,6 +1,6 @@
 import { generateText as _generateText, streamText as _streamText, convertToCoreMessages } from 'ai';
 import { getAIModel } from '~/lib/.server/llm/model';
-import type { AIEnvironment } from './api-key';
+import type { AIEnvironment, AIProvider } from './api-key';
 import { MAX_TOKENS } from './constants';
 import { getSystemPrompt } from './prompts';
 
@@ -42,9 +42,10 @@ export function generateText(
   messages: Messages,
   env: AIEnvironment | undefined,
   options?: GenerationOptions,
+  providerOverride?: AIProvider,
 ) {
   return _generateText({
-    model: getAIModel(env),
+    model: getAIModel(env, providerOverride),
     system: getSystemPrompt(),
     maxTokens: MAX_TOKENS,
     messages: convertToCoreMessages(messages),

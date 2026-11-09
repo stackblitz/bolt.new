@@ -1,5 +1,5 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/cloudflare';
-import { getAIConfig } from '~/lib/.server/llm/api-key';
+import { getAIConfig, type AIProvider } from '~/lib/.server/llm/api-key';
 import { MAX_RESPONSE_SEGMENTS } from '~/lib/.server/llm/constants';
 import { CHAT_SYSTEM_PROMPT, CONTINUE_PROMPT } from '~/lib/.server/llm/prompts';
 import { generateText, type Messages } from '~/lib/.server/llm/stream-text';
@@ -27,8 +27,8 @@ function isBuildRequest(messages: Messages) {
 }
 
 function compactChatMessages(messages: Messages): Messages {
-  const selected = messages.slice(-10);
-  const maxTotalCharacters = 12_000;
+  const selected = messages.slice(-8);
+  const maxTotalCharacters = 6_000;
   let remaining = maxTotalCharacters;
   const compacted: Messages = [];
 
@@ -204,6 +204,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
   let providerLabel = 'AI provider';
   const buildRequest = isBuildRequest(messages);
+  const requestStartedAt = Date.now();
 
   try {
     const env = context.cloudflare?.env;
@@ -211,29 +212,95 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     providerLabel = config.provider === 'gemini' ? 'Gemini' : config.provider === 'groq' ? 'Groq' : 'OpenRouter';
 
     // Keep the response as plain text for the existing useChat text protocol.
-    // Ordinary questions use a compact prompt/output budget; project builds keep
-    // the complete Bolt instructions and a larger output budget.
+    // When the selected provider hits a quota/unavailable response, ordinary
+    // questions automatically fail over to the other configured provider.
+    const primaryProvider = config.provider;
+    const hasGroq = Boolean(process.env.GROQ_API_KEY || env?.GROQ_API_KEY);
+    const hasGemini = Boolean(process.env.GEMINI_API_KEY || env?.GEMINI_API_KEY);
+    const fallbackProvider: AIProvider | undefined = !buildRequest
+      ? primaryProvider === 'gemini' && hasGroq
+        ? 'groq'
+        : primaryProvider === 'groq' && hasGemini
+          ? 'gemini'
+          : undefined
+      : undefined;
+    const providers: AIProvider[] = fallbackProvider
+      ? [primaryProvider, fallbackProvider]
+      : [primaryProvider];
+
+    const requestMessages = buildRequest ? [...messages] : compactChatMessages(messages);
+    console.info('[BeamCore] Chat request received', {
+      provider: primaryProvider,
+      buildRequest,
+      messageCount: requestMessages.length,
+      inputCharacters: requestMessages.reduce((sum, item) => sum + (item.content || '').length, 0),
+    });
+
     let responseText = '';
-    let nextMessages: Messages = buildRequest ? [...messages] : compactChatMessages(messages);
+    let activeProvider: AIProvider | undefined;
 
-    for (let segment = 0; segment < MAX_RESPONSE_SEGMENTS; segment += 1) {
-      const result = await generateText(nextMessages, env, {
-        maxRetries: 0,
-        maxTokens: buildRequest ? 8192 : 1536,
-        ...(buildRequest ? {} : { system: CHAT_SYSTEM_PROMPT }),
-      });
+    for (const provider of providers) {
+      try {
+        let nextMessages: Messages = [...requestMessages];
+        let providerText = '';
 
-      responseText += result.text;
+        for (let segment = 0; segment < MAX_RESPONSE_SEGMENTS; segment += 1) {
+          const result = await generateText(nextMessages, env, {
+            maxRetries: 0,
+            maxTokens: buildRequest ? 8192 : 1024,
+            ...(buildRequest ? {} : { system: CHAT_SYSTEM_PROMPT }),
+            abortSignal: AbortSignal.timeout(buildRequest ? 90_000 : 35_000),
+          }, provider);
 
-      if (!buildRequest || result.finishReason !== 'length' || segment === MAX_RESPONSE_SEGMENTS - 1) {
+          providerText += result.text;
+
+          // Normal chat should return one concise completion. Only build jobs
+          // need continuation chunks to finish complete executable artifacts.
+          if (!buildRequest || result.finishReason !== 'length' || segment === MAX_RESPONSE_SEGMENTS - 1) {
+            break;
+          }
+
+          nextMessages = [
+            ...nextMessages,
+            { role: 'assistant', content: result.text },
+            { role: 'user', content: CONTINUE_PROMPT },
+          ];
+        }
+
+        if (!providerText.trim()) {
+          throw new Error(provider + ' returned an empty response.');
+        }
+
+        responseText = providerText;
+        activeProvider = provider;
         break;
-      }
+      } catch (providerError) {
+        const detail = providerError instanceof Error ? providerError.message : String(providerError);
+        const statusCode = providerError && typeof providerError === 'object' && 'statusCode' in providerError
+          ? Number((providerError as { statusCode?: number }).statusCode)
+          : 0;
+        const canFailOver = !buildRequest && providers.length > 1 &&
+          (statusCode === 429 || statusCode === 503 || /rate limit|too many requests|resource_exhausted|quota|overloaded|temporarily unavailable/i.test(detail));
 
-      nextMessages = [
-        ...nextMessages,
-        { role: 'assistant', content: result.text },
-        { role: 'user', content: CONTINUE_PROMPT },
-      ];
+        console.warn('[BeamCore] AI provider request failed', {
+          provider,
+          statusCode,
+          canFailOver,
+          message: detail.slice(0, 300),
+        });
+
+        if (!canFailOver || provider === providers[providers.length - 1]) {
+          throw providerError;
+        }
+      }
+    }
+
+    if (activeProvider) {
+      console.info('[BeamCore] Chat response completed', {
+        provider: activeProvider,
+        elapsedMs: Date.now() - requestStartedAt,
+        responseCharacters: responseText.length,
+      });
     }
 
     if (!responseText.trim()) {

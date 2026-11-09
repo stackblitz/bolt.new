@@ -167,7 +167,7 @@ export class ActionRunner {
         relativePath === '.' ||
         relativePath === '..' ||
         relativePath.startsWith('../') ||
-        /(^|\\/)(?:node_modules|\\.git|\\.cache|dist|build)(\\/|$)/.test(relativePath)
+        /(^|\/)(?:node_modules|\.git|\.cache|dist|build)(\/|$)/.test(relativePath)
       ) {
         continue;
       }
